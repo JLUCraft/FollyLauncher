@@ -1,0 +1,17 @@
+[launcher]
+name = "JLUCraft FollyLauncher"
+
+[[federated_servers]]
+name = "JLU Main"
+url = "https://host1.jlucraft.com"
+default = true
+
+[[yggdrasil_servers]]
+name = "JLUCraft Skin Station"
+url = "https://skin.jlucraft.com"
+auth_server_url = "https://skin.jlucraft.com/api/yggdrasil"
+client_id = "jlucraft-launcher"
+scope = "Yggdrasil.PlayerProfiles"
+default = true
+
+bootstrap_peers = []

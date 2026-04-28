@@ -1,0 +1,82 @@
+[package]
+name = "folly-launcher"
+version = "1.0.0"
+description = "Desktop launcher for the decentralized MC platform"
+authors = ["JLUCraft"]
+edition = "2021"
+
+[lib]
+name = "tauri_app_lib"
+crate-type = ["cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-process = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-store = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-os = "2"
+tauri-plugin-http = "2"
+tauri-plugin-clipboard-manager = "2"
+tokio = { version = "1.52.1", features = ["macros", "rt-multi-thread", "fs", "net", "process", "sync", "time"] }
+reqwest = { version = "0.13.3", features = ["json", "rustls", "stream", "multipart", "cookies"] }
+serde_with = { version = "3.18.0", features = ["json"] }
+thiserror = { version = "2.0.18", features = ["std"] }
+anyhow = { version = "1.0.102", features = ["std"] }
+tracing = { version = "0.1.44", features = ["std"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
+ed25519-dalek = { version = "2.2.0", features = ["serde", "rand_core", "pkcs8"] }
+getrandom = "0.3"
+sha2 = { version = "0.11.0", features = ["oid"] }
+base64 = { version = "0.22.1", features = ["std"] }
+hex = { version = "0.4.3", features = ["std"] }
+uuid = { version = "1.23.1", features = ["v4", "serde"] }
+url = { version = "2.5.8", features = ["serde"] }
+directories = "6.0.0"
+notify = "8.2.0"
+zip = { version = "8.6.0", features = ["deflate"] }
+tar = "0.4.45"
+async-compression = { version = "0.4.42", features = ["tokio", "gzip", "zstd"] }
+tokio-util = { version = "0.7.18", features = ["codec", "compat", "io", "net"] }
+futures-util = { version = "0.3.32", features = ["io", "sink"] }
+which = { version = "8.0.2", features = ["real-sys"] }
+sysinfo = { version = "0.38.4", features = ["system"] }
+portpicker = "0.1.1"
+mc-launcher-core = "0.0.3"
+tauri-plugin-log = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-positioner = "2"
+toml = "0.8"
+
+libp2p = { version = "0.56.0", features = ["tokio", "quic", "noise", "yamux", "identify", "kad", "gossipsub", "dcutr", "relay", "macros"] }
+libp2p-stream = "0.4.0-alpha"
+futures = { version = "0.3.32", features = ["std"] }
+bytes = { version = "1.11.1", features = ["serde"] }
+dashmap = { version = "6.1.0", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+keyring = { version = "3" }
+fastnbt = { version = "2", optional = true }
+sha1_smol = "1"
+sha1 = "0.10"
+regex = "1"
+murmur2 = "0.1"
+semver = "1"
+csv = "1"
+blake3 = "1"
+
+[dev-dependencies]
+assert_cmd = "2.2.1"
+predicates = "3.1.4"
+tempfile = "3.27.0"
+tokio-test = "0.4.5"

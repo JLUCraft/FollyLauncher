@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@plugin "daisyui/index.js" {
+  themes: corporate --default;
+}
+
+:root {
+  color: #111827;
+  background: #f6f3ec;
+  font-family: "Aptos", "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(19, 78, 74, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(19, 78, 74, 0.05) 1px, transparent 1px),
+    #f6f3ec;
+  background-size: 28px 28px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.meter {
+  background: linear-gradient(90deg, #0f766e var(--value), #d8d1c3 var(--value));
+}
+
+.entrance {
+  animation: rise 520ms ease-out both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
