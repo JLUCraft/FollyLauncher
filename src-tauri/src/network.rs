@@ -89,7 +89,7 @@ pub enum NetworkCommand {
     },
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkDiagnostics {
     pub connected_peers: u32,
     pub dht_peers: u32,
@@ -99,7 +99,7 @@ pub struct NetworkDiagnostics {
     pub latencies: Vec<PeerLatency>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PeerLatency {
     pub peer_id: String,
     pub latency_ms: u32,
@@ -769,4 +769,181 @@ fn parse_instance_record(value: &[u8]) -> Option<ResolvedInstance> {
         resolved_at: chrono::Utc::now().to_rfc3339(),
     };
     Some(resolved)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // ── Network diagnostics defaults ────────────────────────────────────
+
+    #[test]
+    fn test_network_diagnostics_defaults() {
+        let diag = NetworkDiagnostics {
+            connected_peers: 0,
+            dht_peers: 0,
+            relay_connected: false,
+            dcutr_holes_punched: 0,
+            dcutr_failures: 0,
+            latencies: Vec::new(),
+        };
+
+        // Round-trip through JSON
+        let json = serde_json::to_string(&diag).unwrap();
+        let parsed: NetworkDiagnostics = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.connected_peers, 0);
+        assert_eq!(parsed.dht_peers, 0);
+        assert!(!parsed.relay_connected);
+        assert_eq!(parsed.dcutr_holes_punched, 0);
+        assert_eq!(parsed.dcutr_failures, 0);
+        assert!(parsed.latencies.is_empty());
+    }
+
+    #[test]
+    fn test_network_diagnostics_with_data() {
+        let diag = NetworkDiagnostics {
+            connected_peers: 5,
+            dht_peers: 12,
+            relay_connected: true,
+            dcutr_holes_punched: 3,
+            dcutr_failures: 1,
+            latencies: vec![
+                PeerLatency {
+                    peer_id: "12D3KooWPeer1".to_string(),
+                    latency_ms: 42,
+                    stale: false,
+                },
+                PeerLatency {
+                    peer_id: "12D3KooWPeer2".to_string(),
+                    latency_ms: 120,
+                    stale: true,
+                },
+            ],
+        };
+
+        let json = serde_json::to_string(&diag).unwrap();
+        let parsed: NetworkDiagnostics = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.connected_peers, 5);
+        assert_eq!(parsed.dht_peers, 12);
+        assert!(parsed.relay_connected);
+        assert_eq!(parsed.latencies.len(), 2);
+        assert_eq!(parsed.latencies[0].latency_ms, 42);
+        assert!(!parsed.latencies[0].stale);
+        assert!(parsed.latencies[1].stale);
+    }
+
+    // ── ResolvedInstance parse ──────────────────────────────────────────
+
+    #[test]
+    fn test_resolved_instance_parse() {
+        let instance = ResolvedInstance {
+            instance_id: "550e8400-e29b-41d4-a716-446655440000".to_string(),
+            peer_id: "12D3KooWHyYqNJxXqRq9HuCvLp5sMQmR8kWjPFQGrWfRAdZ9MdiJ".to_string(),
+            proxy_address: Some("192.168.1.100:25566".to_string()),
+            public_ips: vec!["203.0.113.5".to_string(), "198.51.100.10".to_string()],
+            multiaddrs: vec![
+                "/ip4/192.168.1.100/tcp/25565".to_string(),
+                "/ip4/192.168.1.100/udp/25565/quic-v1".to_string(),
+            ],
+            resolved_at: "2025-01-01T00:00:00Z".to_string(),
+        };
+
+        let json = serde_json::to_string(&instance).unwrap();
+        let parsed: ResolvedInstance = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.instance_id, "550e8400-e29b-41d4-a716-446655440000");
+        assert_eq!(parsed.peer_id, "12D3KooWHyYqNJxXqRq9HuCvLp5sMQmR8kWjPFQGrWfRAdZ9MdiJ");
+        assert_eq!(parsed.public_ips.len(), 2);
+        assert_eq!(parsed.multiaddrs.len(), 2);
+    }
+
+    // ── ClusterMessage parse ────────────────────────────────────────────
+
+    #[test]
+    fn test_cluster_message_parse() {
+        let msg = ClusterMessage {
+            topic: "mc.events.cluster".to_string(),
+            peer_id: "12D3KooWTestPeer".to_string(),
+            payload: json!({
+                "event_type": "instance-created",
+                "payload": {
+                    "instance_id": "abc-123",
+                    "name": "test-instance"
+                }
+            }),
+            received_at: "2025-01-15T12:00:00Z".to_string(),
+        };
+
+        let json = serde_json::to_string(&msg).unwrap();
+        let parsed: ClusterMessage = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.topic, "mc.events.cluster");
+        assert_eq!(parsed.peer_id, "12D3KooWTestPeer");
+        assert_eq!(
+            parsed.payload["event_type"].as_str().unwrap(),
+            "instance-created"
+        );
+        assert_eq!(parsed.received_at, "2025-01-15T12:00:00Z");
+    }
+
+    // ── InstanceInfo deserialize ────────────────────────────────────────
+
+    #[test]
+    fn test_instance_info_deserialize() {
+        let json = json!({
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "My Lobby Server",
+            "kind": "lobby",
+            "status": "running",
+            "host": "server-host-01",
+            "mode": "creative",
+            "club": "builders",
+            "players": 12,
+            "max_players": 50,
+            "version": "1.21.4",
+            "peer_id": "12D3KooWTestPeerId",
+            "discovered_at": "2025-01-01T00:00:00Z",
+            "updated_at": "2025-01-02T12:00:00Z"
+        });
+        let info: InstanceInfo = serde_json::from_value(json).unwrap();
+        assert_eq!(info.id, "550e8400-e29b-41d4-a716-446655440000");
+        assert_eq!(info.name, "My Lobby Server");
+        assert_eq!(info.kind, "lobby");
+        assert_eq!(info.status, "running");
+        assert_eq!(info.host, "server-host-01");
+        assert_eq!(info.mode, "creative");
+        assert_eq!(info.club, "builders");
+        assert_eq!(info.players, 12);
+        assert_eq!(info.max_players, 50);
+        assert_eq!(info.version, "1.21.4");
+        assert_eq!(info.peer_id, "12D3KooWTestPeerId");
+    }
+
+    // ── LauncherBehaviour struct smoke test ─────────────────────────────
+
+    #[test]
+    fn test_launcher_behaviour_creates() {
+        // LauncherBehaviour is generated by the NetworkBehaviour derive macro.
+        // We verify the type exists and its associated types are correct at
+        // compile time.  We cannot construct the behaviour without a full
+        // libp2p swarm, so we exercise the From implementations and type
+        // signatures instead.
+
+        // Verify event variant constructors compile:
+        let _: fn(identify::Event) -> LauncherEvent = |e| LauncherEvent::Identify(Box::new(e));
+        let _: fn(kad::Event) -> LauncherEvent = |e| LauncherEvent::Kademlia(Box::new(e));
+        let _: fn() -> LauncherEvent = || LauncherEvent::RelayClient(());
+        let _: fn() -> LauncherEvent = || LauncherEvent::Dcutr(());
+        let _: fn(gossipsub::Event) -> LauncherEvent = |e| LauncherEvent::Gossipsub(Box::new(e));
+        let _: fn() -> LauncherEvent = || LauncherEvent::Stream(());
+
+        // Verify the LauncherBehaviour type is usable:
+        let _ = |b: &LauncherBehaviour| {
+            let _: &identify::Behaviour = &b.identify;
+            let _: &kad::Behaviour<MemoryStore> = &b.kademlia;
+            let _: &relay::client::Behaviour = &b.relay_client;
+            let _: &dcutr::Behaviour = &b.dcutr;
+            let _: &gossipsub::Behaviour = &b.gossipsub;
+            let _: &libp2p_stream::Behaviour = &b.stream;
+        };
+    }
 }

@@ -391,18 +391,162 @@ struct ProfileProperty {
     value: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct TexturesPayload {
     textures: TextureMap,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct TextureMap {
     skin: Option<TextureInfo>,
     cape: Option<TextureInfo>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct TextureInfo {
     url: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // ── OAuth token response ────────────────────────────────────────────
+
+    #[test]
+    fn test_decode_oauth_token_response() {
+        let json = json!({
+            "access_token": "eyJhbGciOiJSUzI1NiJ9.atoken",
+            "refresh_token": "eyJhbGciOiJSUzI1NiJ9.rtoken"
+        });
+        let tokens: OAuthTokens = serde_json::from_value(json).unwrap();
+        assert_eq!(tokens.access_token, "eyJhbGciOiJSUzI1NiJ9.atoken");
+        assert_eq!(tokens.refresh_token, "eyJhbGciOiJSUzI1NiJ9.rtoken");
+    }
+
+    // ── OAuth error response ────────────────────────────────────────────
+
+    #[test]
+    fn test_decode_oauth_error_response() {
+        let json = json!({ "error": "authorization_pending" });
+        let err: OAuthErrorResponse = serde_json::from_value(json).unwrap();
+        assert_eq!(err.error, "authorization_pending");
+
+        let json2 = json!({ "error": "slow_down" });
+        let err2: OAuthErrorResponse = serde_json::from_value(json2).unwrap();
+        assert_eq!(err2.error, "slow_down");
+
+        let json3 = json!({ "error": "access_denied" });
+        let err3: OAuthErrorResponse = serde_json::from_value(json3).unwrap();
+        assert_eq!(err3.error, "access_denied");
+    }
+
+    // ── Skin textures base64 decode ─────────────────────────────────────
+
+    #[test]
+    fn test_skin_textures_decode_from_base64() {
+        let payload = TexturesPayload {
+            textures: TextureMap {
+                skin: Some(TextureInfo {
+                    url: "https://textures.example.com/skin.png".to_string(),
+                }),
+                cape: Some(TextureInfo {
+                    url: "https://textures.example.com/cape.png".to_string(),
+                }),
+            },
+        };
+
+        let json_str = serde_json::to_string(&payload).unwrap();
+        let encoded = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            json_str.as_bytes(),
+        );
+
+        // Decode the base64 value to get the TexturesPayload back.
+        let decoded = base64::Engine::decode(
+            &base64::engine::general_purpose::STANDARD,
+            &encoded,
+        )
+        .unwrap();
+        let textures: TexturesPayload = serde_json::from_slice(&decoded).unwrap();
+        assert_eq!(
+            textures.textures.skin.unwrap().url,
+            "https://textures.example.com/skin.png"
+        );
+        assert_eq!(
+            textures.textures.cape.unwrap().url,
+            "https://textures.example.com/cape.png"
+        );
+    }
+
+    // ── Device auth response parse ──────────────────────────────────────
+
+    #[test]
+    fn test_device_auth_response_parse() {
+        let json = json!({
+            "device_code": "dc-abc123",
+            "user_code": "ABCD-EFGH",
+            "verification_uri": "https://auth.example.com/device",
+            "verification_uri_complete": "https://auth.example.com/device?code=ABCD-EFGH",
+            "interval": 5,
+            "expires_in": 600
+        });
+        let resp: DeviceAuthResponse = serde_json::from_value(json).unwrap();
+        assert_eq!(resp.device_code, "dc-abc123");
+        assert_eq!(resp.user_code, "ABCD-EFGH");
+        assert_eq!(resp.verification_uri, "https://auth.example.com/device");
+        assert_eq!(
+            resp.verification_uri_complete,
+            Some("https://auth.example.com/device?code=ABCD-EFGH".to_string())
+        );
+        assert_eq!(resp.interval, Some(5));
+        assert_eq!(resp.expires_in, 600);
+    }
+
+    // ── Form body encoding ──────────────────────────────────────────────
+
+    #[test]
+    fn test_form_body_encoding() {
+        let body = form_body(&[
+            ("client_id", "my-client"),
+            ("scope", "openid profile"),
+            ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
+        ]);
+        // URL-encoded form body: key=value pairs joined with &.
+        // NOTE: form_body does NOT URL-encode values; spaces remain as-is.
+        assert!(body.contains("client_id=my-client"));
+        assert!(body.contains("scope=openid profile"));
+        assert!(body.contains("grant_type=urn:ietf:params:oauth:grant-type:device_code"));
+        assert_eq!(body.split('&').count(), 3);
+    }
+
+    #[test]
+    fn test_form_body_encoding_empty() {
+        let body = form_body(&[]);
+        assert!(body.is_empty());
+    }
+
+    // ── Refresh response / profile decode ───────────────────────────────
+
+    #[test]
+    fn test_profile_decode_from_refresh() {
+        let json = json!({
+            "selectedProfile": {
+                "id": "abcdef1234567890abcdef1234567890",
+                "name": "Steve"
+            }
+        });
+        let resp: RefreshResponse = serde_json::from_value(json).unwrap();
+        let profile = resp.selected_profile.unwrap();
+        assert_eq!(profile.id, "abcdef1234567890abcdef1234567890");
+        assert_eq!(profile.name, "Steve");
+    }
+
+    #[test]
+    fn test_profile_decode_from_refresh_no_profile() {
+        let json = json!({});
+        let resp: RefreshResponse = serde_json::from_value(json).unwrap();
+        assert!(resp.selected_profile.is_none());
+    }
 }

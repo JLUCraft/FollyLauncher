@@ -747,3 +747,198 @@ async fn read_u16_be_async<R: AsyncRead + Unpin>(reader: &mut R) -> Result<u16> 
 fn write_u16_be(writer: &mut Vec<u8>, value: u16) {
     writer.extend_from_slice(&value.to_be_bytes());
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use uuid::Uuid;
+
+    // ── Varint reading ──────────────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_read_varint_sync_single_byte() {
+        // Single-byte varints encode values 0–127 directly in 7 bits.
+        for val in [0, 1, 42, 127i32] {
+            let data: &[u8] = &[val as u8];
+            let mut reader = data;
+            let result = read_varint_async(&mut reader).await.unwrap();
+            assert_eq!(result, val);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_read_varint_sync_multi_byte() {
+        // 128  -> 0x80 0x01  (two bytes)
+        let data: &[u8] = &[0x80, 0x01];
+        let mut reader = data;
+        let result = read_varint_async(&mut reader).await.unwrap();
+        assert_eq!(result, 128);
+
+        // 25565 -> 0xDD 0xC7 0x01  (three bytes)
+        let data2: &[u8] = &[0xDD, 0xC7, 0x01];
+        let mut reader2 = data2;
+        let result2 = read_varint_async(&mut reader2).await.unwrap();
+        assert_eq!(result2, 25565);
+    }
+
+    #[tokio::test]
+    async fn test_read_varint_sync_zero() {
+        // Zero is the simplest varint: a single 0x00 byte.
+        let data: &[u8] = &[0x00];
+        let mut reader = data;
+        let result = read_varint_async(&mut reader).await.unwrap();
+        assert_eq!(result, 0);
+    }
+
+    // ── Varint roundtrip ────────────────────────────────────────────────
+
+    #[test]
+    fn test_write_varint_roundtrip() {
+        // Only test non-negative values; write_varint uses arithmetic right
+        // shift and does not terminate for negative inputs.
+        let cases = [0i32, 1, 42, 127, 128, 255, 256, 16383, 16384];
+        for &v in &cases {
+            let mut written = Vec::new();
+            write_varint(&mut written, v).unwrap();
+
+            let decoded = sync_read_varint(&mut written.as_slice());
+            assert_eq!(decoded, Some(v), "roundtrip failed for {v}");
+        }
+    }
+
+    fn sync_read_varint(buf: &mut &[u8]) -> Option<i32> {
+        let mut result = 0i32;
+        let mut shift = 0u32;
+        loop {
+            let byte = *buf.first()?;
+            *buf = &buf[1..];
+            result |= ((byte & 0x7F) as i32) << shift;
+            if byte & 0x80 == 0 {
+                return Some(result);
+            }
+            shift += 7;
+            if shift >= 32 {
+                return None;
+            }
+        }
+    }
+
+    // ── Minecraft string reading ────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_read_mc_string_empty() {
+        // Varint length=0 followed by zero bytes.
+        let data: &[u8] = &[0x00];
+        let mut reader = data;
+        let result = read_mc_string_async(&mut reader).await.unwrap();
+        assert_eq!(result, "");
+    }
+
+    #[tokio::test]
+    async fn test_read_mc_string_ascii() {
+        // "hello" – length 5 as varint, then 5 bytes.
+        let mut data = vec![0x05u8];
+        data.extend_from_slice(b"hello");
+        let mut reader = data.as_slice();
+        let result = read_mc_string_async(&mut reader).await.unwrap();
+        assert_eq!(result, "hello");
+    }
+
+    // ── u16 big-endian reading ──────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_read_u16_be() {
+        // 0x1234 in network order = [0x12, 0x34]
+        let data: &[u8] = &[0x12, 0x34];
+        let mut reader = data;
+        let result = read_u16_be_async(&mut reader).await.unwrap();
+        assert_eq!(result, 0x1234);
+
+        // Port 25565 = 0x63DD
+        let data2: &[u8] = &[0x63, 0xDD];
+        let mut reader2 = data2;
+        let result2 = read_u16_be_async(&mut reader2).await.unwrap();
+        assert_eq!(result2, 25565);
+    }
+
+    // ── Instance ID extraction ──────────────────────────────────────────
+
+    #[test]
+    fn test_extract_instance_id_valid_uuid() {
+        let uuid = Uuid::new_v4();
+        let address = format!("instance={}", uuid);
+        let result = extract_instance_id(&address);
+        assert_eq!(result, Some(uuid));
+    }
+
+    #[test]
+    fn test_extract_instance_id_not_found() {
+        let result = extract_instance_id("127.0.0.1:25565");
+        assert_eq!(result, None);
+
+        let result2 = extract_instance_id("club=myclub;peer_id=12D3");
+        assert_eq!(result2, None);
+    }
+
+    #[test]
+    fn test_extract_param_valid() {
+        // Semi-colon delimited address with multiple params.
+        let uuid = Uuid::new_v4();
+        let address = format!(
+            "instance={};peer_id=12D3KooW;club=testclub;vc=true",
+            uuid
+        );
+        let result = extract_instance_id(&address);
+        assert_eq!(result, Some(uuid));
+
+        // Instance is the second parameter.
+        let address2 = format!("peer_id=abc;instance={};vc=true", uuid);
+        let result2 = extract_instance_id(&address2);
+        assert_eq!(result2, Some(uuid));
+    }
+
+    // ── Build target handshake ──────────────────────────────────────────
+
+    #[test]
+    fn test_build_target_handshake() {
+        let instance_id = Uuid::new_v4();
+        let peer_id = "12D3KooWHyYqNJxXqRq9HuCvLp5sMQmR8kWjPFQGrWfRAdZ9MdiJ";
+        let club = Some("builders".to_string());
+
+        let original = McHandshake {
+            protocol_version: 767,
+            server_address: "instance=original-uuid".to_string(),
+            server_port: 25565,
+            next_state: 2,
+            instance_id: Uuid::new_v4(),
+        };
+
+        // Without club and vc
+        let ht = build_target_handshake(
+            original.clone(),
+            instance_id,
+            peer_id,
+            None,
+            false,
+        );
+        assert_eq!(ht.protocol_version, 767);
+        assert_eq!(ht.server_port, 25565);
+        assert_eq!(ht.next_state, 2);
+        assert_eq!(ht.instance_id, instance_id);
+        assert!(ht.server_address.contains(&format!("instance={}", instance_id)));
+        assert!(ht.server_address.contains(&format!("peer_id={}", peer_id)));
+        assert!(!ht.server_address.contains("club="));
+        assert!(!ht.server_address.contains("vc=true"));
+
+        // With club and vc
+        let ht2 = build_target_handshake(
+            original,
+            instance_id,
+            peer_id,
+            club.as_deref(),
+            true,
+        );
+        assert!(ht2.server_address.contains("club=builders"));
+        assert!(ht2.server_address.contains("vc=true"));
+    }
+}

@@ -531,3 +531,407 @@ async fn save_crl_cache(data_dir: &std::path::Path, crl: &CrlCache) -> Result<()
     fs::write(&path, serde_json::to_string_pretty(crl)?).await?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{Duration, Utc};
+    use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
+    use tempfile::TempDir;
+
+    /// Build a minimal IdentityManager that avoids file-system and keychain
+    /// initialization. Uses a temporary directory so `save()` works in tests
+    /// that call `import_vc` / `clear_vc`.
+    fn minimal_identity_manager(dir: &TempDir) -> IdentityManager {
+        IdentityManager {
+            data_dir: dir.path().to_path_buf(),
+            identity: Identity {
+                peer_id: "12D3KooWTestPeer".to_string(),
+                public_key: base64::Engine::encode(
+                    &base64::engine::general_purpose::STANDARD,
+                    [0u8; 32],
+                ),
+                club: None,
+                vc: None,
+                mua_account: None,
+                serverless_token: None,
+            },
+            signing_key: None,
+            crl: CrlCache::default(),
+            crl_http_client: None,
+        }
+    }
+
+    fn make_issuer_keypair() -> (SigningKey, VerifyingKey) {
+        let mut seed = [0u8; 32];
+        getrandom::fill(&mut seed).unwrap();
+        let signing = SigningKey::from_bytes(&seed);
+        let verifying = signing.verifying_key();
+        (signing, verifying)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn build_vc(
+        id: &str,
+        issuer: &str,
+        peer_id: &str,
+        claims: Vec<CredentialClaim>,
+        proof_value: Option<String>,
+        verification_method: Option<String>,
+        issued_at: Option<String>,
+        expires_at: Option<String>,
+    ) -> VerifiableCredential {
+        VerifiableCredential {
+            id: id.to_string(),
+            issuer: issuer.to_string(),
+            issued_at: issued_at
+                .unwrap_or_else(|| Utc::now().to_rfc3339()),
+            expires_at,
+            subject: CredentialSubject {
+                peer_id: peer_id.to_string(),
+                claims,
+            },
+            proof: CredentialProof {
+                proof_type: "Ed25519Signature2020".to_string(),
+                created: Utc::now().to_rfc3339(),
+                verification_method: verification_method.unwrap_or_else(|| {
+                    "did:example:issuer#dummy".to_string()
+                }),
+                proof_value: proof_value.unwrap_or_default(),
+            },
+        }
+    }
+
+    fn sign_vc(vc: &VerifiableCredential, signing_key: &SigningKey, verifying_key: &VerifyingKey) -> VerifiableCredential {
+        let claims_json = serde_json::to_string(&vc.subject.claims).unwrap_or_default();
+        let message = format!(
+            "{}|{}|{}|{}",
+            vc.id, vc.issuer, vc.subject.peer_id, claims_json
+        );
+        let signature = signing_key.sign(message.as_bytes());
+        let sig_b64 = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            signature.to_bytes(),
+        );
+        let vk_b64 = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            verifying_key.to_bytes(),
+        );
+        let mut signed_vc = vc.clone();
+        signed_vc.proof.proof_value = sig_b64;
+        signed_vc.proof.verification_method = format!("did:example:issuer#{}", vk_b64);
+        signed_vc
+    }
+
+    // ── VC structure serialization ──────────────────────────────────────
+
+    #[test]
+    fn test_vc_structure_serialization() {
+        let vc = build_vc(
+            "vc:test:1",
+            "did:example:issuer",
+            "12D3KooWTestPeer",
+            vec![CredentialClaim {
+                claim_type: "role".to_string(),
+                value: serde_json::json!("member"),
+            }],
+            None,
+            None,
+            None,
+            Some(Utc::now().to_rfc3339()),
+        );
+
+        let json = serde_json::to_string(&vc).unwrap();
+        let roundtrip: VerifiableCredential = serde_json::from_str(&json).unwrap();
+        assert_eq!(roundtrip.id, "vc:test:1");
+        assert_eq!(roundtrip.issuer, "did:example:issuer");
+        assert_eq!(roundtrip.subject.peer_id, "12D3KooWTestPeer");
+        assert_eq!(roundtrip.subject.claims.len(), 1);
+        assert_eq!(roundtrip.proof.proof_type, "Ed25519Signature2020");
+    }
+
+    // ── VC signature verification ───────────────────────────────────────
+
+    #[test]
+    fn test_vc_signature_verification() {
+        let dir = TempDir::new().expect("temp dir");
+        let manager = minimal_identity_manager(&dir);
+        let (sk, vk) = make_issuer_keypair();
+
+        let vc = build_vc(
+            "vc:test:sig-valid",
+            "did:jlucraft:auth",
+            "12D3KooWValidPeer",
+            vec![CredentialClaim {
+                claim_type: "role".to_string(),
+                value: serde_json::json!("member"),
+            }],
+            None,
+            None,
+            None,
+            None,
+        );
+
+        let signed_vc = sign_vc(&vc, &sk, &vk);
+        let result = manager.verify_vc(&signed_vc);
+        assert!(result.unwrap(), "valid signature should verify");
+    }
+
+    // ── Wrong signature fails ───────────────────────────────────────────
+
+    #[test]
+    fn test_vc_wrong_signature_fails() {
+        let dir = TempDir::new().expect("temp dir");
+        let manager = minimal_identity_manager(&dir);
+        let (_sk, vk) = make_issuer_keypair();
+        // A different keypair to produce a bad signature.
+        let (sk_bad, _) = make_issuer_keypair();
+
+        let vc = build_vc(
+            "vc:test:sig-bad",
+            "did:jlucraft:auth",
+            "12D3KooWBadPeer",
+            vec![CredentialClaim {
+                claim_type: "role".to_string(),
+                value: serde_json::json!("member"),
+            }],
+            None,
+            None,
+            None,
+            None,
+        );
+
+        // Sign with bad key but claim verification method from good key.
+        let claims_json = serde_json::to_string(&vc.subject.claims).unwrap_or_default();
+        let message = format!(
+            "{}|{}|{}|{}",
+            vc.id, vc.issuer, vc.subject.peer_id, claims_json
+        );
+        let bad_sig = sk_bad.sign(message.as_bytes());
+        let sig_b64 = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            bad_sig.to_bytes(),
+        );
+        let vk_b64 = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            vk.to_bytes(),
+        );
+
+        let mut bad_vc = vc.clone();
+        bad_vc.proof.proof_value = sig_b64;
+        bad_vc.proof.verification_method = format!("did:example:issuer#{}", vk_b64);
+
+        let result = manager.verify_vc(&bad_vc);
+        assert!(!result.unwrap(), "wrong signature should not verify");
+    }
+
+    // ── Expiry check ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_vc_expiry_check() {
+        let dir = TempDir::new().expect("temp dir");
+        let manager = minimal_identity_manager(&dir);
+
+        // Expired 1 hour ago
+        let vc_expired = build_vc(
+            "vc:test:expired",
+            "did:jlucraft:auth",
+            "12D3KooWExpiredPeer",
+            vec![],
+            None,
+            None,
+            None,
+            Some((Utc::now() - Duration::hours(1)).to_rfc3339()),
+        );
+        assert!(manager.is_vc_expired(&vc_expired));
+
+        // Not expired (expires in 365 days)
+        let vc_future = build_vc(
+            "vc:test:future",
+            "did:jlucraft:auth",
+            "12D3KooWFuturePeer",
+            vec![],
+            None,
+            None,
+            None,
+            Some((Utc::now() + Duration::days(365)).to_rfc3339()),
+        );
+        assert!(!manager.is_vc_expired(&vc_future));
+
+        // No expiry
+        let vc_no_expiry = build_vc(
+            "vc:test:no-expiry",
+            "did:jlucraft:auth",
+            "12D3KooWNoExpiryPeer",
+            vec![],
+            None,
+            None,
+            None,
+            None,
+        );
+        assert!(!manager.is_vc_expired(&vc_no_expiry));
+    }
+
+    // ── Not-before / valid-from check ───────────────────────────────────
+
+    #[test]
+    fn test_vc_not_before_check() {
+        // The current implementation does not enforce a 'not before' / nbf
+        // claim, but VCs issued in the far future should still parse cleanly
+        // and not be erroneously marked as expired.
+        let dir = TempDir::new().expect("temp dir");
+        let manager = minimal_identity_manager(&dir);
+
+        let future_issued = Utc::now() + Duration::days(365);
+        let vc = build_vc(
+            "vc:test:nbf-future",
+            "did:jlucraft:auth",
+            "12D3KooWNbfPeer",
+            vec![CredentialClaim {
+                claim_type: "role".to_string(),
+                value: serde_json::json!("member"),
+            }],
+            None,
+            None,
+            Some(future_issued.to_rfc3339()),
+            Some((future_issued + Duration::days(30)).to_rfc3339()),
+        );
+
+        // Should not be expired yet.
+        assert!(!manager.is_vc_expired(&vc));
+        // issued_at is parseable.
+        assert!(!vc.issued_at.is_empty());
+    }
+
+    // ── CRL: revoked VC rejected ────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_crl_revoked_vc_rejected() {
+        let dir = TempDir::new().expect("temp dir");
+        let mut manager = minimal_identity_manager(&dir);
+
+        let (sk, vk) = make_issuer_keypair();
+        let vc = build_vc(
+            "vc:test:crl-revoked",
+            "did:jlucraft:auth",
+            "12D3KooWCrlRevokedPeer",
+            vec![CredentialClaim {
+                claim_type: "club_membership".to_string(),
+                value: serde_json::json!("builders"),
+            }],
+            None,
+            None,
+            None,
+            None,
+        );
+        let signed_vc = sign_vc(&vc, &sk, &vk);
+
+        let vc_json = serde_json::to_string(&signed_vc).unwrap();
+        manager.import_vc(&vc_json).await.unwrap();
+
+        // Manually set CRL to include this VC
+        manager.crl = CrlCache {
+            entries: vec![CrlEntry {
+                vc_id: "vc:test:crl-revoked".to_string(),
+                revoked_at: Utc::now().to_rfc3339(),
+                reason: Some("test revocation".to_string()),
+            }],
+            updated_at: Some(Utc::now().to_rfc3339()),
+        };
+
+        let status = manager.vc_status();
+        assert_eq!(status.state, VcHolderState::Revoked, "revoked VC should be rejected");
+    }
+
+    // ── CRL: unrevoked VC passes ────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_crl_unrevoked_vc_passes() {
+        let dir = TempDir::new().expect("temp dir");
+        let mut manager = minimal_identity_manager(&dir);
+
+        let (sk, vk) = make_issuer_keypair();
+        let vc = build_vc(
+            "vc:test:crl-ok",
+            "did:jlucraft:auth",
+            "12D3KooWCrlOkPeer",
+            vec![CredentialClaim {
+                claim_type: "club_membership".to_string(),
+                value: serde_json::json!("explorers"),
+            }],
+            None,
+            None,
+            None,
+            None,
+        );
+        let signed_vc = sign_vc(&vc, &sk, &vk);
+        let vc_json = serde_json::to_string(&signed_vc).unwrap();
+        manager.import_vc(&vc_json).await.unwrap();
+
+        // CRL that does NOT contain this VC
+        manager.crl = CrlCache {
+            entries: vec![CrlEntry {
+                vc_id: "vc:test:some-other-vc".to_string(),
+                revoked_at: Utc::now().to_rfc3339(),
+                reason: None,
+            }],
+            updated_at: Some(Utc::now().to_rfc3339()),
+        };
+
+        let status = manager.vc_status();
+        assert_eq!(status.state, VcHolderState::Member, "unrevoked VC should be member");
+    }
+
+    // ── Guest state transitions ─────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_guest_state_transitions() {
+        let dir = TempDir::new().expect("temp dir");
+
+        // 1. Fresh identity → Unverified (guest)
+        let mut manager = minimal_identity_manager(&dir);
+        assert_eq!(manager.vc_status().state, VcHolderState::Unverified);
+
+        // 2. Import a valid VC → Member
+        let (sk, vk) = make_issuer_keypair();
+        let vc = build_vc(
+            "vc:test:guest-state",
+            "did:jlucraft:auth",
+            "12D3KooWGuestStatePeer",
+            vec![
+                CredentialClaim {
+                    claim_type: "role".to_string(),
+                    value: serde_json::json!("admin"),
+                },
+                CredentialClaim {
+                    claim_type: "club_membership".to_string(),
+                    value: serde_json::json!("architects"),
+                },
+            ],
+            None,
+            None,
+            None,
+            None,
+        );
+        let signed_vc = sign_vc(&vc, &sk, &vk);
+        let vc_json = serde_json::to_string(&signed_vc).unwrap();
+
+        let import_result = manager.import_vc(&vc_json).await.unwrap();
+        assert!(import_result.verified);
+        assert!(!import_result.expired);
+        assert_eq!(import_result.state, VcHolderState::Member);
+
+        let status = manager.vc_status();
+        assert_eq!(status.state, VcHolderState::Member);
+        assert_eq!(status.role, Some("admin".to_string()));
+        assert_eq!(status.club, Some("architects".to_string()));
+        assert!(status.verified);
+
+        // 3. Clear the VC → Unverified
+        manager.clear_vc().await.unwrap();
+        let status2 = manager.vc_status();
+        assert_eq!(status2.state, VcHolderState::Unverified);
+        assert_eq!(status2.role, None);
+        assert_eq!(status2.club, None);
+    }
+}

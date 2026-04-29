@@ -2,12 +2,15 @@ use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
 use tracing::{info, warn};
 
 const CHUNK_SIZE: usize = 256 * 1024;
 const MAX_CONCURRENT_CHUNKS: usize = 4;
+const MAX_CACHE_SIZE_BYTES: u64 = 5 * 1024 * 1024 * 1024;
+const MAX_FILE_AGE_SECS: u64 = 90 * 24 * 3600;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourceManifest {
@@ -68,13 +71,17 @@ pub struct ResourceSyncService {
 impl ResourceSyncService {
     pub fn new(cache_dir: PathBuf) -> Self {
         let _ = std::fs::create_dir_all(&cache_dir);
-        Self {
-            cache_dir,
+        let service = Self {
+            cache_dir: cache_dir.clone(),
             client: reqwest::Client::builder()
                 .timeout(std::time::Duration::from_secs(60))
                 .build()
                 .expect("failed to build reqwest client"),
-        }
+        };
+        tokio::spawn(async move {
+            let _ = Self::cleanup_stale_files_static(&cache_dir).await;
+        });
+        service
     }
 
     pub async fn fetch_manifest(
@@ -186,9 +193,12 @@ impl ResourceSyncService {
             }
         }
 
-        SyncResult { downloaded, failed, skipped }
+        let result = SyncResult { downloaded, failed, skipped };
+        if downloaded > 0 {
+            self.enforce_cache_limits().await;
+        }
+        result
     }
-
     pub async fn get_bitswap_status(
         &self,
         file: &ManifestFile,
@@ -322,4 +332,110 @@ impl ResourceSyncService {
         let prefix = &hash[..2.min(hash.len())];
         cache_dir.join(prefix).join(hash)
     }
+
+    pub async fn enforce_cache_limits(&self) {
+        if let Err(e) = self.do_enforce().await {
+            warn!(error = %e, "cache limit enforcement failed");
+        }
+    }
+
+    async fn do_enforce(&self) -> anyhow::Result<()> {
+        self.cleanup_stale_files().await?;
+        let total_size = self.calculate_cache_size().await?;
+        if total_size <= MAX_CACHE_SIZE_BYTES {
+            return Ok(());
+        }
+
+        info!(total_bytes = total_size, limit_bytes = MAX_CACHE_SIZE_BYTES, "cache exceeds limit, running LRU eviction");
+        let mut entries = self.collect_cache_entries().await?;
+        entries.sort_by_key(|e| e.last_accessed);
+
+        let mut freed = 0u64;
+        for entry in &entries {
+            if total_size - freed <= MAX_CACHE_SIZE_BYTES {
+                break;
+            }
+            if let Err(e) = tokio::fs::remove_file(&entry.path).await {
+                warn!(path = %entry.path.display(), error = %e, "failed to evict cache file");
+            } else {
+                freed += entry.size;
+            }
+        }
+        info!(freed_bytes = freed, "LRU cache eviction complete");
+        Ok(())
+    }
+
+    async fn calculate_cache_size(&self) -> anyhow::Result<u64> {
+        let mut total = 0u64;
+        let mut dir = tokio::fs::read_dir(&self.cache_dir).await?;
+        while let Some(entry) = dir.next_entry().await? {
+            if entry.file_type().await?.is_dir() {
+                let mut sub = tokio::fs::read_dir(entry.path()).await?;
+                while let Some(file) = sub.next_entry().await? {
+                    if let Ok(meta) = file.metadata().await {
+                        total += meta.len();
+                    }
+                }
+            }
+        }
+        Ok(total)
+    }
+
+    async fn collect_cache_entries(&self) -> anyhow::Result<Vec<CacheEntry>> {
+        let mut entries = Vec::new();
+        let mut dir = tokio::fs::read_dir(&self.cache_dir).await?;
+        while let Some(entry) = dir.next_entry().await? {
+            if entry.file_type().await?.is_dir() {
+                let mut sub = tokio::fs::read_dir(entry.path()).await?;
+                while let Some(file) = sub.next_entry().await? {
+                    if let Ok(meta) = file.metadata().await {
+                        entries.push(CacheEntry {
+                            path: file.path(),
+                            size: meta.len(),
+                            last_accessed: meta.accessed().unwrap_or(SystemTime::UNIX_EPOCH),
+                        });
+                    }
+                }
+            }
+        }
+        Ok(entries)
+    }
+
+    async fn cleanup_stale_files(&self) -> anyhow::Result<()> {
+        Self::cleanup_stale_files_static(&self.cache_dir).await
+    }
+
+    async fn cleanup_stale_files_static(cache_dir: &Path) -> anyhow::Result<()> {
+        let now = SystemTime::now();
+        let cutoff = now - Duration::from_secs(MAX_FILE_AGE_SECS);
+        let mut removed = 0usize;
+        let mut freed = 0u64;
+
+        let mut dir = tokio::fs::read_dir(cache_dir).await?;
+        while let Some(entry) = dir.next_entry().await? {
+            if entry.file_type().await?.is_dir() {
+                let mut sub = tokio::fs::read_dir(entry.path()).await?;
+                while let Some(file) = sub.next_entry().await? {
+                    let meta = file.metadata().await?;
+                    let accessed = meta.accessed().unwrap_or(UNIX_EPOCH);
+                    if accessed < cutoff {
+                        freed += meta.len();
+                        tokio::fs::remove_file(file.path()).await?;
+                        removed += 1;
+                    }
+                }
+            }
+        }
+
+        if removed > 0 {
+            info!(removed, freed_bytes = freed, "cleaned up stale cache files (>90 days)");
+        }
+        Ok(())
+    }
+}
+
+struct CacheEntry {
+    path: PathBuf,
+    size: u64,
+    last_accessed: SystemTime,
 }
