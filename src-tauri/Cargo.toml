@@ -11,12 +11,14 @@ crate-type = ["cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
+prost-build = "0.14.3"
 
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+prost = "0.14.3"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-notification = "2"
@@ -28,7 +30,7 @@ tauri-plugin-os = "2"
 tauri-plugin-http = "2"
 tauri-plugin-clipboard-manager = "2"
 tokio = { version = "1.52.1", features = ["macros", "rt-multi-thread", "fs", "net", "process", "sync", "time"] }
-reqwest = { version = "0.13.3", features = ["json", "rustls", "stream", "multipart", "cookies"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "stream", "multipart", "cookies"] }
 serde_with = { version = "3.18.0", features = ["json"] }
 thiserror = { version = "2.0.18", features = ["std"] }
 anyhow = { version = "1.0.102", features = ["std"] }
@@ -44,7 +46,6 @@ url = { version = "2.5.8", features = ["serde"] }
 directories = "6.0.0"
 notify = "8.2.0"
 zip = { version = "8.6.0", features = ["deflate"] }
-tar = "0.4.45"
 async-compression = { version = "0.4.42", features = ["tokio", "gzip", "zstd"] }
 tokio-util = { version = "0.7.18", features = ["codec", "compat", "io", "net"] }
 futures-util = { version = "0.3.32", features = ["io", "sink"] }
@@ -66,17 +67,15 @@ bytes = { version = "1.11.1", features = ["serde"] }
 dashmap = { version = "6.1.0", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 keyring = { version = "3" }
-fastnbt = { version = "2", optional = true }
 sha1_smol = "1"
 sha1 = "0.10"
 regex = "1"
 murmur2 = "0.1"
 semver = "1"
-csv = "1"
 blake3 = "1"
+md-5 = "0.10"
+multibase = "0.9"
+bs58 = "0.5"
 
 [dev-dependencies]
-assert_cmd = "2.2.1"
-predicates = "3.1.4"
 tempfile = "3.27.0"
-tokio-test = "0.4.5"

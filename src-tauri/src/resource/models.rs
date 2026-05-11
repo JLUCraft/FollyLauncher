@@ -1,6 +1,45 @@
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum InstallResourceKind {
+    Mod,
+    ResourcePack,
+    ShaderPack,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallResourceRequest {
+    pub instance_id: String,
+    pub kind: InstallResourceKind,
+    pub file: OtherResourceFileInfo,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResourceDependencySummary {
+    pub required: u32,
+    pub optional: u32,
+    pub embedded: u32,
+    pub other: u32,
+    pub items: Vec<OtherResourceDependency>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallResourceResult {
+    pub instance_id: String,
+    pub dest_path: String,
+    pub file_name: String,
+    pub bytes_written: u64,
+    pub sha1_verified: bool,
+    pub replaced_existing: bool,
+    #[serde(rename = "dependencySummary")]
+    pub dependency_summary: ResourceDependencySummary,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
 pub enum ModLoaderType {
     #[default]
@@ -209,3 +248,214 @@ impl std::fmt::Display for ResourceError {
 }
 
 impl std::error::Error for ResourceError {}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallClientVersionRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallClientVersionResult {
+    pub instance_id: String,
+    pub game_version: String,
+    pub version_json_path: String,
+    pub client_jar_path: String,
+    pub json_bytes_written: u64,
+    pub jar_bytes_written: u64,
+    pub jar_sha1_verified: bool,
+    pub used_manifest_url: String,
+    pub replaced_existing: bool,
+}
+
+// ── Phase 16: Libraries install models ────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallLibrariesRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallLibrariesResult {
+    pub instance_id: String,
+    pub game_version: String,
+    pub scanned: u32,
+    pub downloaded: u32,
+    pub skipped: u32,
+    pub failed: u32,
+    pub bytes_written: u64,
+    pub libraries_dir: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryDownloadItem {
+    pub name: String,
+    pub url: String,
+    pub path: String,
+    pub sha1: Option<String>,
+    pub size: Option<u64>,
+}
+
+// ── Phase 17: Assets install models ──────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallAssetsRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallAssetsResult {
+    pub instance_id: String,
+    pub game_version: String,
+    pub asset_index_id: String,
+    pub index_bytes_written: u64,
+    pub scanned: u64,
+    pub downloaded: u64,
+    pub skipped: u64,
+    pub failed: u64,
+    pub bytes_written: u64,
+    pub assets_dir: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetObjectItem {
+    pub logical_path: String,
+    pub hash: String,
+    pub size: u64,
+}
+
+// ── Phase 31: Async client version install models ────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallClientVersionRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallTaskStarted {
+    pub group_id: String,
+    pub task_id: u64,
+    pub instance_id: String,
+    pub game_version: String,
+}
+
+// ── Phase 32: Async libraries install models ───────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallLibrariesRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallLibrariesStarted {
+    pub group_id: String,
+    pub task_id: u64,
+    pub instance_id: String,
+    pub game_version: String,
+}
+
+// ── Phase 33: Async assets install models ──────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallAssetsRequest {
+    pub instance_id: String,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallAssetsStarted {
+    pub group_id: String,
+    pub task_id: u64,
+    pub instance_id: String,
+    pub game_version: String,
+}
+
+// ── Phase 35: Async resource install models ────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallResourceRequest {
+    pub instance_id: String,
+    pub kind: InstallResourceKind,
+    pub file: OtherResourceFileInfo,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallResourceStarted {
+    pub group_id: String,
+    pub task_id: u64,
+    pub instance_id: String,
+    pub file_name: String,
+}
+
+// ── Phase 34: Async loader install models ──────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallLoaderRequest {
+    pub instance_id: String,
+    pub kind: InstallLoaderKind,
+    pub loader_version: Option<String>,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AsyncInstallLoaderStarted {
+    pub group_id: String,
+    pub task_id: u64,
+    pub instance_id: String,
+    pub kind: InstallLoaderKind,
+}
+
+// ── Phase 18: Loader install models ───────────────────────────────────────
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum InstallLoaderKind {
+    Fabric,
+    Quilt,
+    Forge,
+    NeoForge,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallLoaderRequest {
+    pub instance_id: String,
+    pub kind: InstallLoaderKind,
+    pub loader_version: Option<String>,
+    pub overwrite: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallLoaderResult {
+    pub instance_id: String,
+    pub previous_game_version: String,
+    pub new_game_version: String,
+    pub kind: InstallLoaderKind,
+    pub loader_version: String,
+    pub version_json_path: String,
+    pub bytes_written: u64,
+    pub replaced_existing: bool,
+}

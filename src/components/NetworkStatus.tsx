@@ -1,5 +1,5 @@
 import { For, Show, createResource } from "solid-js";
-import { getNetworkDiagnostics } from "../api/tauri";
+import { getNetworkDiagnostics } from "../services";
 
 interface Props {
   peers: string[];

@@ -1,7 +1,11 @@
-import { createSignal } from "solid-js";
-import { invoke } from "@tauri-apps/api/core";
+import { createSignal, createResource, Show } from "solid-js";
 import type { Instance } from "../types";
-import { getResourceSyncStatus, syncResources } from "../api/tauri";
+import {
+  getResourceSyncStatus,
+  syncResources,
+  getMuaStatus,
+  launchInstance,
+} from "../services";
 
 interface Props {
   instance: Instance;
@@ -12,6 +16,15 @@ export function JoinDialog(props: Props) {
   const [step, setStep] = createSignal<"confirm" | "syncing" | "launching" | "done" | "error">("confirm");
   const [errorMsg, setErrorMsg] = createSignal("");
   const [syncInfo, setSyncInfo] = createSignal("");
+  const [launchResult, setLaunchResult] = createSignal<{
+    bridge_port: number;
+    pid: number | null;
+    target_peer_id: string;
+  } | null>(null);
+
+  const [muaStatus] = createResource(getMuaStatus);
+  const loggedIn = () => muaStatus()?.logged_in === true;
+  const peerBound = () => muaStatus()?.peer_bound === true;
 
   async function checkAndSync() {
     setStep("syncing");
@@ -39,17 +52,23 @@ export function JoinDialog(props: Props) {
   async function launch() {
     setStep("launching");
     try {
-      const bridgePort = await invoke<number>("launch_instance", {
-        instanceId: props.instance.id,
-        version: props.instance.version,
+      const result = await launchInstance(props.instance.id, props.instance.version);
+      setLaunchResult({
+        bridge_port: result.bridge_port,
+        pid: result.pid,
+        target_peer_id: result.target_peer_id,
       });
-      console.log("bridge port:", bridgePort);
       setStep("done");
     } catch (e) {
       setErrorMsg(String(e));
       setStep("error");
     }
   }
+
+  const peerIdSummary = (peerId: string) => {
+    if (peerId.length <= 12) return peerId;
+    return peerId.slice(0, 6) + "…" + peerId.slice(-6);
+  };
 
   return (
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -77,6 +96,20 @@ export function JoinDialog(props: Props) {
           </div>
         </div>
 
+        {/* MUA status check */}
+        <Show when={!muaStatus.loading && !loggedIn()}>
+          <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            需要 MUA 登录以提供 Minecraft Yggdrasil 身份。请前往「我的」页面登录后重试。
+          </div>
+        </Show>
+
+        {/* Peer not bound warning */}
+        <Show when={loggedIn() && !peerBound()}>
+          <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            PeerID 尚未与服务端绑定，部分实例可能拒绝连接。
+          </div>
+        </Show>
+
         {step() === "confirm" && (
           <div class="mt-6 flex gap-3">
             <button
@@ -87,6 +120,7 @@ export function JoinDialog(props: Props) {
             </button>
             <button
               class="btn flex-1 rounded-md bg-teal-800 text-white hover:bg-teal-900"
+              disabled={!loggedIn()}
               onClick={checkAndSync}
             >
               启动游戏
@@ -111,6 +145,26 @@ export function JoinDialog(props: Props) {
         {step() === "done" && (
           <div class="mt-6 text-center py-2">
             <p class="text-sm font-medium text-teal-800">游戏已启动</p>
+            <Show when={launchResult()}>
+              {(r) => (
+                <dl class="mt-3 divide-y divide-stone-100 text-left text-sm">
+                  <div class="flex justify-between py-1.5">
+                    <span class="text-stone-500">代理端口</span>
+                    <span class="font-mono text-stone-800">{r().bridge_port}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5">
+                    <span class="text-stone-500">进程 PID</span>
+                    <span class="font-mono text-stone-800">{r().pid ?? "未知"}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5">
+                    <span class="text-stone-500">目标 PeerID</span>
+                    <span class="font-mono text-xs text-stone-700" title={r().target_peer_id}>
+                      {peerIdSummary(r().target_peer_id)}
+                    </span>
+                  </div>
+                </dl>
+              )}
+            </Show>
             <button
               class="btn mt-3 rounded-md bg-stone-950 text-white hover:bg-stone-800"
               onClick={props.onClose}
@@ -132,7 +186,7 @@ export function JoinDialog(props: Props) {
               </button>
               <button
                 class="btn flex-1 rounded-md bg-teal-800 text-white hover:bg-teal-900"
-                onClick={launch}
+                onClick={checkAndSync}
               >
                 重试
               </button>

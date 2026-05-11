@@ -1,4 +1,8 @@
+pub mod command_gen;
 pub mod commands;
 pub mod constants;
-pub mod helpers;
+pub mod file_validator;
+pub mod jre_selector;
 pub mod models;
+pub mod process;
+pub mod process_monitor;

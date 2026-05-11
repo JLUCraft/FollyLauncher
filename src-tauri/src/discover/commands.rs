@@ -1,12 +1,11 @@
-use crate::discover::helpers::mc_news::{fetch_mc_news_page, MC_NEWS_ENDPOINT};
+use crate::discover::mc_news::{fetch_mc_news_page, MC_NEWS_ENDPOINT};
 use crate::discover::models::{NewsPostRequest, NewsPostResponse, NewsSourceInfo};
+use crate::error::LauncherError;
 use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
 
 #[tauri::command]
-pub async fn fetch_news_sources_info(
-    app: AppHandle,
-) -> Result<Vec<NewsSourceInfo>, String> {
+pub async fn fetch_news_sources_info(app: AppHandle) -> Result<Vec<NewsSourceInfo>, LauncherError> {
     let client = app.state::<reqwest::Client>().inner().clone();
 
     let config = app
@@ -63,7 +62,7 @@ pub async fn fetch_news_sources_info(
 pub async fn fetch_news_post_summaries(
     app: AppHandle,
     requests: Vec<NewsPostRequest>,
-) -> Result<NewsPostResponse, String> {
+) -> Result<NewsPostResponse, LauncherError> {
     let client = app.state::<reqwest::Client>().inner().clone();
 
     let futs: Vec<_> = requests
@@ -102,7 +101,11 @@ pub async fn fetch_news_post_summaries(
     Ok(NewsPostResponse {
         posts: all_posts,
         next: None,
-        cursors: if cursors.is_empty() { None } else { Some(cursors) },
+        cursors: if cursors.is_empty() {
+            None
+        } else {
+            Some(cursors)
+        },
     })
 }
 
@@ -113,17 +116,15 @@ async fn fetch_generic_news_page(
 ) -> Option<(String, NewsPostResponse)> {
     let url_str = if let Some(c) = cursor {
         let mut parsed = url::Url::parse(url).ok()?;
-        parsed.query_pairs_mut().append_pair("cursor", &c.to_string());
+        parsed
+            .query_pairs_mut()
+            .append_pair("cursor", &c.to_string());
         parsed.to_string()
     } else {
         url.to_string()
     };
 
-    let response = client
-        .get(&url_str)
-        .send()
-        .await
-        .ok()?;
+    let response = client.get(&url_str).send().await.ok()?;
 
     if !response.status().is_success() {
         return None;

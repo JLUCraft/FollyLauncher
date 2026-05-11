@@ -1,15 +1,17 @@
 import { Show, type ParentProps } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { createQuery } from "@tanstack/solid-query";
-import { getIdentity, getProxyPort, listPeers } from "./api/tauri";
+import { getIdentity, getProxyPort, listPeers } from "./services";
 import "./App.css";
 
 const NAV = [
   { href: "/", label: "服务器" },
   { href: "/league", label: "联赛" },
   { href: "/discover", label: "资源" },
+  { href: "/tasks", label: "任务" },
   { href: "/news", label: "新闻" },
   { href: "/profile", label: "我的" },
+  { href: "/launch", label: "启动" },
   { href: "/settings", label: "设置" },
 ] as const;
 

@@ -1,5 +1,5 @@
 import { createResource, For, Show } from "solid-js";
-import { fetchNewsPostSummaries, type NewsPostSummary } from "../api/tauri";
+import { fetchNewsPostSummaries, type NewsPostSummary } from "../services";
 
 const MC_NEWS_URL = "https://net-secondary.web.minecraft-services.net/api/v1.0";
 

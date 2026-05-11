@@ -12,6 +12,16 @@ pub struct LaunchingState {
     pub pid: u32,
     pub full_command: String,
     pub start_time: Option<u64>,
+    #[serde(default)]
+    pub exit_code: Option<i32>,
+    #[serde(default)]
+    pub exit_ok: Option<bool>,
+    #[serde(default)]
+    pub game_ready: bool,
+    #[serde(default)]
+    pub end_time: Option<u64>,
+    #[serde(default)]
+    pub recent_logs: Vec<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]

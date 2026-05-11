@@ -14,4 +14,7 @@ client_id = "jlucraft-launcher"
 scope = "Yggdrasil.PlayerProfiles"
 default = true
 
+# Bootstrap peers for DHT discovery.
+# Empty list means rely on local cache and direct connections; still usable for local dev.
+# Add multiaddr entries (e.g. "/dns4/bootstrap.jlucraft.com/tcp/443/quic-v1/p2p/<peerid>") in production.
 bootstrap_peers = []

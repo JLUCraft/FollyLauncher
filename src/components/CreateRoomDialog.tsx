@@ -1,14 +1,15 @@
 import { createSignal, Show } from "solid-js";
-import { createInstance } from "../api/tauri";
+import { createQuickRoom } from "../services";
 
 interface Props {
   onClose: () => void;
   onCreated: () => void;
+  /** 来自 VC/onboarding 的社团名，不为 null 时才允许提交 */
+  memberClub: string | null;
 }
 
 export function CreateRoomDialog(props: Props) {
   const [name, setName] = createSignal("");
-  const [club, setClub] = createSignal("");
   const [version, setVersion] = createSignal("");
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
@@ -20,8 +21,8 @@ export function CreateRoomDialog(props: Props) {
       setError("房间名称不能为空");
       return;
     }
-    if (!club().trim()) {
-      setError("社团不能为空");
+    if (!props.memberClub) {
+      setError("未绑定社团 VC，无法创建联邦房间。请联系社长申请平台身份。");
       return;
     }
     if (!version().trim()) {
@@ -30,7 +31,7 @@ export function CreateRoomDialog(props: Props) {
     }
     setLoading(true);
     try {
-      await createInstance(name().trim(), "room", club().trim(), version().trim());
+      await createQuickRoom(name().trim(), version().trim());
       props.onCreated();
     } catch (e) {
       setError(String(e));
@@ -59,11 +60,10 @@ export function CreateRoomDialog(props: Props) {
           <div>
             <label class="block text-sm font-medium text-stone-700">社团</label>
             <input
-              class="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
-              placeholder="例如：JLU"
-              value={club()}
-              onInput={(e) => setClub(e.currentTarget.value)}
-              disabled={loading()}
+              class="mt-1 w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700 cursor-not-allowed"
+              value={props.memberClub ?? "未绑定社团"}
+              readOnly
+              disabled
             />
           </div>
           <div>
@@ -94,7 +94,7 @@ export function CreateRoomDialog(props: Props) {
             <button
               type="submit"
               class="btn flex-1 rounded-lg bg-teal-800 text-white hover:bg-teal-900"
-              disabled={loading() || !name().trim() || !club().trim() || !version().trim()}
+              disabled={loading() || !name().trim() || !props.memberClub || !version().trim()}
             >
               {loading() ? "创建中…" : "创建"}
             </button>

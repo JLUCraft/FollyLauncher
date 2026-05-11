@@ -129,14 +129,9 @@ impl MuaAuthService {
     }
 
     pub async fn start_device_auth(&self) -> anyhow::Result<StartAuthResponse> {
-        let openid_config = self
-            .fetch_openid_config(&self.auth_server_url)
-            .await?;
+        let openid_config = self.fetch_openid_config(&self.auth_server_url).await?;
 
-        let body = form_body(&[
-            ("client_id", &self.client_id),
-            ("scope", &self.scope),
-        ]);
+        let body = form_body(&[("client_id", &self.client_id), ("scope", &self.scope)]);
         let resp = self
             .client
             .post(&openid_config.device_auth_endpoint)
@@ -464,11 +459,8 @@ mod tests {
         );
 
         // Decode the base64 value to get the TexturesPayload back.
-        let decoded = base64::Engine::decode(
-            &base64::engine::general_purpose::STANDARD,
-            &encoded,
-        )
-        .unwrap();
+        let decoded =
+            base64::Engine::decode(&base64::engine::general_purpose::STANDARD, &encoded).unwrap();
         let textures: TexturesPayload = serde_json::from_slice(&decoded).unwrap();
         assert_eq!(
             textures.textures.skin.unwrap().url,

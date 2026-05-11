@@ -1,1 +1,1 @@
-pub use crate::launch::helpers::jre_selector::JavaRuntime;
+pub use crate::launch::jre_selector::JavaRuntime;
