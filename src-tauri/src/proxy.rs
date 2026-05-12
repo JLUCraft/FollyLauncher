@@ -35,40 +35,40 @@ struct ProxyInner {
     peer_cache: RwLock<HashMap<String, Instant>>,
 }
 
-/// ADR: Tauri IPC is used as the local API substitute between frontend and Rust backend.
-/// gRPC is not introduced at this stage because the launcher is a single-user desktop app
-/// with a co-located frontend; Tauri invoke() provides sufficient type safety and
-/// serialization at zero additional operational cost. If multi-process or remote
-/// launcher management becomes necessary, the command layer can be re-exported via a
-/// tonic gRPC server without changing the internal service implementations.
-///
-/// See also: lib.rs Tauri command handler registration.
+
+
+
+
+
+
+
+
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ProxySession {
     pub instance_id: String,
     pub local_port: u16,
     pub target_peer_id: String,
-    /// QUIC substream ID from libp2p (if available). Used for diagnostics.
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub substream_id: Option<String>,
-    /// OS process ID of the Minecraft client for this session.
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub process_id: Option<u32>,
     pub bytes_in: u64,
     pub bytes_out: u64,
-    /// State machine: active | migration_pending | reconnecting | failed | closed
+
     pub state: String,
     pub started_at: String,
 }
 
-/// Migration state machine phases.
-///
-/// ```text
-/// Active ──(MIGRATION_PENDING frame)──▶ MigrationPending
-/// MigrationPending ──(DHT re-resolve + QUIC open)──▶ Reconnecting
-/// Reconnecting ──(success)──▶ Active
-/// Reconnecting ──(timeout > 30s)──▶ Failed
-/// ```
+
+
+
+
+
+
+
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MigrationPhase {
     Active,
@@ -155,7 +155,7 @@ impl InstanceProxy {
         info!(%peer_addr, instance_id = %handshake.instance_id, "parsed mc handshake");
 
         let instance_id = handshake.instance_id.to_string();
-        // Resolve the instance and connect
+
         let resolved = self
             .resolve_instance_cached(instance_id.clone())
             .await
@@ -222,8 +222,8 @@ impl InstanceProxy {
         let peer_id_str = peer_id.to_string();
         let cache_ttl = Duration::from_secs(300);
 
-        // Check cache: if we've connected to this peer recently, the underlying QUIC
-        // connection may still be alive (keepalive 30s), so open_stream will be fast.
+
+
         {
             let cache = self.inner.peer_cache.read().await;
             if let Some(cached) = cache.get(&peer_id_str) {
@@ -241,7 +241,7 @@ impl InstanceProxy {
             .await
             .map_err(|e| anyhow::anyhow!("failed to open libp2p stream: {e}"))?;
 
-        // Update cache on success, evict stale entries.
+
         {
             let mut cache = self.inner.peer_cache.write().await;
             cache.retain(|_, v| v.elapsed() < cache_ttl);
@@ -299,7 +299,7 @@ impl InstanceProxy {
                 match target_read.read(&mut buf).await {
                     Ok(0) => break Ok(total),
                     Ok(n) => {
-                        // Check for migration control frame prefix
+
                         if current_phase == MigrationPhase::Active
                             && buf[..n.min(17)]
                                 .windows(16)
@@ -321,7 +321,7 @@ impl InstanceProxy {
                                     s.state = MigrationPhase::MigrationPending.as_str().to_string();
                                 }
                             }
-                            // Trigger migration reconnection
+
                             let inner_for_migration = inner_t2c.clone();
                             let migration_context = {
                                 let sessions = inner_t2c.sessions.read().await;
@@ -353,13 +353,13 @@ impl InstanceProxy {
                                                     MigrationPhase::Active.as_str().to_string();
                                                 s.target_peer_id = new_peer;
                                             }
-                                            // Fast-reconnect strategy: the new QUIC stream is valid
-                                            // and verified, but the in-flight copy task cannot atomically
-                                            // swap byte-streams mid-flight without client protocol support.
-                                            // Instead, the TCP side is broken (buffer overflow / timeout),
-                                            // which triggers MC's built-in reconnect logic. The session
-                                            // state has been updated to route subsequent connections to
-                                            // the new peer. Phase 3 may explore true stream splicing.
+
+
+
+
+
+
+
                                             drop(new_stream);
                                         }
                                         Err(e) => {
@@ -369,8 +369,8 @@ impl InstanceProxy {
                                                 s.state =
                                                     MigrationPhase::Failed.as_str().to_string();
                                             }
-                                            // Close the TCP side to force client reconnect
-                                            // (the c2t task will get a write error and exit cleanly)
+
+
                                         }
                                     }
                                 });
@@ -545,8 +545,8 @@ impl InstanceProxy {
         }
     }
 
-    /// Bind a temporary local port dedicated to a single instance launch.
-    /// Returns the local port number that Minecraft should connect to.
+
+
     pub async fn bridge_instance(&self, cfg: BridgeConfig) -> Result<u16> {
         let listener = TcpListener::bind("127.0.0.1:0")
             .await
@@ -598,7 +598,7 @@ impl InstanceProxy {
 
         let local_port = client.local_addr()?.port();
 
-        // Read the handshake from the Minecraft client
+
         let original_handshake = McHandshake::read_from(&mut client).await?;
         info!(
             %peer_addr,
@@ -607,7 +607,7 @@ impl InstanceProxy {
             "parsed mc handshake for dedicated bridge"
         );
 
-        // Build target handshake with instance info for the remote server
+
         let target_handshake = build_target_handshake(
             original_handshake,
             instance_id.parse().context("invalid instance_id uuid")?,
@@ -616,7 +616,7 @@ impl InstanceProxy {
             has_member_vc,
         );
 
-        // Resolve target
+
         let resolved = self
             .resolve_instance_cached(instance_id.clone())
             .await
@@ -769,7 +769,13 @@ impl McHandshake {
 fn extract_instance_id(address: &str) -> Option<Uuid> {
     for part in address.split(';') {
         if let Some(kv) = part.strip_prefix("instance=") {
-            return Uuid::parse_str(kv).ok();
+            match Uuid::parse_str(kv) {
+                Ok(uuid) => return Some(uuid),
+                Err(e) => {
+                    debug!(value = %kv, error = %e, "failed to parse instance UUID from address parameter");
+                    return None;
+                }
+            }
         }
     }
     None
@@ -832,11 +838,11 @@ mod tests {
     use crate::network::ResolvedInstance;
     use uuid::Uuid;
 
-    // ── Varint reading ──────────────────────────────────────────────────
+
 
     #[tokio::test]
     async fn test_read_varint_sync_single_byte() {
-        // Single-byte varints encode values 0–127 directly in 7 bits.
+
         for val in [0, 1, 42, 127i32] {
             let data: &[u8] = &[val as u8];
             let mut reader = data;
@@ -847,13 +853,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_read_varint_sync_multi_byte() {
-        // 128  -> 0x80 0x01  (two bytes)
+
         let data: &[u8] = &[0x80, 0x01];
         let mut reader = data;
         let result = read_varint_async(&mut reader).await.unwrap();
         assert_eq!(result, 128);
 
-        // 25565 -> 0xDD 0xC7 0x01  (three bytes)
+
         let data2: &[u8] = &[0xDD, 0xC7, 0x01];
         let mut reader2 = data2;
         let result2 = read_varint_async(&mut reader2).await.unwrap();
@@ -862,19 +868,19 @@ mod tests {
 
     #[tokio::test]
     async fn test_read_varint_sync_zero() {
-        // Zero is the simplest varint: a single 0x00 byte.
+
         let data: &[u8] = &[0x00];
         let mut reader = data;
         let result = read_varint_async(&mut reader).await.unwrap();
         assert_eq!(result, 0);
     }
 
-    // ── Varint roundtrip ────────────────────────────────────────────────
+
 
     #[test]
     fn test_write_varint_roundtrip() {
-        // Only test non-negative values; write_varint uses arithmetic right
-        // shift and does not terminate for negative inputs.
+
+
         let cases = [0i32, 1, 42, 127, 128, 255, 256, 16383, 16384];
         for &v in &cases {
             let mut written = Vec::new();
@@ -902,11 +908,11 @@ mod tests {
         }
     }
 
-    // ── Minecraft string reading ────────────────────────────────────────
+
 
     #[tokio::test]
     async fn test_read_mc_string_empty() {
-        // Varint length=0 followed by zero bytes.
+
         let data: &[u8] = &[0x00];
         let mut reader = data;
         let result = read_mc_string_async(&mut reader).await.unwrap();
@@ -915,7 +921,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_read_mc_string_ascii() {
-        // "hello" – length 5 as varint, then 5 bytes.
+
         let mut data = vec![0x05u8];
         data.extend_from_slice(b"hello");
         let mut reader = data.as_slice();
@@ -923,24 +929,24 @@ mod tests {
         assert_eq!(result, "hello");
     }
 
-    // ── u16 big-endian reading ──────────────────────────────────────────
+
 
     #[tokio::test]
     async fn test_read_u16_be() {
-        // 0x1234 in network order = [0x12, 0x34]
+
         let data: &[u8] = &[0x12, 0x34];
         let mut reader = data;
         let result = read_u16_be_async(&mut reader).await.unwrap();
         assert_eq!(result, 0x1234);
 
-        // Port 25565 = 0x63DD
+
         let data2: &[u8] = &[0x63, 0xDD];
         let mut reader2 = data2;
         let result2 = read_u16_be_async(&mut reader2).await.unwrap();
         assert_eq!(result2, 25565);
     }
 
-    // ── Instance ID extraction ──────────────────────────────────────────
+
 
     #[test]
     fn test_extract_instance_id_valid_uuid() {
@@ -961,19 +967,19 @@ mod tests {
 
     #[test]
     fn test_extract_param_valid() {
-        // Semi-colon delimited address with multiple params.
+
         let uuid = Uuid::new_v4();
         let address = format!("instance={};peer_id=12D3KooW;club=testclub;vc=true", uuid);
         let result = extract_instance_id(&address);
         assert_eq!(result, Some(uuid));
 
-        // Instance is the second parameter.
+
         let address2 = format!("peer_id=abc;instance={};vc=true", uuid);
         let result2 = extract_instance_id(&address2);
         assert_eq!(result2, Some(uuid));
     }
 
-    // ── Build target handshake ──────────────────────────────────────────
+
 
     #[test]
     fn test_build_target_handshake() {
@@ -989,7 +995,7 @@ mod tests {
             instance_id: Uuid::new_v4(),
         };
 
-        // Without club and vc
+
         let ht = build_target_handshake(original.clone(), instance_id, peer_id, None, false);
         assert_eq!(ht.protocol_version, 767);
         assert_eq!(ht.server_port, 25565);
@@ -1002,18 +1008,18 @@ mod tests {
         assert!(!ht.server_address.contains("club="));
         assert!(!ht.server_address.contains("vc=true"));
 
-        // With club and vc
+
         let ht2 = build_target_handshake(original, instance_id, peer_id, club.as_deref(), true);
         assert!(ht2.server_address.contains("club=builders"));
         assert!(ht2.server_address.contains("vc=true"));
     }
 
-    // ── Phase 38: QUIC-only error diagnostics ────────────────────────────
+
 
     #[test]
     fn test_quic_only_error_contains_diagnostic_keywords() {
-        // Verify that the error context added when try_open_libp2p_stream
-        // fails produces a message with actionable diagnostic keywords.
+
+
         let peer_id_str = "12D3KooWHyYqNJxXqRq9HuCvLp5sMQmR8kWjPFQGrWfRAdZ9MdiJ";
         let peer_id: libp2p::PeerId = peer_id_str.parse().unwrap();
 
@@ -1043,12 +1049,12 @@ mod tests {
 
     #[test]
     fn test_no_tcp_fallback_path_in_proxy_module() {
-        // Phase 38: Verify that pick_target_address has been removed and
-        // that ResolvedInstance fields proxy_address / public_ips are no
-        // longer referenced in production proxy paths.
-        //
-        // This test encodes the static grep assertion at the type level:
-        // the deleted function is not accessible via super::*.
+
+
+
+
+
+
         let resolved = ResolvedInstance {
             instance_id: "test-id".into(),
             peer_id: "12D3KooWTestPeer".into(),
@@ -1058,19 +1064,19 @@ mod tests {
             resolved_at: "2025-01-01T00:00:00Z".into(),
         };
 
-        // ResolvedInstance struct still carries these fields (populated by
-        // network.rs DHT resolution), but proxy.rs no longer reads
-        // proxy_address or public_ips for TCP fallback – only peer_id is
-        // consumed for the QUIC stream path.
+
+
+
+
         assert_eq!(resolved.peer_id, "12D3KooWTestPeer");
         assert!(resolved.proxy_address.is_some());
         assert!(!resolved.public_ips.is_empty());
 
-        // If pick_target_address were still present, it would be callable
-        // via super::*.  This file compiles → the function is deleted.
+
+
     }
 
-    // ── Migration state machine tests (Phase 8: fast-reconnect closure) ──
+
 
     #[test]
     fn test_migration_phase_as_str() {
@@ -1085,22 +1091,22 @@ mod tests {
 
     #[test]
     fn test_migration_phase_transitions() {
-        // Verify the valid state transitions:
-        // Active → MigrationPending → Reconnecting → Active (success)
-        // Active → MigrationPending → Reconnecting → Failed (timeout/error)
+
+
+
         let active = MigrationPhase::Active;
         let pending = MigrationPhase::MigrationPending;
         let reconnecting = MigrationPhase::Reconnecting;
         let failed = MigrationPhase::Failed;
 
-        // All phases are distinct
+
         assert_ne!(active, pending);
         assert_ne!(pending, reconnecting);
         assert_ne!(reconnecting, active);
         assert_ne!(reconnecting, failed);
         assert_ne!(failed, active);
 
-        // Verify transition validity (compile-time check on enum)
+
         let phases = [active, pending, reconnecting, failed];
         for phase in &phases {
             let s = phase.as_str();
@@ -1114,7 +1120,7 @@ mod tests {
 
     #[test]
     fn test_proxy_session_state_initialization() {
-        // Verify that ProxySession starts in Active state
+
         let session = ProxySession {
             instance_id: "test-instance".to_string(),
             local_port: 25565,
@@ -1133,23 +1139,23 @@ mod tests {
 
     #[test]
     fn test_migration_buffer_overflow_detection() {
-        // Verify the migration buffer size constant is reasonable
+
         assert_eq!(MIGRATION_BUFFER_SIZE, 64 * 1024);
 
-        // Verify migration timeout constant
+
         assert_eq!(MIGRATION_TIMEOUT, Duration::from_secs(30));
     }
 
     #[test]
     fn test_migration_control_frame_detection() {
-        // Verify that the control frame prefix is correctly detected
+
         let data = b"MIGRATION_PENDING\x01\x02extra data";
         let found = data
             .windows(b"MIGRATION_PENDING".len())
             .any(|w| w == b"MIGRATION_PENDING");
         assert!(found, "MIGRATION_PENDING frame should be detected");
 
-        // Normal Minecraft packet data should NOT trigger migration
+
         let normal_data = b"\x00\xFF\x00\x01packet data here12345";
         let not_found = normal_data
             .windows(b"MIGRATION_PENDING".len())

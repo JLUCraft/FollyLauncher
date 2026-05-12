@@ -1,18 +1,9 @@
 import type { OnboardingStatus } from "../services/account";
 
-/**
- * 判断当前身份是否允许创建联邦房间。
- * 规则：仅 VC Member（is_member === true）允许。
- */
 export function canCreateFederatedRoom(status: OnboardingStatus): boolean {
   return status.is_member === true;
 }
 
-/**
- * 当不允许创建联邦房间时，返回面向玩家的提示文案。
- * 不同身份返回不同引导文案。
- * 返回 null 表示允许创建。
- */
 export function roomCreationBlockedMessage(
   status: OnboardingStatus,
 ): string | null {

@@ -224,7 +224,7 @@ export async function fetchNewsPostSummaries(
   return invoke("fetch_news_post_summaries", { requests });
 }
 
-// ── Client version install ───────────────────────────────────────────────
+
 
 export interface InstallClientVersionRequest {
   instanceId: string;
@@ -249,7 +249,7 @@ export async function installClientVersionForInstance(
   return invoke("install_client_version_for_instance", { request });
 }
 
-// ── Phase 31: Async client version install ───────────────────────────
+
 
 export interface AsyncInstallClientVersionRequest {
   instanceId: string;
@@ -269,7 +269,7 @@ export async function startInstallClientVersionTask(
   return invoke("start_install_client_version_task", { request });
 }
 
-// ── Phase 16: Libraries install ────────────────────────────────────────────
+
 
 export interface InstallLibrariesRequest {
   instanceId: string;
@@ -293,7 +293,7 @@ export async function installLibrariesForInstance(
   return invoke("install_libraries_for_instance", { request });
 }
 
-// ── Phase 32: Async libraries install ──────────────────────────────────────
+
 
 export interface AsyncInstallLibrariesRequest {
   instanceId: string;
@@ -313,7 +313,7 @@ export async function startInstallLibrariesTask(
   return invoke("start_install_libraries_task", { request });
 }
 
-// ── Phase 17: Assets install ─────────────────────────────────────────────────
+
 
 export interface InstallAssetsRequest {
   instanceId: string;
@@ -339,7 +339,7 @@ export async function installAssetsForInstance(
   return invoke("install_assets_for_instance", { request: req });
 }
 
-// ── Phase 33: Async assets install ───────────────────────────────────────
+
 
 export interface AsyncInstallAssetsRequest {
   instanceId: string;
@@ -359,7 +359,7 @@ export async function startInstallAssetsTask(
   return invoke("start_install_assets_task", { request });
 }
 
-// ── Phase 18: Loader install ─────────────────────────────────────────────────
+
 
 export type InstallLoaderKind = "Fabric" | "Quilt" | "Forge" | "NeoForge";
 
@@ -387,7 +387,7 @@ export async function installLoaderForInstance(
   return invoke("install_loader_for_instance", { request });
 }
 
-// ── Phase 34: Async loader install ─────────────────────────────────────────
+
 
 export interface AsyncInstallLoaderRequest {
   instanceId: string;
@@ -409,9 +409,9 @@ export async function startInstallLoaderTask(
   return invoke("start_install_loader_task", { request });
 }
 
-// ── Phase 35: Async resource install ────────────────────────────────────────
 
-/** Phase 35: 异步资源安装请求 */
+
+
 export interface AsyncInstallResourceRequest {
   instanceId: string;
   kind: InstallResourceKind;
@@ -419,7 +419,7 @@ export interface AsyncInstallResourceRequest {
   overwrite: boolean;
 }
 
-/** Phase 35: 异步资源安装启动响应 */
+
 export interface AsyncInstallResourceStarted {
   groupId: string;
   taskId: number;
@@ -427,7 +427,7 @@ export interface AsyncInstallResourceStarted {
   fileName: string;
 }
 
-/** 启动后台异步资源安装任务，立即返回 group_id */
+
 export async function startInstallResourceTask(
   request: AsyncInstallResourceRequest,
 ): Promise<AsyncInstallResourceStarted> {

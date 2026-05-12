@@ -10,29 +10,30 @@ use crate::resource::loader_meta::{
     get_neoforge_meta_by_game_version, get_optifine_meta_by_game_version,
     get_quilt_meta_by_game_version,
 };
-use crate::resource::misc::{get_source_priority_list, get_use_mirror, get_download_api};
-use crate::resource::modrinth::{
-    fetch_remote_resource_by_id_modrinth, fetch_remote_resource_by_local_modrinth,
-    fetch_resource_list_by_name_modrinth, fetch_resource_version_packs_modrinth,
-};
+use crate::resource::misc::{get_download_api, get_source_priority_list, get_use_mirror};
 use crate::resource::models::{
     AsyncInstallAssetsRequest, AsyncInstallAssetsStarted, AsyncInstallClientVersionRequest,
     AsyncInstallLibrariesRequest, AsyncInstallLibrariesStarted, AsyncInstallLoaderRequest,
     AsyncInstallLoaderStarted, AsyncInstallResourceRequest, AsyncInstallResourceStarted,
-    AsyncInstallTaskStarted, GameClientResourceInfo, InstallAssetsRequest,
-    InstallAssetsResult, InstallClientVersionRequest, InstallClientVersionResult,
-    InstallLibrariesRequest, InstallLibrariesResult, InstallLoaderKind, InstallLoaderRequest,
-    InstallLoaderResult, InstallResourceKind, InstallResourceRequest, InstallResourceResult,
-    ModLoaderResourceInfo, ModLoaderType, ModUpdateQuery,
-    OptiFineResourceInfo, OtherResourceFileInfo, OtherResourceInfo,
+    AsyncInstallTaskStarted, GameClientResourceInfo, InstallAssetsRequest, InstallAssetsResult,
+    InstallClientVersionRequest, InstallClientVersionResult, InstallLibrariesRequest,
+    InstallLibrariesResult, InstallLoaderKind, InstallLoaderRequest, InstallLoaderResult,
+    InstallResourceKind, InstallResourceRequest, InstallResourceResult, ModLoaderResourceInfo,
+    ModLoaderType, ModUpdateQuery, OptiFineResourceInfo, OtherResourceFileInfo, OtherResourceInfo,
     OtherResourceSearchQuery, OtherResourceSearchRes, OtherResourceSource,
     OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceDependencySummary,
     ResourceType, SourceType,
 };
+use crate::resource::modrinth::{
+    fetch_remote_resource_by_id_modrinth, fetch_remote_resource_by_local_modrinth,
+    fetch_resource_list_by_name_modrinth, fetch_resource_version_packs_modrinth,
+};
 use crate::resource::validator::{library_artifact_path, parse_version_json};
 use crate::resource::version_manifest::get_game_version_manifest;
-use crate::tasks::commands::{build_running_task_group, record_running_task_group, update_single_task_group};
-use crate::tasks::models::{TaskStatus};
+use crate::tasks::commands::{
+    build_running_task_group, record_running_task_group, update_single_task_group,
+};
+use crate::tasks::models::TaskStatus;
 
 use crate::AppState;
 use std::path::PathBuf;
@@ -42,7 +43,9 @@ use tokio::sync::Mutex;
 use tracing::warn;
 
 #[tauri::command]
-pub async fn fetch_game_version_list(app: AppHandle) -> Result<Vec<GameClientResourceInfo>, LauncherError> {
+pub async fn fetch_game_version_list(
+    app: AppHandle,
+) -> Result<Vec<GameClientResourceInfo>, LauncherError> {
     let client = app.state::<reqwest::Client>().inner().clone();
     let priority_list = get_source_priority_list(get_use_mirror(&app));
     get_game_version_manifest(&app, &client, &priority_list)
@@ -80,7 +83,9 @@ pub async fn fetch_mod_loader_version_list(
                 .await
                 .map_err(|e| LauncherError::from(e.to_string()))
         }
-        _ => Err(LauncherError::from("Mod loader not supported for version listing")),
+        _ => Err(LauncherError::from(
+            "Mod loader not supported for version listing",
+        )),
     }
 }
 
@@ -103,16 +108,12 @@ pub async fn fetch_resource_list_by_name(
     query: OtherResourceSearchQuery,
 ) -> Result<OtherResourceSearchRes, LauncherError> {
     match download_source {
-        OtherResourceSource::CurseForge => {
-            fetch_resource_list_by_name_curseforge(&app, &query)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
-        OtherResourceSource::Modrinth => {
-            fetch_resource_list_by_name_modrinth(&app, &query)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
+        OtherResourceSource::CurseForge => fetch_resource_list_by_name_curseforge(&app, &query)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
+        OtherResourceSource::Modrinth => fetch_resource_list_by_name_modrinth(&app, &query)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
         _ => Err(LauncherError::from("Unsupported download source")),
     }
 }
@@ -124,16 +125,12 @@ pub async fn fetch_resource_version_packs(
     query: OtherResourceVersionPackQuery,
 ) -> Result<Vec<OtherResourceVersionPack>, LauncherError> {
     match download_source {
-        OtherResourceSource::CurseForge => {
-            fetch_resource_version_packs_curseforge(&app, &query)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
-        OtherResourceSource::Modrinth => {
-            fetch_resource_version_packs_modrinth(&app, &query)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
+        OtherResourceSource::CurseForge => fetch_resource_version_packs_curseforge(&app, &query)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
+        OtherResourceSource::Modrinth => fetch_resource_version_packs_modrinth(&app, &query)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
         _ => Err(LauncherError::from("Unsupported download source")),
     }
 }
@@ -150,11 +147,9 @@ pub async fn fetch_remote_resource_by_local(
                 .await
                 .map_err(|e| LauncherError::from(e.to_string()))
         }
-        OtherResourceSource::Modrinth => {
-            fetch_remote_resource_by_local_modrinth(&app, &file_path)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
+        OtherResourceSource::Modrinth => fetch_remote_resource_by_local_modrinth(&app, &file_path)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
         _ => Err(LauncherError::from("Unsupported download source")),
     }
 }
@@ -171,11 +166,9 @@ pub async fn fetch_remote_resource_by_id(
                 .await
                 .map_err(|e| LauncherError::from(e.to_string()))
         }
-        OtherResourceSource::Modrinth => {
-            fetch_remote_resource_by_id_modrinth(&app, &resource_id)
-                .await
-                .map_err(|e| LauncherError::from(e.to_string()))
-        }
+        OtherResourceSource::Modrinth => fetch_remote_resource_by_id_modrinth(&app, &resource_id)
+            .await
+            .map_err(|e| LauncherError::from(e.to_string())),
         _ => Err(LauncherError::from("Unsupported download source")),
     }
 }
@@ -226,7 +219,10 @@ pub async fn download_game_server(
     if !sha1.is_empty() {
         let actual = hex::encode(sha1_smol::Sha1::from(&bytes).digest().bytes());
         if actual != sha1 {
-            return Err(LauncherError::from(format!("SHA1 mismatch: expected {}, got {}", sha1, actual)));
+            return Err(LauncherError::from(format!(
+                "SHA1 mismatch: expected {}, got {}",
+                sha1, actual
+            )));
         }
     }
 
@@ -260,7 +256,10 @@ pub async fn update_mods(
             if !query.sha1.is_empty() {
                 let actual = hex::encode(sha1_smol::Sha1::from(&bytes).digest().bytes());
                 if actual != query.sha1 {
-                    return Err(LauncherError::from(format!("SHA1 mismatch for {}: expected {}, got {}", query.file_name, query.sha1, actual)));
+                    return Err(LauncherError::from(format!(
+                        "SHA1 mismatch for {}: expected {}, got {}",
+                        query.file_name, query.sha1, actual
+                    )));
                 }
             }
 
@@ -278,7 +277,10 @@ pub async fn update_mods(
             if query.old_file_path != dest_path.to_string_lossy() {
                 let old_backup = format!("{}.old", query.old_file_path);
                 if let Err(e) = std::fs::rename(&query.old_file_path, &old_backup) {
-                    warn!("Failed to rename old mod file {}: {}", query.old_file_path, e);
+                    warn!(
+                        "Failed to rename old mod file {}: {}",
+                        query.old_file_path, e
+                    );
                 }
             }
 
@@ -290,7 +292,7 @@ pub async fn update_mods(
     Ok(())
 }
 
-// ── Helpers for deriving install paths from an instance ─────────────────
+
 
 fn versions_dir(game_dir: &str) -> PathBuf {
     PathBuf::from(game_dir).join("versions")
@@ -319,7 +321,7 @@ fn data_dir(app: &AppHandle) -> PathBuf {
         .clone()
 }
 
-// ── Phase 15: Resource (mod / resource pack / shader pack) install ──────
+
 
 #[tauri::command]
 pub async fn install_resource_to_instance(
@@ -392,7 +394,7 @@ pub async fn install_resource_to_instance(
     })
 }
 
-// ── Phase 31: Client version install ────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn install_client_version_for_instance(
@@ -412,9 +414,7 @@ pub async fn install_client_version_for_instance(
     let version_info = versions
         .iter()
         .find(|v| &v.id == game_version)
-        .ok_or_else(|| {
-            LauncherError::from(format!("Game version {} not found", game_version))
-        })?;
+        .ok_or_else(|| LauncherError::from(format!("Game version {} not found", game_version)))?;
 
     let version_json: serde_json::Value = client
         .get(&version_info.url)
@@ -453,7 +453,9 @@ pub async fn install_client_version_for_instance(
     let client_jar_path = version_dir.join(format!("{}.jar", game_version));
     let replaced_existing = client_jar_path.exists();
     if replaced_existing && !request.overwrite {
-        return Err(LauncherError::from("Client JAR already exists and overwrite is disabled"));
+        return Err(LauncherError::from(
+            "Client JAR already exists and overwrite is disabled",
+        ));
     }
 
     let response = client
@@ -537,7 +539,8 @@ pub async fn start_install_client_version_task(
                 task.status = status;
                 task.message = message;
             }
-        }).await;
+        })
+        .await;
     });
 
     Ok(AsyncInstallTaskStarted {
@@ -548,7 +551,7 @@ pub async fn start_install_client_version_task(
     })
 }
 
-// ── Phase 16: Libraries install ─────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn install_libraries_for_instance(
@@ -592,16 +595,13 @@ pub async fn install_libraries_for_instance(
             let _ = std::fs::remove_file(&lib_path);
         }
 
-        // Get download info from the library entry
-        let artifact = entry
-            .downloads
-            .as_ref()
-            .and_then(|d| d.artifact.as_ref());
+
+        let artifact = entry.downloads.as_ref().and_then(|d| d.artifact.as_ref());
 
         let url = match artifact {
             Some(a) => &a.url,
             None => {
-                // Build fallback URL from Maven coordinates
+
                 failed += 1;
                 continue;
             }
@@ -666,11 +666,8 @@ pub async fn start_install_libraries_task(
     let game_version = instance.game_version.clone();
     let group_id = format!("{}-install-libraries", instance_id);
 
-    let group = build_running_task_group(
-        &group_id,
-        "安装游戏库文件",
-        "正在下载 Minecraft 运行库...",
-    );
+    let group =
+        build_running_task_group(&group_id, "安装游戏库文件", "正在下载 Minecraft 运行库...");
     record_running_task_group(&app, group).await?;
 
     let app_clone = app.clone();
@@ -705,7 +702,8 @@ pub async fn start_install_libraries_task(
                 task.status = status;
                 task.message = message;
             }
-        }).await;
+        })
+        .await;
     });
 
     Ok(AsyncInstallLibrariesStarted {
@@ -716,7 +714,7 @@ pub async fn start_install_libraries_task(
     })
 }
 
-// ── Phase 17: Assets install ────────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn install_assets_for_instance(
@@ -739,7 +737,7 @@ pub async fn install_assets_for_instance(
         .as_ref()
         .ok_or_else(|| LauncherError::from("Version JSON missing asset index info"))?;
 
-    // Download asset index
+
     let asset_index: serde_json::Value = client
         .get(&asset_index_info.url)
         .send()
@@ -754,7 +752,7 @@ pub async fn install_assets_for_instance(
     std::fs::create_dir_all(&indexes_dir)
         .map_err(|e| LauncherError::from(format!("Mkdir failed: {}", e)))?;
 
-    // Save asset index
+
     let index_path = indexes_dir.join(format!("{}.json", asset_index_info.id));
     let index_bytes = serde_json::to_vec_pretty(&asset_index)
         .map_err(|e| LauncherError::from(format!("Serialize failed: {}", e)))?;
@@ -777,10 +775,7 @@ pub async fn install_assets_for_instance(
 
     for (_name, obj) in objects {
         scanned += 1;
-        let hash = obj
-            .get("hash")
-            .and_then(|h| h.as_str())
-            .unwrap_or("");
+        let hash = obj.get("hash").and_then(|h| h.as_str()).unwrap_or("");
         let size = obj.get("size").and_then(|s| s.as_u64()).unwrap_or(0);
 
         if hash.is_empty() {
@@ -807,15 +802,13 @@ pub async fn install_assets_for_instance(
         let url = format!("{}/{}", resource_base, hash);
         match client.get(&url).send().await {
             Ok(resp) => match resp.bytes().await {
-                Ok(bytes) => {
-                    match std::fs::write(&obj_path, &bytes) {
-                        Ok(_) => {
-                            downloaded += 1;
-                            total_bytes += bytes.len() as u64;
-                        }
-                        Err(_) => failed += 1,
+                Ok(bytes) => match std::fs::write(&obj_path, &bytes) {
+                    Ok(_) => {
+                        downloaded += 1;
+                        total_bytes += bytes.len() as u64;
                     }
-                }
+                    Err(_) => failed += 1,
+                },
                 Err(_) => failed += 1,
             },
             Err(_) => failed += 1,
@@ -847,11 +840,8 @@ pub async fn start_install_assets_task(
     let game_version = instance.game_version.clone();
     let group_id = format!("{}-install-assets", instance_id);
 
-    let group = build_running_task_group(
-        &group_id,
-        "安装游戏资源",
-        "正在下载 Minecraft 资源文件...",
-    );
+    let group =
+        build_running_task_group(&group_id, "安装游戏资源", "正在下载 Minecraft 资源文件...");
     record_running_task_group(&app, group).await?;
 
     let app_clone = app.clone();
@@ -886,7 +876,8 @@ pub async fn start_install_assets_task(
                 task.status = status;
                 task.message = message;
             }
-        }).await;
+        })
+        .await;
     });
 
     Ok(AsyncInstallAssetsStarted {
@@ -897,9 +888,9 @@ pub async fn start_install_assets_task(
     })
 }
 
-// ── Phase 18: Loader install ────────────────────────────────────────────
 
-/// Build the profile JSON URL for a specific loader.
+
+
 fn loader_profile_url(
     source: SourceType,
     kind: InstallLoaderKind,
@@ -921,7 +912,7 @@ fn loader_profile_url(
             ))
         }
         InstallLoaderKind::Forge => {
-            // BMCLAPI: /forge/download/{version}
+
             let base = get_download_api(source, ResourceType::ForgeMeta)
                 .map_err(|e| LauncherError::from(format!("Forge API: {e}")))?;
             Ok(format!("{}forge/download/{}", base, loader_version))
@@ -957,11 +948,11 @@ pub async fn install_loader_for_instance(
     let instance = get_instance_in(&dd, &request.instance_id)?;
     let game_version = instance.game_version.clone();
 
-    // Determine loader version (explicit or latest)
+
     let loader_version = match &request.loader_version {
         Some(v) => v.clone(),
         None => {
-            // Fetch latest loader version for this game version
+
             let versions = match request.kind {
                 InstallLoaderKind::Fabric => {
                     get_fabric_meta_by_game_version(&app, &client, &priority_list, &game_version)
@@ -991,7 +982,7 @@ pub async fn install_loader_for_instance(
         }
     };
 
-    // Build profile JSON URL
+
     let profile_url = loader_profile_url(
         *priority_list.first().unwrap_or(&SourceType::Official),
         request.kind,
@@ -1022,10 +1013,12 @@ pub async fn install_loader_for_instance(
     let json_path = version_dir.join(format!("{}.json", version_name.clone()));
     let replaced_existing = json_path.exists();
     if replaced_existing && !request.overwrite {
-        return Err(LauncherError::from("Loader version JSON already exists and overwrite is disabled"));
+        return Err(LauncherError::from(
+            "Loader version JSON already exists and overwrite is disabled",
+        ));
     }
 
-    // Build a minimal inheriting version JSON
+
     let loader_version_json = serde_json::json!({
         "id": version_name,
         "inheritsFrom": game_version,
@@ -1040,7 +1033,7 @@ pub async fn install_loader_for_instance(
     std::fs::write(&json_path, &json_bytes)
         .map_err(|e| LauncherError::from(format!("Write failed: {}", e)))?;
 
-    // Update instance kind and game version
+
     update_instance_loader_in(
         &dd,
         &instance.id,
@@ -1105,7 +1098,8 @@ pub async fn start_install_loader_task(
                 task.status = status;
                 task.message = message;
             }
-        }).await;
+        })
+        .await;
     });
 
     Ok(AsyncInstallLoaderStarted {
@@ -1116,7 +1110,7 @@ pub async fn start_install_loader_task(
     })
 }
 
-// ── Phase 35: Async resource install ────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn start_install_resource_task(
@@ -1159,7 +1153,8 @@ pub async fn start_install_resource_task(
                 task.status = status;
                 task.message = message;
             }
-        }).await;
+        })
+        .await;
     });
 
     Ok(AsyncInstallResourceStarted {

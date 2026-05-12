@@ -165,7 +165,7 @@ export async function launchListStates(): Promise<LaunchStateResponse[]> {
   return invoke("launch_list_states");
 }
 
-// ── Phase 8: Launch lifecycle actions ──────────────────────────────────
+
 
 export async function launchCancel(launchingId: number): Promise<void> {
   return invoke("launch_cancel", { launchingId });
@@ -178,7 +178,7 @@ export async function launchExportCrash(
   return invoke("launch_export_crash", { launchingId, savePath });
 }
 
-// ── Phase 4: Enhanced game validation ──────────────────────────────────
+
 
 export interface ValidationSummary {
   instance_id: string;
@@ -208,7 +208,7 @@ export async function validateAndUpdateGame(
   return invoke("validate_and_update_game", { instanceId, version });
 }
 
-// ── Phase 4: Launch plan generation ────────────────────────────────────
+
 
 export interface LaunchPlan {
   java_executable: string;
@@ -243,7 +243,7 @@ export async function generateLaunchPlan(
   });
 }
 
-// ── Phase 4: Download progress event type ──────────────────────────────
+
 
 export interface DownloadProgress {
   task_id: string;
@@ -254,7 +254,7 @@ export interface DownloadProgress {
   state: "Pending" | "Downloading" | "Verifying" | "Completed" | "Failed";
 }
 
-// ── Phase 4: Game lifecycle events ─────────────────────────────────────
+
 
 export interface GameLogLine {
   session_id: string;

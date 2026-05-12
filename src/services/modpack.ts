@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+
 
 export type ModpackFileKind = "Mod" | "ResourcePack" | "ShaderPack";
 
@@ -44,7 +44,7 @@ export interface ImportModpackManifestResult {
   bytes_written: number;
 }
 
-// ── API wrappers ─────────────────────────────────────────────────────────────
+
 
 export async function exportModpackManifest(
   instanceId: string,
@@ -58,7 +58,7 @@ export async function importModpackManifest(
   return invoke("import_modpack_manifest", { request });
 }
 
-// ── Phase 21: ZIP types ─────────────────────────────────────────────────────
+
 
 export interface ExportModpackZipRequest {
   instanceId: string;
@@ -86,7 +86,7 @@ export interface ImportModpackZipResult {
   bytesWritten: number;
 }
 
-// ── Phase 21: ZIP API wrappers ──────────────────────────────────────────────
+
 
 export async function exportModpackZip(
   request: ExportModpackZipRequest,

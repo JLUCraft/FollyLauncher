@@ -126,11 +126,11 @@ export function SettingsPage() {
 
             <Show when={!settingsQuery.isLoading}>
                 <div class="mt-6 max-w-xl space-y-6">
-                    {/* ── 启动器 ── */}
+                    {}
                     <section class="rounded-xl border border-stone-200 bg-white p-6">
                         <h3 class="font-bold text-stone-800">启动器</h3>
                         <div class="mt-4 space-y-4">
-                            {/* Language */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">语言</label>
                                 <select
@@ -148,7 +148,7 @@ export function SettingsPage() {
                                 </select>
                             </div>
 
-                            {/* Theme */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">界面主题</label>
                                 <select
@@ -170,7 +170,7 @@ export function SettingsPage() {
                                 </p>
                             </div>
 
-                            {/* Close behavior */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">关闭行为</label>
                                 <select
@@ -192,7 +192,7 @@ export function SettingsPage() {
                                 </select>
                             </div>
 
-                            {/* Download threads */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">
                                     下载线程数: {f().basic.download_threads}
@@ -218,11 +218,11 @@ export function SettingsPage() {
                         </div>
                     </section>
 
-                    {/* ── 游戏 ── */}
+                    {}
                     <section class="rounded-xl border border-stone-200 bg-white p-6">
                         <h3 class="font-bold text-stone-800">游戏</h3>
                         <div class="mt-4 space-y-4">
-                            {/* Java path */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">Java 路径</label>
                                 <div class="mt-1 flex gap-2">
@@ -254,7 +254,7 @@ export function SettingsPage() {
                                 </div>
                             </div>
 
-                            {/* Memory */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">
                                     最大内存: {f().game.max_memory_mb ?? 0} MB
@@ -281,7 +281,7 @@ export function SettingsPage() {
                                 </p>
                             </div>
 
-                            {/* JVM args */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">自定义 JVM 参数</label>
                                 <textarea
@@ -298,7 +298,7 @@ export function SettingsPage() {
                                 />
                             </div>
 
-                            {/* Game directory */}
+                            {}
                             <div>
                                 <label class="block text-sm font-medium text-stone-700">游戏目录</label>
                                 <div class="mt-1 flex gap-2">
@@ -333,7 +333,7 @@ export function SettingsPage() {
                                 </div>
                             </div>
 
-                            {/* Resolution */}
+                            {}
                             <div class="flex gap-4">
                                 <div class="flex-1">
                                     <label class="block text-sm font-medium text-stone-700">宽度</label>
@@ -371,7 +371,7 @@ export function SettingsPage() {
                                 </div>
                             </div>
 
-                            {/* Fullscreen & Log */}
+                            {}
                             <div class="flex items-center gap-3">
                                 <input
                                     type="checkbox"
@@ -405,7 +405,7 @@ export function SettingsPage() {
                         </div>
                     </section>
 
-                    {/* ── Java ── */}
+                    {}
                     <section class="rounded-xl border border-stone-200 bg-white p-6">
                         <h3 class="font-bold text-stone-800">Java</h3>
                         <div class="mt-4 space-y-4">
@@ -458,7 +458,7 @@ export function SettingsPage() {
                             </div>
                         </div>
 
-                        {/* Scan installed Java runtimes */}
+                        {}
                         <div class="mt-4 border-t border-stone-100 pt-4">
                             <button
                                 class="btn rounded-lg bg-teal-800 px-4 py-2 text-sm text-white hover:bg-teal-900 disabled:opacity-50"
@@ -498,7 +498,7 @@ export function SettingsPage() {
                         </div>
                     </section>
 
-                    {/* ── 高级 ── */}
+                    {}
                     <section class="rounded-xl border border-stone-200 bg-white p-6">
                         <h3 class="font-bold text-stone-800">高级</h3>
                         <div class="mt-4 space-y-4">

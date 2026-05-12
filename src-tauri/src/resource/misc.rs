@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::resource::curseforge::translate_description_curseforge;
 use crate::resource::mod_db::ModDataBase;
 use crate::resource::models::{
@@ -7,6 +6,7 @@ use crate::resource::models::{
 };
 use crate::resource::modrinth::translate_description_modrinth;
 use std::cmp::Ordering;
+use std::sync::Arc;
 use tauri::{AppHandle, Manager};
 use tokio::sync::Mutex;
 use url::Url;
@@ -29,49 +29,37 @@ pub fn get_download_api(
     source: SourceType,
     resource_type: ResourceType,
 ) -> Result<Url, ResourceError> {
+    fn parse_url(url_str: &str) -> Result<Url, ResourceError> {
+        Url::parse(url_str).map_err(|e| ResourceError::InvalidUrl(format!("{url_str}: {e}")))
+    }
+
     match source {
         SourceType::Official => match resource_type {
-            ResourceType::VersionManifest => Ok(Url::parse(
+            ResourceType::VersionManifest => parse_url(
                 "https://launchermeta.mojang.com/mc/game/version_manifest.json",
-            )
-            .expect("static URL")),
+            ),
             ResourceType::ForgeMeta => Err(ResourceError::NoDownloadApi),
             ResourceType::OptiFine => Err(ResourceError::NoDownloadApi),
-            ResourceType::FabricMeta => {
-                Ok(Url::parse("https://meta.fabricmc.net/").expect("static URL"))
-            }
-            ResourceType::NeoforgeMetaForge => Ok(Url::parse(
+            ResourceType::FabricMeta => parse_url("https://meta.fabricmc.net/"),
+            ResourceType::NeoforgeMetaForge => parse_url(
                 "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/forge/",
-            )
-            .expect("static URL")),
-            ResourceType::NeoforgeMetaNeoforge => Ok(Url::parse(
+            ),
+            ResourceType::NeoforgeMetaNeoforge => parse_url(
                 "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge/",
-            )
-            .expect("static URL")),
-            ResourceType::QuiltMeta => {
-                Ok(Url::parse("https://meta.quiltmc.org/").expect("static URL"))
-            }
+            ),
+            ResourceType::QuiltMeta => parse_url("https://meta.quiltmc.org/"),
         },
         SourceType::BMCLAPIMirror => match resource_type {
-            ResourceType::VersionManifest => Ok(Url::parse(
+            ResourceType::VersionManifest => parse_url(
                 "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json",
-            )
-            .expect("static URL")),
-            ResourceType::ForgeMeta => {
-                Ok(Url::parse("https://bmclapi2.bangbang93.com/forge/").expect("static URL"))
-            }
-            ResourceType::FabricMeta => {
-                Ok(Url::parse("https://bmclapi2.bangbang93.com/fabric-meta/").expect("static URL"))
-            }
+            ),
+            ResourceType::ForgeMeta => parse_url("https://bmclapi2.bangbang93.com/forge/"),
+            ResourceType::FabricMeta => parse_url("https://bmclapi2.bangbang93.com/fabric-meta/"),
             ResourceType::NeoforgeMetaForge | ResourceType::NeoforgeMetaNeoforge => {
-                Ok(Url::parse("https://bmclapi2.bangbang93.com/neoforge/").expect("static URL"))
+                parse_url("https://bmclapi2.bangbang93.com/neoforge/")
             }
-            ResourceType::OptiFine => {
-                Ok(Url::parse("https://bmclapi2.bangbang93.com/optifine/").expect("static URL"))
-            }
-            ResourceType::QuiltMeta => {
-                Ok(Url::parse("https://bmclapi2.bangbang93.com/quilt-meta/").expect("static URL"))
-            }
+            ResourceType::OptiFine => parse_url("https://bmclapi2.bangbang93.com/optifine/"),
+            ResourceType::QuiltMeta => parse_url("https://bmclapi2.bangbang93.com/quilt-meta/"),
         },
     }
 }

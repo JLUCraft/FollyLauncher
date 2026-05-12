@@ -37,25 +37,14 @@ export async function measureLatency(peerId: string): Promise<number | null> {
   return invoke("measure_latency", { peerId });
 }
 
-// createInstance removed — players must use createQuickRoom, which
-// auto-derives kind/club/owner from the current identity and room config.
-// Admin instance creation goes through union-manager's governance path.
+
+
+
 
 export async function resolveInstance(
   instanceId: string
 ): Promise<ResolvedInstance | null> {
   return invoke("resolve_instance", { instanceId });
-}
-
-export interface ClusterMessage {
-  topic: string;
-  peer_id: string;
-  payload: Record<string, unknown>;
-  received_at: string;
-}
-
-export async function getClusterMessages(): Promise<ClusterMessage[]> {
-  return invoke("get_cluster_messages");
 }
 
 export interface SyncStatus {
@@ -109,7 +98,7 @@ export async function syncResources(instanceId: string): Promise<SyncResult> {
   return invoke("sync_resources", { instanceId });
 }
 
-// Eligibility check (P1: admission-aware joining)
+
 
 export interface EligibilityResult {
   instance_id: string;
@@ -132,7 +121,7 @@ export async function checkInstanceEligibility(
   return invoke("check_instance_eligibility", { instanceId });
 }
 
-// Quick room creation (P1: one-click room from server page)
+
 
 export interface QuickRoomResult {
   id: string;
@@ -151,29 +140,7 @@ export async function createQuickRoom(
   return invoke("create_quick_room", { name, version, admission });
 }
 
-// PubSub topic subscriptions
 
-export async function subscribeInstanceEvents(instanceId: string): Promise<void> {
-  return invoke("subscribe_instance_events", { instanceId });
-}
-
-export async function unsubscribeInstanceEvents(instanceId: string): Promise<void> {
-  return invoke("unsubscribe_instance_events", { instanceId });
-}
-
-export async function subscribeTournamentEvents(
-  tournamentId: string,
-): Promise<void> {
-  return invoke("subscribe_tournament_events", { tournamentId });
-}
-
-export async function unsubscribeTournamentEvents(
-  tournamentId: string,
-): Promise<void> {
-  return invoke("unsubscribe_tournament_events", { tournamentId });
-}
-
-// Invite players
 
 export interface InvitePlayersResult {
   instance_id: string;
@@ -188,7 +155,7 @@ export async function invitePlayers(
   return invoke("invite_players", { instanceId, players });
 }
 
-// Network diagnostics
+
 
 export interface NetworkDiagnostics {
   connected_peers: number;
@@ -214,7 +181,7 @@ export async function getNetworkDiagnostics(): Promise<NetworkDiagnostics> {
   return invoke("get_network_diagnostics");
 }
 
-// DESIGN.md 2.6: Migration health probe
+
 
 export interface MigrationProbeResponse {
   status: string;

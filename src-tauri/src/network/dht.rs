@@ -4,8 +4,8 @@ use tracing::warn;
 
 use super::ResolvedInstance;
 
-/// Compute the SHA256 DHT key for an instance: `/instance/sha256/<hex>`.
-/// Hash input: `instance:{uuid}` — matches federated-server `dht_instance_key`.
+
+
 pub(crate) fn dht_instance_key(instance_id: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
@@ -13,10 +13,10 @@ pub(crate) fn dht_instance_key(instance_id: &str) -> String {
     format!("/instance/sha256/{}", hex::encode(hasher.finalize()))
 }
 
-/// Maximum age for a DHT instance record (30 minutes, aligned with federated-server).
+
 pub const INSTANCE_RECORD_TTL_SECS: u64 = 1800;
 
-/// Returns `true` if `published_at` (RFC 3339) is within [`INSTANCE_RECORD_TTL_SECS`].
+
 pub fn instance_record_is_fresh(published_at: &str) -> bool {
     let Ok(published) = chrono::DateTime::parse_from_rfc3339(published_at) else {
         return false;
@@ -27,7 +27,7 @@ pub fn instance_record_is_fresh(published_at: &str) -> bool {
     age < 0 || (age as u64) <= INSTANCE_RECORD_TTL_SECS
 }
 
-/// Decode, validate freshness and signature of a protobuf-encoded [`InstanceRecord`].
+
 pub(crate) fn parse_instance_record_proto(value: &[u8]) -> Option<ResolvedInstance> {
     let record = crate::protos::jlucraft::records::v1::InstanceRecord::decode(value).ok()?;
 
@@ -76,10 +76,10 @@ pub(crate) fn parse_instance_record_proto(value: &[u8]) -> Option<ResolvedInstan
     })
 }
 
-/// Verify the Ed25519 signature on a DHT instance record.
-///
-/// Canonical payload: `instance-record|{instance_id}|{peer_id}|{published_at}`.
-/// Also verifies the public key derives the claimed `peer_id` (Phase 5 P0).
+
+
+
+
 fn verify_dht_record_signature(
     pubkey_b64: &str,
     sig_b64: &str,
@@ -117,7 +117,7 @@ mod tests {
     use super::*;
     use prost::Message;
 
-    // ── DHT instance key ───────────────────────────────────────────────
+
 
     #[test]
     fn test_dht_instance_key_matches_contract_hash() {
@@ -127,7 +127,7 @@ mod tests {
         );
     }
 
-    // ── Record freshness ───────────────────────────────────────────────
+
 
     #[test]
     fn test_expired_instance_record_rejected() {
@@ -146,7 +146,7 @@ mod tests {
         assert!(instance_record_is_fresh(&ts));
     }
 
-    // ── Signature verification ─────────────────────────────────────────
+
 
     #[test]
     fn test_verify_dht_record_signature_empty_inputs() {
@@ -220,7 +220,7 @@ mod tests {
         ));
     }
 
-    // ── parse_instance_record_proto ────────────────────────────────────
+
 
     fn make_signed_record(instance_id: &str) -> (Vec<u8>, libp2p::identity::Keypair, String) {
         let kp = libp2p::identity::Keypair::generate_ed25519();

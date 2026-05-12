@@ -1,4 +1,4 @@
-import { For, Show, createSignal, createResource } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { createQuery, createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
     listTournaments,
@@ -7,8 +7,6 @@ import {
     listDisputes,
     registerForTournament,
     getOnboardingStatus,
-    subscribeTournamentEvents,
-    unsubscribeTournamentEvents,
     type Tournament,
     type Match,
     type DisputeMatch,
@@ -65,10 +63,10 @@ export function LeaguePage() {
         round: number;
     } | null>(null);
 
-    // Resolve dispute removed — FollyLauncher is a player-side launcher
-    // without admin TEE / canonical command signing capability. The
-    // "处理" button in the dispute list is also removed; dispute
-    // resolution must go through union-manager's resolveDisputeViaProposal.
+
+
+
+
 
     const tournaments = createQuery(() => ({
         queryKey: ["tournaments"],
@@ -104,40 +102,16 @@ export function LeaguePage() {
         refetchInterval: 60000,
     }));
 
-    // Personal onboarding status for score / role context
+
     const onboarding = createQuery(() => ({
         queryKey: ["onboarding-league"],
         queryFn: getOnboardingStatus,
         staleTime: 30_000,
     }));
 
-    // Tournament event subscription when viewing a tournament
-    const [eventSubscribed, setEventSubscribed] = createSignal(false);
-    const [prevSubscribedId, setPrevSubscribedId] = createSignal<string | null>(null);
-    createResource(
-        () => selected()?.id,
-        async (id) => {
-            // Unsubscribe previous if any
-            const prevId = prevSubscribedId();
-            if (prevId) {
-                try { await unsubscribeTournamentEvents(prevId); } catch { /* ok */ }
-                setPrevSubscribedId(null);
-                setEventSubscribed(false);
-            }
-            if (id) {
-                try {
-                    await subscribeTournamentEvents(id);
-                    setEventSubscribed(true);
-                    setPrevSubscribedId(id);
-                } catch { /* topic subscriptions are best-effort */ }
-            }
-            return id;
-        },
-    );
-
     const myTeam = () => {
         const all = teams.data ?? [];
-        // Use onboarding data to find the user's team
+
         const club = onboarding.data?.club;
         if (!club) return null;
         return all.find((t) => t.name === club) ?? null;
@@ -161,11 +135,9 @@ export function LeaguePage() {
     return (
         <div class="h-full overflow-y-auto">
             <Show when={!selected()}>
-                {/* Tournament list */}
                 <div class="px-8 py-5">
                     <h2 class="text-2xl font-black text-stone-950">联赛</h2>
 
-                    {/* Personal score / eligibility card */}
                     <Show when={onboarding.data}>
                         {(status) => (
                             <div class="mt-4 rounded-xl border border-teal-200 bg-teal-50/60 p-4">
@@ -253,7 +225,6 @@ export function LeaguePage() {
                         </For>
                     </div>
 
-                    {/* Teams section */}
                     <Show when={(teams.data?.length ?? 0) > 0}>
                         <h3 class="mt-10 text-lg font-bold text-stone-800">队伍</h3>
                         <div class="mt-4 grid gap-3">
@@ -289,7 +260,6 @@ export function LeaguePage() {
             <Show when={selected()}>
                 {(t) => (
                     <div class="px-8 py-5">
-                        {/* Back + header */}
                         <div class="flex items-center gap-3">
                             <button
                                 type="button"
@@ -310,7 +280,6 @@ export function LeaguePage() {
                             </span>
                         </div>
 
-                        {/* Meta */}
                         <div class="mt-6 divide-y divide-stone-100 rounded-xl border border-stone-200 bg-white">
                             {[
                                 ["参与人数", `${t().participant_count} / ${t().max_participants}`],
@@ -323,7 +292,6 @@ export function LeaguePage() {
                             ))}
                         </div>
 
-                        {/* Actions */}
                         <div class="mt-5 flex gap-3">
                             <Show when={t().status === "registration"}>
                                 <button
@@ -350,21 +318,6 @@ export function LeaguePage() {
                             </button>
                         </div>
 
-                        {/* Event subscription status */}
-                        <div class="mt-3 flex items-center gap-2 text-xs text-stone-500">
-                            <span
-                                class={`inline-block h-2 w-2 rounded-full ${
-                                    eventSubscribed() ? "bg-teal-500" : "bg-stone-300"
-                                }`}
-                            />
-                            <span>
-                                {eventSubscribed()
-                                    ? "已订阅联赛事件通知"
-                                    : "联赛事件通知不可用"}
-                            </span>
-                        </div>
-
-                        {/* Match list */}
                         <Show when={matchesOpen()}>
                             <div class="mt-6">
                                 <h3 class="font-bold text-stone-800">比赛对阵</h3>
@@ -419,7 +372,6 @@ export function LeaguePage() {
                             </div>
                         </Show>
 
-                        {/* Dispute list */}
                         <Show when={disputesOpen()}>
                             <div class="mt-6">
                                 <h3 class="font-bold text-stone-800">争议记录</h3>
@@ -470,7 +422,7 @@ export function LeaguePage() {
                                                         处理结果: {d.resolution}
                                                     </p>
                                                 </Show>
-                                                {/* Resolve button removed — dispute resolution
+                                                {
                                                     requires admin TEE / canonical command
                                                     signing, which the launcher does not have.
                                                     Use union-manager resolveDisputeViaProposal. */}
@@ -484,7 +436,6 @@ export function LeaguePage() {
                 )}
             </Show>
 
-            {/* Dispute dialog overlay */}
             <Show when={disputeTarget()}>
                 {(dt) => (
                     <DisputeDialog
@@ -502,7 +453,7 @@ export function LeaguePage() {
                 )}
             </Show>
 
-            {/* Resolve dispute dialog removed — dispute resolution
+            {
                 requires admin TEE / canonical command signing capability
                 that FollyLauncher does not possess. Resolution must use
                 union-manager's resolveDisputeViaProposal path. */}

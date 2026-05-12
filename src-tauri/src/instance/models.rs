@@ -39,7 +39,7 @@ pub struct UpdateLocalInstanceRequest {
     pub game_version: Option<String>,
     #[serde(default)]
     pub kind: Option<LocalInstanceKind>,
-    /// `Some(Some(v))` to set icon; `Some(None)` to clear it; `None` to leave unchanged.
+
     #[serde(default)]
     pub icon: Option<Option<String>>,
 }

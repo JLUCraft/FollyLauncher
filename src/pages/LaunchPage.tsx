@@ -36,7 +36,7 @@ function statusColor(status: ReturnType<typeof deriveStatus>): string {
 
 function fmtTime(ts: number | null): string {
   if (ts == null) return "—";
-  // Assume seconds; handle both seconds and milliseconds
+
   const ms = ts > 1e12 ? ts : ts * 1000;
   return new Date(ms).toLocaleString();
 }
@@ -59,11 +59,11 @@ export function LaunchPage() {
     return (statesQuery.data ?? []).find((s) => s.id === id) ?? null;
   };
 
-  // Clear stale selection when the selected item disappears from the list
+
   createEffect(() => {
     const id = selectedId();
     if (id == null) return;
-    // Force reactivity on the data to re-check after each refetch
+
     const list = statesQuery.data ?? [];
     if (list.length > 0 && !list.some((s) => s.id === id)) {
       setSelectedId(null);
@@ -109,7 +109,7 @@ export function LaunchPage() {
 
   return (
     <div class="flex h-full flex-col">
-      {/* Page header */}
+      {}
       <header class="border-b border-stone-200 px-8 py-5">
         <div class="flex items-center justify-between">
           <h2 class="text-2xl font-black text-stone-950">启动日志</h2>
@@ -128,16 +128,16 @@ export function LaunchPage() {
         </div>
       </header>
 
-      {/* Error display */}
+      {}
       <Show when={statesQuery.error}>
         <div class="mx-8 mt-3 rounded bg-red-50 px-4 py-2 text-sm text-red-700">
           加载失败：{String(statesQuery.error)}
         </div>
       </Show>
 
-      {/* Content area */}
+      {}
       <div class="flex flex-1 overflow-hidden">
-        {/* Launch state list */}
+        {}
         <div class="w-80 shrink-0 overflow-y-auto border-r border-stone-200">
           <Show
             when={(statesQuery.data ?? []).length > 0}
@@ -182,7 +182,7 @@ export function LaunchPage() {
           </Show>
         </div>
 
-        {/* Detail panel */}
+        {}
         <div class="flex-1 overflow-y-auto bg-stone-50">
           <Show
             when={selected()}
@@ -196,7 +196,7 @@ export function LaunchPage() {
               const st = deriveStatus(state());
               return (
                 <div class="p-6">
-                  {/* Detail card */}
+                  {}
                   <div class="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between">
                       <h3 class="text-lg font-bold text-stone-900">{state().instance_id}</h3>
@@ -244,7 +244,7 @@ export function LaunchPage() {
                     </div>
                   </div>
 
-                  {/* Action buttons */}
+                  {}
                   <div class="mt-3 flex flex-wrap items-center gap-2">
                     <Show when={actionOk()}>
                       <div class="rounded bg-emerald-50 px-3 py-1.5 text-xs text-emerald-700">{actionOk()}</div>
@@ -272,7 +272,7 @@ export function LaunchPage() {
                     </Show>
                   </div>
 
-                  {/* Logs panel */}
+                  {}
                   <div class="mt-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
                     <h4 class="mb-3 text-sm font-semibold text-stone-700">最近日志</h4>
                     <Show

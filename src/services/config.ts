@@ -63,7 +63,7 @@ export async function updateLauncherConfig(config: LauncherConfig): Promise<void
   return invoke("update_launcher_config", { config });
 }
 
-// ── Java runtime scanning (Phase 8) ────────────────────────────────────
+
 
 export interface JavaRuntime {
   exec_path: string;

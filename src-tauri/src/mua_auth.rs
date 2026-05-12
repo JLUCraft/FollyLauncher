@@ -2,7 +2,7 @@ use crate::api::{RoomConfig, YggdrasilServer};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tracing::info;
+use tracing::{info, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MuaAccount {
@@ -111,7 +111,10 @@ impl MuaAuthService {
             client: reqwest::Client::builder()
                 .timeout(std::time::Duration::from_secs(30))
                 .build()
-                .expect("failed to build reqwest client"),
+                .unwrap_or_else(|e| {
+                    warn!(error = %e, "failed to build configured MUA auth reqwest client, falling back to default");
+                    reqwest::Client::new()
+                }),
             pending: Arc::new(Mutex::new(None)),
             auth_server_url: server.auth_server_url.clone(),
             client_id: server.client_id.clone(),
@@ -407,7 +410,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    // ── OAuth token response ────────────────────────────────────────────
+
 
     #[test]
     fn test_decode_oauth_token_response() {
@@ -420,7 +423,7 @@ mod tests {
         assert_eq!(tokens.refresh_token, "eyJhbGciOiJSUzI1NiJ9.rtoken");
     }
 
-    // ── OAuth error response ────────────────────────────────────────────
+
 
     #[test]
     fn test_decode_oauth_error_response() {
@@ -437,7 +440,7 @@ mod tests {
         assert_eq!(err3.error, "access_denied");
     }
 
-    // ── Skin textures base64 decode ─────────────────────────────────────
+
 
     #[test]
     fn test_skin_textures_decode_from_base64() {
@@ -458,7 +461,7 @@ mod tests {
             json_str.as_bytes(),
         );
 
-        // Decode the base64 value to get the TexturesPayload back.
+
         let decoded =
             base64::Engine::decode(&base64::engine::general_purpose::STANDARD, &encoded).unwrap();
         let textures: TexturesPayload = serde_json::from_slice(&decoded).unwrap();
@@ -472,7 +475,7 @@ mod tests {
         );
     }
 
-    // ── Device auth response parse ──────────────────────────────────────
+
 
     #[test]
     fn test_device_auth_response_parse() {
@@ -496,7 +499,7 @@ mod tests {
         assert_eq!(resp.expires_in, 600);
     }
 
-    // ── Form body encoding ──────────────────────────────────────────────
+
 
     #[test]
     fn test_form_body_encoding() {
@@ -505,8 +508,8 @@ mod tests {
             ("scope", "openid profile"),
             ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
         ]);
-        // URL-encoded form body: key=value pairs joined with &.
-        // NOTE: form_body does NOT URL-encode values; spaces remain as-is.
+
+
         assert!(body.contains("client_id=my-client"));
         assert!(body.contains("scope=openid profile"));
         assert!(body.contains("grant_type=urn:ietf:params:oauth:grant-type:device_code"));
@@ -519,7 +522,7 @@ mod tests {
         assert!(body.is_empty());
     }
 
-    // ── Refresh response / profile decode ───────────────────────────────
+
 
     #[test]
     fn test_profile_decode_from_refresh() {

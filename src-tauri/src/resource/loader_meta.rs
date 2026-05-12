@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::AppHandle;
 
-// ── Fabric ──────────────────────────────────────────────────────────────
+
 
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -61,7 +61,7 @@ pub async fn get_fabric_meta_by_game_version(
     Err(ResourceError::NetworkError)
 }
 
-// ── Forge ───────────────────────────────────────────────────────────────
+
 
 #[derive(Serialize, Deserialize, Default)]
 struct ForgeMetaItem {
@@ -126,7 +126,7 @@ pub async fn get_forge_meta_by_game_version(
     Err(ResourceError::NoDownloadApi)
 }
 
-// ── NeoForge ────────────────────────────────────────────────────────────
+
 
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -290,7 +290,7 @@ pub async fn get_neoforge_meta_by_game_version(
     Err(ResourceError::NetworkError)
 }
 
-// ── OptiFine ────────────────────────────────────────────────────────────
+
 
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -332,7 +332,7 @@ pub async fn get_optifine_meta_by_game_version(
     Err(ResourceError::NetworkError)
 }
 
-// ── Quilt ───────────────────────────────────────────────────────────────
+
 
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]

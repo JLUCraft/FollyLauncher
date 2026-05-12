@@ -133,7 +133,7 @@ function TaskGroupCard(props: {
 
     return (
         <div class="rounded-xl border border-stone-200 bg-white shadow-sm">
-            {/* Header */}
+            {}
             <div
                 class="flex w-full cursor-pointer items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-stone-50/80"
                 onClick={() => setExpanded((v) => !v)}
@@ -169,7 +169,7 @@ function TaskGroupCard(props: {
                         />
                     </div>
                 </div>
-                {/* Actions */}
+                {}
                 <div class="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <Show when={isActive}>
                         <button
@@ -188,13 +188,13 @@ function TaskGroupCard(props: {
                         {props.removeLoading === g.groupId ? "…" : "移除"}
                     </button>
                 </div>
-                {/* Expand indicator */}
+                {}
                 <span class="ml-1 text-xs text-stone-300">
                     {expanded() ? "▾" : "▸"}
                 </span>
             </div>
 
-            {/* Expanded task list */}
+            {}
             <Show when={expanded()}>
                 <div class="border-t border-stone-100 px-5 pb-4 pt-3 space-y-2">
                     <For each={g.tasks}>
@@ -213,7 +213,7 @@ export function TasksPage() {
     const [removeLoading, setRemoveLoading] = createSignal<string | null>(null);
     const [actionError, setActionError] = createSignal<string | null>(null);
 
-    // ── Phase 36: Snapshot import/export state ────────────────────────────
+
     const [snapshotJson, setSnapshotJson] = createSignal("");
     const [replaceExisting, setReplaceExisting] = createSignal(false);
     const [dropActive, setDropActive] = createSignal(true);
@@ -377,7 +377,7 @@ export function TasksPage() {
 
     return (
         <div class="flex h-full flex-col overflow-hidden">
-            {/* Header */}
+            {}
             <div class="shrink-0 border-b border-stone-200 bg-stone-50/60 px-8 py-5">
                 <h2 class="text-lg font-bold text-stone-900">任务</h2>
                 <p class="mt-1 text-sm text-stone-500">
@@ -385,9 +385,9 @@ export function TasksPage() {
                 </p>
             </div>
 
-            {/* Summary / Filter / Search */}
+            {}
             <div class="shrink-0 border-b border-stone-100 bg-white px-8 py-4 space-y-3">
-                {/* Summary counts */}
+                {}
                 <div class="flex flex-wrap items-center gap-4 text-xs text-stone-500">
                     <span>
                         全部{" "}
@@ -421,12 +421,12 @@ export function TasksPage() {
                     </span>
                 </div>
 
-                {/* Phase 37: Cancel semantics notice */}
+                {}
                 <div class="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-500">
                     标记取消只会终止任务中心进度显示，不保证中断已经开始的下载或安装。
                 </div>
 
-                {/* Filter buttons */}
+                {}
                 <div class="flex flex-wrap items-center gap-2">
                     <For each={FILTER_OPTIONS}>
                         {(opt) => (
@@ -444,7 +444,7 @@ export function TasksPage() {
                     </For>
                 </div>
 
-                {/* Search input */}
+                {}
                 <div class="flex items-center gap-2">
                     <input
                         type="text"
@@ -455,7 +455,7 @@ export function TasksPage() {
                     />
                 </div>
 
-                {/* Bulk cleanup buttons */}
+                {}
                 <div class="flex flex-wrap items-center gap-2">
                     <button
                         class="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
@@ -485,7 +485,7 @@ export function TasksPage() {
                     </button>
                 </div>
 
-                {/* Phase 36: Snapshot import/export toggle */}
+                {}
                 <button
                     class="text-xs text-stone-500 hover:text-stone-700 underline"
                     onClick={() => setShowSnapshotPanel((v) => !v)}
@@ -494,14 +494,14 @@ export function TasksPage() {
                 </button>
             </div>
 
-            {/* Phase 36: Snapshot panel */}
+            {}
             <Show when={showSnapshotPanel()}>
                 <div class="shrink-0 border-b border-stone-100 bg-amber-50/50 px-8 py-4 space-y-3">
                     <p class="text-xs text-stone-500">
                         快照不会恢复正在下载的后台任务；活跃任务会被跳过或标记为取消。
                     </p>
 
-                    {/* Export section */}
+                    {}
                     <div class="space-y-2">
                         <div class="flex items-center gap-3">
                             <button
@@ -514,7 +514,7 @@ export function TasksPage() {
                         </div>
                     </div>
 
-                    {/* Import section */}
+                    {}
                     <div class="space-y-2">
                         <textarea
                             class="w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-xs text-stone-800 font-mono placeholder-stone-400 focus:border-stone-400 focus:outline-none"
@@ -556,14 +556,14 @@ export function TasksPage() {
                         </div>
                     </div>
 
-                    {/* Snapshot error */}
+                    {}
                     <Show when={snapshotError()}>
                         <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
                             {snapshotError()}
                         </div>
                     </Show>
 
-                    {/* Import result */}
+                    {}
                     <Show when={importResult()}>
                         <div class="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
                             导入完成：已导入 {importResult()!.imported}，跳过{" "}
@@ -575,7 +575,7 @@ export function TasksPage() {
                 </div>
             </Show>
 
-            {/* Error banner */}
+            {}
             <Show when={error() || actionError()}>
                 <div class="mx-8 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {error() && <p>{error()}</p>}
@@ -583,7 +583,7 @@ export function TasksPage() {
                 </div>
             </Show>
 
-            {/* Task groups */}
+            {}
             <div class="flex-1 overflow-auto px-8 py-5">
                 <Show
                     when={groups().length > 0}

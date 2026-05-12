@@ -55,14 +55,14 @@ export function ProfilePage() {
     const [vcScanOpen, setVcScanOpen] = createSignal(false);
     const [addAccountName, setAddAccountName] = createSignal("");
     const [accountError, setAccountError] = createSignal("");
-    // Third-party Yggdrasil login form
+
     const [tpAuthUrl, setTpAuthUrl] = createSignal("");
     const [tpUsername, setTpUsername] = createSignal("");
     const [tpPassword, setTpPassword] = createSignal("");
     const [tpLoading, setTpLoading] = createSignal(false);
     const [tpError, setTpError] = createSignal("");
     const [tpSuccess, setTpSuccess] = createSignal("");
-    // Microsoft OAuth device flow
+
     const [msDialogOpen, setMsDialogOpen] = createSignal(false);
     const [msDeviceCode, setMsDeviceCode] = createSignal("");
     const [msUserCode, setMsUserCode] = createSignal("");
@@ -71,16 +71,16 @@ export function ProfilePage() {
     const [msPolling, setMsPolling] = createSignal(false);
     const [msError, setMsError] = createSignal("");
     const [msSuccess, setMsSuccess] = createSignal("");
-    // Per-account Microsoft refresh state
+
     const [msRefreshLoading, setMsRefreshLoading] = createSignal<Record<string, boolean>>({});
     const [msRefreshError, setMsRefreshError] = createSignal<Record<string, string>>({});
     const [msRefreshSuccess, setMsRefreshSuccess] = createSignal<Record<string, string>>({});
-    // Per-account avatar management state
+
     const [avatarUrlInput, setAvatarUrlInput] = createSignal<Record<string, string>>({});
     const [avatarLoading, setAvatarLoading] = createSignal<Record<string, boolean>>({});
     const [avatarError, setAvatarError] = createSignal<Record<string, string>>({});
     const [avatarSuccess, setAvatarSuccess] = createSignal<Record<string, string>>({});
-    // Export / Import account state
+
     const [exportedJson, setExportedJson] = createSignal("");
     const [showExport, setShowExport] = createSignal(false);
     const [importBundleJson, setImportBundleJson] = createSignal("");
@@ -88,7 +88,7 @@ export function ProfilePage() {
     const [importing, setImporting] = createSignal(false);
     const [importResult, setImportResult] = createSignal("");
     const [importError, setImportError] = createSignal("");
-    // External (Prism/MultiMC) import state
+
     const [externalAccountsJson, setExternalAccountsJson] = createSignal("");
     const [externalDedupe, setExternalDedupe] = createSignal(true);
     const [externalImporting, setExternalImporting] = createSignal(false);
@@ -146,7 +146,7 @@ export function ProfilePage() {
             try {
                 const { openUrl } = await import("@tauri-apps/plugin-opener");
                 await openUrl(resp.verification_uri);
-            } catch { /* opener may not be available */ }
+            } catch {  }
             muaPollTimer = setTimeout(async () => {
                 muaPollTimer = null;
                 if (!mounted) return;
@@ -168,7 +168,7 @@ export function ProfilePage() {
         }
     }
 
-    // Shared VC import logic used by paste / file / scan
+
     async function doImportVc(vcJson: string, sourceLabel?: string): Promise<boolean> {
         setVcImporting(true);
         setVcMessage("");
@@ -202,7 +202,7 @@ export function ProfilePage() {
         setVcInput("");
     }
 
-    // File import: open system file picker for .json, read & import
+
     async function handleImportVcFile() {
         setVcFileName("");
         setVcMessage("");
@@ -211,7 +211,7 @@ export function ProfilePage() {
                 filters: [{ name: "JSON 文件", extensions: ["json"] }],
                 multiple: false,
             });
-            if (!selected) return; // user cancelled
+            if (!selected) return;
             const path = typeof selected === "string" ? selected : String(selected);
             if (!path) return;
             const fileName = path.split(/[/\\]/).pop() ?? path;
@@ -223,7 +223,7 @@ export function ProfilePage() {
         }
     }
 
-    // QR scan: open camera, decode QR via jsQR, feed into import
+
     async function handleQrScanned(data: string) {
         setVcScanOpen(false);
         await doImportVc(data, "扫码");
@@ -295,7 +295,7 @@ export function ProfilePage() {
             });
             qc.invalidateQueries({ queryKey: ["launcher-accounts"] });
             setTpSuccess(`登录成功：${result.account.username}`);
-            setTpPassword(""); // clear password after success
+            setTpPassword("");
         } catch (e) {
             setTpError(String(e));
         } finally {
@@ -317,7 +317,7 @@ export function ProfilePage() {
                 const { openUrl } = await import("@tauri-apps/plugin-opener");
                 const uri = resp.verification_uri_complete ?? resp.verification_uri;
                 await openUrl(uri);
-            } catch { /* opener may not be available */ }
+            } catch {  }
         } catch (e) {
             setMsError(String(e));
         }
@@ -480,7 +480,7 @@ export function ProfilePage() {
             <h2 class="text-2xl font-black text-stone-950">我的</h2>
 
             <div class="mt-6 grid gap-5">
-                {/* Onboarding / Identity Guidance */}
+                {}
                 <Show when={onboarding.data}>
                     {(status) => (
                         <section class="rounded-xl border border-stone-200 bg-white p-6">
@@ -536,7 +536,7 @@ export function ProfilePage() {
                     )}
                 </Show>
 
-                {/* Identity */}
+                {}
                 <section class="rounded-xl border border-stone-200 bg-white p-6">
                     <h3 class="font-bold text-stone-800">节点身份</h3>
                     <Show when={identity.isLoading}>
@@ -568,14 +568,14 @@ export function ProfilePage() {
                     </Show>
                 </section>
 
-                {/* Network Diagnostics Panel (P1: DESIGN.md section 3.4 bullet 3) */}
+                {}
                 <NetworkDiagnosticsPanel
                     {...(peers.data ? { peers: peers.data } : {})}
                     {...(proxy.data ? { proxyPort: proxy.data.local_port } : {})}
                     {...(bootstrap.data ? { bootstrap: bootstrap.data } : {})}
                 />
 
-                {/* MUA Login */}
+                {}
                 <section class="rounded-xl border border-stone-200 bg-white p-6">
                     <h3 class="font-bold text-stone-800">MUA 皮肤站</h3>
                     <Show
@@ -639,7 +639,7 @@ export function ProfilePage() {
                     </Show>
                 </section>
 
-                {/* Minecraft 账户 */}
+                {}
                 <section class="rounded-xl border border-stone-200 bg-white p-6">
                     <h3 class="font-bold text-stone-800">Minecraft 账户</h3>
                     <p class="mt-1 text-xs text-stone-400">
@@ -656,9 +656,9 @@ export function ProfilePage() {
                                         <For each={accounts}>
                                             {(account: LauncherAccount) => (
                                                 <div class="rounded-lg border border-stone-200 px-4 py-3">
-                                                    {/* Row 1: avatar + info + actions */}
+                                                    {}
                                                     <div class="flex items-start gap-3">
-                                                        {/* Avatar */}
+                                                        {}
                                                         <div class="shrink-0">
                                                             <Show
                                                                 when={account.avatar_url}
@@ -681,7 +681,7 @@ export function ProfilePage() {
                                                             </Show>
                                                         </div>
 
-                                                        {/* Info */}
+                                                        {}
                                                         <div class="min-w-0 flex-1">
                                                             <div class="flex items-center gap-2">
                                                                 <span class="font-medium text-stone-800 truncate">
@@ -718,7 +718,7 @@ export function ProfilePage() {
                                                             </Show>
                                                         </div>
 
-                                                        {/* Actions */}
+                                                        {}
                                                         <div class="ml-3 flex shrink-0 gap-1.5">
                                                             <Show when={account.kind === "Microsoft"}>
                                                                 <button
@@ -746,7 +746,7 @@ export function ProfilePage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Row 2: avatar management */}
+                                                    {}
                                                     <div class="mt-3 border-t border-stone-100 pt-3">
                                                         <div class="flex gap-2 items-center">
                                                             <input
@@ -795,7 +795,7 @@ export function ProfilePage() {
                                     </div>
                                 </Show>
 
-                                {/* Add offline account form */}
+                                {}
                                 <div class="mt-4 flex gap-2">
                                     <input
                                         class="flex-1 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm placeholder:text-stone-400 focus:border-teal-500 focus:outline-none"
@@ -812,14 +812,14 @@ export function ProfilePage() {
                                     </button>
                                 </div>
 
-                                {/* Microsoft login button */}
+                                {}
                                 <div class="mt-4 border-t border-stone-100 pt-4">
                                     <h4 class="text-sm font-semibold text-stone-700">导出 / 导入账户</h4>
                                     <p class="mt-1 text-xs text-stone-400">
                                         不会导出或导入登录 token；Microsoft/第三方账户导入后可能需要重新登录/刷新。
                                     </p>
 
-                                    {/* Export */}
+                                    {}
                                     <div class="mt-3">
                                         <button
                                             class="btn rounded-lg border-stone-300 bg-transparent text-stone-700 hover:bg-stone-100 text-sm"
@@ -838,7 +838,7 @@ export function ProfilePage() {
                                         </Show>
                                     </div>
 
-                                    {/* Import */}
+                                    {}
                                     <div class="mt-4">
                                         <label class="text-xs text-stone-500">粘贴导出的 JSON：</label>
                                         <textarea
@@ -874,7 +874,7 @@ export function ProfilePage() {
                                         </Show>
                                     </div>
 
-                                    {/* External (Prism/MultiMC) import */}
+                                    {}
                                     <div class="mt-4 border-t border-stone-100 pt-4">
                                         <h4 class="text-sm font-semibold text-stone-700">从 Prism / MultiMC 导入</h4>
                                         <p class="mt-1 text-xs text-stone-400">
@@ -917,7 +917,7 @@ export function ProfilePage() {
                                     </div>
                                 </div>
 
-                                {/* Microsoft login button */}
+                                {}
                                 <div class="mt-4 border-t border-stone-100 pt-4">
                                     <h4 class="text-sm font-semibold text-stone-700">Microsoft 正版登录</h4>
                                     <p class="mt-1 text-xs text-stone-400">
@@ -936,7 +936,7 @@ export function ProfilePage() {
                                     </Show>
                                 </div>
 
-                                {/* Third-party Yggdrasil login form */}
+                                {}
                                 <div class="mt-5 border-t border-stone-100 pt-4">
                                     <h4 class="text-sm font-semibold text-stone-700">第三方 Yggdrasil 登录</h4>
                                     <div class="mt-2 space-y-2">
@@ -984,7 +984,7 @@ export function ProfilePage() {
                     </Show>
                 </section>
 
-                {/* Points / Teams */}
+                {}
                 <Show when={muaStatus.data?.is_member && teams.data}>
                     <section class="rounded-xl border border-stone-200 bg-white p-6">
                         <h3 class="font-bold text-stone-800">战队与积分</h3>
@@ -1011,7 +1011,7 @@ export function ProfilePage() {
                     </section>
                 </Show>
 
-                {/* VC */}
+                {}
                 <section class="rounded-xl border border-stone-200 bg-white p-6">
                     <h3 class="font-bold text-stone-800">身份凭证 (VC)</h3>
                     <Show
@@ -1020,7 +1020,7 @@ export function ProfilePage() {
                             <div class="mt-4">
                                 <p class="text-sm text-stone-500">暂无有效身份凭证。选择以下方式导入社团签发的 VC：</p>
 
-                                {/* Import method tabs */}
+                                {}
                                 <div class="mt-3 flex border-b border-stone-200">
                                     <button
                                         class={`px-4 py-2 text-sm font-medium transition-colors ${vcImportTab() === "paste" ? "border-b-2 border-teal-600 text-teal-700" : "text-stone-500 hover:text-stone-700"}`}
@@ -1042,7 +1042,7 @@ export function ProfilePage() {
                                     </button>
                                 </div>
 
-                                {/* Paste JSON tab */}
+                                {}
                                 <Show when={vcImportTab() === "paste"}>
                                     <textarea
                                         class="mt-3 w-full rounded-lg border border-stone-300 bg-white p-3 font-mono text-xs focus:border-teal-500 focus:outline-none"
@@ -1060,7 +1060,7 @@ export function ProfilePage() {
                                     </button>
                                 </Show>
 
-                                {/* File import tab */}
+                                {}
                                 <Show when={vcImportTab() === "file"}>
                                     <div class="mt-3">
                                         <p class="text-sm text-stone-500">选择包含 VC 的 JSON 文件：</p>
@@ -1079,7 +1079,7 @@ export function ProfilePage() {
                                     </div>
                                 </Show>
 
-                                {/* QR scan tab */}
+                                {}
                                 <Show when={vcImportTab() === "scan"}>
                                     <div class="mt-3">
                                         <p class="text-sm text-stone-500">使用摄像头扫描包含 VC 的二维码：</p>
@@ -1121,7 +1121,7 @@ export function ProfilePage() {
                 </section>
             </div>
 
-            {/* QR Scanner Dialog */}
+            {}
             <Show when={vcScanOpen()}>
                 <QrScannerDialog
                     onClose={() => setVcScanOpen(false)}
@@ -1129,7 +1129,7 @@ export function ProfilePage() {
                 />
             </Show>
 
-            {/* MUA Dialog */}
+            {}
             <Show when={muaDialogOpen()}>
                 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div class="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl">
@@ -1160,7 +1160,7 @@ export function ProfilePage() {
                 </div>
             </Show>
 
-            {/* Microsoft Device Code Dialog */}
+            {}
             <Show when={msDialogOpen()}>
                 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div class="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl">
@@ -1273,22 +1273,22 @@ function accountKindLabel(kind: LauncherAccountKind): string {
 
 function avatarBgColor(kind: LauncherAccountKind): string {
     switch (kind) {
-        case "Offline": return "#78716c"; // stone-500
-        case "Microsoft": return "#0d9488"; // teal-600
-        case "ThirdParty": return "#d97706"; // amber-600
+        case "Offline": return "#78716c";
+        case "Microsoft": return "#0d9488";
+        case "ThirdParty": return "#d97706";
     }
 }
 
 function shortAuthUrl(url: string): string {
-    // Remove scheme and trailing path noise for display
-    let s = url.replace(/^https?:\/\//, "");
+
+    let s = url.replace(/^https?:\/\
     if (s.length > 36) {
         s = s.slice(0, 33) + "...";
     }
     return s;
 }
 
-// ── QR Scanner Dialog ──
+
 
 function QrScannerDialog(props: {
     onClose: () => void;
@@ -1358,7 +1358,7 @@ function QrScannerDialog(props: {
                     return;
                 }
             } catch {
-                // jsQR may throw on non-QR frames; continue
+
             }
         }
         rafId = requestAnimationFrame(scanLoop);
@@ -1417,7 +1417,7 @@ function QrScannerDialog(props: {
     );
 }
 
-// ── Network Diagnostics Panel (P1: DESIGN.md section 3.4 bullet 3) ──
+
 
 function NetworkDiagnosticsPanel(props: {
     peers?: string[];
@@ -1442,7 +1442,7 @@ function NetworkDiagnosticsPanel(props: {
             <h3 class="font-bold text-stone-800">网络诊断</h3>
 
             <div class="mt-4 grid gap-3">
-                {/* DHT & Connection summary */}
+                {}
                 <div class="grid grid-cols-2 gap-3">
                     <MetricTile
                         label="DHT 节点"
@@ -1475,7 +1475,7 @@ function NetworkDiagnosticsPanel(props: {
                         kind={props.bootstrap?.configured ? "info" : "warn"}
                     />
                 </div>
-                {/* Sessions & bytes */}
+                {}
                 <div class="grid grid-cols-3 gap-3">
                     <MetricTile
                         label="活跃会话"
@@ -1496,7 +1496,7 @@ function NetworkDiagnosticsPanel(props: {
                         kind="neutral"
                     />
                 </div>
-                {/* NAT traversal */}
+                {}
                 <div class="grid grid-cols-2 gap-3">
                     <MetricTile
                         label="NAT 穿透成功"
@@ -1512,7 +1512,7 @@ function NetworkDiagnosticsPanel(props: {
                     />
                 </div>
 
-                {/* Latency table */}
+                {}
                 <Show when={d()?.latencies && d()!.latencies.length > 0}>
                     <div class="mt-2 border-t border-stone-100 pt-3">
                         <p class="text-xs font-semibold text-stone-500 mb-2">

@@ -180,7 +180,7 @@ export async function refreshMicrosoftAccount(
   return invoke("refresh_microsoft_account", { accountId });
 }
 
-// ── Avatar ──────────────────────────────────────────────────────────────
+
 
 export interface UpdateAccountAvatarRequest {
   account_id: string;
@@ -204,7 +204,7 @@ export async function refreshAccountAvatar(
   return invoke("refresh_account_avatar", { accountId });
 }
 
-// ── Export / Import ────────────────────────────────────────────────────
+
 
 export interface AccountExportBundle {
   schema_version: number;
@@ -234,7 +234,7 @@ export async function importLauncherAccounts(
   return invoke("import_launcher_accounts", { request });
 }
 
-// ── External (Prism/MultiMC) import ─────────────────────────────────────
+
 
 export interface ImportExternalAccountsRequest {
   source: string;

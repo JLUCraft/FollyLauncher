@@ -1,34 +1,32 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
-use std::time::Duration;
-use tauri::Manager;
 use tokio::sync::Mutex;
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
-/// Topic constants — imported from network.rs to avoid drift.
+
 use crate::network::{
     MC_ADMIN_PUSH_TOPIC, MC_CLUSTER_TOPIC, MC_GOVERNANCE_TOPIC, MC_INSTANCE_TOPIC_PREFIX,
     MC_SYSTEM_TOPIC, MC_TOURNAMENT_TOPIC_PREFIX,
 };
 
-/// Maximum number of seen message IDs to retain before LRU eviction.
+
 const MAX_DEDUP_ENTRIES: usize = 1024;
 
-/// Notification priority levels.
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Priority {
-    /// Standard notification — informational only.
+
     Normal,
-    /// High-priority notification — requires user attention.
+
     High,
-    /// Critical notification — demands immediate action (e.g. admin push).
+
     Critical,
 }
 
 pub struct NotificationService {
-    /// LRU-ordered set of message IDs already seen.
-    /// Uses VecDeque to maintain insertion order; oldest entries are evicted
-    /// when the queue exceeds MAX_DEDUP_ENTRIES.
+
+
+
     seen_ids: Arc<Mutex<VecDeque<String>>>,
 }
 
@@ -39,96 +37,53 @@ impl NotificationService {
         }
     }
 
-    pub async fn start(self: Arc<Self>, handle: tauri::AppHandle) {
-        tokio::spawn(async move {
-            let mut interval = tokio::time::interval(Duration::from_secs(30));
-            let mut last_warn_at: Option<tokio::time::Instant> = None;
-            loop {
-                interval.tick().await;
+    pub async fn handle_event(
+        &self,
+        handle: &tauri::AppHandle,
+        event: crate::protos::jlucraft::events::v1::EventEnvelope,
+    ) {
+        let msg = crate::network::ClusterMessage {
+            topic: event.topic.clone(),
+            peer_id: event.source_peer_id.clone(),
+            payload: event_to_payload(&event),
+            received_at: event.occurred_at.clone(),
+        };
 
-                // Clone the network handle without holding AppState lock
-                let messages: Vec<crate::network::ClusterMessage> = {
-                    let state = handle.state::<Arc<Mutex<crate::AppState>>>();
-                    let network = {
-                        let state = state.lock().await;
-                        state.network.clone() // NetworkHandle is Clone
-                    };
-                    // Lock released — network call can take as long as needed
-                    match network.get_messages().await {
-                        Ok(msgs) => msgs,
-                        Err(e) => {
-                            // Throttle warnings to once per 5 minutes
-                            let now = tokio::time::Instant::now();
-                            let should_warn = last_warn_at
-                                .map(|t| now.duration_since(t) > Duration::from_secs(300))
-                                .unwrap_or(true);
-                            if should_warn {
-                                warn!(error = %e, "failed to fetch cluster messages for notification service, will retry");
-                                last_warn_at = Some(now);
-                            } else {
-                                debug!(error = %e, "cluster messages still unavailable (suppressed)");
-                            }
-                            continue;
-                        }
-                    }
-                };
-
-                // Process new messages since last tick
-                let new_messages: Vec<_> = {
-                    let mut seen = self.seen_ids.lock().await;
-                    messages
-                        .into_iter()
-                        .filter(|m| {
-                            // Dedup key: topic + peer_id + first 64 chars of payload hash
-                            // (provides uniqueness beyond timestamp granularity)
-                            let payload_fingerprint = {
-                                use std::hash::{Hash, Hasher};
-                                let mut hasher = std::collections::hash_map::DefaultHasher::new();
-                                m.payload.to_string().hash(&mut hasher);
-                                format!("{:016x}", hasher.finish())
-                            };
-                            let msg_id =
-                                format!("{}|{}|{}", m.topic, m.peer_id, payload_fingerprint);
-                            let is_new = !seen.contains(&msg_id);
-                            if is_new {
-                                // LRU eviction: remove oldest when full
-                                if seen.len() >= MAX_DEDUP_ENTRIES {
-                                    seen.pop_front();
-                                }
-                                seen.push_back(msg_id);
-                            }
-                            is_new
-                        })
-                        .collect()
-                };
-
-                if new_messages.is_empty() {
-                    continue;
-                }
-
-                debug!(
-                    count = new_messages.len(),
-                    "processing new cluster messages for notifications"
-                );
-
-                for msg in new_messages {
-                    let (title, body, priority) = self.classify_message(&msg);
-
-                    if let Some(body) = body {
-                        if let Err(e) = self
-                            .send_native_notification(&handle, &title, &body, priority)
-                            .await
-                        {
-                            warn!(error = %e, topic = %msg.topic, "failed to send notification");
-                        }
-                    }
-                }
+        let payload_fingerprint = {
+            use std::hash::{Hash, Hasher};
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            msg.payload.to_string().hash(&mut hasher);
+            format!("{:016x}", hasher.finish())
+        };
+        let event_id = if event.event_id.is_empty() {
+            format!("{}|{}|{}", msg.topic, msg.peer_id, payload_fingerprint)
+        } else {
+            event.event_id.clone()
+        };
+        {
+            let mut seen = self.seen_ids.lock().await;
+            if seen.contains(&event_id) {
+                return;
             }
-        });
+            if seen.len() >= MAX_DEDUP_ENTRIES {
+                seen.pop_front();
+            }
+            seen.push_back(event_id);
+        }
+
+        let (title, body, priority) = self.classify_message(&msg);
+        if let Some(body) = body {
+            if let Err(e) = self
+                .send_native_notification(handle, &title, &body, priority)
+                .await
+            {
+                warn!(error = %e, topic = %msg.topic, "failed to send notification");
+            }
+        }
     }
 
-    /// Classify a cluster message into (title, body, priority).
-    /// Returns `None` body for messages that should not trigger a notification.
+
+
     fn classify_message(
         &self,
         msg: &crate::network::ClusterMessage,
@@ -136,7 +91,7 @@ impl NotificationService {
         let topic = &msg.topic;
         let payload = &msg.payload;
 
-        // ── Admin push: always high priority ──
+
         if topic == MC_ADMIN_PUSH_TOPIC {
             let action = payload
                 .get("action")
@@ -147,7 +102,7 @@ impl NotificationService {
                 .and_then(|v| v.as_str())
                 .unwrap_or("管理员推送了一条消息");
 
-            // Check if this requires authorization
+
             let requires_auth = payload
                 .get("requires_auth")
                 .and_then(|v| v.as_bool())
@@ -182,7 +137,7 @@ impl NotificationService {
             );
         }
 
-        // ── System topic ──
+
         if topic == MC_SYSTEM_TOPIC {
             let event_type = payload
                 .get("event_type")
@@ -205,7 +160,7 @@ impl NotificationService {
             );
         }
 
-        // ── Instance events ──
+
         if topic.starts_with(MC_INSTANCE_TOPIC_PREFIX) {
             let instance_id_part = topic.strip_prefix(MC_INSTANCE_TOPIC_PREFIX).unwrap_or("?");
             let event_type = payload
@@ -217,7 +172,7 @@ impl NotificationService {
                 .and_then(|v| v.as_str())
                 .unwrap_or(event_type);
 
-            // Only notify for important instance events
+
             if matches!(event_type, "started" | "stopped" | "crashed" | "migration") {
                 return (
                     format!("实例 {} — {}", instance_id_part, event_type),
@@ -229,11 +184,11 @@ impl NotificationService {
                     },
                 );
             }
-            // Instance lifecycle events: skip notification for created/updated
+
             return (String::new(), None, Priority::Normal);
         }
 
-        // ── Tournament events ──
+
         if topic.starts_with(MC_TOURNAMENT_TOPIC_PREFIX) {
             let tournament_id = topic
                 .strip_prefix(MC_TOURNAMENT_TOPIC_PREFIX)
@@ -259,7 +214,7 @@ impl NotificationService {
             );
         }
 
-        // ── Governance topic ──
+
         if topic == MC_GOVERNANCE_TOPIC {
             let event_type = payload
                 .get("event_type")
@@ -277,7 +232,7 @@ impl NotificationService {
             );
         }
 
-        // ── Cluster topic: only forward important lifecycle events ──
+
         if topic == MC_CLUSTER_TOPIC {
             if let Some(event_type) = payload.get("event_type").and_then(|v| v.as_str()) {
                 if let Some(inner) = payload.get("payload") {
@@ -304,11 +259,11 @@ impl NotificationService {
             }
         }
 
-        // Unknown or unclassified topics: skip notification
+
         (String::new(), None, Priority::Normal)
     }
 
-    /// Send a native OS notification using the tauri-plugin-notification.
+
     async fn send_native_notification(
         &self,
         handle: &tauri::AppHandle,
@@ -337,6 +292,49 @@ impl NotificationService {
     }
 }
 
+fn event_to_payload(
+    event: &crate::protos::jlucraft::events::v1::EventEnvelope,
+) -> serde_json::Value {
+    use crate::protos::jlucraft::events::v1::event_envelope;
+
+    let mut val = serde_json::json!({ "event_type": event.event_type });
+    match event.payload.as_ref() {
+        Some(event_envelope::Payload::InstanceUpdate(i)) => {
+            val["payload"] = serde_json::json!({
+                "instance_id": i.instance_id,
+                "name": i.name,
+                "kind": i.kind,
+                "host": i.host_peer_id,
+                "mode": i.mode,
+                "club": i.club,
+                "players": i.player_count,
+                "max_players": i.max_players,
+                "version": i.version,
+            });
+        }
+        Some(event_envelope::Payload::InstanceInvite(i)) => {
+            val["message"] = serde_json::json!(i.message);
+            val["payload"] = serde_json::json!({
+                "instance_id": i.instance_id,
+                "invited_count": i.invited_count,
+                "players": i.players,
+            });
+        }
+        Some(event_envelope::Payload::PushNotification(n)) => {
+            val["message"] = serde_json::json!(n.body);
+            val["title"] = serde_json::json!(n.title);
+            val["severity"] = serde_json::json!(n.severity);
+        }
+        Some(event_envelope::Payload::Generic(g)) => {
+            val["message"] =
+                serde_json::json!(g.attributes.get("message").cloned().unwrap_or_default());
+            val["payload"] = serde_json::json!(g.attributes);
+        }
+        _ => {}
+    }
+    val
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -352,7 +350,7 @@ mod tests {
         }
     }
 
-    // ── Topic classification ───────────────────────────────────────────
+
 
     #[test]
     fn test_classify_admin_push_critical() {
@@ -559,7 +557,7 @@ mod tests {
         assert!(body.is_none(), "unknown topics should be skipped");
     }
 
-    // ── Deduplication logic ────────────────────────────────────────────
+
 
     #[tokio::test]
     async fn test_dedup_same_message_twice_filtered() {
@@ -569,7 +567,7 @@ mod tests {
             json!({"event_type": "instance-created", "payload": {"name": "test"}}),
         );
 
-        // Compute the dedup key (same formula as start())
+
         let payload_fingerprint = {
             use std::hash::{Hash, Hasher};
             let mut hasher = std::collections::hash_map::DefaultHasher::new();
@@ -578,14 +576,14 @@ mod tests {
         };
         let msg_id = format!("{}|{}|{}", msg.topic, msg.peer_id, payload_fingerprint);
 
-        // First insert: should be new
+
         {
             let mut seen = svc.seen_ids.lock().await;
             assert!(!seen.contains(&msg_id));
             seen.push_back(msg_id.clone());
         }
 
-        // Second insert: should be found
+
         {
             let seen = svc.seen_ids.lock().await;
             assert!(seen.contains(&msg_id), "same message should be deduped");
@@ -632,16 +630,16 @@ mod tests {
         let svc = NotificationService::new();
         let mut seen = svc.seen_ids.lock().await;
 
-        // Fill to MAX_DEDUP_ENTRIES
+
         for i in 0..MAX_DEDUP_ENTRIES {
             seen.push_back(format!("msg-{}", i));
         }
         assert_eq!(seen.len(), MAX_DEDUP_ENTRIES);
 
-        // The first entry should be "msg-0"
+
         assert_eq!(seen[0], "msg-0");
 
-        // Insert one more — oldest should be evicted
+
         if seen.len() >= MAX_DEDUP_ENTRIES {
             seen.pop_front();
         }
@@ -653,7 +651,7 @@ mod tests {
 
     #[test]
     fn test_priority_critical_gets_prefix_in_title() {
-        // Test the display title logic directly
+
         let display_title = match Priority::Critical {
             Priority::Critical => format!("[紧急] {}", "管理员推送"),
             Priority::High => "管理员推送".to_string(),

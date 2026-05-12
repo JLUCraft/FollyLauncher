@@ -64,7 +64,7 @@ export function DisputeDialog(props: Props) {
           请描述争议原因并提供证据链接（可选）。
         </p>
 
-        {/* Reason */}
+        {}
         <div class="mt-4">
           <label class="block text-sm font-medium text-stone-700 mb-1">
             争议原因 <span class="text-red-500">*</span>
@@ -79,7 +79,7 @@ export function DisputeDialog(props: Props) {
           />
         </div>
 
-        {/* Evidence URLs */}
+        {}
         <div class="mt-4">
           <label class="block text-sm font-medium text-stone-700 mb-1">
             证据链接
@@ -125,12 +125,12 @@ export function DisputeDialog(props: Props) {
           </For>
         </div>
 
-        {/* Error */}
+        {}
         {error() && (
           <p class="mt-3 text-sm text-red-600">{error()}</p>
         )}
 
-        {/* Actions */}
+        {}
         <div class="mt-5 flex gap-3">
           <button
             type="button"

@@ -1,12 +1,11 @@
-//! Launch command generation: JVM args, game args, classpath, natives,
-//! QuickPlay, server join, custom JVM flags. Uses mc_launcher_core as
-//! primary builder, with fallback/extension for JLUCraft-specific options.
+
+
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::Path;
 
-/// Full launch plan produced for the UI before executing.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LaunchPlan {
@@ -22,7 +21,7 @@ pub struct LaunchPlan {
     pub custom_jvm_flags: Vec<String>,
 }
 
-/// QuickPlay target as defined in the Minecraft launcher.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QuickPlayTarget {
@@ -39,7 +38,7 @@ pub enum QuickPlayKind {
     Singleplayer,
 }
 
-/// Options for generating a launch plan, extending mc_launcher_core options.
+
 #[derive(Debug, Clone, Default)]
 pub struct LaunchOptions {
     pub username: Option<String>,
@@ -57,15 +56,13 @@ pub struct LaunchOptions {
     pub launcher_name: Option<String>,
 }
 
-/// Generate a launch plan using mc_launcher_core for base command construction,
-/// then extend with custom JVM flags, QuickPlay, and server join arguments.
+
 pub fn generate_launch_plan(
     version: &str,
     game_dir: &Path,
     options: &LaunchOptions,
 ) -> Result<LaunchPlan, crate::error::LauncherError> {
-    // Build base mc_launcher_core options
-    let mc_options = mc_launcher_core::types::MinecraftOptions {
+    let mc_options = crate::launch::minecraft_command::MinecraftOptions {
         username: options.username.clone(),
         uuid: options.uuid.clone(),
         token: options.token.clone(),
@@ -80,11 +77,13 @@ pub fn generate_launch_plan(
         ),
         resolution_width: options.resolution_width.map(|w| w.to_string()),
         resolution_height: options.resolution_height.map(|h| h.to_string()),
-        ..Default::default()
     };
 
-    let command = mc_launcher_core::command::get_minecraft_command(version, game_dir, &mc_options)
-        .map_err(|e| crate::error::LauncherError::from(format!("failed to build minecraft command: {e}")))?;
+    let command =
+        crate::launch::minecraft_command::get_minecraft_command(version, game_dir, &mc_options)
+            .map_err(|e| {
+                crate::error::LauncherError::from(format!("failed to build minecraft command: {e}"))
+            })?;
 
     if command.is_empty() {
         return Err(crate::error::LauncherError::from("empty minecraft command"));
@@ -92,8 +91,8 @@ pub fn generate_launch_plan(
 
     let java_executable = command[0].clone();
 
-    // Partition command array: first is java, then JVM args up to the main class,
-    // then main class, then game args.
+
+
     let mut jvm_args: Vec<String> = Vec::new();
     let mut main_class = String::from("net.minecraft.client.main.Main");
     let mut game_args: Vec<String> = Vec::new();
@@ -103,7 +102,7 @@ pub fn generate_launch_plan(
     for (i, arg) in command.iter().enumerate().skip(1) {
         if arg == "-cp" || arg == "-classpath" {
             seen_cp = true;
-            // Next argument is the classpath value
+
             if let Some(cp_value) = command.get(i + 1) {
                 classpath = cp_value
                     .split(if cfg!(target_os = "windows") {
@@ -124,24 +123,24 @@ pub fn generate_launch_plan(
                 .map(|p| p + 1)
                 .unwrap_or(0)
         {
-            // This is the classpath value itself, already handled above
+
             jvm_args.push(arg.clone());
             seen_cp = false;
             continue;
         }
 
-        // JVM args are those starting with -D, -X, -XX, etc., but not -- (game args)
+
         if arg.starts_with('-') && !arg.starts_with("--") && main_class.is_empty() {
             jvm_args.push(arg.clone());
         } else {
             main_class = arg.clone();
-            // Remaining args are game args
+
             game_args = command[i + 1..].to_vec();
             break;
         }
     }
 
-    // Deduplicate classpath entries while preserving order
+
     let mut unique_cp = Vec::new();
     let mut seen_cp_entries = HashSet::new();
     for entry in &classpath {
@@ -150,7 +149,7 @@ pub fn generate_launch_plan(
         }
     }
 
-    // Determine natives directory
+
     let natives_dir = game_dir
         .join("versions")
         .join(version)
@@ -158,7 +157,7 @@ pub fn generate_launch_plan(
         .to_string_lossy()
         .to_string();
 
-    // Build final JVM args with natives path
+
     let mut final_jvm_args: Vec<String> = Vec::new();
     let mut has_library_path = false;
     for arg in &jvm_args {
@@ -171,22 +170,22 @@ pub fn generate_launch_plan(
         final_jvm_args.push(format!("-Djava.library.path={natives_dir}"));
     }
 
-    // Append custom JVM flags
+
     for flag in &options.custom_jvm_flags {
         if !final_jvm_args.contains(flag) {
             final_jvm_args.push(flag.clone());
         }
     }
 
-    // Build game args
+
     let mut final_game_args = game_args;
 
-    // Add fullscreen arg
+
     if options.fullscreen && !final_game_args.iter().any(|a| a == "--fullscreen") {
         final_game_args.push("--fullscreen".to_string());
     }
 
-    // Add QuickPlay args if set
+
     if let Some(ref qp) = options.quick_play {
         match qp.kind {
             QuickPlayKind::Multiplayer => {
@@ -220,29 +219,29 @@ pub fn generate_launch_plan(
         custom_jvm_flags: options.custom_jvm_flags.clone(),
     };
 
-    // Validate the plan round-trips to a valid command line.
+
     let cmd = plan_to_command(&plan);
     tracing::debug!(command = ?cmd, "generated launch plan");
 
     Ok(plan)
 }
 
-/// Build the full command line array from a LaunchPlan.
+
 pub fn plan_to_command(plan: &LaunchPlan) -> Vec<String> {
     let mut cmd = Vec::new();
     cmd.push(plan.java_executable.clone());
 
-    // JVM args
+
     for arg in &plan.jvm_args {
         cmd.push(arg.clone());
     }
 
-    // Custom JVM flags
+
     for flag in &plan.custom_jvm_flags {
         cmd.push(flag.clone());
     }
 
-    // Classpath
+
     let sep = if cfg!(target_os = "windows") {
         ";"
     } else {
@@ -251,15 +250,15 @@ pub fn plan_to_command(plan: &LaunchPlan) -> Vec<String> {
     cmd.push("-cp".to_string());
     cmd.push(plan.classpath.join(sep));
 
-    // Main class
+
     cmd.push(plan.main_class.clone());
 
-    // Game args
+
     for arg in &plan.game_args {
         cmd.push(arg.clone());
     }
 
-    // QuickPlay args (if set, appended after game_args)
+
     if let Some(ref qp) = plan.quick_play {
         match qp.kind {
             QuickPlayKind::Multiplayer => {
@@ -307,15 +306,15 @@ mod tests {
 
         let cmd = plan_to_command(&plan);
         assert_eq!(cmd[0], "/usr/bin/java");
-        // Find -cp and classpath
+
         let cp_idx = cmd.iter().position(|a| a == "-cp").unwrap();
         let cp_val = &cmd[cp_idx + 1];
         assert!(cp_val.contains("a.jar"));
         assert!(cp_val.contains("b.jar"));
-        // Main class follows classpath
+
         let main_idx = cp_idx + 2;
         assert_eq!(cmd[main_idx], "net.minecraft.client.main.Main");
-        // Game args follow main class
+
         assert!(cmd[main_idx + 1..].contains(&"--username".to_string()));
     }
 

@@ -36,9 +36,9 @@ function App(props: ParentProps) {
 
   return (
     <div class="grid h-screen grid-cols-[220px_1fr] overflow-hidden">
-      {/* Sidebar */}
+      {}
       <aside class="flex flex-col border-r border-stone-200 bg-stone-50/80 backdrop-blur">
-        {/* Brand */}
+        {}
         <div class="border-b border-stone-200 px-5 py-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700">
             FollyLauncher
@@ -48,7 +48,7 @@ function App(props: ParentProps) {
           </h1>
         </div>
 
-        {/* Navigation */}
+        {}
         <nav class="flex flex-col gap-1 p-3">
           {NAV.map((item) => (
             <A
@@ -63,7 +63,7 @@ function App(props: ParentProps) {
           ))}
         </nav>
 
-        {/* Identity footer */}
+        {}
         <div class="mt-auto border-t border-stone-200 px-5 py-4">
           <Show
             when={identity.data}
@@ -85,7 +85,7 @@ function App(props: ParentProps) {
         </div>
       </aside>
 
-      {/* Page content */}
+      {}
       <main class="overflow-hidden bg-white">
         {props.children}
       </main>

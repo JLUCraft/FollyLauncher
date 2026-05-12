@@ -71,7 +71,7 @@ export function InviteDialog(props: Props) {
           )}
         </p>
 
-        {/* Input */}
+        {}
         <div class="mt-4 flex gap-2">
           <input
             class="input input-bordered flex-1 rounded-lg border-stone-300 bg-white px-3 py-2 text-sm"
@@ -96,7 +96,7 @@ export function InviteDialog(props: Props) {
           </button>
         </div>
 
-        {/* Player list */}
+        {}
         {players().length > 0 && (
           <div class="mt-3 max-h-40 overflow-y-auto rounded-lg border border-stone-200 bg-stone-50 p-2">
             <ul class="space-y-1">
@@ -117,12 +117,12 @@ export function InviteDialog(props: Props) {
           </div>
         )}
 
-        {/* Error */}
+        {}
         {error() && (
           <p class="mt-3 text-sm text-red-600">{error()}</p>
         )}
 
-        {/* Result */}
+        {}
         {result() && (
           <div class="mt-3 rounded-lg bg-green-50 border border-green-200 p-3">
             <p class="text-sm font-medium text-green-800">
@@ -136,7 +136,7 @@ export function InviteDialog(props: Props) {
           </div>
         )}
 
-        {/* Actions */}
+        {}
         <div class="mt-5 flex gap-3">
           <button
             type="button"

@@ -1,28 +1,27 @@
 use crate::error::LauncherError;
 use libp2p::{PeerId, StreamProtocol};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use tokio::sync::{mpsc, oneshot};
 
 pub mod commands;
 mod dht;
 mod runner;
 mod swarm;
 
-// ── Topic constants ───────────────────────────────────────────────────────
 
-pub(crate) const MC_CLUSTER_TOPIC: &str = "mc.events.cluster";
-pub(crate) const MC_GOVERNANCE_TOPIC: &str = "mc.events.governance";
-pub(crate) const MC_SYSTEM_TOPIC: &str = "mc.events.system";
-pub(crate) const MC_ADMIN_PUSH_TOPIC: &str = "mc.events.admin.push";
-pub(crate) const MC_TOURNAMENT_TOPIC_PREFIX: &str = "mc.events.tournament.";
-pub(crate) const MC_INSTANCE_TOPIC_PREFIX: &str = "mc.events.instance.";
+
+pub(crate) const MC_CLUSTER_TOPIC: &str = "cluster";
+pub(crate) const MC_GOVERNANCE_TOPIC: &str = "governance";
+pub(crate) const MC_SYSTEM_TOPIC: &str = "system";
+pub(crate) const MC_ADMIN_PUSH_TOPIC: &str = "admin.push";
+pub(crate) const MC_TOURNAMENT_TOPIC_PREFIX: &str = "tournament.";
+pub(crate) const MC_INSTANCE_TOPIC_PREFIX: &str = "instance.";
 
 const NETWORK_COMMAND_TIMEOUT: Duration = Duration::from_secs(30);
 
-// ── Public types ──────────────────────────────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolvedInstance {
@@ -68,16 +67,10 @@ pub enum NetworkCommand {
     GetPeers {
         respond: oneshot::Sender<Vec<String>>,
     },
-    GetMessages {
-        respond: oneshot::Sender<Vec<ClusterMessage>>,
-    },
     OpenStream {
         peer_id: PeerId,
         protocol: StreamProtocol,
         respond: oneshot::Sender<Result<libp2p::Stream, LauncherError>>,
-    },
-    GetInstances {
-        respond: oneshot::Sender<Vec<InstanceInfo>>,
     },
     MeasureLatency {
         peer_id: String,
@@ -85,14 +78,6 @@ pub enum NetworkCommand {
     },
     GetDiagnostics {
         respond: oneshot::Sender<NetworkDiagnostics>,
-    },
-    SubscribeTopic {
-        topic: String,
-        respond: oneshot::Sender<Result<(), LauncherError>>,
-    },
-    UnsubscribeTopic {
-        topic: String,
-        respond: oneshot::Sender<Result<(), LauncherError>>,
     },
 }
 
@@ -123,20 +108,17 @@ pub struct PeerLatency {
     pub stale: bool,
 }
 
-// ── Network start ───────────────────────────────────────────────────────
+
 
 #[derive(Clone)]
 pub struct NetworkHandle {
     cmd_tx: mpsc::Sender<NetworkCommand>,
 }
-
 pub async fn start(
     keypair: libp2p::identity::Keypair,
     bootstrap_peers: Vec<String>,
 ) -> anyhow::Result<NetworkHandle> {
     let (cmd_tx, cmd_rx) = mpsc::channel::<NetworkCommand>(64);
-    let messages = Arc::new(RwLock::new(VecDeque::<ClusterMessage>::new()));
-    let known_instances = Arc::new(RwLock::new(HashMap::<String, InstanceInfo>::new()));
     let stream_control = Arc::new(std::sync::Mutex::new(None));
     let swarm = swarm::build_swarm(keypair, stream_control.clone())?;
     let control = stream_control
@@ -144,20 +126,13 @@ pub async fn start(
         .unwrap_or_else(|e| e.into_inner())
         .take();
 
-    tokio::spawn(runner::run_network(
-        swarm,
-        cmd_rx,
-        bootstrap_peers,
-        messages,
-        known_instances,
-        control,
-    ));
+    tokio::spawn(runner::run_network(swarm, cmd_rx, bootstrap_peers, control));
     Ok(NetworkHandle { cmd_tx })
 }
 
-// ── Command dispatch helper ───────────────────────────────────────────────
 
-/// Send a command to the network loop and await its response with a timeout.
+
+
 async fn send_command<T>(
     cmd_tx: &mpsc::Sender<NetworkCommand>,
     build: impl FnOnce(oneshot::Sender<T>) -> NetworkCommand,
@@ -181,11 +156,11 @@ async fn send_command<T>(
     }
 }
 
-// ── NetworkHandle methods ─────────────────────────────────────────────────
+
 
 impl NetworkHandle {
-    /// Create a handle backed by a dummy channel for unit tests.
-    /// The channel has no receiver — any command sent through it will silently drop.
+
+
     #[cfg(test)]
     pub fn new_for_test() -> Self {
         let (cmd_tx, _cmd_rx) = mpsc::channel::<NetworkCommand>(1);
@@ -216,15 +191,6 @@ impl NetworkHandle {
         .await
     }
 
-    pub async fn get_messages(&self) -> Result<Vec<ClusterMessage>, LauncherError> {
-        send_command(
-            &self.cmd_tx,
-            |tx| NetworkCommand::GetMessages { respond: tx },
-            NETWORK_COMMAND_TIMEOUT,
-        )
-        .await
-    }
-
     pub async fn open_stream(
         &self,
         peer_id: PeerId,
@@ -241,15 +207,6 @@ impl NetworkHandle {
         )
         .await
         .and_then(|inner| inner)
-    }
-
-    pub async fn list_instances(&self) -> Result<Vec<InstanceInfo>, LauncherError> {
-        send_command(
-            &self.cmd_tx,
-            |tx| NetworkCommand::GetInstances { respond: tx },
-            NETWORK_COMMAND_TIMEOUT,
-        )
-        .await
     }
 
     pub async fn measure_latency(&self, peer_id: String) -> Result<Option<u32>, LauncherError> {
@@ -272,35 +229,15 @@ impl NetworkHandle {
         )
         .await
     }
-
-    pub async fn subscribe_topic(&self, topic: String) -> Result<(), LauncherError> {
-        send_command(
-            &self.cmd_tx,
-            |tx| NetworkCommand::SubscribeTopic { topic, respond: tx },
-            NETWORK_COMMAND_TIMEOUT,
-        )
-        .await
-        .and_then(|inner| inner)
-    }
-
-    pub async fn unsubscribe_topic(&self, topic: String) -> Result<(), LauncherError> {
-        send_command(
-            &self.cmd_tx,
-            |tx| NetworkCommand::UnsubscribeTopic { topic, respond: tx },
-            NETWORK_COMMAND_TIMEOUT,
-        )
-        .await
-        .and_then(|inner| inner)
-    }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    // ── send_command ───────────────────────────────────────────────────
+
 
     #[tokio::test]
     async fn test_send_command_closed_channel() {

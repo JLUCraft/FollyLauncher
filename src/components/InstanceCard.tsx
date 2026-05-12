@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function InstanceCard(props: Props) {
-  // Check eligibility on mount
+
   const [eligibility] = createResource(
     () => props.instance.id,
     async (id) => {

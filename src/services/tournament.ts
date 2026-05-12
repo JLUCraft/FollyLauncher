@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-/** Aligned with federated-server league.rs TournamentStatus (kebab-case). */
+
 export type TournamentStatus =
   | "draft"
   | "registration"
@@ -9,7 +9,7 @@ export type TournamentStatus =
   | "cancelled"
   | "completed";
 
-/** Aligned with federated-server league.rs MatchStatus (kebab-case). */
+
 export type MatchStatus =
   | "scheduled"
   | "live"
@@ -47,11 +47,11 @@ export interface Tournament {
   max_participants: number;
   created_at: string;
   created_by: string;
-  /** Optional schedule with registration window and match timeline. */
+
   schedule?: TournamentSchedule;
-  /** Optional scoring rules for the tournament. */
+
   scoring?: ScoringRules;
-  /** Minimum score a member must have to register (club gate). */
+
   min_member_score: number;
 }
 
@@ -134,9 +134,9 @@ export async function getDispute(
   return invoke("get_dispute", { disputeId });
 }
 
-// resolveDispute removed - FollyLauncher is a player-side launcher
-// without admin TEE. Dispute resolution must go through
-// union-manager's resolveDisputeViaProposal path.
+
+
+
 
 export interface Team {
   id: string;

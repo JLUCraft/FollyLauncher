@@ -1,5 +1,5 @@
-//! Resumable downloader with .part files, Range requests, hash verification,
-//! retry/backoff, mirror fallback, bounded concurrency, progress events, and dedup.
+
+
 
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
@@ -11,16 +11,16 @@ use tokio::fs;
 use tokio::io::AsyncWriteExt;
 use tracing::{debug, info, warn};
 
-/// Maximum concurrent downloads.
+
 const MAX_CONCURRENT_DOWNLOADS: usize = 8;
 
-/// Max retry attempts per URL.
+
 const MAX_RETRIES: u32 = 3;
 
-/// Base delay for exponential backoff (in milliseconds).
+
 const BACKOFF_BASE_MS: u64 = 100;
 
-/// Progress event emitted during a download.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadProgress {
@@ -42,7 +42,7 @@ pub enum DownloadState {
     Failed,
 }
 
-/// Hash algorithm for integrity verification.
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum HashAlgorithm {
@@ -51,7 +51,7 @@ pub enum HashAlgorithm {
     Sha256,
 }
 
-/// A download task for the queue.
+
 #[derive(Debug, Clone)]
 pub struct DownloadTask {
     pub id: String,
@@ -61,11 +61,11 @@ pub struct DownloadTask {
     pub expected_sha1: Option<String>,
     pub expected_sha256: Option<String>,
     pub expected_size: Option<u64>,
-    /// Hash algorithm to use for integrity check. Defaults to Sha1.
+
     pub hash_algorithm: HashAlgorithm,
 }
 
-/// Result of attempting a single download.
+
 #[derive(Debug)]
 pub struct DownloadResult {
     pub task_id: String,
@@ -74,7 +74,7 @@ pub struct DownloadResult {
     pub error: Option<String>,
 }
 
-/// Deduplicated download manager.
+
 pub struct DownloadManager {
     client: reqwest::Client,
 }
@@ -86,17 +86,20 @@ impl DownloadManager {
                 .timeout(Duration::from_secs(120))
                 .connect_timeout(Duration::from_secs(15))
                 .build()
-                .expect("failed to build downloader reqwest client"),
+                .unwrap_or_else(|e| {
+                    warn!(error = %e, "failed to build configured downloader reqwest client, falling back to default");
+                    reqwest::Client::new()
+                }),
         }
     }
 
-    /// Deduplicate tasks by dest_path. First task wins, subsequent duplicates are skipped.
+
     pub fn dedup(tasks: &mut Vec<DownloadTask>) {
         let mut seen: HashSet<PathBuf> = HashSet::new();
         tasks.retain(|t| seen.insert(t.dest_path.clone()));
     }
 
-    /// Download a batch of tasks with bounded concurrency and progress callbacks.
+
     pub async fn download_batch(
         &self,
         tasks: Vec<DownloadTask>,
@@ -133,13 +136,13 @@ impl DownloadManager {
         results
     }
 
-    /// Download a single task with retry and mirror fallback.
+
     async fn download_task(
         client: &reqwest::Client,
         task: &DownloadTask,
         progress: &Arc<dyn Fn(DownloadProgress) + Send + Sync>,
     ) -> DownloadResult {
-        // Dedup check: if file already exists and hash matches, skip
+
         if task.dest_path.exists() {
             let matched = match task.hash_algorithm {
                 HashAlgorithm::Sha1 => task
@@ -172,7 +175,7 @@ impl DownloadManager {
             }
         }
 
-        // Ensure parent directory exists
+
         if let Some(parent) = task.dest_path.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
                 return DownloadResult {
@@ -193,7 +196,7 @@ impl DownloadManager {
             state: DownloadState::Downloading,
         });
 
-        // Try each mirror URL
+
         for (url_idx, url) in task.urls.iter().enumerate() {
             for attempt in 0..MAX_RETRIES {
                 if attempt > 0 {
@@ -212,7 +215,7 @@ impl DownloadManager {
                             state: DownloadState::Verifying,
                         });
 
-                        // Verify hash if expected
+
                         let hash_ok = match task.hash_algorithm {
                             HashAlgorithm::Sha1 => task
                                 .expected_sha1
@@ -279,7 +282,7 @@ impl DownloadManager {
         }
     }
 
-    /// Download a single file from a URL with resume support.
+
     async fn download_single(
         client: &reqwest::Client,
         task: &DownloadTask,
@@ -287,7 +290,7 @@ impl DownloadManager {
     ) -> Result<u64, crate::error::LauncherError> {
         let part_path = task.dest_path.with_extension("part");
 
-        // Check for existing partial download
+
         let resume_offset = if part_path.exists() {
             match fs::metadata(&part_path).await {
                 Ok(meta) => meta.len(),
@@ -297,7 +300,7 @@ impl DownloadManager {
             0
         };
 
-        // Build request with optional Range header
+
         let mut req = client.get(url);
         if resume_offset > 0 {
             debug!(offset = resume_offset, url = %url, "resuming partial download");
@@ -313,19 +316,22 @@ impl DownloadManager {
         let is_range = status == reqwest::StatusCode::PARTIAL_CONTENT;
 
         if !status.is_success() && status != reqwest::StatusCode::PARTIAL_CONTENT {
-            return Err(crate::error::LauncherError::from(format!("HTTP {}", status)));
+            return Err(crate::error::LauncherError::from(format!(
+                "HTTP {}",
+                status
+            )));
         }
 
-        // For resume: if server doesn't support Range, start fresh
+
         let start_offset = if is_range || resume_offset == 0 {
             resume_offset
         } else {
-            // Server didn't honor Range; truncate and restart
+
             let _ = fs::remove_file(&part_path).await;
             0
         };
 
-        // Open file for writing (append mode if resuming)
+
         let mut file = if start_offset > 0 {
             fs::OpenOptions::new()
                 .append(true)
@@ -354,7 +360,7 @@ impl DownloadManager {
             .map_err(|e| format!("flush error: {e}"))?;
         drop(file);
 
-        // Rename .part -> final destination
+
         if task.dest_path.exists() {
             let _ = fs::remove_file(&task.dest_path).await;
         }
@@ -366,7 +372,7 @@ impl DownloadManager {
     }
 }
 
-/// Verify a file's SHA-1 hash matches the expected value.
+
 pub fn verify_file_sha1(path: &Path, expected_sha1: &str) -> bool {
     match std::fs::read(path) {
         Ok(bytes) => {
@@ -377,7 +383,7 @@ pub fn verify_file_sha1(path: &Path, expected_sha1: &str) -> bool {
     }
 }
 
-/// Verify a file's SHA-256 hash matches the expected value.
+
 pub fn verify_file_sha256(path: &Path, expected_sha256: &str) -> bool {
     match std::fs::read(path) {
         Ok(bytes) => {

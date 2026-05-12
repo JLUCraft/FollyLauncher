@@ -4,7 +4,7 @@ import { createQuickRoom } from "../services";
 interface Props {
   onClose: () => void;
   onCreated: () => void;
-  /** 来自 VC/onboarding 的社团名，不为 null 时才允许提交 */
+
   memberClub: string | null;
 }
 

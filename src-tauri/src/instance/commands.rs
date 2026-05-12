@@ -27,14 +27,15 @@ fn load_instances(data_dir: &Path) -> Result<Vec<LocalInstance>, LauncherError> 
         return Ok(Vec::new());
     }
 
-    let content =
-        std::fs::read_to_string(&path).map_err(|e| LauncherError::from(format!("无法读取实例数据文件: {e}")))?;
+    let content = std::fs::read_to_string(&path)
+        .map_err(|e| LauncherError::from(format!("无法读取实例数据文件: {e}")))?;
 
     if content.trim().is_empty() {
         return Ok(Vec::new());
     }
 
-    serde_json::from_str(&content).map_err(|e| LauncherError::from(format!("实例数据文件已损坏，无法解析: {e}")))
+    serde_json::from_str(&content)
+        .map_err(|e| LauncherError::from(format!("实例数据文件已损坏，无法解析: {e}")))
 }
 
 fn save_instances(data_dir: &Path, instances: &[LocalInstance]) -> Result<(), LauncherError> {
@@ -44,10 +45,11 @@ fn save_instances(data_dir: &Path, instances: &[LocalInstance]) -> Result<(), La
             .map_err(|e| LauncherError::from(format!("无法创建实例数据目录: {e}")))?;
     }
 
-    let json =
-        serde_json::to_string_pretty(instances).map_err(|e| LauncherError::from(format!("无法序列化实例数据: {e}")))?;
+    let json = serde_json::to_string_pretty(instances)
+        .map_err(|e| LauncherError::from(format!("无法序列化实例数据: {e}")))?;
 
-    std::fs::write(&path, json).map_err(|e| LauncherError::from(format!("无法写入实例数据文件: {e}")))
+    std::fs::write(&path, json)
+        .map_err(|e| LauncherError::from(format!("无法写入实例数据文件: {e}")))
 }
 
 pub fn create_instance_in(
@@ -129,7 +131,7 @@ pub fn update_instance_in(
     match &request.icon {
         Some(Some(icon)) => instance.icon = Some(icon.clone()),
         Some(None) => instance.icon = None,
-        None => { /* leave unchanged */ }
+        None => {  }
     }
 
     instance.updated_at = crate::utils::now_iso8601();
@@ -140,7 +142,7 @@ pub fn update_instance_in(
     Ok(result)
 }
 
-/// Return the instance with the given id, or an error.
+
 pub fn get_instance_in(data_dir: &Path, id: &str) -> Result<LocalInstance, LauncherError> {
     let instances = load_instances(data_dir)?;
     instances
@@ -149,8 +151,8 @@ pub fn get_instance_in(data_dir: &Path, id: &str) -> Result<LocalInstance, Launc
         .ok_or_else(|| LauncherError::from(format!("未找到实例: {id}")))
 }
 
-/// Update instance game_version, kind, and updated_at after loader install.
-/// Returns the updated instance.
+
+
 pub fn update_instance_loader_in(
     data_dir: &Path,
     id: &str,
@@ -172,8 +174,8 @@ pub fn update_instance_loader_in(
     Ok(result)
 }
 
-/// Update `last_played_at` and `updated_at` to the current time and persist.
-/// Returns the updated instance.
+
+
 pub fn mark_instance_played_in(data_dir: &Path, id: &str) -> Result<LocalInstance, LauncherError> {
     let mut instances = load_instances(data_dir)?;
     let idx = instances
@@ -204,7 +206,7 @@ pub fn delete_instance_from(data_dir: &Path, id: &str) -> Result<(), LauncherErr
     Ok(())
 }
 
-// ── Tauri commands ──
+
 
 #[tauri::command]
 pub async fn list_local_instances(
@@ -214,7 +216,7 @@ pub async fn list_local_instances(
         let s = state.lock().await;
         s.data_dir.clone()
     };
-    load_instances(&data_dir).map_err(LauncherError::from)
+    load_instances(&data_dir)
 }
 
 #[tauri::command]
@@ -226,7 +228,7 @@ pub async fn create_local_instance(
         let s = state.lock().await;
         s.data_dir.clone()
     };
-    create_instance_in(&data_dir, request).map_err(LauncherError::from)
+    create_instance_in(&data_dir, request)
 }
 
 #[tauri::command]
@@ -238,7 +240,7 @@ pub async fn update_local_instance(
         let s = state.lock().await;
         s.data_dir.clone()
     };
-    update_instance_in(&data_dir, request).map_err(LauncherError::from)
+    update_instance_in(&data_dir, request)
 }
 
 #[tauri::command]
@@ -250,10 +252,10 @@ pub async fn delete_local_instance(
         let s = state.lock().await;
         s.data_dir.clone()
     };
-    delete_instance_from(&data_dir, &id).map_err(LauncherError::from)
+    delete_instance_from(&data_dir, &id)
 }
 
-// ── Tests ──
+
 
 #[cfg(test)]
 mod tests {
@@ -272,7 +274,7 @@ mod tests {
         let result = load_instances(data_dir).expect("should succeed");
         assert!(result.is_empty());
 
-        // Parent directory should have been created
+
         let instances_dir = data_dir.join("instances");
         assert!(instances_dir.exists(), "instances dir should be created");
         assert!(
@@ -299,12 +301,12 @@ mod tests {
         assert_eq!(instance.game_version, "1.21.4");
         assert_eq!(instance.kind, LocalInstanceKind::Fabric);
 
-        // Instance directory should exist
+
         let expected_dir = instance_dir_path(data_dir, &instance.id);
         assert!(expected_dir.exists(), "instance dir should be created");
         assert!(expected_dir.is_dir(), "instance path should be a directory");
 
-        // JSON file should exist and contain the instance
+
         let json_path = instances_file_path(data_dir);
         assert!(json_path.exists(), "instances.json should exist");
 
@@ -349,7 +351,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create an instance first
+
         let create_req = CreateLocalInstanceRequest {
             name: "Original".to_string(),
             game_version: "1.20".to_string(),
@@ -358,7 +360,7 @@ mod tests {
         let instance = create_instance_in(data_dir, create_req).expect("should create");
         let original_updated_at = instance.updated_at.clone();
 
-        // Small delay to ensure timestamp changes
+
         std::thread::sleep(std::time::Duration::from_millis(10));
 
         let update_req = UpdateLocalInstanceRequest {
@@ -377,7 +379,7 @@ mod tests {
         assert_eq!(updated.icon, Some("icon_data".to_string()));
         assert_ne!(updated.updated_at, original_updated_at);
 
-        // Verify persistence
+
         let loaded = load_instances(data_dir).expect("should load");
         assert_eq!(loaded.len(), 1);
         assert_eq!(loaded[0].name, "Updated Name");
@@ -405,7 +407,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create an instance first
+
         let create_req = CreateLocalInstanceRequest {
             name: "To Delete".to_string(),
             game_version: "1.20".to_string(),
@@ -419,14 +421,14 @@ mod tests {
             "instance dir should exist before delete"
         );
 
-        // Delete
+
         delete_instance_from(data_dir, &instance.id).expect("should delete");
 
-        // JSON should be empty
+
         let loaded = load_instances(data_dir).expect("should load");
         assert!(loaded.is_empty(), "instances list should be empty");
 
-        // Instance directory should still exist
+
         assert!(
             instance_dir.exists(),
             "instance dir should still exist after delete"
@@ -447,7 +449,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create the parent directory and write corrupted data
+
         let json_path = instances_file_path(data_dir);
         std::fs::create_dir_all(json_path.parent().unwrap()).expect("should create dir");
         std::fs::write(&json_path, "this is not valid json{{{").expect("should write");
@@ -464,7 +466,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create two instances
+
         let req1 = CreateLocalInstanceRequest {
             name: "Instance A".to_string(),
             game_version: "1.20".to_string(),
@@ -483,7 +485,7 @@ mod tests {
         assert_eq!(loaded.len(), 2);
         assert_ne!(i1.id, i2.id, "ids should be unique");
 
-        // Delete one
+
         delete_instance_from(data_dir, &i1.id).expect("should delete");
 
         let loaded = load_instances(data_dir).expect("should load");
@@ -527,7 +529,7 @@ mod tests {
         };
         let instance = create_instance_in(data_dir, create_req).expect("should create");
 
-        // Only update name
+
         let update_req = UpdateLocalInstanceRequest {
             id: instance.id.clone(),
             name: Some("Only Name Changed".to_string()),
@@ -554,7 +556,7 @@ mod tests {
         };
         let instance = create_instance_in(data_dir, create_req).expect("should create");
 
-        // Set icon first
+
         let set_req = UpdateLocalInstanceRequest {
             id: instance.id.clone(),
             name: None,
@@ -565,7 +567,7 @@ mod tests {
         let updated = update_instance_in(data_dir, set_req).expect("should set icon");
         assert_eq!(updated.icon, Some("icon_data".to_string()));
 
-        // Now clear icon
+
         let clear_req = UpdateLocalInstanceRequest {
             id: instance.id.clone(),
             name: None,
@@ -577,7 +579,7 @@ mod tests {
         assert_eq!(cleared.icon, None);
     }
 
-    // ── get_instance_in ──────────────────────────────────────────────────
+
 
     #[test]
     fn get_instance_in_finds_existing() {
@@ -611,7 +613,7 @@ mod tests {
         );
     }
 
-    // ── mark_instance_played_in ──────────────────────────────────────────
+
 
     #[test]
     fn mark_instance_played_sets_last_played_at() {
@@ -637,7 +639,7 @@ mod tests {
         );
         assert!(!marked.last_played_at.as_ref().unwrap().is_empty());
 
-        // Verify persistence
+
         let loaded = load_instances(data_dir).expect("should load");
         assert_eq!(loaded[0].last_played_at, marked.last_played_at);
     }

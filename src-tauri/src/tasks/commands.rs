@@ -10,10 +10,10 @@ use tokio::sync::Mutex;
 
 use crate::utils::now_iso8601;
 
-// ── schedule_task_group / update_task_progress removed ──
-// These orphan commands had no TS call sites. task centre state
-// is managed through the record_* and update_single_task_group helpers.
-// Tests for the underlying logic remain in this module.
+
+
+
+
 
 #[tauri::command]
 pub async fn get_task_group(
@@ -30,7 +30,7 @@ pub async fn list_task_groups(
 ) -> Result<Vec<TaskGroup>, LauncherError> {
     let groups = state.lock().await;
     let mut out: Vec<TaskGroup> = groups.values().cloned().collect();
-    // Sort by updated_at descending
+
     out.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
     Ok(out)
 }
@@ -56,7 +56,9 @@ pub async fn cancel_task_group(
     let clone = group.clone();
     drop(groups);
 
-    let _ = app.emit("task-group-cancelled", &clone);
+    if let Err(e) = app.emit("task-group-cancelled", &clone) {
+        tracing::warn!(error = %e, "failed to emit task-group-cancelled");
+    }
     Ok(())
 }
 
@@ -75,7 +77,7 @@ pub async fn remove_task_group(
     Ok(())
 }
 
-// ── Phase 36: Snapshot export/import commands ───────────────────────────
+
 
 #[tauri::command]
 pub async fn export_task_snapshot(
@@ -83,7 +85,7 @@ pub async fn export_task_snapshot(
 ) -> Result<String, LauncherError> {
     let groups_map = state.lock().await;
     let mut groups: Vec<TaskGroup> = groups_map.values().cloned().collect();
-    // Sort by updated_at descending
+
     groups.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
 
     let bundle = TaskSnapshotBundle {
@@ -95,25 +97,25 @@ pub async fn export_task_snapshot(
         .map_err(|e| LauncherError::new("SERIALIZE_ERROR", format!("序列化快照失败: {e}")))
 }
 
-/// Pure import logic: parse, validate, and insert groups from a snapshot
-/// JSON string into the given map.
-///
-/// Returns the summary result together with the list of successfully imported
-/// groups (so the caller can emit events).
+
+
+
+
+
 pub fn import_task_snapshot_into_map(
     groups: &mut HashMap<String, TaskGroup>,
     bundle_json: &str,
     replace_existing: bool,
     drop_active: bool,
 ) -> Result<(ImportTaskSnapshotResult, Vec<TaskGroup>), LauncherError> {
-    let bundle: TaskSnapshotBundle =
-        serde_json::from_str(bundle_json).map_err(|e| LauncherError::from(format!("快照 JSON 解析失败: {e}")))?;
+    let bundle: TaskSnapshotBundle = serde_json::from_str(bundle_json)
+        .map_err(|e| LauncherError::from(format!("快照 JSON 解析失败: {e}")))?;
 
     if bundle.schema_version != 1 {
-        return Err(LauncherError::new("UNSUPPORTED_VERSION", format!(
-            "不支持快照版本 {}，仅支持版本 1",
-            bundle.schema_version
-        )));
+        return Err(LauncherError::new(
+            "UNSUPPORTED_VERSION",
+            format!("不支持快照版本 {}，仅支持版本 1", bundle.schema_version),
+        ));
     }
 
     let now = now_iso8601();
@@ -123,27 +125,27 @@ pub fn import_task_snapshot_into_map(
     let mut imported_groups: Vec<TaskGroup> = Vec::new();
 
     for mut group in bundle.groups {
-        // Validate
+
         if let Err(_e) = models::validate_snapshot_group(&group) {
             failed += 1;
             continue;
         }
 
-        // Check existing & replace_existing
+
         let exists = groups.contains_key(&group.group_id);
         if exists && !replace_existing {
             skipped += 1;
             continue;
         }
 
-        // Normalize (fill timestamps, handle active)
+
         let should_skip = models::normalize_imported_task_group(&mut group, drop_active, &now);
         if should_skip {
             skipped += 1;
             continue;
         }
 
-        // Insert / overwrite
+
         groups.insert(group.group_id.clone(), group.clone());
         imported_groups.push(group);
         imported += 1;
@@ -175,18 +177,21 @@ pub async fn import_task_snapshot(
     )?;
     drop(groups);
 
-    // Emit events for each imported / overwritten group
+
     for group in &imported_groups {
-        let _ = app.emit("task-group-updated", group);
+        if let Err(e) = app.emit("task-group-updated", group) {
+            tracing::warn!(error = %e, group_id = %group.group_id, "failed to emit task-group-updated");
+        }
     }
 
     Ok(result)
 }
 
-// ── Phase 26: record helpers (pure + stateful) ───────────────────────
 
-/// Build a completed single-task `TaskGroup` without requiring a Tauri app.
-/// This is a pure function usable in unit tests.
+
+
+
+#[cfg(test)]
 pub fn build_completed_task_group(
     group_id: String,
     task_name: String,
@@ -224,8 +229,9 @@ pub fn build_completed_task_group(
     group
 }
 
-/// Build a failed single-task `TaskGroup` without requiring a Tauri app.
-/// This is a pure function usable in unit tests.
+
+
+#[cfg(test)]
 pub fn build_failed_task_group(group_id: String, task_name: String, message: String) -> TaskGroup {
     let now = now_iso8601();
     let task = TaskProgress {
@@ -252,58 +258,10 @@ pub fn build_failed_task_group(group_id: String, task_name: String, message: Str
     group
 }
 
-/// Record a completed task group in the global task center state.
-///
-/// Uses `app.state()` to access the shared `HashMap<String, TaskGroup>`,
-/// inserts/overwrites the entry, and emits `task-group-created`.
-///
-/// Returns the recorded `TaskGroup` on success, or a Chinese error string.
-pub async fn record_completed_task_group(
-    app: &AppHandle,
-    group_id: String,
-    task_name: String,
-    message: String,
-    current: u64,
-    total: u64,
-) -> Result<TaskGroup, LauncherError> {
-    let group = build_completed_task_group(group_id, task_name, message, current, total);
-    let state = app
-        .try_state::<Arc<Mutex<HashMap<String, TaskGroup>>>>()
-        .ok_or_else(|| LauncherError::from("任务中心状态未初始化"))?;
-    let mut groups = state.lock().await;
-    groups.insert(group.group_id.clone(), group.clone());
-    drop(groups);
-    let _ = app.emit("task-group-created", &group);
-    Ok(group)
-}
 
-/// Record a failed task group in the global task center state.
-///
-/// Uses `app.state()` to access the shared `HashMap<String, TaskGroup>`,
-/// inserts/overwrites the entry, and emits `task-group-created`.
-///
-/// Returns the recorded `TaskGroup` on success, or a Chinese error string.
-pub async fn record_failed_task_group(
-    app: &AppHandle,
-    group_id: String,
-    task_name: String,
-    message: String,
-) -> Result<TaskGroup, LauncherError> {
-    let group = build_failed_task_group(group_id, task_name, message);
-    let state = app
-        .try_state::<Arc<Mutex<HashMap<String, TaskGroup>>>>()
-        .ok_or_else(|| LauncherError::from("任务中心状态未初始化"))?;
-    let mut groups = state.lock().await;
-    groups.insert(group.group_id.clone(), group.clone());
-    drop(groups);
-    let _ = app.emit("task-group-created", &group);
-    Ok(group)
-}
 
-// ── Phase 31: generic running task group helpers ──────────────────────
 
-/// Build a running single-task `TaskGroup` without requiring a Tauri app.
-/// This is a pure function usable in unit tests.
+
 pub fn build_running_task_group(group_id: &str, task_name: &str, task_message: &str) -> TaskGroup {
     let now = now_iso8601();
     let task = TaskProgress {
@@ -330,10 +288,10 @@ pub fn build_running_task_group(group_id: &str, task_name: &str, task_message: &
     group
 }
 
-/// Insert a TaskGroup into the task centre state and emit `task-group-created`.
-///
-/// Returns the recorded `TaskGroup` on success, or a Chinese error string
-/// if the task centre state is not available.
+
+
+
+
 pub async fn record_running_task_group(
     app: &AppHandle,
     group: TaskGroup,
@@ -344,18 +302,20 @@ pub async fn record_running_task_group(
     let mut groups = state.lock().await;
     groups.insert(group.group_id.clone(), group.clone());
     drop(groups);
-    let _ = app.emit("task-group-created", &group);
+    if let Err(e) = app.emit("task-group-created", &group) {
+        tracing::warn!(error = %e, group_id = %group.group_id, "failed to emit task-group-created");
+    }
     Ok(group)
 }
 
-/// Update an existing TaskGroup in the task centre and emit `task-group-updated`.
-///
-/// The `modifier` closure receives a mutable reference to the group.
-/// `refresh_group_summary` is called internally with the current UTC time before
-/// the event is emitted.
-///
-/// Returns `()` on success, or a Chinese error string if the task centre state
-/// is not available or the group is not found.
+
+
+
+
+
+
+
+
 pub async fn update_single_task_group(
     app: &AppHandle,
     group_id: &str,
@@ -373,11 +333,13 @@ pub async fn update_single_task_group(
     models::refresh_group_summary(group, now);
     let clone = group.clone();
     drop(groups);
-    let _ = app.emit("task-group-updated", &clone);
+    if let Err(e) = app.emit("task-group-updated", &clone) {
+        tracing::warn!(error = %e, group_id = %clone.group_id, "failed to emit task-group-updated");
+    }
     Ok(())
 }
 
-// ── Tests ──
+
 
 #[cfg(test)]
 mod tests {
@@ -412,12 +374,12 @@ mod tests {
         g
     }
 
-    // ── schedule_task_group logic ────────────────────────────────────────
+
 
     #[test]
     fn schedule_rejects_empty_tasks() {
         let tasks: Vec<TaskProgress> = vec![];
-        // Same logic as the command: if tasks.is_empty() → Err(...)
+
         if tasks.is_empty() {
             let err = "任务组至少需要一个任务".to_string();
             assert!(!err.is_empty());
@@ -457,7 +419,7 @@ mod tests {
         assert_eq!(filled[0].updated_at, now);
     }
 
-    // ── update_task_progress logic ───────────────────────────────────────
+
 
     #[test]
     fn update_missing_group_returns_error() {
@@ -519,7 +481,7 @@ mod tests {
         assert_eq!(group.updated_at, now);
     }
 
-    // ── list_task_groups sorting ─────────────────────────────────────────
+
 
     #[test]
     fn list_sorted_by_updated_at_desc() {
@@ -545,7 +507,7 @@ mod tests {
         assert_eq!(out[2].group_id, "g1");
     }
 
-    // ── cancel_task_group logic ──────────────────────────────────────────
+
 
     #[test]
     fn cancel_missing_group_returns_error() {
@@ -590,19 +552,19 @@ mod tests {
         models::refresh_group_summary(group, now.into());
 
         let group = groups.get("g1").unwrap();
-        // Running, Pending, Paused → Cancelled
+
         assert_eq!(group.tasks[0].status, TaskStatus::Cancelled);
         assert_eq!(group.tasks[1].status, TaskStatus::Cancelled);
         assert_eq!(group.tasks[2].status, TaskStatus::Cancelled);
-        // Completed, Failed, Already Cancelled → unchanged
+
         assert_eq!(group.tasks[3].status, TaskStatus::Completed);
         assert_eq!(group.tasks[4].status, TaskStatus::Failed);
         assert_eq!(group.tasks[5].status, TaskStatus::Cancelled);
-        // Overall should be Failed (since failed task remains)
+
         assert_eq!(group.overall_status, TaskStatus::Failed);
     }
 
-    // ── Phase 37: mark_task_cancelled_in_task_center tests ────────────────
+
 
     #[test]
     fn mark_cancelled_running_status_and_message() {
@@ -765,9 +727,9 @@ mod tests {
         let now = "2026-05-04T12:00:00Z";
         models::mark_task_cancelled_in_task_center(&mut task, now);
 
-        // Status stays Cancelled (already was)
+
         assert_eq!(task.status, TaskStatus::Cancelled);
-        // Message should NOT have the note appended again
+
         let occurrences = task.message.matches("已在任务中心标记为取消").count();
         assert_eq!(occurrences, 1, "说明不应重复追加");
     }
@@ -802,7 +764,7 @@ mod tests {
         assert!(group.tasks[1].message.contains("已在任务中心标记为取消"));
     }
 
-    // ── remove_task_group logic ──────────────────────────────────────────
+
 
     #[test]
     fn remove_missing_group_returns_error() {
@@ -826,7 +788,7 @@ mod tests {
         assert!(groups.is_empty());
     }
 
-    // ── Status aggregation + progress integration ────────────────────────
+
 
     #[test]
     fn schedule_with_tasks_updates_summary() {
@@ -855,7 +817,7 @@ mod tests {
         assert!(!group.updated_at.is_empty());
     }
 
-    // ── Phase 26: record helpers & group_id format ────────────────────
+
 
     #[test]
     fn record_completed_group_builds_summary() {
@@ -930,7 +892,7 @@ mod tests {
     #[test]
     fn install_task_group_id_loader_format() {
         let id = format!("install-loader:{}:{:?}", "inst-001", TaskStatus::Completed);
-        // Verify placeholder format — real group_id uses InstallLoaderKind Debug
+
         assert!(!id.contains(' '));
         assert!(!id.contains('/'));
         assert!(!id.contains('\\'));
@@ -1030,7 +992,7 @@ mod tests {
         assert!(group.tasks[0].message.contains("失败 5 项"));
     }
 
-    // ── Phase 31: running task group helpers ────────────────────────────
+
 
     #[test]
     fn build_running_task_group_has_running_status() {
@@ -1108,7 +1070,7 @@ mod tests {
         let group_id = "nonexistent-group";
         let result = groups.get_mut(group_id);
         assert!(result.is_none());
-        // Verify the error message pattern used by the real async helper
+
         let err = format!("未找到任务组: {group_id}");
         assert!(err.contains("未找到任务组"));
         assert!(err.contains(group_id));
@@ -1149,7 +1111,7 @@ mod tests {
     #[test]
     fn task_message_after_failure_contains_error_and_max_length() {
         let long_error: String = "x".repeat(300);
-        // The command truncates the raw error: e.chars().take(256).collect()
+
         let truncated: String = long_error.chars().take(256).collect();
         assert_eq!(truncated.len(), 256);
         assert_eq!(truncated, "x".repeat(256));
@@ -1170,10 +1132,10 @@ mod tests {
 
     #[test]
     fn group_id_format_handles_empty_input_fields() {
-        // Test that group_id with empty instance_id produces a valid-looking
-        // identifier — actual rejection of empty fields happens upstream in
-        // get_instance_in which validates the instance exists before constructing
-        // the group_id.
+
+
+
+
         let empty_instance = "";
         let game_version = "1.21.4";
         let group_id = format!("install-client-async:{}:{}", empty_instance, game_version);
@@ -1208,20 +1170,20 @@ mod tests {
 
     #[test]
     fn record_running_task_group_state_missing_behavior() {
-        // The record_running_task_group helper uses try_state() which returns
-        // None when the state is not managed. The returned error string must
-        // be a Chinese message indicating the task centre is not initialised.
+
+
+
         let err_msg = "任务中心状态未初始化";
         assert!(!err_msg.is_empty());
         assert!(err_msg.contains("未初始化"));
-        // The command start_install_client_version_task wraps this into:
-        // "任务中心未就绪，无法启动异步安装"
+
+
         let cmd_err = "任务中心未就绪，无法启动异步安装";
         assert!(!cmd_err.is_empty());
         assert!(cmd_err.contains("未就绪"));
     }
 
-    // ── Phase 32: async install libraries tests ─────────────────────────
+
 
     #[test]
     fn async_install_libraries_started_serde_roundtrip() {
@@ -1318,19 +1280,19 @@ mod tests {
 
     #[test]
     fn libraries_failed_message_truncation() {
-        // Long error — should be truncated to 256 Unicode chars
+
         let long_error: String = "错误".repeat(200);
         let truncated: String = long_error.chars().take(256).collect();
         assert_eq!(truncated.chars().count(), 256);
         assert!(truncated.starts_with("错误错误"));
 
-        // Short error — should remain unchanged
+
         let short_error = "版本 JSON 不存在".to_string();
         let short_truncated: String = short_error.chars().take(256).collect();
         assert_eq!(short_truncated, "版本 JSON 不存在");
         assert_eq!(short_truncated.len(), short_error.len());
 
-        // Verify failed task group uses truncation
+
         let group = super::build_failed_task_group("g".into(), "t".into(), truncated.clone());
         assert_eq!(group.tasks[0].status, TaskStatus::Failed);
         assert_eq!(group.tasks[0].current, 0);
@@ -1349,13 +1311,13 @@ mod tests {
             "扫描 {}，下载 {}，跳过 {}，失败 {}，写入 {} bytes",
             scanned, downloaded, skipped, failed, bytes_written
         );
-        // When failed > 0, append partial failure hint
+
         if failed > 0 {
             message.push_str("（部分失败，请查看详情）");
         }
         assert!(message.contains("部分失败"));
         assert!(message.contains("失败 5"));
-        // Status should still be Completed
+
         let current = ((downloaded + skipped) as u64).max(1);
         let total = (scanned as u64).max(1);
         let group = super::build_completed_task_group(
@@ -1383,7 +1345,7 @@ mod tests {
         assert_eq!(current, 1);
     }
 
-    // ── Phase 33: Async assets install tests ──────────────────────────
+
 
     #[test]
     fn async_install_assets_started_serde_roundtrip() {
@@ -1534,19 +1496,19 @@ mod tests {
 
     #[test]
     fn assets_failed_message_truncation() {
-        // Long error — should be truncated to 256 Unicode chars
+
         let long_error: String = "资源".repeat(200);
         let truncated: String = long_error.chars().take(256).collect();
         assert_eq!(truncated.chars().count(), 256);
         assert!(truncated.starts_with("资源资源"));
 
-        // Short error — should remain unchanged
+
         let short_error = "请先安装游戏版本".to_string();
         let short_truncated: String = short_error.chars().take(256).collect();
         assert_eq!(short_truncated, "请先安装游戏版本");
         assert_eq!(short_truncated.len(), short_error.len());
 
-        // Verify failed task group uses truncation
+
         let group = super::build_failed_task_group(
             "install-assets-async:inst:1.21.4".into(),
             "修复资源文件".into(),
@@ -1565,7 +1527,7 @@ mod tests {
         assert_eq!(total, 1);
     }
 
-    // ── Phase 34: Async loader install tests ────────────────────────────
+
 
     #[test]
     fn async_install_loader_request_serde() {
@@ -1620,7 +1582,7 @@ mod tests {
         assert!(!group_id.contains('\\'));
         assert!(group_id.starts_with("install-loader-async:"));
         assert!(group_id.ends_with(":Fabric"));
-        // All four kinds
+
         for k in &[
             crate::resource::models::InstallLoaderKind::Fabric,
             crate::resource::models::InstallLoaderKind::Quilt,
@@ -1696,18 +1658,18 @@ mod tests {
 
     #[test]
     fn loader_failed_message_truncation() {
-        // Long error — should be truncated to 256 Unicode chars
+
         let long_error: String = "失败".repeat(200);
         let truncated: String = long_error.chars().take(256).collect();
         assert_eq!(truncated.chars().count(), 256);
         assert!(truncated.starts_with("失败失败"));
 
-        // Short error — should remain unchanged
+
         let short_error = "所有 Forge installer 下载源均失败".to_string();
         let short_truncated: String = short_error.chars().take(256).collect();
         assert_eq!(short_truncated, short_error);
 
-        // Verify failed task group
+
         let group = super::build_failed_task_group("g".into(), "t".into(), truncated.clone());
         assert_eq!(group.tasks[0].status, TaskStatus::Failed);
         assert_eq!(group.tasks[0].current, 0);
@@ -1734,8 +1696,8 @@ mod tests {
 
     #[test]
     fn loader_task_center_not_ready_error_message() {
-        // When TaskCenterState is not managed, the error is:
-        // "任务中心未就绪，无法启动异步安装"
+
+
         let err_msg = "任务中心未就绪，无法启动异步安装";
         assert!(!err_msg.is_empty());
         assert!(err_msg.contains("未就绪"));
@@ -1744,14 +1706,14 @@ mod tests {
 
     #[test]
     fn loader_instance_not_found_error_pattern() {
-        // get_instance_in returns: "实例不存在: {instance_id}"
+
         let instance_id = "missing-inst";
         let err = format!("实例不存在: {instance_id}");
         assert!(err.contains("不存在"));
         assert!(err.contains(instance_id));
     }
 
-    // ── Phase 36: Snapshot import/export tests ────────────────────────────
+
 
     fn make_t36_group(id: &str, tasks: Vec<TaskProgress>, updated: &str) -> TaskGroup {
         let mut g = TaskGroup {
@@ -1777,7 +1739,7 @@ mod tests {
         serde_json::to_string(&bundle).unwrap()
     }
 
-    // ── export schema/version/order ──────────────────────────────────────
+
 
     #[test]
     fn export_snapshot_has_correct_structure() {
@@ -1811,7 +1773,7 @@ mod tests {
 
         assert!(json.contains("\"schemaVersion\": 1"));
         assert!(json.contains("\"exportedAt\": \"2026-05-04T12:00:00Z\""));
-        // Verify sort order: g2 (newer) before g1
+
         let g2_pos = json.find("\"g2\"").unwrap();
         let g1_pos = json.find("\"g1\"").unwrap();
         assert!(
@@ -1820,7 +1782,7 @@ mod tests {
         );
     }
 
-    // ── export empty groups ──────────────────────────────────────────────
+
 
     #[test]
     fn export_empty_groups_produces_valid_json() {
@@ -1836,7 +1798,7 @@ mod tests {
         assert!(back.groups.is_empty());
     }
 
-    // ── import wrong schema Err ──────────────────────────────────────────
+
 
     #[test]
     fn import_rejects_wrong_schema_version() {
@@ -1847,7 +1809,7 @@ mod tests {
         assert!(result.unwrap_err().contains("仅支持版本 1"));
     }
 
-    // ── import invalid JSON Err ──────────────────────────────────────────
+
 
     #[test]
     fn import_rejects_invalid_json() {
@@ -1857,7 +1819,7 @@ mod tests {
         assert!(result.unwrap_err().contains("解析失败"));
     }
 
-    // ── import valid groups ──────────────────────────────────────────────
+
 
     #[test]
     fn import_valid_groups_succeeds() {
@@ -1877,18 +1839,18 @@ mod tests {
         assert_eq!(result.total, 1);
         assert_eq!(imported.len(), 1);
         assert!(map.contains_key("g1"));
-        // Summary should have been refreshed
+
         let imported_group = map.get("g1").unwrap();
         assert_eq!(imported_group.overall_status, TaskStatus::Completed);
         assert_eq!(imported_group.total_tasks, 1);
     }
 
-    // ── replace_existing false skips ─────────────────────────────────────
+
 
     #[test]
     fn import_skips_when_replace_existing_false() {
         let mut map: HashMap<String, TaskGroup> = HashMap::new();
-        // Pre-insert a group with same id
+
         let existing = make_t36_group(
             "g1",
             vec![make_task(1, TaskStatus::Failed, 0, 100)],
@@ -1909,11 +1871,11 @@ mod tests {
         assert_eq!(result.skipped, 1);
         assert_eq!(result.failed, 0);
         assert!(imported.is_empty());
-        // Existing group should be unchanged
+
         assert_eq!(map.get("g1").unwrap().overall_status, TaskStatus::Failed);
     }
 
-    // ── replace_existing true overwrites ─────────────────────────────────
+
 
     #[test]
     fn import_overwrites_when_replace_existing_true() {
@@ -1938,11 +1900,11 @@ mod tests {
         assert_eq!(result.skipped, 0);
         assert_eq!(result.failed, 0);
         assert_eq!(imported.len(), 1);
-        // Overwritten group should have Completed status
+
         assert_eq!(map.get("g1").unwrap().overall_status, TaskStatus::Completed);
     }
 
-    // ── drop_active true skips running ───────────────────────────────────
+
 
     #[test]
     fn import_skips_active_when_drop_active_true() {
@@ -1963,7 +1925,7 @@ mod tests {
         assert!(!map.contains_key("g1"));
     }
 
-    // ── drop_active false cancels running ────────────────────────────────
+
 
     #[test]
     fn import_cancels_active_when_drop_active_false() {
@@ -1985,16 +1947,16 @@ mod tests {
         assert_eq!(result.failed, 0);
         assert_eq!(imported.len(), 1);
         let imported_group = map.get("g1").unwrap();
-        // Running task → Cancelled
+
         assert_eq!(imported_group.tasks[0].status, TaskStatus::Cancelled);
         assert!(imported_group.tasks[0].message.contains("从快照导入"));
-        // Completed task unchanged
+
         assert_eq!(imported_group.tasks[1].status, TaskStatus::Completed);
-        // Overall: Completed + Cancelled → Cancelled
+
         assert_eq!(imported_group.overall_status, TaskStatus::Cancelled);
     }
 
-    // ── invalid empty group_id failed ────────────────────────────────────
+
 
     #[test]
     fn import_counts_empty_group_id_as_failed() {
@@ -2004,7 +1966,7 @@ mod tests {
             vec![make_task(1, TaskStatus::Completed, 100, 100)],
             "2026-01-01T00:00:00Z",
         );
-        g.group_id = "   ".to_string(); // whitespace-only
+        g.group_id = "   ".to_string();
         let json = build_t36_bundle_json(vec![g]);
 
         let (result, imported) =
@@ -2016,7 +1978,7 @@ mod tests {
         assert!(map.is_empty());
     }
 
-    // ── invalid empty tasks failed ───────────────────────────────────────
+
 
     #[test]
     fn import_counts_empty_tasks_as_failed() {
@@ -2033,33 +1995,33 @@ mod tests {
         assert!(!map.contains_key("g1"));
     }
 
-    // ── refresh summary during import ────────────────────────────────────
+
 
     #[test]
     fn import_refreshes_summary() {
         let mut map: HashMap<String, TaskGroup> = HashMap::new();
-        // Create a group with inconsistent summary fields
+
         let g = TaskGroup {
             group_id: "g1".into(),
             tasks: vec![
                 make_task(1, TaskStatus::Completed, 100, 100),
                 make_task(2, TaskStatus::Completed, 100, 100),
             ],
-            overall_status: TaskStatus::Pending, // inconsistent
+            overall_status: TaskStatus::Pending,
             created_at: "2026-01-01T00:00:00Z".into(),
             updated_at: "old".into(),
-            completed_tasks: 0,  // inconsistent
-            total_tasks: 0,      // inconsistent
-            progress_percent: 0, // inconsistent
+            completed_tasks: 0,
+            total_tasks: 0,
+            progress_percent: 0,
         };
-        // Don't call refresh — leave it stale
+
         let json = build_t36_bundle_json(vec![g]);
 
         let (result, _imported) =
             super::import_task_snapshot_into_map(&mut map, &json, true, false).unwrap();
         assert_eq!(result.imported, 1);
         let ig = map.get("g1").unwrap();
-        // After import, summary should be refreshed
+
         assert_eq!(ig.overall_status, TaskStatus::Completed);
         assert_eq!(ig.total_tasks, 2);
         assert_eq!(ig.completed_tasks, 2);
@@ -2067,7 +2029,7 @@ mod tests {
         assert_ne!(ig.updated_at, "old");
     }
 
-    // ── snapshot roundtrip: export → import → equivalent ─────────────────
+
 
     #[test]
     fn snapshot_roundtrip_export_then_import() {
@@ -2085,7 +2047,7 @@ mod tests {
         map1.insert("grp-a".into(), g1);
         map1.insert("grp-b".into(), g2);
 
-        // Export
+
         let mut groups: Vec<TaskGroup> = map1.values().cloned().collect();
         groups.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
         let bundle = TaskSnapshotBundle {
@@ -2095,7 +2057,7 @@ mod tests {
         };
         let json = serde_json::to_string(&bundle).unwrap();
 
-        // Import into a fresh map
+
         let mut map2: HashMap<String, TaskGroup> = HashMap::new();
         let (result, _imported) =
             super::import_task_snapshot_into_map(&mut map2, &json, true, true).unwrap();
@@ -2113,12 +2075,12 @@ mod tests {
         );
     }
 
-    // ── mixed results: imported + skipped + failed in one call ───────────
+
 
     #[test]
     fn import_mixed_results_counts_correctly() {
         let mut map: HashMap<String, TaskGroup> = HashMap::new();
-        // Pre-insert an existing group
+
         let existing = make_t36_group(
             "existing",
             vec![make_task(1, TaskStatus::Completed, 100, 100)],
@@ -2130,25 +2092,25 @@ mod tests {
             schema_version: 1,
             exported_at: "2026-05-04T12:00:00Z".into(),
             groups: vec![
-                // valid new group
+
                 make_t36_group(
                     "new-group",
                     vec![make_task(1, TaskStatus::Completed, 100, 100)],
                     "2026-01-01T00:00:01Z",
                 ),
-                // existing group, replace_existing=false → skipped
+
                 make_t36_group(
                     "existing",
                     vec![make_task(1, TaskStatus::Failed, 0, 100)],
                     "2026-01-01T00:00:00Z",
                 ),
-                // active group, drop_active=true → skipped
+
                 make_t36_group(
                     "active-grp",
                     vec![make_task(1, TaskStatus::Running, 30, 100)],
                     "2026-01-01T00:00:00Z",
                 ),
-                // empty tasks → failed
+
                 make_t36_group("empty-tasks", vec![], "2026-01-01T00:00:00Z"),
             ],
         };
@@ -2156,9 +2118,9 @@ mod tests {
 
         let (result, imported) =
             super::import_task_snapshot_into_map(&mut map, &json, false, true).unwrap();
-        // imported: new-group
-        // skipped: existing, active-grp
-        // failed: empty-tasks
+
+
+
         assert_eq!(result.imported, 1);
         assert_eq!(result.skipped, 2);
         assert_eq!(result.failed, 1);

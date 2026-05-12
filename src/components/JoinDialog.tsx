@@ -96,14 +96,14 @@ export function JoinDialog(props: Props) {
           </div>
         </div>
 
-        {/* MUA status check */}
+        {}
         <Show when={!muaStatus.loading && !loggedIn()}>
           <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             需要 MUA 登录以提供 Minecraft Yggdrasil 身份。请前往「我的」页面登录后重试。
           </div>
         </Show>
 
-        {/* Peer not bound warning */}
+        {}
         <Show when={loggedIn() && !peerBound()}>
           <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             PeerID 尚未与服务端绑定，部分实例可能拒绝连接。

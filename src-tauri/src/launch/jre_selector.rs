@@ -12,7 +12,7 @@ pub struct JavaRuntime {
 pub async fn scan_java_runtimes() -> Vec<JavaRuntime> {
     let mut runtimes = Vec::new();
 
-    // Scan PATH for java
+
     if let Ok(path) = which::which("java") {
         if let Some(rt) = detect_java_runtime(&path).await {
             runtimes.push(rt);
@@ -27,7 +27,7 @@ pub async fn scan_java_runtimes() -> Vec<JavaRuntime> {
         }
     }
 
-    // Scan common installation paths
+
     for path in get_common_java_paths() {
         if let Some(rt) = detect_java_runtime(&path).await {
             if !runtimes.iter().any(|r| r.exec_path == rt.exec_path) {
@@ -54,12 +54,12 @@ async fn detect_java_runtime(path: &Path) -> Option<JavaRuntime> {
 
 fn parse_java_version(output: &str) -> Option<(i32, String)> {
     let version_line = output.lines().next()?;
-    // Match patterns like: openjdk version "17.0.8" 2023-07-18
-    // or: java version "1.8.0_361"
+
+
     let version_str = version_line.split('"').nth(1)?;
 
     let major = if version_str.starts_with("1.") {
-        // Java 8 and earlier: 1.8.0 -> 8
+
         version_str.split('.').nth(1)?.parse::<i32>().ok()?
     } else {
         version_str.split('.').next()?.parse::<i32>().ok()?
@@ -103,7 +103,7 @@ fn get_common_java_paths() -> Vec<PathBuf> {
             }
         }
 
-        // Microsoft Build of OpenJDK
+
         let local_appdata = std::env::var("LOCALAPPDATA").unwrap_or_default();
         let ms_java = PathBuf::from(&local_appdata).join("Microsoft").join("Java");
         if let Ok(entries) = std::fs::read_dir(&ms_java) {
@@ -133,7 +133,9 @@ fn get_common_java_paths() -> Vec<PathBuf> {
             }
         }
         if let Ok(home) = std::env::var("HOME") {
-            let user_jvms = PathBuf::from(home)
+            let home = PathBuf::from(home);
+            let user_jvms = home
+                .clone()
                 .join("Library")
                 .join("Java")
                 .join("JavaVirtualMachines");
@@ -150,7 +152,7 @@ fn get_common_java_paths() -> Vec<PathBuf> {
                     }
                 }
             }
-            let jdks = PathBuf::from(home).join(".jdks");
+            let jdks = home.join(".jdks");
             if let Ok(entries) = std::fs::read_dir(&jdks) {
                 for entry in entries.flatten() {
                     let bin = entry.path().join("bin").join("java");
@@ -190,11 +192,11 @@ fn get_common_java_paths() -> Vec<PathBuf> {
 }
 
 pub fn get_minimum_java_version(game_version: &str) -> i32 {
-    // 26.1+ (snapshots) -> Java 25
+
     if game_version.starts_with("26.") {
         return 25;
     }
-    // 1.21+ / 1.20.5+ -> Java 21
+
     if game_version.starts_with("1.21")
         || game_version.starts_with("1.20.5")
         || game_version.starts_with("1.20.6")
@@ -202,19 +204,19 @@ pub fn get_minimum_java_version(game_version: &str) -> i32 {
     {
         return 21;
     }
-    // 1.20-1.20.4 / 1.19.x -> Java 17
+
     if game_version.starts_with("1.20") || game_version.starts_with("1.19") {
         return 17;
     }
-    // 1.18 -> Java 17
+
     if game_version.starts_with("1.18") {
         return 17;
     }
-    // 1.17 -> Java 16
+
     if game_version.starts_with("1.17") {
         return 16;
     }
-    // 1.12-1.16 -> Java 8
+
     if game_version.starts_with("1.12")
         || game_version.starts_with("1.13")
         || game_version.starts_with("1.14")
@@ -223,7 +225,7 @@ pub fn get_minimum_java_version(game_version: &str) -> i32 {
     {
         return 8;
     }
-    // Older versions
+
     8
 }
 
@@ -234,18 +236,18 @@ pub fn select_java_runtime(
     client_json_major: Option<i32>,
 ) -> Option<JavaRuntime> {
     let min_version = if let Some(major) = client_json_major {
-        // Priority: use `java_version.major_version` from client JSON
+
         major
     } else {
         get_minimum_java_version(game_version)
     };
 
-    // Prefer exact match first
+
     if let Some(rt) = runtimes.iter().find(|r| r.major_version == min_version) {
         return Some(rt.clone());
     }
 
-    // Then preferred path if it meets minimum
+
     if let Some(path) = preferred_path {
         if let Some(rt) = runtimes
             .iter()
@@ -255,7 +257,7 @@ pub fn select_java_runtime(
         }
     }
 
-    // Lowest suitable version
+
     runtimes
         .iter()
         .filter(|r| r.major_version >= min_version)

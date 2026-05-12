@@ -21,21 +21,21 @@ fn accounts_file_path(data_dir: &Path) -> PathBuf {
 use crate::error::LauncherError;
 use crate::utils;
 
-// ── Token helpers ─────────────────────────────────────────────────────────
 
-/// Returns the path to the account tokens file:
-/// `<data_dir>/accounts/account_tokens.json`.
+
+
+
 pub fn account_token_file_path(data_dir: &Path) -> PathBuf {
     data_dir.join("accounts").join("account_tokens.json")
 }
 
-/// Load all saved account tokens from the tokens file.
-/// Returns a map of account_id → access_token.
+
+
 fn load_all_account_tokens(data_dir: &Path) -> Result<HashMap<String, String>, LauncherError> {
     utils::load_json_map(&account_token_file_path(data_dir))
 }
 
-/// Save all account tokens to the tokens file.
+
 fn save_all_account_tokens(
     data_dir: &Path,
     tokens: &HashMap<String, String>,
@@ -43,7 +43,7 @@ fn save_all_account_tokens(
     utils::save_json_map(&account_token_file_path(data_dir), tokens)
 }
 
-/// Load a single account's access token.
+
 pub fn load_account_token(
     data_dir: &Path,
     account_id: &str,
@@ -52,7 +52,7 @@ pub fn load_account_token(
     Ok(tokens.get(account_id).cloned())
 }
 
-/// Save an access token for a specific account.
+
 pub fn save_account_token(
     data_dir: &Path,
     account_id: &str,
@@ -63,19 +63,19 @@ pub fn save_account_token(
     save_all_account_tokens(data_dir, &tokens)
 }
 
-/// Delete a saved access token for a specific account.
+
 pub fn delete_account_token(data_dir: &Path, account_id: &str) -> Result<(), LauncherError> {
     let mut tokens = load_all_account_tokens(data_dir)?;
     tokens.remove(account_id);
     save_all_account_tokens(data_dir, &tokens)
 }
 
-/// Return the Minecraft auth token to use for the given account during
-/// a local launch.
-///
-/// - Offline → `"0"`
-/// - ThirdParty → reads saved token; missing token returns an error
-/// - Microsoft → reads saved token; missing token returns an error
+
+
+
+
+
+
 pub fn account_token_for_local_launch(
     data_dir: &Path,
     account: &LauncherAccount,
@@ -93,24 +93,24 @@ pub fn account_token_for_local_launch(
     }
 }
 
-// ── Microsoft refresh token helpers ──────────────────────────────────────
 
-/// Returns the path to the Microsoft refresh tokens file:
-/// `<data_dir>/accounts/microsoft_refresh_tokens.json`.
+
+
+
 pub fn microsoft_refresh_token_file_path(data_dir: &Path) -> PathBuf {
     data_dir
         .join("accounts")
         .join("microsoft_refresh_tokens.json")
 }
 
-/// Load all saved Microsoft refresh tokens.
+
 fn load_all_microsoft_refresh_tokens(
     data_dir: &Path,
 ) -> Result<HashMap<String, String>, LauncherError> {
     utils::load_json_map(&microsoft_refresh_token_file_path(data_dir))
 }
 
-/// Save all Microsoft refresh tokens.
+
 fn save_all_microsoft_refresh_tokens(
     data_dir: &Path,
     tokens: &HashMap<String, String>,
@@ -118,7 +118,7 @@ fn save_all_microsoft_refresh_tokens(
     utils::save_json_map(&microsoft_refresh_token_file_path(data_dir), tokens)
 }
 
-/// Load a single account's Microsoft refresh token.
+
 pub fn load_microsoft_refresh_token(
     data_dir: &Path,
     account_id: &str,
@@ -127,7 +127,7 @@ pub fn load_microsoft_refresh_token(
     Ok(tokens.get(account_id).cloned())
 }
 
-/// Save a Microsoft refresh token for a specific account.
+
 pub fn save_microsoft_refresh_token(
     data_dir: &Path,
     account_id: &str,
@@ -138,7 +138,7 @@ pub fn save_microsoft_refresh_token(
     save_all_microsoft_refresh_tokens(data_dir, &tokens)
 }
 
-/// Delete a saved Microsoft refresh token for a specific account.
+
 pub fn delete_microsoft_refresh_token(
     data_dir: &Path,
     account_id: &str,
@@ -148,9 +148,9 @@ pub fn delete_microsoft_refresh_token(
     save_all_microsoft_refresh_tokens(data_dir, &tokens)
 }
 
-// ── Microsoft profile matching ────────────────────────────────────────────
 
-/// Verify that the Minecraft profile UUID matches the expected account UUID.
+
+
 pub fn ensure_profile_matches_account(
     profile_uuid: &str,
     account: &LauncherAccount,
@@ -165,9 +165,9 @@ pub fn ensure_profile_matches_account(
     }
 }
 
-// ── Microsoft OAuth helpers ────────────────────────────────────────────────
 
-/// Microsoft OAuth / Xbox / Minecraft API response types (internal).
+
+
 #[derive(Debug, serde::Deserialize)]
 struct MicrosoftDeviceCodeResponse {
     device_code: String,
@@ -232,7 +232,7 @@ struct MinecraftProfileError {
     error: String,
 }
 
-/// Map OAuth error codes to Chinese messages.
+
 pub fn map_microsoft_oauth_error(error_code: &str) -> String {
     match error_code {
         "authorization_pending" => "尚未完成授权，请在浏览器中输入验证码后重试".to_string(),
@@ -246,28 +246,28 @@ pub fn map_microsoft_oauth_error(error_code: &str) -> String {
 }
 
 #[cfg(test)]
-/// Extract the user hash (uhs) from an Xbox Live authenticate response.
+
 pub fn extract_uhs_from_xbox_response(json: &serde_json::Value) -> Result<String, LauncherError> {
     json["DisplayClaims"]["xui"]
         .get(0)
         .and_then(|xui| xui["uhs"].as_str())
         .map(|s| s.to_string())
-        .ok_or_else(|| "Xbox Live 认证响应缺少 uhs".to_string())
+        .ok_or_else(|| LauncherError::from("Xbox Live 认证响应缺少 uhs"))
 }
 
 #[cfg(test)]
-/// Extract the user hash (uhs) from an XSTS authorize response.
+
 pub fn extract_uhs_from_xsts_response(json: &serde_json::Value) -> Result<String, LauncherError> {
     json["DisplayClaims"]["xui"]
         .get(0)
         .and_then(|xui| xui["uhs"].as_str())
         .map(|s| s.to_string())
-        .ok_or_else(|| "XSTS 认证响应缺少 uhs".to_string())
+        .ok_or_else(|| LauncherError::from("XSTS 认证响应缺少 uhs"))
 }
 
-/// Convert a 32-character hex string (Minecraft profile id) to a
-/// hyphenated UUID string. Returns an error if the input is not
-/// exactly 32 hex characters.
+
+
+
 pub fn profile_id_to_uuid(hex_id: &str) -> Result<String, LauncherError> {
     let hex_id = hex_id.trim();
     if hex_id.len() != 32 {
@@ -299,18 +299,18 @@ fn form_body(params: &[(&str, &str)]) -> String {
     serializer.finish()
 }
 
-// ── Microsoft OAuth flow ───────────────────────────────────────────────────
+
 
 const MICROSOFT_CLIENT_ID: &str = "00000000402b5328";
 const MICROSOFT_SCOPE: &str = "XboxLive.signin offline_access";
 
-/// Internal result from the Microsoft token endpoint.
+
 struct MicrosoftTokenResult {
     access_token: String,
     refresh_token: Option<String>,
 }
 
-/// Post to the Microsoft OAuth token endpoint.
+
 async fn post_microsoft_token(
     params: &[(&str, &str)],
 ) -> Result<MicrosoftTokenResult, LauncherError> {
@@ -359,7 +359,7 @@ async fn post_microsoft_token(
     })
 }
 
-/// Start the Microsoft device-code OAuth flow (pure helper, no state).
+
 pub async fn start_microsoft_login_in() -> Result<MicrosoftDeviceAuthStartResult, LauncherError> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(15))
@@ -386,7 +386,7 @@ pub async fn start_microsoft_login_in() -> Result<MicrosoftDeviceAuthStartResult
         .map_err(|e| format!("无法读取 Microsoft 认证响应: {e}"))?;
 
     if !status.is_success() {
-        // Try to parse error
+
         if let Ok(err) = serde_json::from_str::<MicrosoftTokenError>(&resp_text) {
             return Err(map_microsoft_oauth_error(&err.error).into());
         }
@@ -409,32 +409,32 @@ pub async fn start_microsoft_login_in() -> Result<MicrosoftDeviceAuthStartResult
     })
 }
 
-/// Poll for the Microsoft OAuth token, then exchange it through
-/// Xbox Live → XSTS → Minecraft Services → profile, and finally
-/// save the account with its Minecraft access token.
+
+
+
 pub async fn poll_microsoft_login_in(
     data_dir: &Path,
     device_code: &str,
 ) -> Result<MicrosoftLoginResult, LauncherError> {
-    // 1. Poll Microsoft token endpoint
+
     let ms_token = poll_microsoft_token(device_code).await?;
 
-    // 2. Xbox Live authenticate
+
     let xbl_token = authenticate_xbox_live(&ms_token.access_token).await?;
 
-    // 3. XSTS authorize
+
     let xsts_token = authorize_xsts(&xbl_token.token, &xbl_token.uhs).await?;
 
-    // 4. Minecraft login_with_xbox
+
     let mc_auth = login_minecraft_with_xbox(&xsts_token.token, &xsts_token.uhs).await?;
 
-    // 5. Minecraft profile
+
     let profile = get_minecraft_profile(&mc_auth.access_token).await?;
 
-    // 6. Convert profile id to UUID
+
     let uuid = profile_id_to_uuid(&profile.id)?;
 
-    // 7. Build and persist Microsoft account
+
     let now = utils::now_iso8601();
 
     let token_expires_at = mc_auth.expires_in.map(|secs| {
@@ -442,11 +442,11 @@ pub async fn poll_microsoft_login_in(
         expiry.to_rfc3339()
     });
 
-    // 8. Persist account: find existing or create new
+
     let mut accounts = load_accounts(data_dir)?;
 
-    // Check if a Microsoft account already exists for this profile UUID;
-    // if so, update instead of creating a duplicate.
+
+
     let saved_account = if let Some(existing_index) = accounts
         .iter()
         .position(|a| a.kind == LauncherAccountKind::Microsoft && a.uuid == uuid)
@@ -479,7 +479,7 @@ pub async fn poll_microsoft_login_in(
             last_validated_at: Some(now),
             token_expires_at,
         };
-        // Deselect all existing
+
         for a in accounts.iter_mut() {
             a.selected = false;
         }
@@ -489,13 +489,13 @@ pub async fn poll_microsoft_login_in(
 
     save_accounts(data_dir, &accounts)?;
 
-    // 9. Persist Minecraft access token; rollback account if token save fails
+
     if let Err(e) = save_account_token(data_dir, &saved_account.id, &mc_auth.access_token) {
         let _ = delete_account_from(data_dir, &saved_account.id);
         return Err(LauncherError::from(format!("无法保存账户凭据: {e}")));
     }
 
-    // 10. Persist refresh token if present
+
     let refresh_token_saved = if let Some(ref rt) = ms_token.refresh_token {
         save_microsoft_refresh_token(data_dir, &saved_account.id, rt).is_ok()
     } else {
@@ -509,13 +509,13 @@ pub async fn poll_microsoft_login_in(
     })
 }
 
-/// Internal: Xbox Live "xsts_authorize" response wrapper.
+
 struct XblTokenResult {
     token: String,
     uhs: String,
 }
 
-/// Poll Microsoft token endpoint for the device code result.
+
 async fn poll_microsoft_token(device_code: &str) -> Result<MicrosoftTokenResult, LauncherError> {
     let params = [
         ("client_id", MICROSOFT_CLIENT_ID),
@@ -525,7 +525,7 @@ async fn poll_microsoft_token(device_code: &str) -> Result<MicrosoftTokenResult,
     post_microsoft_token(&params).await
 }
 
-/// Authenticate with Xbox Live using the Microsoft access token.
+
 async fn authenticate_xbox_live(ms_token: &str) -> Result<XblTokenResult, LauncherError> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(15))
@@ -580,7 +580,7 @@ async fn authenticate_xbox_live(ms_token: &str) -> Result<XblTokenResult, Launch
     })
 }
 
-/// Authorize with XSTS using the Xbox Live token.
+
 async fn authorize_xsts(xbl_token: &str, _uhs: &str) -> Result<XblTokenResult, LauncherError> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(15))
@@ -612,7 +612,7 @@ async fn authorize_xsts(xbl_token: &str, _uhs: &str) -> Result<XblTokenResult, L
         .map_err(|e| format!("无法读取 XSTS 认证响应: {e}"))?;
 
     if !status.is_success() {
-        // Check for known XSTS errors (e.g. child account, no Xbox Live Gold)
+
         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&resp_text) {
             if let Some(err_code) = val["XErr"].as_i64() {
                 let msg = match err_code {
@@ -647,7 +647,7 @@ async fn authorize_xsts(xbl_token: &str, _uhs: &str) -> Result<XblTokenResult, L
     })
 }
 
-/// Exchange XSTS token for a Minecraft access token.
+
 async fn login_minecraft_with_xbox(
     xsts_token: &str,
     uhs: &str,
@@ -681,10 +681,11 @@ async fn login_minecraft_with_xbox(
         )));
     }
 
-    serde_json::from_str(&resp_text).map_err(|e| LauncherError::from(format!("Minecraft 认证响应格式错误: {e}")))
+    serde_json::from_str(&resp_text)
+        .map_err(|e| LauncherError::from(format!("Minecraft 认证响应格式错误: {e}")))
 }
 
-/// Fetch the Minecraft profile using the access token.
+
 async fn get_minecraft_profile(
     access_token: &str,
 ) -> Result<MinecraftProfileResponse, LauncherError> {
@@ -707,10 +708,13 @@ async fn get_minecraft_profile(
         .map_err(|e| format!("无法读取 Minecraft 个人资料响应: {e}"))?;
 
     if !status.is_success() {
-        // Try to parse Minecraft error
+
         if let Ok(err) = serde_json::from_str::<MinecraftProfileError>(&resp_text) {
             if !err.error.is_empty() {
-                return Err(LauncherError::from(format!("获取 Minecraft 个人资料失败: {}", err.error)));
+                return Err(LauncherError::from(format!(
+                    "获取 Minecraft 个人资料失败: {}",
+                    err.error
+                )));
             }
         }
         return Err(LauncherError::from(format!(
@@ -718,16 +722,17 @@ async fn get_minecraft_profile(
         )));
     }
 
-    serde_json::from_str(&resp_text).map_err(|e| LauncherError::from(format!("Minecraft 个人资料响应格式错误: {e}")))
+    serde_json::from_str(&resp_text)
+        .map_err(|e| LauncherError::from(format!("Minecraft 个人资料响应格式错误: {e}")))
 }
 
-// ── URL validation ────────────────────────────────────────────────────────
 
-/// Validate and normalize an auth server URL.
-///
-/// - Trim whitespace
-/// - Must start with `http://` or `https://`
-/// - Remove trailing `/`
+
+
+
+
+
+
 fn validate_auth_server_url(raw: &str) -> Result<String, LauncherError> {
     let trimmed = raw.trim();
     if trimmed.is_empty() {
@@ -742,9 +747,9 @@ fn validate_auth_server_url(raw: &str) -> Result<String, LauncherError> {
     Ok(trimmed.trim_end_matches('/').to_string())
 }
 
-// ── Yggdrasil authenticate ────────────────────────────────────────────────
 
-/// Internal response parsed from the Yggdrasil authenticate endpoint.
+
+
 #[derive(Debug, serde::Deserialize)]
 struct YggdrasilAuthResponse {
     #[serde(rename = "accessToken")]
@@ -759,7 +764,7 @@ struct YggdrasilProfile {
     name: String,
 }
 
-/// Error response from Yggdrasil auth server.
+
 #[derive(Debug, serde::Deserialize)]
 struct YggdrasilErrorResponse {
     #[serde(rename = "error")]
@@ -768,14 +773,14 @@ struct YggdrasilErrorResponse {
     error_message: Option<String>,
 }
 
-/// Call the Yggdrasil authenticate endpoint.
-///
-/// POSTs to `{auth_server_url}/authserver/authenticate` with the standard
-/// Minecraft auth payload and returns the parsed access token and profile.
-///
-/// This function is intentionally `pub(crate)` (not public) to allow
-/// injection in tests via a local TCP server; production code should use
-/// `add_third_party_account_in`.
+
+
+
+
+
+
+
+
 pub(crate) async fn authenticate_yggdrasil(
     auth_server_url: &str,
     username_or_email: &str,
@@ -811,7 +816,7 @@ pub(crate) async fn authenticate_yggdrasil(
         .map_err(|e| format!("无法读取认证响应: {e}"))?;
 
     if !status.is_success() {
-        // Try to parse the error message from the Yggdrasil error response
+
         if let Ok(err_resp) = serde_json::from_str::<YggdrasilErrorResponse>(&resp_text) {
             let msg = err_resp
                 .error_message
@@ -831,22 +836,22 @@ pub(crate) async fn authenticate_yggdrasil(
     ))
 }
 
-/// Generate a Minecraft offline UUID matching Java's
-/// `UUID.nameUUIDFromBytes("OfflinePlayer:<username>".getBytes(UTF_8))`.
-///
-/// The algorithm:
-/// 1. Compute MD5 digest of `OfflinePlayer:<username>` (UTF-8 bytes).
-/// 2. Set version nibble to 3 (name-based UUID) in byte 6.
-/// 3. Set variant bits to RFC 4122 (10xx) in byte 8.
-/// 4. Format as standard hex UUID string.
+
+
+
+
+
+
+
+
 fn generate_offline_uuid(username: &str) -> String {
     let input = format!("OfflinePlayer:{}", username);
     let digest = md5::Md5::digest(input.as_bytes());
     let mut bytes = digest.to_vec();
 
-    // Set version to 3 (0x30 = 0011_0000)
+
     bytes[6] = (bytes[6] & 0x0f) | 0x30;
-    // Set variant to RFC 4122 (0x80 = 1000_0000)
+
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
     format!(
@@ -870,11 +875,11 @@ fn generate_offline_uuid(username: &str) -> String {
     )
 }
 
-/// Validate a Minecraft username for offline accounts.
-///
-/// Rules:
-/// - After trim, length must be 3–16.
-/// - Only characters `[A-Za-z0-9_]` are allowed.
+
+
+
+
+
 fn validate_username(username: &str) -> Result<String, LauncherError> {
     let trimmed = username.trim();
 
@@ -907,10 +912,10 @@ fn validate_username(username: &str) -> Result<String, LauncherError> {
     Ok(trimmed.to_string())
 }
 
-/// Return the currently selected launcher account.
-///
-/// Reads `<data_dir>/accounts/accounts.json`. If no accounts exist, returns
-/// a descriptive error. Otherwise returns the account marked `selected=true`.
+
+
+
+
 pub fn selected_account_in(data_dir: &Path) -> Result<LauncherAccount, LauncherError> {
     let accounts = load_accounts(data_dir)?;
     if accounts.is_empty() {
@@ -919,7 +924,7 @@ pub fn selected_account_in(data_dir: &Path) -> Result<LauncherAccount, LauncherE
             "请先在「我的」页面添加或选择 Minecraft 账户",
         ));
     }
-    // Prefer selected
+
     if let Some(selected) = accounts.iter().find(|a| a.selected) {
         return Ok(selected.clone());
     }
@@ -945,7 +950,8 @@ fn load_accounts(data_dir: &Path) -> Result<Vec<LauncherAccount>, LauncherError>
         return Ok(Vec::new());
     }
 
-    serde_json::from_str(&content).map_err(|e| LauncherError::from(format!("账户数据文件已损坏，无法解析: {e}")))
+    serde_json::from_str(&content)
+        .map_err(|e| LauncherError::from(format!("账户数据文件已损坏，无法解析: {e}")))
 }
 
 fn save_accounts(data_dir: &Path, accounts: &[LauncherAccount]) -> Result<(), LauncherError> {
@@ -957,7 +963,8 @@ fn save_accounts(data_dir: &Path, accounts: &[LauncherAccount]) -> Result<(), La
     let json =
         serde_json::to_string_pretty(accounts).map_err(|e| format!("无法序列化账户数据: {e}"))?;
 
-    std::fs::write(&path, json).map_err(|e| LauncherError::from(format!("无法写入账户数据文件: {e}")))
+    std::fs::write(&path, json)
+        .map_err(|e| LauncherError::from(format!("无法写入账户数据文件: {e}")))
 }
 
 pub fn add_offline_account_in(
@@ -985,7 +992,7 @@ pub fn add_offline_account_in(
 
     let mut accounts = load_accounts(data_dir)?;
 
-    // Deselect all existing accounts
+
     for existing in accounts.iter_mut() {
         existing.selected = false;
     }
@@ -1004,7 +1011,7 @@ pub fn select_account_in(data_dir: &Path, id: &str) -> Result<LauncherAccount, L
         .position(|a| a.id == id)
         .ok_or_else(|| format!("未找到账户: {id}"))?;
 
-    // Deselect all, then select the target
+
     for account in accounts.iter_mut() {
         account.selected = false;
     }
@@ -1028,18 +1035,18 @@ pub fn delete_account_from(data_dir: &Path, id: &str) -> Result<(), LauncherErro
     let account_kind = accounts[idx].kind.clone();
     accounts.remove(idx);
 
-    // If we deleted the selected account and there are remaining accounts,
-    // auto-select the first one.
+
+
     if was_selected && !accounts.is_empty() {
         accounts[0].selected = true;
     }
 
     save_accounts(data_dir, &accounts)?;
 
-    // Best-effort: delete associated token if any
+
     let _ = delete_account_token(data_dir, id);
 
-    // Best-effort: delete Microsoft refresh token if applicable
+
     if account_kind == LauncherAccountKind::Microsoft {
         let _ = delete_microsoft_refresh_token(data_dir, id);
     }
@@ -1051,7 +1058,7 @@ pub async fn add_third_party_account_in(
     data_dir: &Path,
     request: AddThirdPartyAccountRequest,
 ) -> Result<ThirdPartyLoginResult, LauncherError> {
-    // 1. Validate inputs
+
     let auth_server_url = validate_auth_server_url(&request.auth_server_url)?;
 
     if request.username_or_email.trim().is_empty() {
@@ -1061,7 +1068,7 @@ pub async fn add_third_party_account_in(
         return Err(LauncherError::new("ERROR", "密码不能为空"));
     }
 
-    // 2. Authenticate with Yggdrasil (network I/O, no global lock held)
+
     let (access_token, profile_id, profile_name) = authenticate_yggdrasil(
         &auth_server_url,
         request.username_or_email.trim(),
@@ -1069,7 +1076,7 @@ pub async fn add_third_party_account_in(
     )
     .await?;
 
-    // 3. Create the launcher account
+
     let now = utils::now_iso8601();
     let account_id = uuid::Uuid::new_v4().to_string();
 
@@ -1087,7 +1094,7 @@ pub async fn add_third_party_account_in(
         token_expires_at: None,
     };
 
-    // 4. Persist account (deselect old, add new)
+
     let mut accounts = load_accounts(data_dir)?;
     for existing in accounts.iter_mut() {
         existing.selected = false;
@@ -1095,9 +1102,9 @@ pub async fn add_third_party_account_in(
     accounts.push(account.clone());
     save_accounts(data_dir, &accounts)?;
 
-    // 5. Persist access token; rollback account if token save fails
+
     if let Err(e) = save_account_token(data_dir, &account_id, &access_token) {
-        // Rollback: remove the account we just added
+
         let _ = delete_account_from(data_dir, &account_id);
         return Err(LauncherError::from(format!("无法保存账户凭据: {e}")));
     }
@@ -1108,9 +1115,9 @@ pub async fn add_third_party_account_in(
     })
 }
 
-// ── Microsoft refresh flow ────────────────────────────────────────────────
 
-/// Exchange a Microsoft refresh token for a new access token.
+
+
 async fn refresh_microsoft_token(
     refresh_token: &str,
 ) -> Result<MicrosoftTokenResult, LauncherError> {
@@ -1123,19 +1130,19 @@ async fn refresh_microsoft_token(
     post_microsoft_token(&params).await
 }
 
-/// Refresh a Microsoft account's Minecraft access token using a saved
-/// Microsoft refresh token.  This follows the same Xbox Live → XSTS →
-/// Minecraft pathway as the device-code login.
-///
-/// Returns an error (with a Chinese message) if:
-/// - The account does not exist or is not a Microsoft account.
-/// - No refresh token is saved for this account.
-/// - The Minecraft profile UUID differs from the original account UUID.
+
+
+
+
+
+
+
+
 pub async fn refresh_microsoft_account_in(
     data_dir: &Path,
     account_id: &str,
 ) -> Result<MicrosoftRefreshResult, LauncherError> {
-    // 1. Load account
+
     let mut accounts = load_accounts(data_dir)?;
     let account_index = accounts
         .iter()
@@ -1151,37 +1158,37 @@ pub async fn refresh_microsoft_account_in(
 
     let original_account = accounts[account_index].clone();
 
-    // 2. Load refresh token
+
     let refresh_token = load_microsoft_refresh_token(data_dir, account_id)?
         .ok_or_else(|| "Microsoft 刷新凭据已失效，请重新登录".to_string())?;
 
-    // 3. Exchange refresh token for new Microsoft access token
+
     let ms_token = refresh_microsoft_token(&refresh_token).await?;
 
-    // 4. Xbox Live authenticate
+
     let xbl_token = authenticate_xbox_live(&ms_token.access_token).await?;
 
-    // 5. XSTS authorize
+
     let xsts_token = authorize_xsts(&xbl_token.token, &xbl_token.uhs).await?;
 
-    // 6. Minecraft login_with_xbox
+
     let mc_auth = login_minecraft_with_xbox(&xsts_token.token, &xsts_token.uhs).await?;
 
-    // 7. Minecraft profile
+
     let profile = get_minecraft_profile(&mc_auth.access_token).await?;
 
-    // 8. Convert profile id to UUID and verify it matches
+
     let profile_uuid = profile_id_to_uuid(&profile.id)?;
     ensure_profile_matches_account(&profile_uuid, &original_account)?;
 
-    // 9. Update account fields
+
     let now = utils::now_iso8601();
     let token_expires_at = mc_auth.expires_in.map(|secs| {
         let expiry = chrono::Utc::now() + chrono::Duration::seconds(secs as i64);
         expiry.to_rfc3339()
     });
 
-    // Deselect all, select this one
+
     for account in accounts.iter_mut() {
         account.selected = false;
     }
@@ -1194,16 +1201,16 @@ pub async fn refresh_microsoft_account_in(
     let updated_account = accounts[account_index].clone();
     save_accounts(data_dir, &accounts)?;
 
-    // 10. Save Minecraft access token
+
     if let Err(e) = save_account_token(data_dir, account_id, &mc_auth.access_token) {
         return Err(LauncherError::from(format!("无法保存账户凭据: {e}")));
     }
 
-    // 11. Update refresh token if a new one was issued; keep old otherwise
+
     let refresh_token_saved = if let Some(ref new_rt) = ms_token.refresh_token {
         save_microsoft_refresh_token(data_dir, account_id, new_rt).is_ok()
     } else {
-        // No new refresh token in response; old one is still valid
+
         true
     };
 
@@ -1214,7 +1221,7 @@ pub async fn refresh_microsoft_account_in(
     })
 }
 
-// ── Tauri commands ──
+
 
 #[tauri::command]
 pub async fn list_launcher_accounts(
@@ -1304,22 +1311,22 @@ pub async fn refresh_microsoft_account(
     refresh_microsoft_account_in(&data_dir, &account_id).await
 }
 
-// ── Avatar helpers ──────────────────────────────────────────────────────
 
-/// Generate a default avatar URL using the Crafatar service.
-/// Uses the account's UUID to build `https://crafatar.com/avatars/{uuid}?overlay`.
+
+
+
 pub fn default_avatar_url_for(account: &LauncherAccount) -> String {
     let uuid = account.uuid.trim();
     format!("https://crafatar.com/avatars/{uuid}?overlay")
 }
 
-/// Validate an avatar URL.
-///
-/// - Trim whitespace.
-/// - Must not be empty.
-/// - Must not contain NUL bytes.
-/// - Length must be ≤ 2048.
-/// - Scheme must be `http://` or `https://`.
+
+
+
+
+
+
+
 fn validate_avatar_url(raw: &str) -> Result<String, LauncherError> {
     let trimmed = raw.trim();
     if trimmed.is_empty() {
@@ -1343,11 +1350,11 @@ fn validate_avatar_url(raw: &str) -> Result<String, LauncherError> {
     Ok(trimmed.to_string())
 }
 
-/// Core logic for updating an account's avatar URL.
-///
-/// - If `avatar_url` is `Some(raw)`: validate and set.
-/// - If `avatar_url` is `None`: clear the avatar.
-/// - Updates `updated_at`. Does not touch `selected` or token-related fields.
+
+
+
+
+
 pub fn update_account_avatar_in(
     data_dir: &Path,
     request: UpdateAccountAvatarRequest,
@@ -1381,7 +1388,7 @@ pub fn update_account_avatar_in(
     }
 }
 
-/// Core logic for refreshing an account's avatar to the default Crafatar URL.
+
 pub fn refresh_account_avatar_in(
     data_dir: &Path,
     account_id: &str,
@@ -1402,7 +1409,7 @@ pub fn refresh_account_avatar_in(
     })
 }
 
-// ── Avatar Tauri commands ───────────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn update_account_avatar(
@@ -1428,15 +1435,15 @@ pub async fn refresh_account_avatar(
     refresh_account_avatar_in(&data_dir, &account_id)
 }
 
-// ── Export / Import ──────────────────────────────────────────────────────
 
-/// Export all launcher accounts (read-only from accounts.json).
-///
-/// The returned bundle:
-/// - has `schema_version = 1`;
-/// - marks every account as `selected = false`;
-/// - never contains `access_token`, `refresh_token`, `password`, or
-///   `device_code` fields.
+
+
+
+
+
+
+
+
 pub fn export_accounts_in(data_dir: &Path) -> Result<AccountExportBundle, LauncherError> {
     let accounts = load_accounts(data_dir)?;
     let mut exported = Vec::with_capacity(accounts.len());
@@ -1451,19 +1458,19 @@ pub fn export_accounts_in(data_dir: &Path) -> Result<AccountExportBundle, Launch
     })
 }
 
-/// Import accounts from a JSON bundle.
-///
-/// Behaviour:
-/// - Only `schema_version == 1` is accepted.
-/// - Each account's `username` (trimmed) and `uuid` (trimmed) must be
-///   non-empty; illegal accounts are counted as `failed` and skipped.
-/// - `id` is regenerated when empty or colliding with an existing id.
-/// - `selected` is always forced to `false`.
-/// - Empty `created_at`/`updated_at` are filled with the current time.
-/// - When `dedupe_by_uuid` is `true`, existing accounts with the same
-///   `kind + uuid` are skipped.
-/// - Token files are never touched.
-/// - Existing accounts are preserved; imported accounts are appended.
+
+
+
+
+
+
+
+
+
+
+
+
+
 pub fn import_accounts_in(
     data_dir: &Path,
     request: ImportAccountsRequest,
@@ -1487,7 +1494,7 @@ pub fn import_accounts_in(
     let total = bundle.accounts.len() as u32;
 
     for mut acc in bundle.accounts {
-        // ── Validate required fields ──
+
         let username = acc.username.trim().to_string();
         let uuid = acc.uuid.trim().to_string();
 
@@ -1498,7 +1505,7 @@ pub fn import_accounts_in(
         acc.username = username;
         acc.uuid = uuid;
 
-        // ── Dedupe by kind + uuid ──
+
         if request.dedupe_by_uuid {
             let duplicate = existing
                 .iter()
@@ -1509,15 +1516,15 @@ pub fn import_accounts_in(
             }
         }
 
-        // ── Fix id ──
+
         if acc.id.is_empty() || existing.iter().any(|e| e.id == acc.id) {
             acc.id = uuid::Uuid::new_v4().to_string();
         }
 
-        // ── Force unselected ──
+
         acc.selected = false;
 
-        // ── Fill missing timestamps ──
+
         if acc.created_at.is_empty() {
             acc.created_at = now.clone();
         }
@@ -1525,7 +1532,7 @@ pub fn import_accounts_in(
             acc.updated_at = now.clone();
         }
 
-        // ── Append ──
+
         existing.push(acc);
         imported += 1;
     }
@@ -1540,7 +1547,7 @@ pub fn import_accounts_in(
     })
 }
 
-// ── Tauri commands for export / import ──
+
 
 #[tauri::command]
 pub async fn export_launcher_accounts(
@@ -1565,12 +1572,12 @@ pub async fn import_launcher_accounts(
     import_accounts_in(&data_dir, request)
 }
 
-// ── External (Prism/MultiMC) import helpers ───────────────────────────────
 
-/// Normalize an external source name to a canonical identifier.
-///
-/// Accepts (case-insensitive): `prism`, `multimc`, `prism-multimc`.
-/// Returns a Chinese error for anything else.
+
+
+
+
+
 fn normalize_external_source(source: &str) -> Result<&'static str, LauncherError> {
     let lower = source.trim().to_lowercase();
     match lower.as_str() {
@@ -1581,11 +1588,11 @@ fn normalize_external_source(source: &str) -> Result<&'static str, LauncherError
     }
 }
 
-/// Map a raw Prism/MultiMC account `type` string to a `LauncherAccountKind`.
-///
-/// - `offline` (case-insensitive) → `Offline`
-/// - `msa`, `microsoft`, `microsoft_account` → `Microsoft`
-/// - Anything else → `None`
+
+
+
+
+
 fn normalize_external_account_kind(raw: &str) -> Option<LauncherAccountKind> {
     let lower = raw.trim().to_lowercase();
     match lower.as_str() {
@@ -1595,40 +1602,40 @@ fn normalize_external_account_kind(raw: &str) -> Option<LauncherAccountKind> {
     }
 }
 
-/// Normalize an external UUID string.
-///
-/// - 32 hex characters → converted to hyphenated UUID format.
-/// - Already hyphenated (36 chars) → validated and returned as-is.
-/// - Leading/trailing whitespace is trimmed.
-/// - Returns an error for anything else.
+
+
+
+
+
+
 fn normalize_external_uuid(raw: &str) -> Result<String, LauncherError> {
     let raw = raw.trim();
     if raw.is_empty() {
         return Err(LauncherError::new("ERROR", "UUID 不能为空"));
     }
 
-    // 32-character hex → hyphenated
+
     if raw.len() == 32 && raw.chars().all(|c| c.is_ascii_hexdigit()) {
         return profile_id_to_uuid(raw);
     }
 
-    // Try to parse as a standard UUID (handles hyphenated forms, rejects invalid)
+
     let parsed = uuid::Uuid::parse_str(raw)
         .map_err(|_| format!("无效的 UUID 格式: '{raw}'，期望 32 位十六进制或标准 UUID 格式"))?;
     Ok(parsed.to_string())
 }
 
-/// Parse Prism/MultiMC `accounts.json` into `LauncherAccount` drafts.
-///
-/// Each returned account has:
-/// - A new `id` (v4 UUID).
-/// - `selected = false`.
-/// - `auth_server_url = None`, `avatar_url = None`.
-/// - `created_at` / `updated_at` set to `now`.
-/// - `last_validated_at` / `token_expires_at` = `None`.
-///
-/// Entries with unknown type, missing username/uuid, or invalid uuid are
-/// silently dropped (the caller should track their own statistics).
+
+
+
+
+
+
+
+
+
+
+
 #[cfg(test)]
 fn parse_prism_multimc_accounts(json: &str) -> Result<Vec<LauncherAccount>, LauncherError> {
     let parsed: serde_json::Value =
@@ -1643,15 +1650,15 @@ fn parse_prism_multimc_accounts(json: &str) -> Result<Vec<LauncherAccount>, Laun
     let mut result = Vec::new();
 
     for entry in accounts_array {
-        // Get type → kind
+
         let raw_type = entry.get("type").and_then(|v| v.as_str()).unwrap_or("");
 
         let kind = match normalize_external_account_kind(raw_type) {
             Some(k) => k,
-            None => continue, // unknown type — silently dropped
+            None => continue,
         };
 
-        // Get username: profile.name first, then top-level name
+
         let username = entry
             .get("profile")
             .and_then(|v| v.get("name"))
@@ -1660,10 +1667,10 @@ fn parse_prism_multimc_accounts(json: &str) -> Result<Vec<LauncherAccount>, Laun
             .unwrap_or("");
         let username = username.trim();
         if username.is_empty() {
-            continue; // missing username
+            continue;
         }
 
-        // Get uuid: profile.id first, then uuid, then id
+
         let raw_uuid = entry
             .get("profile")
             .and_then(|v| v.get("id"))
@@ -1674,7 +1681,7 @@ fn parse_prism_multimc_accounts(json: &str) -> Result<Vec<LauncherAccount>, Laun
 
         let uuid = match normalize_external_uuid(raw_uuid) {
             Ok(u) => u,
-            Err(_) => continue, // invalid uuid
+            Err(_) => continue,
         };
 
         result.push(LauncherAccount {
@@ -1695,27 +1702,27 @@ fn parse_prism_multimc_accounts(json: &str) -> Result<Vec<LauncherAccount>, Laun
     Ok(result)
 }
 
-/// Core logic for importing external (Prism/MultiMC) accounts.
-///
-/// Behaviour:
-/// - Validates the `source` field.
-/// - Parses the `accounts_json`, requiring an `accounts` array.
-/// - Entries with an unsupported type are counted as `skipped`.
-/// - Entries with missing username/uuid or invalid uuid are counted as `failed`.
-/// - When `dedupe_by_uuid` is `true`, existing accounts with the same
-///   `kind + uuid` are counted as `skipped`.
-/// - Token files are never read or written.
-/// - Existing accounts are preserved; imported accounts are appended.
-/// - Existing selected state is never changed; imported accounts are always
-///   `selected = false`.
+
+
+
+
+
+
+
+
+
+
+
+
+
 pub fn import_external_accounts_in(
     data_dir: &Path,
     request: ImportExternalAccountsRequest,
 ) -> Result<ImportExternalAccountsResult, LauncherError> {
-    // 1. Validate source
+
     normalize_external_source(&request.source)?;
 
-    // 2. Parse JSON to get the accounts array and total count
+
     let parsed: serde_json::Value =
         serde_json::from_str(&request.accounts_json).map_err(|e| format!("无法解析 JSON: {e}"))?;
 
@@ -1726,7 +1733,7 @@ pub fn import_external_accounts_in(
 
     let total = accounts_array.len() as u32;
 
-    // 3. Load existing accounts
+
     let mut existing = load_accounts(data_dir)?;
     let now = utils::now_iso8601();
 
@@ -1735,7 +1742,7 @@ pub fn import_external_accounts_in(
     let mut failed: u32 = 0;
 
     for entry in accounts_array {
-        // ── Parse type → kind ──
+
         let raw_type = entry.get("type").and_then(|v| v.as_str()).unwrap_or("");
 
         let kind = match normalize_external_account_kind(raw_type) {
@@ -1746,7 +1753,7 @@ pub fn import_external_accounts_in(
             }
         };
 
-        // ── Parse username ──
+
         let username = entry
             .get("profile")
             .and_then(|v| v.get("name"))
@@ -1759,7 +1766,7 @@ pub fn import_external_accounts_in(
             continue;
         }
 
-        // ── Parse uuid ──
+
         let raw_uuid = entry
             .get("profile")
             .and_then(|v| v.get("id"))
@@ -1776,7 +1783,7 @@ pub fn import_external_accounts_in(
             }
         };
 
-        // ── Dedupe by kind + uuid ──
+
         if request.dedupe_by_uuid {
             let duplicate = existing.iter().any(|e| e.kind == kind && e.uuid == uuid);
             if duplicate {
@@ -1785,7 +1792,7 @@ pub fn import_external_accounts_in(
             }
         }
 
-        // ── Build and append draft account ──
+
         existing.push(LauncherAccount {
             id: uuid::Uuid::new_v4().to_string(),
             kind,
@@ -1802,7 +1809,7 @@ pub fn import_external_accounts_in(
         imported += 1;
     }
 
-    // 4. Persist merged accounts (no token files touched)
+
     save_accounts(data_dir, &existing)?;
 
     Ok(ImportExternalAccountsResult {
@@ -1825,7 +1832,7 @@ pub async fn import_external_accounts(
     import_external_accounts_in(&data_dir, request)
 }
 
-// ── Tests ──
+
 
 #[cfg(test)]
 mod tests {
@@ -1836,7 +1843,7 @@ mod tests {
         tempfile::tempdir().expect("failed to create temp dir")
     }
 
-    // ── Export / Import helpers ─────────────────────────────────────────
+
 
     fn make_test_account(
         kind: LauncherAccountKind,
@@ -1867,14 +1874,14 @@ mod tests {
         serde_json::to_string(&bundle).unwrap()
     }
 
-    // ── Tests: export_bundle_no_tokens_or_passwords ─────────────────────
+
 
     #[test]
     fn export_bundle_no_tokens_or_passwords() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create a third-party account with a saved token
+
         let account = LauncherAccount {
             id: "tp-export-1".to_string(),
             kind: LauncherAccountKind::ThirdParty,
@@ -1893,7 +1900,7 @@ mod tests {
 
         let bundle = export_accounts_in(data_dir).unwrap();
 
-        // Serialize to JSON and check for forbidden fields
+
         let json = serde_json::to_string(&bundle).unwrap();
         let lower = json.to_lowercase();
         assert!(
@@ -1918,7 +1925,7 @@ mod tests {
         );
     }
 
-    // ── Tests: export_marks_all_accounts_unselected ─────────────────────
+
 
     #[test]
     fn export_marks_all_accounts_unselected() {
@@ -1940,7 +1947,7 @@ mod tests {
         )
         .unwrap();
 
-        // a2 is selected by default (last added)
+
         let loaded = load_accounts(data_dir).unwrap();
         assert!(loaded.iter().any(|a| a.selected));
 
@@ -1952,7 +1959,7 @@ mod tests {
             );
         }
 
-        // Original accounts still have selected state unchanged on disk
+
         let loaded2 = load_accounts(data_dir).unwrap();
         assert!(
             loaded2.iter().any(|a| a.selected),
@@ -1960,7 +1967,7 @@ mod tests {
         );
     }
 
-    // ── Tests: import_rejects_wrong_schema ──────────────────────────────
+
 
     #[test]
     fn import_rejects_wrong_schema() {
@@ -1986,19 +1993,19 @@ mod tests {
         );
     }
 
-    // ── Tests: import_adds_accounts_without_tokens ──────────────────────
+
 
     #[test]
     fn import_adds_accounts_without_tokens() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Prepare existing account with a saved token
+
         let existing = make_test_account(LauncherAccountKind::Offline, "OldPlayer", "old-uuid-1");
         save_accounts(data_dir, std::slice::from_ref(&existing)).unwrap();
         save_account_token(data_dir, &existing.id, "existing-token").unwrap();
 
-        // Import a new account
+
         let imported = make_test_account(LauncherAccountKind::Offline, "NewPlayer", "new-uuid-1");
         let json = export_bundle_json(vec![imported.clone()]);
         let req = ImportAccountsRequest {
@@ -2012,7 +2019,7 @@ mod tests {
         assert_eq!(result.failed, 0);
         assert_eq!(result.total, 1);
 
-        // Existing token should still exist
+
         assert!(
             load_account_token(data_dir, &existing.id)
                 .unwrap()
@@ -2020,16 +2027,16 @@ mod tests {
             "existing token should be preserved"
         );
 
-        // No token file should have been created for the imported account
+
         let all_tokens = load_all_account_tokens(data_dir).unwrap();
         assert_eq!(all_tokens.len(), 1, "no new token should have been saved");
 
-        // accounts.json should have 2 entries
+
         let accounts = load_accounts(data_dir).unwrap();
         assert_eq!(accounts.len(), 2);
     }
 
-    // ── Tests: import_dedupe_by_kind_and_uuid ───────────────────────────
+
 
     #[test]
     fn import_dedupe_by_kind_and_uuid() {
@@ -2039,7 +2046,7 @@ mod tests {
         let existing = make_test_account(LauncherAccountKind::Offline, "DupPlayer", "dup-uuid");
         save_accounts(data_dir, std::slice::from_ref(&existing)).unwrap();
 
-        // Import the same kind+uuid with dedupe enabled
+
         let dupe = make_test_account(LauncherAccountKind::Offline, "DupPlayer", "dup-uuid");
         let json = export_bundle_json(vec![dupe]);
         let req = ImportAccountsRequest {
@@ -2084,7 +2091,7 @@ mod tests {
         );
     }
 
-    // ── Tests: import_generates_new_id_on_collision ─────────────────────
+
 
     #[test]
     fn import_generates_new_id_on_collision() {
@@ -2108,7 +2115,7 @@ mod tests {
 
         let mut collider =
             make_test_account(LauncherAccountKind::Offline, "NewCollider", "collider-uuid");
-        collider.id = "fixed-id".to_string(); // same as existing
+        collider.id = "fixed-id".to_string();
 
         let json = export_bundle_json(vec![collider]);
         let req = ImportAccountsRequest {
@@ -2120,7 +2127,7 @@ mod tests {
 
         let accounts = load_accounts(data_dir).unwrap();
         assert_eq!(accounts.len(), 2);
-        // The imported account should have a new id
+
         let imported = accounts
             .iter()
             .find(|a| a.username == "NewCollider")
@@ -2152,7 +2159,7 @@ mod tests {
         assert!(!accounts[0].id.is_empty());
     }
 
-    // ── Tests: import_fills_missing_timestamps ──────────────────────────
+
 
     #[test]
     fn import_fills_missing_timestamps() {
@@ -2203,7 +2210,7 @@ mod tests {
         assert_eq!(accounts[0].updated_at, orig_updated);
     }
 
-    // ── Tests: import_preserves_existing_accounts ───────────────────────
+
 
     #[test]
     fn import_preserves_existing_accounts() {
@@ -2238,14 +2245,14 @@ mod tests {
         );
     }
 
-    // ── Tests: import_never_selects_imported_accounts ───────────────────
+
 
     #[test]
     fn import_never_selects_imported_accounts() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add an existing selected account
+
         let existing = add_offline_account_in(
             data_dir,
             AddOfflineAccountRequest {
@@ -2254,7 +2261,7 @@ mod tests {
         )
         .unwrap();
 
-        // Import accounts that had selected=true
+
         let mut imp1 = make_test_account(LauncherAccountKind::Offline, "Imp1", "imp1-uuid");
         imp1.selected = true;
         let mut imp2 = make_test_account(LauncherAccountKind::Microsoft, "Imp2", "imp2-uuid");
@@ -2268,7 +2275,7 @@ mod tests {
         import_accounts_in(data_dir, req).unwrap();
 
         let accounts = load_accounts(data_dir).unwrap();
-        // Only the original existing should be selected
+
         let selected_count = accounts.iter().filter(|a| a.selected).count();
         assert_eq!(selected_count, 1, "only existing should remain selected");
         assert!(
@@ -2279,7 +2286,7 @@ mod tests {
                 .selected
         );
 
-        // Imported accounts should not be selected
+
         for a in &accounts {
             if a.id != existing.id {
                 assert!(!a.selected, "imported account should not be selected");
@@ -2287,7 +2294,7 @@ mod tests {
         }
     }
 
-    // ── Tests: import_fails_invalid_account_username_or_uuid ────────────
+
 
     #[test]
     fn import_rejects_empty_username() {
@@ -2326,7 +2333,7 @@ mod tests {
         assert_eq!(result.imported, 0);
     }
 
-    // ── Tests: import_invalid_json ──────────────────────────────────────
+
 
     #[test]
     fn import_rejects_invalid_json() {
@@ -2344,7 +2351,7 @@ mod tests {
         );
     }
 
-    // ── Tests: mix imports with different kinds ─────────────────────────
+
 
     #[test]
     fn import_mixed_kinds_all_succeed() {
@@ -2380,9 +2387,9 @@ mod tests {
         assert_eq!(accounts.len(), 3);
     }
 
-    // ── Legacy test setup ───────────────────────────────────────────────
 
-    // ── UUID generation ────────────────────────────────────────────────
+
+
 
     #[test]
     fn offline_uuid_is_stable_for_same_username() {
@@ -2400,11 +2407,11 @@ mod tests {
         let parts: Vec<&str> = uuid.split('-').collect();
         assert_eq!(parts.len(), 5, "must be standard UUID format");
 
-        // Version nibble is the first char of the third segment (index 2)
+
         let version_char = parts[2].chars().next().unwrap();
         assert_eq!(version_char, '3', "UUID must be version 3 (name-based)");
 
-        // Variant bits: first char of the fourth segment must be 8,9,a,b
+
         let variant_char = parts[3].chars().next().unwrap();
         assert!(
             matches!(variant_char, '8' | '9' | 'a' | 'b' | 'A' | 'B'),
@@ -2414,9 +2421,9 @@ mod tests {
 
     #[test]
     fn offline_uuid_matches_java_reference_for_steve() {
-        // This value is the result of Java's:
-        //   UUID.nameUUIDFromBytes("OfflinePlayer:Steve".getBytes(StandardCharsets.UTF_8))
-        // Verified against the standard Minecraft offline UUID algorithm.
+
+
+
         let uuid = generate_offline_uuid("Steve");
         assert_eq!(
             uuid, "5627dd98-e6be-3c21-b8a8-e92344183641",
@@ -2426,7 +2433,7 @@ mod tests {
 
     #[test]
     fn offline_uuid_matches_java_reference_for_notch() {
-        // Reference value for "Notch" — independently verifiable.
+
         let uuid = generate_offline_uuid("Notch");
         assert_eq!(
             uuid, "b50ad385-829d-3141-a216-7e7d7539ba7f",
@@ -2434,7 +2441,7 @@ mod tests {
         );
     }
 
-    // ── Username validation ─────────────────────────────────────────────
+
 
     #[test]
     fn validate_username_empty() {
@@ -2493,7 +2500,7 @@ mod tests {
         );
     }
 
-    // ── Empty repo ──────────────────────────────────────────────────────
+
 
     #[test]
     fn empty_repo_returns_empty_list_and_creates_parent_dir() {
@@ -2508,7 +2515,7 @@ mod tests {
         assert!(accounts_dir.is_dir(), "accounts path should be a directory");
     }
 
-    // ── Add offline account ─────────────────────────────────────────────
+
 
     #[test]
     fn add_offline_account_generates_uuid_and_selected() {
@@ -2526,11 +2533,11 @@ mod tests {
         assert_eq!(account.username, "Steve");
         assert!(account.selected, "new account should be selected");
 
-        // UUID should be stable for "Steve"
+
         let expected_uuid = generate_offline_uuid("Steve");
         assert_eq!(account.uuid, expected_uuid);
 
-        // Should be persisted
+
         let loaded = load_accounts(data_dir).expect("should load");
         assert_eq!(loaded.len(), 1);
         assert_eq!(loaded[0].id, account.id);
@@ -2541,14 +2548,14 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add first account
+
         let req1 = AddOfflineAccountRequest {
             username: "PlayerA".to_string(),
         };
         let a1 = add_offline_account_in(data_dir, req1).expect("should succeed");
         assert!(a1.selected);
 
-        // Add second account
+
         let req2 = AddOfflineAccountRequest {
             username: "PlayerB".to_string(),
         };
@@ -2557,9 +2564,9 @@ mod tests {
 
         let loaded = load_accounts(data_dir).expect("should load");
         assert_eq!(loaded.len(), 2);
-        // First account should no longer be selected
+
         assert!(!loaded.iter().find(|a| a.id == a1.id).unwrap().selected);
-        // Second account should be selected
+
         assert!(loaded.iter().find(|a| a.id == a2.id).unwrap().selected);
     }
 
@@ -2653,14 +2660,14 @@ mod tests {
         assert_eq!(account.username, "Steve");
     }
 
-    // ── Select account ──────────────────────────────────────────────────
+
 
     #[test]
     fn select_account_sets_only_one_selected() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add two accounts
+
         let a1 = add_offline_account_in(
             data_dir,
             AddOfflineAccountRequest {
@@ -2676,7 +2683,7 @@ mod tests {
         )
         .expect("should create");
 
-        // a2 is selected (last added), now select a1
+
         let selected = select_account_in(data_dir, &a1.id).expect("should select");
         assert_eq!(selected.id, a1.id);
         assert!(selected.selected);
@@ -2698,7 +2705,7 @@ mod tests {
         );
     }
 
-    // ── Delete account ──────────────────────────────────────────────────
+
 
     #[test]
     fn delete_account_removes_record() {
@@ -2724,7 +2731,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add three accounts
+
         let a1 = add_offline_account_in(
             data_dir,
             AddOfflineAccountRequest {
@@ -2747,16 +2754,16 @@ mod tests {
         )
         .expect("should create");
 
-        // Last added (PlayerC) is selected. Now select PlayerB.
+
         select_account_in(data_dir, &a2.id).expect("should select");
 
-        // Delete the selected one (PlayerB)
+
         delete_account_from(data_dir, &a2.id).expect("should delete");
 
         let loaded = load_accounts(data_dir).expect("should load");
         assert_eq!(loaded.len(), 2, "should have 2 remaining accounts");
 
-        // First remaining account (PlayerA) should now be selected
+
         assert!(
             loaded.iter().find(|a| a.id == a1.id).unwrap().selected,
             "first remaining account should be auto-selected"
@@ -2783,7 +2790,7 @@ mod tests {
         )
         .expect("should create");
 
-        // a2 is selected. Delete a1 (non-selected).
+
         delete_account_from(data_dir, &a1.id).expect("should delete");
 
         let loaded = load_accounts(data_dir).expect("should load");
@@ -2823,7 +2830,7 @@ mod tests {
         );
     }
 
-    // ── Corrupted JSON ──────────────────────────────────────────────────
+
 
     #[test]
     fn corrupted_json_returns_error() {
@@ -2841,7 +2848,7 @@ mod tests {
         );
     }
 
-    // ── Multiple accounts persistence ───────────────────────────────────
+
 
     #[test]
     fn multiple_accounts_persistence() {
@@ -2894,7 +2901,7 @@ mod tests {
         assert_eq!(selected_count, 1, "exactly one account should be selected");
     }
 
-    // ── selected_account_in ──────────────────────────────────────────────
+
 
     #[test]
     fn selected_account_in_empty_repo_returns_error() {
@@ -2913,7 +2920,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add two accounts, second is selected by default
+
         let a1 = add_offline_account_in(
             data_dir,
             AddOfflineAccountRequest {
@@ -2929,12 +2936,12 @@ mod tests {
         )
         .expect("should create");
 
-        // a2 is selected (last added)
+
         let selected = selected_account_in(data_dir).expect("should find selected");
         assert_eq!(selected.id, a2.id);
         assert!(selected.selected);
 
-        // Now select a1 explicitly
+
         select_account_in(data_dir, &a1.id).expect("should select a1");
 
         let selected = selected_account_in(data_dir).expect("should find selected");
@@ -2947,7 +2954,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Manually create accounts with selected=false
+
         let a1 = LauncherAccount {
             id: "id-a".to_string(),
             kind: LauncherAccountKind::Offline,
@@ -2984,7 +2991,7 @@ mod tests {
         );
     }
 
-    // ── URL validation ───────────────────────────────────────────────────
+
 
     #[test]
     fn validate_url_empty() {
@@ -3031,7 +3038,7 @@ mod tests {
         assert_eq!(result, "https://auth.example.com");
     }
 
-    // ── Token save / load / delete ───────────────────────────────────────
+
 
     #[test]
     fn token_save_and_load_roundtrip() {
@@ -3088,14 +3095,14 @@ mod tests {
         assert_eq!(path, PathBuf::from("/data/accounts/account_tokens.json"));
     }
 
-    // ── accounts.json does not contain password / accessToken ────────────
+
 
     #[test]
     fn accounts_json_no_password_or_token() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create a third-party account
+
         let account = LauncherAccount {
             id: "tp-1".to_string(),
             kind: LauncherAccountKind::ThirdParty,
@@ -3112,7 +3119,7 @@ mod tests {
 
         save_accounts(data_dir, &[account]).unwrap();
 
-        // Read the raw file
+
         let path = accounts_file_path(data_dir);
         let raw = std::fs::read_to_string(&path).unwrap();
 
@@ -3130,14 +3137,14 @@ mod tests {
         );
     }
 
-    // ── delete_account_from deletes token ────────────────────────────────
+
 
     #[test]
     fn delete_account_also_removes_token() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Add a third-party account and save its token
+
         let account = LauncherAccount {
             id: "del-tp".to_string(),
             kind: LauncherAccountKind::ThirdParty,
@@ -3154,20 +3161,20 @@ mod tests {
         save_accounts(data_dir, std::slice::from_ref(&account)).unwrap();
         save_account_token(data_dir, &account.id, "some-token").unwrap();
 
-        // Verify token exists
+
         assert!(load_account_token(data_dir, &account.id).unwrap().is_some());
 
-        // Delete account
+
         delete_account_from(data_dir, &account.id).unwrap();
 
-        // Token should be gone
+
         assert!(
             load_account_token(data_dir, &account.id).unwrap().is_none(),
             "token should be deleted with account"
         );
     }
 
-    // ── account_token_for_local_launch ────────────────────────────────────
+
 
     #[test]
     fn token_for_offline_is_zero() {
@@ -3207,14 +3214,14 @@ mod tests {
             last_validated_at: None,
             token_expires_at: None,
         };
-        // Microsoft now requires a saved token; missing should error
+
         let err = account_token_for_local_launch(data_dir, &account).unwrap_err();
         assert!(
             err.contains("已失效") || err.contains("重新登录"),
             "missing MS token should error: {err}"
         );
 
-        // Save token and verify it's returned
+
         save_account_token(data_dir, &account.id, "mc-ms-token").unwrap();
         let token = account_token_for_local_launch(data_dir, &account).unwrap();
         assert_eq!(token, "mc-ms-token");
@@ -3268,11 +3275,11 @@ mod tests {
         );
     }
 
-    // ── Historical account JSON backward compat ──────────────────────────
+
 
     #[test]
     fn historical_json_without_new_fields_deserializes() {
-        // Simulate an old accounts.json that lacks last_validated_at and token_expires_at
+
         let old_json = r#"[
             {
                 "id": "old-1",
@@ -3335,11 +3342,11 @@ mod tests {
         assert!(accounts[1].token_expires_at.is_none());
     }
 
-    // ── authenticate Yggdrasil via local TCP server ──────────────────────
 
-    /// A tiny async helper that starts a local TCP listener, accepts one
-    /// connection, reads the HTTP request, sends back a Yggdrasil response,
-    /// and returns the server's address. This avoids any real network.
+
+
+
+
     async fn start_mock_yggdrasil_server(
         status: u16,
         body: &str,
@@ -3406,7 +3413,7 @@ mod tests {
 
     #[tokio::test]
     async fn authenticate_missing_fields_returns_err() {
-        // Response missing selectedProfile
+
         let response = serde_json::json!({
             "accessToken": "token-only"
         });
@@ -3423,12 +3430,12 @@ mod tests {
 
     #[tokio::test]
     async fn authenticate_connection_refused_returns_err() {
-        // Use a port that nothing is listening on
+
         let result = authenticate_yggdrasil("http://127.0.0.1:1", "user", "pass").await;
         assert!(result.is_err());
     }
 
-    // ── profile_id_to_uuid ──────────────────────────────────────────────
+
 
     #[test]
     fn profile_id_32hex_to_uuid_valid() {
@@ -3475,7 +3482,7 @@ mod tests {
         assert_eq!(result, "069a79f4-44e9-4726-a5be-fca90e38aaf5");
     }
 
-    // ── map_microsoft_oauth_error ────────────────────────────────────────
+
 
     #[test]
     fn oauth_error_authorization_pending_is_chinese() {
@@ -3534,7 +3541,7 @@ mod tests {
         );
     }
 
-    // ── extract_uhs ─────────────────────────────────────────────────────
+
 
     #[test]
     fn extract_uhs_from_xbox_response_valid() {
@@ -3574,7 +3581,7 @@ mod tests {
         assert_eq!(uhs, "fedcba0987654321");
     }
 
-    // ── Microsoft device code JSON parse ─────────────────────────────────
+
 
     #[test]
     fn parse_microsoft_device_code_response_full() {
@@ -3641,7 +3648,7 @@ mod tests {
         );
     }
 
-    // ── Xbox / XSTS JSON parse ──────────────────────────────────────────
+
 
     #[test]
     fn parse_xbox_auth_response() {
@@ -3658,7 +3665,7 @@ mod tests {
         assert_eq!(parsed.display_claims.xui[0].uhs, "test-uhs-123");
     }
 
-    // ── Minecraft auth/profile JSON parse ───────────────────────────────
+
 
     #[test]
     fn parse_minecraft_auth_response() {
@@ -3704,7 +3711,7 @@ mod tests {
         assert_eq!(parsed.error, "NOT_FOUND");
     }
 
-    // ── Microsoft token save/load + account_token_for_local_launch ────────
+
 
     #[test]
     fn microsoft_token_save_and_launch_token() {
@@ -3725,17 +3732,17 @@ mod tests {
             token_expires_at: Some(utils::now_iso8601()),
         };
 
-        // No token saved yet
+
         let err = account_token_for_local_launch(data_dir, &account).unwrap_err();
         assert!(
             err.contains("已失效") || err.contains("重新登录"),
             "missing token should error: {err}"
         );
 
-        // Save token
+
         save_account_token(data_dir, &account.id, "mc-access-token-ms").unwrap();
 
-        // Now should return the token
+
         let token = account_token_for_local_launch(data_dir, &account).unwrap();
         assert_eq!(token, "mc-access-token-ms");
     }
@@ -3770,12 +3777,12 @@ mod tests {
         );
     }
 
-    // ── Historical Microsoft account JSON compatibility ──────────────────
+
 
     #[test]
     fn historical_microsoft_account_json_deserializes() {
-        // Old accounts.json that includes a Microsoft kind account
-        // without last_validated_at and token_expires_at
+
+
         let old_json = r#"[
             {
                 "id": "ms-old-1",
@@ -3831,7 +3838,7 @@ mod tests {
         );
     }
 
-    // ── MicrosoftDeviceAuthStartResult / MicrosoftLoginResult serde ───────
+
 
     #[test]
     fn microsoft_device_auth_result_serialize_deserialize() {
@@ -3901,7 +3908,7 @@ mod tests {
 
     #[test]
     fn microsoft_login_result_minimal_no_refresh_token_saved() {
-        // JSON from an older version that lacks refresh_token_saved
+
         let json = r#"{
             "account": {
                 "id": "ms-min-1",
@@ -3925,7 +3932,7 @@ mod tests {
         );
     }
 
-    // ── MicrosoftRefreshResult serde ──────────────────────────────────────
+
 
     #[test]
     fn microsoft_refresh_result_serialize_deserialize() {
@@ -3957,7 +3964,7 @@ mod tests {
         assert_eq!(roundtripped.account.kind, LauncherAccountKind::Microsoft);
     }
 
-    // ── Microsoft refresh token file path ─────────────────────────────────
+
 
     #[test]
     fn microsoft_refresh_token_file_path_is_correct() {
@@ -3968,7 +3975,7 @@ mod tests {
         );
     }
 
-    // ── Microsoft refresh token save / load / delete ──────────────────────
+
 
     #[test]
     fn microsoft_refresh_token_save_and_load_roundtrip() {
@@ -4024,7 +4031,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Write an empty file
+
         let path = microsoft_refresh_token_file_path(data_dir);
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
         std::fs::write(&path, "").unwrap();
@@ -4033,7 +4040,7 @@ mod tests {
         assert!(loaded.is_none());
     }
 
-    // ── MicrosoftTokenResponse refresh_token parse ────────────────────────
+
 
     #[test]
     fn parse_microsoft_token_response_with_refresh_token() {
@@ -4054,7 +4061,7 @@ mod tests {
 
     #[test]
     fn parse_microsoft_token_response_without_refresh_token() {
-        // Device-code flow may not always return a refresh_token
+
         let json = r#"{
             "token_type": "Bearer",
             "scope": "XboxLive.signin",
@@ -4066,7 +4073,7 @@ mod tests {
         assert!(parsed.refresh_token.is_none());
     }
 
-    // ── accounts.json does not contain refresh_token ──────────────────────
+
 
     #[test]
     fn accounts_json_no_refresh_token() {
@@ -4106,14 +4113,14 @@ mod tests {
         );
     }
 
-    // ── delete_account_from cleans Microsoft refresh token ────────────────
+
 
     #[test]
     fn delete_microsoft_account_also_removes_refresh_token() {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create a Microsoft account
+
         let account = LauncherAccount {
             id: "del-ms-refresh".to_string(),
             kind: LauncherAccountKind::Microsoft,
@@ -4130,15 +4137,15 @@ mod tests {
         save_accounts(data_dir, std::slice::from_ref(&account)).unwrap();
         save_microsoft_refresh_token(data_dir, &account.id, "rt-for-delete").unwrap();
 
-        // Verify refresh token exists
+
         assert!(load_microsoft_refresh_token(data_dir, &account.id)
             .unwrap()
             .is_some());
 
-        // Delete account
+
         delete_account_from(data_dir, &account.id).unwrap();
 
-        // Refresh token should be gone
+
         assert!(
             load_microsoft_refresh_token(data_dir, &account.id)
                 .unwrap()
@@ -4152,7 +4159,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Create an offline account with the same id pattern
+
         let account = LauncherAccount {
             id: "off-no-rt".to_string(),
             kind: LauncherAccountKind::Offline,
@@ -4168,14 +4175,14 @@ mod tests {
         };
         save_accounts(data_dir, std::slice::from_ref(&account)).unwrap();
 
-        // Try to delete (refresh token file may not even exist)
+
         delete_account_from(data_dir, &account.id).unwrap();
 
         let remaining = load_accounts(data_dir).unwrap();
         assert!(remaining.is_empty());
     }
 
-    // ── ensure_profile_matches_account ────────────────────────────────────
+
 
     #[test]
     fn ensure_profile_matches_account_match_ok() {
@@ -4229,7 +4236,7 @@ mod tests {
         );
     }
 
-    // ── Avatar: default_avatar_url_for ───────────────────────────────────
+
 
     #[test]
     fn default_avatar_url_uses_uuid() {
@@ -4269,14 +4276,14 @@ mod tests {
             token_expires_at: None,
         };
         let url = default_avatar_url_for(&account);
-        // UUID should be trimmed before use
+
         assert_eq!(
             url,
             "https://crafatar.com/avatars/069a79f4-44e9-4726-a5be-fca90e38aaf5?overlay"
         );
     }
 
-    // ── Avatar: validate_avatar_url ──────────────────────────────────────
+
 
     #[test]
     fn validate_avatar_url_accepts_https() {
@@ -4339,7 +4346,7 @@ mod tests {
         assert_eq!(result, "https://example.com/skin.png");
     }
 
-    // ── Avatar: update_account_avatar_in ─────────────────────────────────
+
 
     #[test]
     fn update_account_avatar_set_url() {
@@ -4372,7 +4379,7 @@ mod tests {
             Some("https://example.com/avatar.png".to_string())
         );
 
-        // Verify persistence
+
         let loaded = load_accounts(data_dir).unwrap();
         assert_eq!(
             loaded[0].avatar_url,
@@ -4393,7 +4400,7 @@ mod tests {
         )
         .unwrap();
 
-        // First set a URL
+
         update_account_avatar_in(
             data_dir,
             UpdateAccountAvatarRequest {
@@ -4403,7 +4410,7 @@ mod tests {
         )
         .unwrap();
 
-        // Then clear it
+
         let result = update_account_avatar_in(
             data_dir,
             UpdateAccountAvatarRequest {
@@ -4453,7 +4460,7 @@ mod tests {
         )
         .unwrap();
 
-        // Set avatar
+
         update_account_avatar_in(
             data_dir,
             UpdateAccountAvatarRequest {
@@ -4466,26 +4473,26 @@ mod tests {
         let loaded = load_accounts(data_dir).unwrap();
         let updated = &loaded[0];
 
-        // selected should be unchanged (true from add_offline)
+
         assert!(updated.selected, "selected should not change");
-        // last_validated_at should be unchanged (None from offline)
+
         assert!(
             updated.last_validated_at.is_none(),
             "last_validated_at should not change"
         );
-        // token_expires_at should be unchanged (None from offline)
+
         assert!(
             updated.token_expires_at.is_none(),
             "token_expires_at should not change"
         );
-        // updated_at should have been updated
+
         assert_ne!(
             updated.updated_at, account.updated_at,
             "updated_at should change"
         );
     }
 
-    // ── Avatar: refresh_account_avatar_in ────────────────────────────────
+
 
     #[test]
     fn refresh_account_avatar_default_url() {
@@ -4536,7 +4543,7 @@ mod tests {
         )
         .unwrap();
 
-        // First set a custom URL
+
         update_account_avatar_in(
             data_dir,
             UpdateAccountAvatarRequest {
@@ -4546,14 +4553,14 @@ mod tests {
         )
         .unwrap();
 
-        // Then refresh to default
+
         let result = refresh_account_avatar_in(data_dir, &account.id).unwrap();
 
         let expected = default_avatar_url_for(&account);
         assert_eq!(result.avatar_url, Some(expected));
     }
 
-    // ── Avatar: accounts.json purity with avatar ─────────────────────────
+
 
     #[test]
     fn accounts_json_no_token_or_password_with_avatar() {
@@ -4568,7 +4575,7 @@ mod tests {
         )
         .unwrap();
 
-        // Set an avatar URL and re-save
+
         update_account_avatar_in(
             data_dir,
             UpdateAccountAvatarRequest {
@@ -4593,22 +4600,22 @@ mod tests {
             !raw.contains("password"),
             "accounts.json should not contain password"
         );
-        // avatar_url should be present
+
         assert!(
             raw.contains("https://example.com/avatar.png"),
             "accounts.json should contain the avatar_url"
         );
     }
 
-    // ── External (Prism/MultiMC) import tests ────────────────────────
 
-    /// Build a minimal Prism/MultiMC accounts.json string.
+
+
     fn prism_accounts_json(entries: &[serde_json::Value]) -> String {
         let obj = serde_json::json!({ "accounts": entries });
         serde_json::to_string(&obj).unwrap()
     }
 
-    /// A single offline Prism/MultiMC account entry.
+
     fn prism_offline_entry(username: &str, uuid: &str) -> serde_json::Value {
         serde_json::json!({
             "type": "Offline",
@@ -4616,7 +4623,7 @@ mod tests {
         })
     }
 
-    /// A single MSA Prism/MultiMC account entry.
+
     fn prism_msa_entry(username: &str, id: &str) -> serde_json::Value {
         serde_json::json!({
             "type": "MSA",
@@ -4682,7 +4689,7 @@ mod tests {
         let kind = normalize_external_account_kind("microsoft_account");
         assert_eq!(kind, Some(LauncherAccountKind::Microsoft));
 
-        // Unknown type returns None
+
         let kind = normalize_external_account_kind("mojang");
         assert!(kind.is_none());
 
@@ -4701,23 +4708,23 @@ mod tests {
         let result = normalize_external_uuid("069a79f4-44e9-4726-a5be-fca90e38aaf5").unwrap();
         assert_eq!(result, "069a79f4-44e9-4726-a5be-fca90e38aaf5");
 
-        // Uppercase should be lowercased
+
         let result = normalize_external_uuid("069A79F4-44E9-4726-A5BE-FCA90E38AAF5").unwrap();
         assert_eq!(result, "069a79f4-44e9-4726-a5be-fca90e38aaf5");
     }
 
     #[test]
     fn normalize_external_uuid_rejects_invalid() {
-        // Too short
+
         assert!(normalize_external_uuid("abc").is_err());
 
-        // Empty
+
         assert!(normalize_external_uuid("").is_err());
 
-        // Non-hex characters in 32-char string
+
         assert!(normalize_external_uuid("069a79f444e94726a5befca90e38aafg").is_err());
 
-        // 36 chars but not a valid UUID
+
         assert!(normalize_external_uuid("xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx").is_err());
     }
 
@@ -4731,7 +4738,7 @@ mod tests {
 
         let accounts = parse_prism_multimc_accounts(&json).unwrap();
         assert_eq!(accounts.len(), 2);
-        // Steve (offline)
+
         assert_eq!(accounts[0].username, "Steve");
         assert_eq!(accounts[0].kind, LauncherAccountKind::Offline);
         assert!(accounts[0].uuid.contains('-'), "UUID should be hyphenated");
@@ -4740,7 +4747,7 @@ mod tests {
         assert!(accounts[0].avatar_url.is_none());
         assert!(accounts[0].last_validated_at.is_none());
         assert!(accounts[0].token_expires_at.is_none());
-        // Alex (MSA)
+
         assert_eq!(accounts[1].username, "Alex");
         assert_eq!(accounts[1].kind, LauncherAccountKind::Microsoft);
         assert!(!accounts[1].selected);
@@ -4833,7 +4840,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(result.imported, 1);
-        assert_eq!(result.skipped, 1); // unknown type
+        assert_eq!(result.skipped, 1);
         assert_eq!(result.failed, 0);
         assert_eq!(result.total, 2);
 
@@ -4847,12 +4854,12 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Missing profile → no name/id
+
         let entries = vec![
             prism_offline_entry("Steve", "069a79f444e94726a5befca90e38aaf5"),
             serde_json::json!({
                 "type": "Offline"
-                // no profile, no name, no uuid/id
+
             }),
             serde_json::json!({
                 "type": "MSA",
@@ -4861,7 +4868,7 @@ mod tests {
             serde_json::json!({
                 "type": "MSA",
                 "profile": { "id": "aaaabbbbccccddddeeeeffff00000001" }
-                // no name
+
             }),
         ];
         let json = prism_accounts_json(&entries);
@@ -4876,9 +4883,9 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result.imported, 1); // only Steve
+        assert_eq!(result.imported, 1);
         assert_eq!(result.skipped, 0);
-        assert_eq!(result.failed, 3); // no-profile, bad-uuid, no-name
+        assert_eq!(result.failed, 3);
         assert_eq!(result.total, 4);
 
         let accounts = load_accounts(data_dir).unwrap();
@@ -4891,7 +4898,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Pre-seed an offline account with a known UUID
+
         let existing = LauncherAccount {
             id: "pre-seed-1".to_string(),
             kind: LauncherAccountKind::Offline,
@@ -4907,7 +4914,7 @@ mod tests {
         };
         save_accounts(data_dir, std::slice::from_ref(&existing)).unwrap();
 
-        // Import an account with the same kind+uuid
+
         let entries = vec![prism_offline_entry(
             "Steve",
             "069a79f444e94726a5befca90e38aaf5",
@@ -4925,7 +4932,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(result.imported, 0);
-        assert_eq!(result.skipped, 1); // deduped
+        assert_eq!(result.skipped, 1);
         assert_eq!(result.failed, 0);
         assert_eq!(result.total, 1);
 
@@ -4939,7 +4946,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Pre-seed an account with a token
+
         let existing = LauncherAccount {
             id: "tok-acc".to_string(),
             kind: LauncherAccountKind::Microsoft,
@@ -4956,7 +4963,7 @@ mod tests {
         save_accounts(data_dir, std::slice::from_ref(&existing)).unwrap();
         save_account_token(data_dir, "tok-acc", "my-precious-token").unwrap();
 
-        // Import external accounts
+
         let entries = vec![prism_offline_entry(
             "Steve",
             "069a79f444e94726a5befca90e38aaf5",
@@ -4975,11 +4982,11 @@ mod tests {
 
         assert_eq!(result.imported, 1);
 
-        // The existing token must still be intact
+
         let token = load_account_token(data_dir, "tok-acc").unwrap();
         assert_eq!(token, Some("my-precious-token".to_string()));
 
-        // No new token should have been created for the imported account
+
         let all_tokens = load_all_account_tokens(data_dir).unwrap();
         assert_eq!(all_tokens.len(), 1, "no new tokens should be saved");
     }
@@ -4989,7 +4996,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Pre-seed a selected account
+
         let existing = add_offline_account_in(
             data_dir,
             AddOfflineAccountRequest {
@@ -4999,7 +5006,7 @@ mod tests {
         .unwrap();
         assert!(existing.selected);
 
-        // Import external accounts
+
         let entries = vec![
             prism_offline_entry("Steve", "069a79f444e94726a5befca90e38aaf5"),
             prism_msa_entry("Alex", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1"),
@@ -5021,7 +5028,7 @@ mod tests {
         let accounts = load_accounts(data_dir).unwrap();
         assert_eq!(accounts.len(), 3);
 
-        // Only the pre-existing account should be selected
+
         let selected_count = accounts.iter().filter(|a| a.selected).count();
         assert_eq!(
             selected_count, 1,
@@ -5035,7 +5042,7 @@ mod tests {
                 .selected
         );
 
-        // Imported accounts must NOT be selected
+
         for a in &accounts {
             if a.id != existing.id {
                 assert!(
@@ -5096,7 +5103,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Some variants use top-level "name" and "uuid" without a "profile" sub-object
+
         let entries = vec![serde_json::json!({
             "type": "Offline",
             "name": "TopLevel",
@@ -5124,7 +5131,7 @@ mod tests {
         let dir = setup_temp_dir();
         let data_dir = dir.path();
 
-        // Some variants use top-level "id" instead of "uuid"
+
         let entries = vec![serde_json::json!({
             "type": "MSA",
             "profile": {
@@ -5147,7 +5154,7 @@ mod tests {
         assert_eq!(result.imported, 1);
         let accounts = load_accounts(data_dir).unwrap();
         assert_eq!(accounts[0].username, "MsIdPlayer");
-        // 32-hex should have been normalised
+
         assert!(accounts[0].uuid.contains('-'));
     }
 

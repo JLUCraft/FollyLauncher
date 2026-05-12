@@ -13,7 +13,7 @@ use super::models::{
     ImportModpackZipResult, ModpackFileEntry, ModpackFileKind, ModpackManifest,
 };
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+
 
 fn kind_dir(kind: &ModpackFileKind) -> &str {
     match kind {
@@ -24,8 +24,13 @@ fn kind_dir(kind: &ModpackFileKind) -> &str {
 }
 
 fn compute_sha1(path: &Path) -> Result<String, LauncherError> {
-    let data = std::fs::read(path)
-        .map_err(|e| LauncherError::from(format!("无法读取文件以计算 SHA1: {} — {}", path.display(), e)))?;
+    let data = std::fs::read(path).map_err(|e| {
+        LauncherError::from(format!(
+            "无法读取文件以计算 SHA1: {} — {}",
+            path.display(),
+            e
+        ))
+    })?;
     Ok(sha1_smol::Sha1::from(&data).digest().to_string())
 }
 
@@ -46,7 +51,7 @@ fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     if path.is_absolute() {
         return Err(LauncherError::from("文件名不能为绝对路径"));
     }
-    // Windows drive letter check (e.g. "C:foo")
+
     let bytes = name.as_bytes();
     if bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' {
         return Err(LauncherError::from("文件名不能包含盘符"));
@@ -54,10 +59,10 @@ fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     Ok(())
 }
 
-// ── ZIP helpers (Phase 21) ──────────────────────────────────────────────────────────
 
-/// Sanitize a ZIP entry path component: reject absolute paths, `..`, backslashes, NUL, empty.
-/// All ZIP entry paths must use `/`.
+
+
+
 fn sanitize_zip_path(entry_path: &str) -> Result<(), LauncherError> {
     if entry_path.is_empty() {
         return Err(LauncherError::from("ZIP entry path 不能为空"));
@@ -68,20 +73,22 @@ fn sanitize_zip_path(entry_path: &str) -> Result<(), LauncherError> {
     if entry_path.contains('\\') {
         return Err(LauncherError::from("ZIP entry path 包含反斜杠，应使用 /"));
     }
-    // Reject absolute paths
+
     let path = Path::new(entry_path);
     if path.is_absolute() || entry_path.starts_with('/') {
         return Err(LauncherError::from("ZIP entry path 不能为绝对路径"));
     }
-    // Windows drive letter check
+
     let bytes = entry_path.as_bytes();
     if bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' {
         return Err(LauncherError::from("ZIP entry path 不能包含盘符"));
     }
-    // Reject `..` segments
+
     for component in entry_path.split('/') {
         if component == ".." || component == "." {
-            return Err(LauncherError::from("ZIP entry path 不能包含 '.' 或 '..' 段"));
+            return Err(LauncherError::from(
+                "ZIP entry path 不能包含 '.' 或 '..' 段",
+            ));
         }
         if component.is_empty() {
             return Err(LauncherError::from("ZIP entry path 包含连续斜杠"));
@@ -90,8 +97,8 @@ fn sanitize_zip_path(entry_path: &str) -> Result<(), LauncherError> {
     Ok(())
 }
 
-/// Strip absolute source_path from manifest entries for ZIP export.
-/// Returns a cleaned manifest with source_path replaced by the ZIP-internal relative_path.
+
+
 fn manifest_for_zip(manifest: &ModpackManifest) -> ModpackManifest {
     let cleaned_files: Vec<ModpackFileEntry> = manifest
         .files
@@ -100,7 +107,7 @@ fn manifest_for_zip(manifest: &ModpackManifest) -> ModpackManifest {
             kind: f.kind.clone(),
             file_name: f.file_name.clone(),
             relative_path: f.relative_path.clone(),
-            source_path: String::new(), // do not leak absolute path
+            source_path: String::new(),
             size: f.size,
             sha1: f.sha1.clone(),
             enabled: f.enabled,
@@ -117,7 +124,7 @@ fn manifest_for_zip(manifest: &ModpackManifest) -> ModpackManifest {
     }
 }
 
-// ── Export ──────────────────────────────────────────────────────────────────
+
 
 fn scan_mod_files(game_dir: &Path) -> Vec<ModpackFileEntry> {
     let mods_dir = game_dir.join("mods");
@@ -178,7 +185,7 @@ fn scan_pack_files(game_dir: &Path, kind: ModpackFileKind) -> Vec<ModpackFileEnt
             if path.is_dir() {
                 continue;
             }
-            // Only collect .zip files for resource/shader packs
+
             let ext_lower = path
                 .extension()
                 .and_then(|e| e.to_str())
@@ -211,7 +218,7 @@ fn scan_pack_files(game_dir: &Path, kind: ModpackFileKind) -> Vec<ModpackFileEnt
     entries
 }
 
-// ── Import ──────────────────────────────────────────────────────────────────
+
 
 struct ImportCounts {
     imported: usize,
@@ -226,7 +233,7 @@ fn import_entry(
     overwrite: bool,
     counts: &mut ImportCounts,
 ) {
-    // Sanitize
+
     if let Err(e) = sanitize_file_name(&entry.file_name) {
         tracing::warn!(
             file_name = %entry.file_name,
@@ -237,11 +244,11 @@ fn import_entry(
         return;
     }
 
-    // Map kind to target directory
+
     let target_dir = target_game_dir.join(kind_dir(&entry.kind));
     let target_path = target_dir.join(&entry.file_name);
 
-    // Create target directory
+
     if let Err(e) = std::fs::create_dir_all(&target_dir) {
         tracing::warn!(
             target_dir = %target_dir.display(),
@@ -252,7 +259,7 @@ fn import_entry(
         return;
     }
 
-    // Read source
+
     let source_path = Path::new(&entry.source_path);
     let data = match std::fs::read(source_path) {
         Ok(d) => d,
@@ -267,7 +274,7 @@ fn import_entry(
         }
     };
 
-    // Verify SHA1
+
     let actual_sha1 = sha1_smol::Sha1::from(&data).digest().to_string();
     if actual_sha1 != entry.sha1 {
         tracing::warn!(
@@ -280,7 +287,7 @@ fn import_entry(
         return;
     }
 
-    // Check target existence
+
     if target_path.exists() && !overwrite {
         tracing::info!(
             file_name = %entry.file_name,
@@ -290,7 +297,7 @@ fn import_entry(
         return;
     }
 
-    // Write temp file then rename
+
     let mut tmp_path = target_path.clone();
     let random_suffix = uuid::Uuid::new_v4().to_string();
     if let Some(stem) = target_path.file_stem().and_then(|s| s.to_str()) {
@@ -336,7 +343,7 @@ fn import_entry(
     counts.bytes_written += data.len() as u64;
 }
 
-// ── Tauri commands ──────────────────────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn export_modpack_manifest(
@@ -350,7 +357,7 @@ pub async fn export_modpack_manifest(
     let instance = get_instance_in(&data_dir, &instance_id)?;
     let game_dir = PathBuf::from(&instance.game_dir);
 
-    // Build manifest
+
     let mut files: Vec<ModpackFileEntry> = Vec::new();
 
     files.extend(scan_mod_files(&game_dir));
@@ -419,7 +426,7 @@ pub async fn import_modpack_manifest(
     })
 }
 
-// ── Phase 21: ZIP export ────────────────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn export_modpack_zip(
@@ -437,7 +444,7 @@ pub async fn export_modpack_zip(
     let instance = get_instance_in(&data_dir, &request.instance_id)?;
     let game_dir = PathBuf::from(&instance.game_dir);
 
-    // Build manifest from scanned files
+
     let mut files: Vec<ModpackFileEntry> = Vec::new();
     files.extend(scan_mod_files(&game_dir));
     files.extend(scan_pack_files(&game_dir, ModpackFileKind::ResourcePack));
@@ -456,28 +463,28 @@ pub async fn export_modpack_zip(
         files,
     };
 
-    // Create a cleaned manifest without absolute source_path
+
     let zip_manifest = manifest_for_zip(&manifest);
 
-    // Serialize manifest to JSON
+
     let manifest_json =
         serde_json::to_vec_pretty(&zip_manifest).map_err(|e| format!("序列化清单失败: {}", e))?;
     let manifest_bytes = manifest_json.len() as u64;
 
-    // Ensure parent directory exists
+
     let output_path = Path::new(&request.output_path);
     if let Some(parent) = output_path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| format!("创建输出目录失败: {}", e))?;
     }
 
-    // Create ZIP file
+
     let zip_file =
         std::fs::File::create(output_path).map_err(|e| format!("创建 ZIP 文件失败: {}", e))?;
     let mut zip_writer = zip::ZipWriter::new(zip_file);
     let zip_options = zip::write::SimpleFileOptions::default()
         .compression_method(zip::CompressionMethod::Deflated);
 
-    // Write folly-modpack.json
+
     zip_writer
         .start_file("folly-modpack.json", zip_options)
         .map_err(|e| format!("ZIP 写入清单失败: {}", e))?;
@@ -485,13 +492,13 @@ pub async fn export_modpack_zip(
         .write_all(&manifest_json)
         .map_err(|e| format!("ZIP 写入清单内容失败: {}", e))?;
 
-    // Write overrides/ files
+
     for entry in &manifest.files {
         let source_path = Path::new(&entry.source_path);
         let data = std::fs::read(source_path)
             .map_err(|e| format!("读取文件失败 {}: {}", entry.file_name, e))?;
 
-        // Verify SHA1 during export
+
         let actual_sha1 = sha1_smol::Sha1::from(&data).digest().to_string();
         if actual_sha1 != entry.sha1 {
             return Err(LauncherError::new(
@@ -501,7 +508,7 @@ pub async fn export_modpack_zip(
         }
 
         let zip_entry_path = format!("overrides/{}", entry.relative_path);
-        // Safety check on generated path
+
         sanitize_zip_path(&zip_entry_path)?;
 
         zip_writer
@@ -524,7 +531,7 @@ pub async fn export_modpack_zip(
     })
 }
 
-// ── Phase 21: ZIP import helpers ────────────────────────────────────────────
+
 
 struct ZipImportCounts {
     imported: usize,
@@ -540,7 +547,7 @@ fn import_entry_from_zip(
     zip_data: &[u8],
     counts: &mut ZipImportCounts,
 ) {
-    // Sanitize file_name
+
     if let Err(e) = sanitize_file_name(&entry.file_name) {
         tracing::warn!(
             file_name = %entry.file_name,
@@ -551,11 +558,11 @@ fn import_entry_from_zip(
         return;
     }
 
-    // Map kind to target directory
+
     let target_dir = target_game_dir.join(kind_dir(&entry.kind));
     let target_path = target_dir.join(&entry.file_name);
 
-    // Create target directory
+
     if let Err(e) = std::fs::create_dir_all(&target_dir) {
         tracing::warn!(
             target_dir = %target_dir.display(),
@@ -566,7 +573,7 @@ fn import_entry_from_zip(
         return;
     }
 
-    // Verify SHA1 against zip data
+
     let actual_sha1 = sha1_smol::Sha1::from(zip_data).digest().to_string();
     if actual_sha1 != entry.sha1 {
         tracing::warn!(
@@ -579,7 +586,7 @@ fn import_entry_from_zip(
         return;
     }
 
-    // Check target existence
+
     if target_path.exists() && !overwrite {
         tracing::info!(
             file_name = %entry.file_name,
@@ -589,7 +596,7 @@ fn import_entry_from_zip(
         return;
     }
 
-    // Write temp file then rename
+
     let mut tmp_path = target_path.clone();
     let random_suffix = uuid::Uuid::new_v4().to_string();
     if let Some(stem) = target_path.file_stem().and_then(|s| s.to_str()) {
@@ -635,7 +642,7 @@ fn import_entry_from_zip(
     counts.bytes_written += zip_data.len() as u64;
 }
 
-// ── Phase 21: ZIP import command ────────────────────────────────────────────
+
 
 #[tauri::command]
 pub async fn import_modpack_zip(
@@ -658,13 +665,13 @@ pub async fn import_modpack_zip(
     let instance = get_instance_in(&data_dir, &request.target_instance_id)?;
     let target_game_dir = PathBuf::from(&instance.game_dir);
 
-    // Read ZIP into memory for random access
+
     let zip_data = std::fs::read(zip_path).map_err(|e| format!("读取 ZIP 文件失败: {}", e))?;
     let cursor = std::io::Cursor::new(&zip_data);
     let mut zip_archive =
         zip::ZipArchive::new(cursor).map_err(|e| format!("解析 ZIP 文件失败: {}", e))?;
 
-    // Read and parse folly-modpack.json
+
     let manifest_entry = zip_archive
         .by_name("folly-modpack.json")
         .map_err(|_| "ZIP 中缺少 folly-modpack.json".to_string())?;
@@ -691,7 +698,7 @@ pub async fn import_modpack_zip(
     for entry in &manifest.files {
         let zip_entry_path = format!("overrides/{}", entry.relative_path);
 
-        // Validate the expected ZIP entry path
+
         if let Err(e) = sanitize_zip_path(&zip_entry_path) {
             tracing::warn!(
                 expected_path = %zip_entry_path,
@@ -702,7 +709,7 @@ pub async fn import_modpack_zip(
             continue;
         }
 
-        // Read file bytes from ZIP
+
         match zip_archive.by_name(&zip_entry_path) {
             Ok(mut zip_file) => {
                 let mut data = Vec::new();
@@ -742,14 +749,14 @@ pub async fn import_modpack_zip(
     })
 }
 
-// ── Tests ───────────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    // ── kind_dir mapping ─────────────────────────────────────────────────
+
 
     #[test]
     fn kind_dir_maps_correctly() {
@@ -758,7 +765,7 @@ mod tests {
         assert_eq!(kind_dir(&ModpackFileKind::ShaderPack), "shaderpacks");
     }
 
-    // ── sanitize_file_name ────────────────────────────────────────────────
+
 
     #[test]
     fn sanitize_accepts_legal_names() {
@@ -787,7 +794,7 @@ mod tests {
     fn sanitize_rejects_dotdot() {
         assert!(sanitize_file_name("..").is_err());
         assert!(sanitize_file_name(".").is_err());
-        // Dots in filename without path separator are ok
+
         assert!(sanitize_file_name("foo..bar.jar").is_ok());
     }
 
@@ -806,7 +813,7 @@ mod tests {
         assert!(sanitize_file_name("foo\0bar.jar").is_err());
     }
 
-    // ── compute_sha1 ──────────────────────────────────────────────────────
+
 
     #[test]
     fn sha1_computes_correctly() {
@@ -814,11 +821,11 @@ mod tests {
         let file_path = dir.path().join("test.bin");
         std::fs::write(&file_path, b"hello").expect("write");
         let hash = compute_sha1(&file_path).expect("sha1");
-        // Known SHA1 of "hello"
+
         assert_eq!(hash, "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d");
     }
 
-    // ── relative_path format ──────────────────────────────────────────────
+
 
     #[test]
     fn relative_path_uses_forward_slash() {
@@ -834,29 +841,29 @@ mod tests {
         assert_eq!(entry.relative_path, "mods/foo.jar");
     }
 
-    // ── tempfile export ───────────────────────────────────────────────────
+
 
     fn setup_mock_game_dir() -> (TempDir, PathBuf) {
         let dir = TempDir::new().expect("tempdir");
         let game_dir = dir.path().to_path_buf();
 
-        // mods
+
         let mods_dir = game_dir.join("mods");
         std::fs::create_dir_all(&mods_dir).expect("create mods");
         std::fs::write(mods_dir.join("alpha.jar"), b"aaa").expect("write");
         std::fs::write(mods_dir.join("beta.jar.disabled"), b"bbb").expect("write");
         std::fs::write(mods_dir.join("gamma.disabled"), b"ggg").expect("write");
-        // non-mod file (should be skipped)
+
         std::fs::write(mods_dir.join("readme.txt"), b"rrr").expect("write");
-        // directory (should be skipped)
+
         std::fs::create_dir_all(mods_dir.join("nested")).expect("create dir");
 
-        // resourcepacks
+
         let rp_dir = game_dir.join("resourcepacks");
         std::fs::create_dir_all(&rp_dir).expect("create rp");
         std::fs::write(rp_dir.join("Faithful.zip"), b"pack").expect("write");
 
-        // shaderpacks
+
         let sp_dir = game_dir.join("shaderpacks");
         std::fs::create_dir_all(&sp_dir).expect("create sp");
         std::fs::write(sp_dir.join("SEUS.zip"), b"shader").expect("write");
@@ -894,13 +901,13 @@ mod tests {
     #[test]
     fn scan_pack_files_collects_only_zip_files() {
         let (_dir, game_dir) = setup_mock_game_dir();
-        // Add a non-zip file to resourcepacks to verify it's skipped
+
         std::fs::write(
             game_dir.join("resourcepacks").join("notes.txt"),
             b"ignore me",
         )
         .expect("write");
-        // Add a directory to verify it's skipped
+
         std::fs::create_dir_all(game_dir.join("resourcepacks").join("nested_pack"))
             .expect("create dir");
 
@@ -934,14 +941,14 @@ mod tests {
         assert!(total_bytes > 0);
     }
 
-    // ── tempfile import ───────────────────────────────────────────────────
+
 
     #[test]
     fn import_copies_file_successfully() {
         let src_dir = TempDir::new().expect("tempdir");
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Source file
+
         let src_path = src_dir.path().join("mymod.jar");
         let content = b"mod content";
         std::fs::write(&src_path, content).expect("write");
@@ -981,12 +988,12 @@ mod tests {
         let src_dir = TempDir::new().expect("tempdir");
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Source file
+
         let src_path = src_dir.path().join("mymod.jar");
         let content = b"new content";
         std::fs::write(&src_path, content).expect("write");
 
-        // Pre-create target
+
         let target_mods = dst_dir.path().join("mods");
         std::fs::create_dir_all(&target_mods).expect("create");
         std::fs::write(target_mods.join("mymod.jar"), b"old content").expect("write");
@@ -1012,7 +1019,7 @@ mod tests {
 
         assert_eq!(counts.skipped, 1);
         assert_eq!(counts.imported, 0);
-        // Old content should remain
+
         let existing = std::fs::read(target_mods.join("mymod.jar")).expect("read");
         assert_eq!(existing, b"old content");
     }
@@ -1083,7 +1090,7 @@ mod tests {
         let src_dir = TempDir::new().expect("tempdir");
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Create a directory as the "source_path"
+
         let sub_dir = src_dir.path().join("not_a_file");
         std::fs::create_dir_all(&sub_dir).expect("create dir");
 
@@ -1105,7 +1112,7 @@ mod tests {
         };
 
         import_entry(&entry, dst_dir.path(), true, &mut counts);
-        // Reading a directory as a file should fail, counted as failed
+
         assert_eq!(counts.failed, 1);
         assert_eq!(counts.imported, 0);
     }
@@ -1119,7 +1126,7 @@ mod tests {
         let content = b"fresh content";
         std::fs::write(&src_path, content).expect("write");
 
-        // Pre-create target
+
         let target_mods = dst_dir.path().join("mods");
         std::fs::create_dir_all(&target_mods).expect("create");
         std::fs::write(target_mods.join("mymod.jar"), b"stale content").expect("write");
@@ -1175,8 +1182,8 @@ mod tests {
 
     #[test]
     fn import_schema_version_mismatch_is_overall_error() {
-        // This test validates that the command layer rejects wrong schema_version.
-        // The command rejects before processing any entries.
+
+
         let manifest = ModpackManifest {
             schema_version: 99,
             name: "test".to_string(),
@@ -1191,19 +1198,22 @@ mod tests {
             manifest,
             overwrite: true,
         };
-        // Simulate the same check the command does
+
         let result: Result<(), LauncherError> = if request.manifest.schema_version != 1 {
-            Err(LauncherError::new("UNSUPPORTED_VERSION", format!(
-                "不支持的清单版本: {}，仅支持 schema_version=1",
-                request.manifest.schema_version
-            )))
+            Err(LauncherError::new(
+                "UNSUPPORTED_VERSION",
+                format!(
+                    "不支持的清单版本: {}，仅支持 schema_version=1",
+                    request.manifest.schema_version
+                ),
+            ))
         } else {
             Ok(())
         };
         assert!(result.is_err());
     }
 
-    // ── ModpackManifest serde roundtrip ────────────────────────────────────
+
 
     #[test]
     fn manifest_serde_roundtrip() {
@@ -1244,7 +1254,7 @@ mod tests {
         assert_eq!(parsed, kinds);
     }
 
-    // ── Phase 21: ZIP path sanitize ────────────────────────────────────────
+
 
     #[test]
     fn sanitize_zip_path_accepts_normal() {
@@ -1292,7 +1302,7 @@ mod tests {
         assert!(sanitize_zip_path("overrides//mods/foo.jar").is_err());
     }
 
-    // ── Phase 21: manifest_for_zip strips source_path ───────────────────────
+
 
     #[test]
     fn manifest_for_zip_clears_source_path() {
@@ -1321,7 +1331,7 @@ mod tests {
         assert_eq!(cleaned.files[0].sha1, "abc");
     }
 
-    // ── Phase 21: ZIP export roundtrip ──────────────────────────────────────
+
 
     fn create_mock_game_dir_with_files() -> (TempDir, PathBuf) {
         let dir = TempDir::new().expect("tempdir");
@@ -1362,7 +1372,7 @@ mod tests {
             files,
         };
 
-        // Simulate export to a temp ZIP
+
         let zip_path = _dir.path().join("test.zip");
         let zip_manifest = manifest_for_zip(&manifest);
         let manifest_json = serde_json::to_vec_pretty(&zip_manifest).expect("serialize");
@@ -1390,16 +1400,16 @@ mod tests {
         }
         zip_writer.finish().expect("finish");
 
-        // Verify ZIP contents
+
         let zip_data = std::fs::read(&zip_path).expect("read zip");
         let cursor = std::io::Cursor::new(&zip_data);
         let mut archive = zip::ZipArchive::new(cursor).expect("open archive");
 
-        // Check manifest exists
+
         let manifest_entry = archive.by_name("folly-modpack.json");
         assert!(manifest_entry.is_ok(), "manifest should be present");
 
-        // Check manifest doesn't leak source_path
+
         let mf: ModpackManifest =
             serde_json::from_reader(manifest_entry.unwrap()).expect("deserialize manifest");
         assert_eq!(mf.schema_version, 1);
@@ -1411,7 +1421,7 @@ mod tests {
             );
         }
 
-        // Check overrides exist
+
         for entry in &zip_manifest.files {
             let expected = format!("overrides/{}", entry.relative_path);
             assert!(
@@ -1422,21 +1432,21 @@ mod tests {
         }
     }
 
-    // ── Phase 21: ZIP import tests ──────────────────────────────────────────
+
 
     #[test]
     fn import_zip_success() {
         let src_dir = TempDir::new().expect("tempdir");
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Create source file in src_dir
+
         let src_file = src_dir.path().join("mymod.jar");
         let content = b"mod content for zip import";
         std::fs::write(&src_file, content).expect("write");
 
         let sha1_val = sha1_smol::Sha1::from(&content[..]).digest().to_string();
 
-        // Build a minimal ZIP
+
         let manifest = ModpackManifest {
             schema_version: 1,
             name: "Test".to_string(),
@@ -1457,7 +1467,7 @@ mod tests {
 
         let _ = build_test_zip(&manifest, &[("mods/mymod.jar", content as &[u8])]);
 
-        // Simulate import
+
         let mut counts = ZipImportCounts {
             imported: 0,
             skipped: 0,
@@ -1486,7 +1496,7 @@ mod tests {
     fn import_zip_overwrite_false_skips() {
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Pre-create target
+
         let target_mods = dst_dir.path().join("mods");
         std::fs::create_dir_all(&target_mods).expect("create");
         std::fs::write(target_mods.join("mymod.jar"), b"existing").expect("write");
@@ -1516,7 +1526,7 @@ mod tests {
         assert_eq!(counts.skipped, 1);
         assert_eq!(counts.imported, 0);
 
-        // Old content should remain
+
         let existing = std::fs::read(target_mods.join("mymod.jar")).expect("read");
         assert_eq!(existing, b"existing");
     }
@@ -1525,7 +1535,7 @@ mod tests {
     fn import_zip_overwrite_true_replaces() {
         let dst_dir = TempDir::new().expect("tempdir");
 
-        // Pre-create target
+
         let target_mods = dst_dir.path().join("mods");
         std::fs::create_dir_all(&target_mods).expect("create");
         std::fs::write(target_mods.join("mymod.jar"), b"old").expect("write");
@@ -1626,12 +1636,15 @@ mod tests {
             files: vec![],
         };
 
-        // Simulate the command check
+
         let result: Result<(), LauncherError> = if manifest.schema_version != 1 {
-            Err(LauncherError::new("UNSUPPORTED_VERSION", format!(
-                "不支持的清单版本: {}，仅支持 schema_version=1",
-                manifest.schema_version
-            )))
+            Err(LauncherError::new(
+                "UNSUPPORTED_VERSION",
+                format!(
+                    "不支持的清单版本: {}，仅支持 schema_version=1",
+                    manifest.schema_version
+                ),
+            ))
         } else {
             Ok(())
         };
@@ -1640,7 +1653,7 @@ mod tests {
 
     #[test]
     fn import_zip_missing_manifest_is_error() {
-        // Build a ZIP without folly-modpack.json
+
         let zip_data = build_empty_test_zip();
         let cursor = std::io::Cursor::new(&zip_data);
         let mut archive = zip::ZipArchive::new(cursor).expect("open archive");
@@ -1650,7 +1663,7 @@ mod tests {
 
     #[test]
     fn import_zip_corrupted_manifest_is_error() {
-        // Build a ZIP with corrupted manifest JSON
+
         let temp_dir = TempDir::new().expect("tempdir");
         let zip_path = temp_dir.path().join("corrupt.zip");
         let zip_file = std::fs::File::create(&zip_path).expect("create");
@@ -1693,17 +1706,17 @@ mod tests {
             }],
         };
 
-        // Build ZIP with manifest but without the overrides file
+
         let zip_data = build_test_zip(&manifest, &[]);
         let cursor = std::io::Cursor::new(&zip_data);
         let mut archive = zip::ZipArchive::new(cursor).expect("open archive");
 
-        // Verify the overrides entry is not found
+
         let result = archive.by_name("overrides/mods/ghost.jar");
         assert!(result.is_err(), "entry should be missing from ZIP");
     }
 
-    // ── Test ZIP builders ────────────────────────────────────────────────────
+
 
     fn build_test_zip(manifest: &ModpackManifest, overrides: &[(&str, &[u8])]) -> Vec<u8> {
         let mut buf = std::io::Cursor::new(Vec::new());
@@ -1740,7 +1753,7 @@ mod tests {
             let mut zip_writer = zip::ZipWriter::new(&mut buf);
             let opts = zip::write::SimpleFileOptions::default()
                 .compression_method(zip::CompressionMethod::Deflated);
-            // Write a dummy file so the ZIP is not empty
+
             zip_writer
                 .start_file("dummy.txt", opts)
                 .expect("start dummy");

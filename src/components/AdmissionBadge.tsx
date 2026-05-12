@@ -7,10 +7,7 @@ export interface AdmissionBadgeProps {
   blockedReason?: string | null;
 }
 
-/**
- * Displays an instance's admission mode (public/VC-only/club-only/MUA-member)
- * and, when `blockedReason` is non-null, shows a disabled join indicator.
- */
+
 export function AdmissionBadge(props: AdmissionBadgeProps) {
   return (
     <div class="flex items-center gap-2">

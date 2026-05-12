@@ -13,7 +13,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, State};
 use tokio::sync::Mutex;
 
-/// Result returned after a successful local-instance launch.
+
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LaunchLocalInstanceResult {
     pub launching_id: u64,
@@ -27,10 +27,10 @@ pub struct LaunchLocalInstanceResult {
     pub game_dir: String,
 }
 
-// ── Pure helpers (testable) ──────────────────────────────────────────────
 
-/// Given a game directory and a version string, return the path to the
-/// version JSON file: `<game_dir>/versions/<version>/<version>.json`.
+
+
+
 pub fn local_version_json_path(game_dir: &Path, version: &str) -> PathBuf {
     game_dir
         .join("versions")
@@ -38,13 +38,13 @@ pub fn local_version_json_path(game_dir: &Path, version: &str) -> PathBuf {
         .join(format!("{version}.json"))
 }
 
-/// Resolve a concrete Java executable path from the configured setting
-/// and an optional scanned selection.
-///
-/// Selection:
-/// 1. If `configured_java` is non-empty, use it directly.
-/// 2. Otherwise use the caller-provided scanned Java runtime.
-/// 3. Otherwise return an error.
+
+
+
+
+
+
+
 pub fn resolve_local_java_path(
     configured_java: &str,
     selected_java: Option<String>,
@@ -52,8 +52,9 @@ pub fn resolve_local_java_path(
     if !configured_java.trim().is_empty() {
         return Ok(configured_java.to_string());
     }
-    selected_java
-        .ok_or_else(|| crate::error::LauncherError::from("未找到合适的 Java 运行时，请在设置中选择 Java"))
+    selected_java.ok_or_else(|| {
+        crate::error::LauncherError::from("未找到合适的 Java 运行时，请在设置中选择 Java")
+    })
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -96,26 +97,26 @@ pub async fn launch_local_instance(
     app_state: State<'_, Arc<Mutex<AppState>>>,
     instance_id: String,
 ) -> Result<LaunchLocalInstanceResult, LauncherError> {
-    // ── Phase 1: read under lock, then release ──
+
     let (data_dir, game_settings) = {
         let s = app_state.lock().await;
         (s.data_dir.clone(), s.game_settings.clone())
     };
 
-    // 1a. Validate game settings
+
     game_settings.validate().map_err(|e| e.to_string())?;
 
-    // 1b. Read local instance
+
     let instance = get_instance_in(&data_dir, &instance_id)?;
 
-    // 1c. Read selected launcher account
+
     let account = selected_account_in(&data_dir)?;
 
     let instance_game_dir = instance.game_dir.clone();
     let instance_game_version = instance.game_version.clone();
     let instance_name = instance.name.clone();
 
-    // ── Phase 2: Java selection ──
+
     let selected_java = if game_settings.java_path.trim().is_empty() {
         let runtimes = scan_java_runtimes().await;
         Some(
@@ -128,7 +129,7 @@ pub async fn launch_local_instance(
     };
     let java_path = resolve_local_java_path(&game_settings.java_path, selected_java)?;
 
-    // ── Phase 3: version JSON existence check ──
+
     let game_dir_path = std::path::PathBuf::from(&instance_game_dir);
     let version_json = local_version_json_path(&game_dir_path, &instance_game_version);
     if !version_json.exists() {
@@ -138,7 +139,7 @@ pub async fn launch_local_instance(
         ));
     }
 
-    // ── Phase 3.5: native library readiness ──
+
     let native_readiness =
         crate::resource::validator::check_native_readiness(&game_dir_path, &instance_game_version);
     if !native_readiness.ready {
@@ -152,14 +153,16 @@ pub async fn launch_local_instance(
         ));
     }
 
-    // ── Phase 4: build command ──
+
     let jvm_args = game_settings.build_jvm_args();
     let token = account_token_for_local_launch(&data_dir, &account)?;
 
-    let options = mc_launcher_core::types::MinecraftOptions {
+    let options = crate::launch::minecraft_command::MinecraftOptions {
         username: Some(account.username.clone()),
         uuid: Some(account.uuid.clone()),
         token: Some(token),
+        server: None,
+        port: None,
         launcher_name: Some("FollyLauncher".to_string()),
         executable_path: Some(java_path.clone()),
         jvm_arguments: Some(jvm_args),
@@ -169,10 +172,9 @@ pub async fn launch_local_instance(
         ),
         resolution_width: Some(game_settings.resolution_width.to_string()),
         resolution_height: Some(game_settings.resolution_height.to_string()),
-        ..Default::default()
     };
 
-    let command = mc_launcher_core::command::get_minecraft_command(
+    let command = crate::launch::minecraft_command::get_minecraft_command(
         &instance_game_version,
         &game_dir_path,
         &options,
@@ -198,7 +200,7 @@ pub async fn launch_local_instance(
         tracing::warn!("child process exited before PID could be captured");
     }
 
-    // ── Phase 5: record launch state ──
+
     let launching_id = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|e| e.to_string())?
@@ -210,7 +212,7 @@ pub async fn launch_local_instance(
             launching_id,
             LaunchingState {
                 id: launching_id,
-                current_step: 4, // Running
+                current_step: 4,
                 instance_id: instance_id.clone(),
                 version: instance_game_version.clone(),
                 java_path: Some(java_path.clone()),
@@ -233,7 +235,7 @@ pub async fn launch_local_instance(
         );
     }
 
-    // ── Phase 6: spawn monitor ──
+
     let arc_states = (*launch_states).clone();
     monitor_process(
         app,
@@ -245,7 +247,7 @@ pub async fn launch_local_instance(
     )
     .await;
 
-    // ── Phase 7: mark played ──
+
     let _ = mark_instance_played_in(&data_dir, &instance_id);
 
     Ok(LaunchLocalInstanceResult {
@@ -261,10 +263,10 @@ pub async fn launch_local_instance(
     })
 }
 
-// ── launch_select_jre / launch_validate_files / launch_game removed ──
-// These legacy pipeline commands were orphan (no TS call sites) and their
-// logic is superseded by launch_local_instance which self-contains JRE
-// selection, validation, native readiness check, and process spawning.
+
+
+
+
 
 #[tauri::command]
 pub async fn launch_cancel(
@@ -328,14 +330,14 @@ pub async fn launch_export_crash(
     Ok(save_path)
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::account::models::{LauncherAccount, LauncherAccountKind};
 
-    // ── local_version_json_path ──────────────────────────────────────────
+
 
     #[test]
     fn version_json_path_builds_correctly() {
@@ -357,7 +359,7 @@ mod tests {
         assert_eq!(path, expected);
     }
 
-    // ── resolve_local_java_path ──────────────────────────────────────────
+
 
     #[test]
     fn resolve_uses_configured_java_when_present() {
@@ -388,8 +390,8 @@ mod tests {
         assert_eq!(result.unwrap(), "/usr/bin/java");
     }
 
-    // ── account_token_for_local_launch ───────────────────────────────────
-    // (Now delegates to account::commands; test token logic there.)
+
+
 
     use crate::account::commands::account_token_for_local_launch;
     use std::path::Path;
@@ -409,7 +411,7 @@ mod tests {
             last_validated_at: None,
             token_expires_at: None,
         };
-        // Offline accounts don't need a real data_dir since no token file I/O
+
         let dummy_dir = Path::new("/nonexistent");
         assert_eq!(
             account_token_for_local_launch(dummy_dir, &account).unwrap(),
@@ -432,15 +434,16 @@ mod tests {
             last_validated_at: None,
             token_expires_at: None,
         };
-        let dummy_dir = Path::new("/nonexistent");
-        let err = account_token_for_local_launch(dummy_dir, &account).unwrap_err();
+        let data_dir = Path::new("target/test-data/microsoft_account_missing_token_errors");
+        std::fs::create_dir_all(data_dir.join("accounts")).unwrap();
+        let err = account_token_for_local_launch(data_dir, &account).unwrap_err();
         assert!(err.contains("已失效"), "unexpected error: {err}");
     }
 
-    // ── Native readiness: launch validation integration ──────────────────
 
-    /// Helper: build a version JSON fixture that requires native libraries
-    /// for the current platform.
+
+
+
     fn version_json_with_natives() -> serde_json::Value {
         let os = crate::resource::validator::current_os_name();
         serde_json::json!({
@@ -480,7 +483,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let game_dir = tmp.path();
 
-        // Create version JSON with native requirements, but no natives dir.
+
         let version_json = version_json_with_natives();
         let version_dir = game_dir.join("versions").join("1.21");
         std::fs::create_dir_all(&version_dir).unwrap();
@@ -489,7 +492,7 @@ mod tests {
             serde_json::to_string(&version_json).unwrap(),
         )
         .unwrap();
-        // Create client JAR so that validation passes up to the natives check.
+
         std::fs::write(version_dir.join("1.21.jar"), b"hello").unwrap();
 
         let readiness = crate::resource::validator::check_native_readiness(game_dir, "1.21");

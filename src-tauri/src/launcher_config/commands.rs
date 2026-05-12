@@ -16,7 +16,8 @@ fn read_config_toml(data_dir: &Path) -> Result<LauncherConfig, LauncherError> {
     let path = config_path(data_dir);
     let contents = std::fs::read_to_string(&path)
         .map_err(|e| LauncherError::from(format!("读取 launcher_config.toml 失败: {e}")))?;
-    toml::from_str(&contents).map_err(|e| LauncherError::from(format!("解析 launcher_config.toml 失败: {e}")))
+    toml::from_str(&contents)
+        .map_err(|e| LauncherError::from(format!("解析 launcher_config.toml 失败: {e}")))
 }
 
 fn write_config_toml(data_dir: &Path, config: &LauncherConfig) -> Result<(), LauncherError> {
@@ -25,8 +26,8 @@ fn write_config_toml(data_dir: &Path, config: &LauncherConfig) -> Result<(), Lau
         std::fs::create_dir_all(parent)
             .map_err(|e| LauncherError::from(format!("创建配置目录失败: {e}")))?;
     }
-    let contents =
-        toml::to_string_pretty(config).map_err(|e| LauncherError::from(format!("序列化 launcher_config 失败: {e}")))?;
+    let contents = toml::to_string_pretty(config)
+        .map_err(|e| LauncherError::from(format!("序列化 launcher_config 失败: {e}")))?;
     std::fs::write(&path, contents)
         .map_err(|e| LauncherError::from(format!("写入 launcher_config.toml 失败: {e}")))?;
     Ok(())
@@ -55,9 +56,9 @@ pub async fn retrieve_launcher_config(
 
     let path = config_path(&data_dir);
     if path.exists() {
-        read_config_toml(&data_dir).map_err(LauncherError::from)
+        read_config_toml(&data_dir)
     } else {
-        init_default_config(&data_dir).map_err(LauncherError::from)
+        init_default_config(&data_dir)
     }
 }
 
@@ -73,14 +74,14 @@ pub async fn update_launcher_config(
         s.data_dir.clone()
     };
 
-    // 1. Save launcher_config.toml
+
     write_config_toml(&data_dir, &config)?;
     info!(
         path = %config_path(&data_dir).display(),
         "saved launcher config"
     );
 
-    // 2. Sync game_settings.toml so old commands stay consistent
+
     config
         .game
         .save(&data_dir)
@@ -176,7 +177,7 @@ mod tests {
     fn update_saves_both_config_and_game_settings() {
         let (_tmp, data_dir) = temp_data_dir();
 
-        // First, ensure game_settings.toml exists with defaults
+
         let gs_path = data_dir.join("game_settings.toml");
         let initial_gs = GameSettings {
             game_directory: "/tmp/mc".to_string(),
@@ -185,7 +186,7 @@ mod tests {
         initial_gs.save(&data_dir).unwrap();
         assert!(gs_path.exists());
 
-        // Build a validated config with modified game settings
+
         let mut config = LauncherConfig::with_game_settings(GameSettings {
             java_path: "/usr/bin/java".to_string(),
             game_directory: "/games/mc".to_string(),
@@ -197,7 +198,7 @@ mod tests {
         config.basic.language = "en-US".to_string();
         config.validate().unwrap();
 
-        // Mirror update_launcher_config flow: write launcher_config.toml + sync game_settings.toml
+
         write_config_toml(&data_dir, &config).unwrap();
         config
             .game
@@ -205,11 +206,11 @@ mod tests {
             .map_err(|e| format!("{e}"))
             .unwrap();
 
-        // Read back game_settings.toml — should contain the synced values
+
         let gs = GameSettings::load(&data_dir).unwrap();
         assert_eq!(gs.max_memory_mb, 8192);
 
-        // Read back launcher_config.toml
+
         let lc = read_config_toml(&data_dir).unwrap();
         assert_eq!(lc.basic.language, "en-US");
     }
@@ -255,7 +256,7 @@ mod tests {
     #[test]
     fn validate_game_settings_failure_propagates() {
         let mut config = default_config();
-        // Empty java_path triggers GameSettings::validate error
+
         config.game.java_path = String::new();
         config.game.game_directory = String::new();
         let err = config.validate().unwrap_err();

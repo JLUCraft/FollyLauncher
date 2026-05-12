@@ -1,16 +1,8 @@
 import { createSignal } from "solid-js";
 
-/**
- * A reusable state machine for install/async-install operations.
+
  *
- * Each instance holds loading/result/error/errorFor signals and provides
- * an `execute` function that wraps the API call with standard try/catch
- * signal updates.
  *
- * Usage:
- *   const op = createInstallOperation<MyResult>();
- *   await op.execute("key", () => myApiCall(buildRequest()));
- */
 export function createInstallOperation<Res>() {
     const [loading, setLoading] = createSignal<string | null>(null);
     const [result, setResult] = createSignal<Res | null>(null);

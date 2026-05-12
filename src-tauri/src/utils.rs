@@ -2,19 +2,19 @@ use std::collections::HashMap;
 use std::path::Path;
 use tokio::io::AsyncReadExt;
 
-// ── Time ────────────────────────────────────────────────────────────────
 
-/// Return the current UTC time as an RFC 3339 string.
+
+
 pub fn now_iso8601() -> String {
     chrono::Utc::now().to_rfc3339()
 }
 
-// ── Varint ───────────────────────────────────────────────────────────────
 
-/// Read a varint-prefixed integer from an async reader.
-///
-/// Used by both the control client (protobuf framing) and the proxy
-/// (Minecraft protocol framing).
+
+
+
+
+
 pub async fn read_varint_u64<R: tokio::io::AsyncRead + Unpin>(
     reader: &mut R,
 ) -> std::io::Result<u64> {
@@ -39,40 +39,51 @@ pub async fn read_varint_u64<R: tokio::io::AsyncRead + Unpin>(
     Ok(value)
 }
 
-// ── JSON map persistence ────────────────────────────────────────────────
 
-/// Load a `HashMap<String, String>` from a JSON file path.
-/// Returns an empty map if the file does not exist or is empty.
+
+
+
 pub fn load_json_map(path: &Path) -> Result<HashMap<String, String>, crate::error::LauncherError> {
     if !path.exists() {
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| crate::error::LauncherError::from(format!("cannot create data dir: {e}")))?;
+            std::fs::create_dir_all(parent).map_err(|e| {
+                crate::error::LauncherError::from(format!("cannot create data dir: {e}"))
+            })?;
         }
         return Ok(HashMap::new());
     }
-    let content = std::fs::read_to_string(path)
-        .map_err(|e| crate::error::LauncherError::from(format!("cannot read file {}: {e}", path.display())))?;
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        crate::error::LauncherError::from(format!("cannot read file {}: {e}", path.display()))
+    })?;
     if content.trim().is_empty() {
         return Ok(HashMap::new());
     }
-    serde_json::from_str(&content)
-        .map_err(|e| crate::error::LauncherError::from(format!("file {} is corrupted, cannot parse: {e}", path.display())))
+    serde_json::from_str(&content).map_err(|e| {
+        crate::error::LauncherError::from(format!(
+            "file {} is corrupted, cannot parse: {e}",
+            path.display()
+        ))
+    })
 }
 
-/// Save a `HashMap<String, String>` as a pretty-printed JSON file.
-pub fn save_json_map(path: &Path, map: &HashMap<String, String>) -> Result<(), crate::error::LauncherError> {
+
+pub fn save_json_map(
+    path: &Path,
+    map: &HashMap<String, String>,
+) -> Result<(), crate::error::LauncherError> {
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| crate::error::LauncherError::from(format!("cannot create data dir: {e}")))?;
+        std::fs::create_dir_all(parent).map_err(|e| {
+            crate::error::LauncherError::from(format!("cannot create data dir: {e}"))
+        })?;
     }
     let json = serde_json::to_string_pretty(map)
         .map_err(|e| crate::error::LauncherError::from(format!("cannot serialize: {e}")))?;
-    std::fs::write(path, json)
-        .map_err(|e| crate::error::LauncherError::from(format!("cannot write file {}: {e}", path.display())))
+    std::fs::write(path, json).map_err(|e| {
+        crate::error::LauncherError::from(format!("cannot write file {}: {e}", path.display()))
+    })
 }
 
-// ── Tests ───────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {

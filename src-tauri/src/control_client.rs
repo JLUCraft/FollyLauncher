@@ -14,7 +14,7 @@ use tracing::{debug, warn};
 
 const CONTROL_PROTOCOL: &str = "/jlucraft/control/1.0.0";
 
-// ── Error ────────────────────────────────────────────────────────────────
+
 
 #[derive(Debug)]
 pub enum ControlError {
@@ -61,7 +61,7 @@ impl From<ControlError> for crate::error::LauncherError {
     }
 }
 
-// ── ControlClient ─────────────────────────────────────────────────────────
+
 
 pub struct ControlClient {
     network: NetworkHandle,
@@ -103,10 +103,10 @@ impl ControlClient {
         }
     }
 
-    // ── Peer resolution ──────────────────────────────────────────────────
+
 
     async fn resolve_control_peer(&self) -> Result<PeerId, ControlError> {
-        // Check cache first.
+
         if let Some(ref peer) = *self.control_peer.read().await {
             return Ok(*peer);
         }
@@ -129,9 +129,9 @@ impl ControlClient {
             };
             match self.network.open_stream(peer_id, protocol.clone()).await {
                 Ok(_stream) => {
-                    // Stream opened successfully — cache this peer and
-                    // return it. The stream we just opened is a disposable
-                    // probe; the actual request will open a fresh one.
+
+
+
                     let mut cache = self.control_peer.write().await;
                     *cache = Some(peer_id);
                     debug!(%peer_id, "control peer resolved and cached");
@@ -146,7 +146,7 @@ impl ControlClient {
         Err(ControlError::NoPeerAvailable)
     }
 
-    // ── Auth context builder ──────────────────────────────────────────────
+
 
     fn build_auth_context(
         &self,
@@ -156,19 +156,27 @@ impl ControlClient {
         let ed_sk = self.ed_sk.as_ref()?;
         let nonce = {
             let mut buf = [0u8; 32];
-            getrandom::fill(&mut buf).unwrap_or(());
+            if let Err(e) = getrandom::fill(&mut buf) {
+                warn!(error = %e, "getrandom failed, using fallback nonce from uninitialized buffer");
+            }
             base64::Engine::encode(&base64::engine::general_purpose::STANDARD, buf)
         };
         let payload_hash = blake3::hash(body_bytes).to_string();
         let expires_at = {
             let now = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap_or_default()
+                .unwrap_or_else(|e| {
+                    warn!(error = %e, "system clock before UNIX epoch, defaulting to zero");
+                    std::time::Duration::from_secs(0)
+                })
                 .as_secs()
                 + 60;
             chrono::DateTime::from_timestamp(now as i64, 0)
                 .map(|dt| dt.to_rfc3339())
-                .unwrap_or_default()
+                .unwrap_or_else(|| {
+                    warn!("invalid timestamp for auth context expiry, using empty string");
+                    String::new()
+                })
         };
 
         let canonical = format!(
@@ -195,7 +203,7 @@ impl ControlClient {
         })
     }
 
-    // ── Core send/recv ───────────────────────────────────────────────────
+
 
     async fn send_control_request(
         &self,
@@ -220,7 +228,7 @@ impl ControlClient {
         let request_id = uuid::Uuid::new_v4().to_string();
         let _seq = self.request_seq.fetch_add(1, Ordering::Relaxed);
 
-        // Encode a temp request without auth to compute its blake3 for signing.
+
         let body_bytes = {
             let mut buf = Vec::new();
             jlucraft::control::v1::ControlRequest {
@@ -245,13 +253,13 @@ impl ControlClient {
             body: Some(body),
         };
 
-        // Encode with length-delimited framing.
+
         let frame = request.encode_length_delimited_to_vec();
         io.write_all(&frame)
             .await
             .map_err(|e| ControlError::StreamError(e.to_string()))?;
 
-        // Read response: varint length prefix + message bytes.
+
         let frame_len = crate::utils::read_varint_u64(&mut io)
             .await
             .map_err(|e| ControlError::StreamError(e.to_string()))?;
@@ -292,12 +300,39 @@ impl ControlClient {
         )))
     }
 
-    // ── Instance methods ──────────────────────────────────────────────────
+
+
+
+
+
+    pub async fn list_instances(
+        &self,
+        status: &str,
+        owner: &str,
+        club: &str,
+    ) -> Result<Vec<api::ApiInstance>, ControlError> {
+        let body = jlucraft::control::v1::control_request::Body::ListInstances(
+            jlucraft::control::v1::ListInstancesRequest {
+                status: status.to_string(),
+                owner: owner.to_string(),
+                club: club.to_string(),
+            },
+        );
+        let resp = self.send_control_request(body, false).await?;
+        match resp.body {
+            Some(jlucraft::control::v1::control_response::Body::Instances(list)) => Ok(list
+                .instances
+                .into_iter()
+                .map(|i| convert_instance(&i))
+                .collect()),
+            other => Self::unexpected_body("instance list", other),
+        }
+    }
 
     pub async fn create_instance(
         &self,
         args: CreateInstanceArgs<'_>,
-    ) -> Result<api::HttpInstance, ControlError> {
+    ) -> Result<api::ApiInstance, ControlError> {
         let body = jlucraft::control::v1::control_request::Body::CreateInstance(
             jlucraft::control::v1::CreateInstanceRequest {
                 name: args.name.to_string(),
@@ -438,7 +473,94 @@ impl ControlClient {
         }
     }
 
-    // ── Tournament methods ────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+    pub async fn subscribe_events_stream(
+        &self,
+        topics: Vec<String>,
+    ) -> Result<
+        tokio::sync::mpsc::UnboundedReceiver<jlucraft::events::v1::EventEnvelope>,
+        ControlError,
+    > {
+        let peer = self.resolve_control_peer().await?;
+        let protocol = StreamProtocol::new(CONTROL_PROTOCOL);
+        let stream = self
+            .network
+            .open_stream(peer, protocol)
+            .await
+            .map_err(|e| {
+                if let Ok(mut cache) = self.control_peer.try_write() {
+                    *cache = None;
+                }
+                ControlError::StreamError(e.to_string())
+            })?;
+
+        let mut io = FuturesAsyncReadCompatExt::compat(stream);
+        let request_id = uuid::Uuid::new_v4().to_string();
+
+        let request = jlucraft::control::v1::ControlRequest {
+            request_id: request_id.clone(),
+            auth: None,
+            body: Some(
+                jlucraft::control::v1::control_request::Body::SubscribeEvents(
+                    jlucraft::control::v1::SubscribeEventsRequest { topics },
+                ),
+            ),
+        };
+
+        let frame = request.encode_length_delimited_to_vec();
+        io.write_all(&frame)
+            .await
+            .map_err(|e| ControlError::StreamError(e.to_string()))?;
+
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+        tokio::spawn(async move {
+            let mut buf = Vec::new();
+            loop {
+                let frame_len = match crate::utils::read_varint_u64(&mut io).await {
+                    Ok(n) => n,
+                    Err(_) => {
+                        debug!("subscribe_events stream closed by peer");
+                        break;
+                    }
+                };
+                buf.resize(frame_len as usize, 0u8);
+                if io.read_exact(&mut buf).await.is_err() {
+                    debug!("subscribe_events read error, closing");
+                    break;
+                }
+                let response = match jlucraft::control::v1::ControlResponse::decode(buf.as_slice())
+                {
+                    Ok(r) => r,
+                    Err(_) => continue,
+                };
+                if let Some(jlucraft::control::v1::control_response::Body::SubscribeEvents(se)) =
+                    response.body
+                {
+                    if let Some(event) = se.event {
+                        if tx.send(event).is_err() {
+
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        Ok(rx)
+    }
+
+
 
     pub async fn list_tournaments(&self) -> Result<Vec<api::Tournament>, ControlError> {
         let body = jlucraft::control::v1::control_request::Body::ListTournaments(
@@ -507,7 +629,7 @@ impl ControlClient {
         Ok(())
     }
 
-    // ── Dispute methods ───────────────────────────────────────────────────
+
 
     pub async fn create_match_dispute(
         &self,
@@ -576,7 +698,7 @@ impl ControlClient {
         }
     }
 
-    // ── Team methods ──────────────────────────────────────────────────────
+
 
     pub async fn create_team(&self, name: &str, members: Vec<String>) -> Result<(), ControlError> {
         let body = jlucraft::control::v1::control_request::Body::CreateTeam(
@@ -602,7 +724,7 @@ impl ControlClient {
         }
     }
 
-    // ── MUA peer bind ─────────────────────────────────────────────────────
+
 
     pub async fn bind_mua_peer(
         &self,
@@ -634,7 +756,7 @@ impl ControlClient {
         Ok(())
     }
 
-    // ── Credential / CRL methods ──────────────────────────────────────────
+
 
     pub async fn list_revoked_credentials(&self) -> Result<Vec<String>, ControlError> {
         let body = jlucraft::control::v1::control_request::Body::ListRevokedCredentials(
@@ -650,7 +772,7 @@ impl ControlClient {
     }
 }
 
-// ── Public arg structs ───────────────────────────────────────────────────
+
 
 pub struct CreateInstanceArgs<'a> {
     pub name: &'a str,
@@ -665,7 +787,7 @@ pub struct CreateInstanceArgs<'a> {
     pub admission_mode: &'a api::AdmissionMode,
 }
 
-// ── Invite result ─────────────────────────────────────────────────────────
+
 
 #[derive(Serialize)]
 pub struct InvitePlayersResult {
@@ -675,10 +797,27 @@ pub struct InvitePlayersResult {
     pub missing_recipients: Vec<String>,
 }
 
-// ── Proto → Domain converters ─────────────────────────────────────────────
 
-fn convert_instance(p: &jlucraft::control::v1::Instance) -> api::HttpInstance {
-    api::HttpInstance {
+
+fn convert_instance(p: &jlucraft::control::v1::Instance) -> api::ApiInstance {
+    let mode = if !p.mode.is_empty() {
+        p.mode.clone()
+    } else {
+        p.admission
+            .as_ref()
+            .map(|admission| admission.mode.clone())
+            .unwrap_or_default()
+    };
+    let version = if !p.version.is_empty() {
+        p.version.clone()
+    } else {
+        p.runtime
+            .as_ref()
+            .map(|runtime| runtime.mc_version.clone())
+            .unwrap_or_default()
+    };
+
+    api::ApiInstance {
         id: p.id.clone(),
         name: p.name.clone(),
         kind: p.kind.clone(),
@@ -697,6 +836,9 @@ fn convert_instance(p: &jlucraft::control::v1::Instance) -> api::HttpInstance {
             Some(p.migration_target.clone())
         },
         player_count: p.player_count,
+        mode,
+        max_players: p.max_players,
+        version,
     }
 }
 
@@ -829,13 +971,13 @@ fn convert_team(p: &jlucraft::control::v1::Team) -> api::Team {
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    // ── Varint round-trip ──────────────────────────────────────────────
+
 
     #[test]
     fn test_varint_roundtrip() {
@@ -852,7 +994,7 @@ mod tests {
         }
     }
 
-    // ── Auth context structure ─────────────────────────────────────────
+
 
     #[test]
     fn test_auth_context_shape() {
@@ -886,7 +1028,7 @@ mod tests {
         assert!(!ctx.signature.as_ref().unwrap().signature.is_empty());
     }
 
-    // ── Proto → Domain converter tests ─────────────────────────────────
+
 
     #[test]
     fn test_convert_tournament_maps_status() {
@@ -966,11 +1108,17 @@ mod tests {
             runtime: None,
             resources: None,
             admission: None,
+            mode: "public".into(),
+            max_players: 20,
+            version: "1.20.1".into(),
         };
         let i = convert_instance(&p);
         assert_eq!(i.id, "i1");
         assert_eq!(i.host, "host1");
         assert_eq!(i.player_count, 5);
+        assert_eq!(i.mode, "public");
+        assert_eq!(i.max_players, 20);
+        assert_eq!(i.version, "1.20.1");
         assert_eq!(i.migration_target, Some("target1".into()));
     }
 
@@ -989,7 +1137,7 @@ mod tests {
         assert_eq!(t.total_score, 500);
     }
 
-    // ── ControlError Display ───────────────────────────────────────────
+
 
     #[test]
     fn test_control_error_display_contains_cn() {

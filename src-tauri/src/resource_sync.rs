@@ -32,7 +32,7 @@ pub struct ManifestFile {
     pub size: u64,
     pub required: bool,
     pub download_url: Option<String>,
-    /// Optional chunk list for BitSwap parallel download
+
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub chunks: Vec<ManifestChunk>,
 }
@@ -64,29 +64,31 @@ pub struct SyncResult {
 
 pub struct ResourceSyncService {
     cache_dir: PathBuf,
-    /// Optional network handle for P2P source discovery (BitSwap).
+
     network: Option<NetworkHandle>,
-    /// Download manager for resilient HTTP downloads (Phase 5 P0).
+
     download_manager: DownloadManager,
 }
 
-/// 解析非 chunk 文件的最终下载 URL。
-///
-/// `download_url` 是必填来源；manifest 不得依赖启动器合成备用 HTTP 路径。
+
+
+
 fn resolve_file_download_url(file: &ManifestFile) -> Result<String, LauncherError> {
     file.download_url
         .as_deref()
         .map(str::trim)
         .filter(|url| !url.is_empty())
         .map(ToOwned::to_owned)
-        .ok_or_else(|| LauncherError::from(format!("manifest file {} missing download_url", file.path)))
+        .ok_or_else(|| {
+            LauncherError::from(format!("manifest file {} missing download_url", file.path))
+        })
 }
 
-/// 解析单个 chunk 的下载 URL。
-///
-/// 规则：
-/// `download_url` 非空时视为 chunk base，在其后拼接
-/// `?offset={offset}&size={size}`（若已有 query 则追加 `&offset=...&size=...`）。
+
+
+
+
+
 fn resolve_chunk_download_url(
     file: &ManifestFile,
     offset: u64,
@@ -102,48 +104,52 @@ fn resolve_chunk_download_url(
     Ok(format!("{}{}offset={}&size={}", url, sep, offset, size))
 }
 
-/// Infer the hash algorithm for a manifest file based on its path and hash length.
-///
-/// Phase 5 P0: DESIGN.md §5.3 — non-chunk files must not hardcode SHA256.
-/// Mojang assets and libraries use SHA1; BitSwap chunks use SHA256.
-///
-/// Inference priority:
-/// 1. Path-based: `libraries/` and `assets/objects/` files are SHA1 (Mojang convention).
-/// 2. Hash-length-based: 40 hex chars → SHA1, 64 hex chars → SHA256.
-/// 3. Default: SHA256 (conservative).
+
+
+
+
+
+
+
+
+
 fn infer_hash_algorithm_for_file(file_path: &str, hash: &str) -> HashAlgorithm {
-    // Path-based inference for Mojang resources.
+
     if file_path.starts_with("libraries/") || file_path.starts_with("assets/objects/") {
         return HashAlgorithm::Sha1;
     }
 
-    // Hash-length-based inference.
+
     let hex_len = hash.trim().len();
     if hex_len == 40 {
         HashAlgorithm::Sha1
     } else if hex_len == 64 {
         HashAlgorithm::Sha256
     } else {
-        // Unknown length: default to SHA256 (conservative).
+
         HashAlgorithm::Sha256
     }
 }
 
 impl ResourceSyncService {
     pub fn new(cache_dir: PathBuf) -> Self {
-        let _ = std::fs::create_dir_all(&cache_dir);
+        if let Err(e) = std::fs::create_dir_all(&cache_dir) {
+            warn!(path = %cache_dir.display(), error = %e, "failed to create cache directory");
+        }
         let service = Self {
             cache_dir: cache_dir.clone(),
             network: None,
             download_manager: DownloadManager::new(),
         };
         tokio::spawn(async move {
-            let _ = Self::cleanup_stale_files_static(&cache_dir).await;
+            if let Err(e) = Self::cleanup_stale_files_static(&cache_dir).await {
+                warn!(path = %cache_dir.display(), error = %e, "background stale file cleanup failed");
+            }
         });
         service
     }
 
-    /// Inject a network handle for P2P BitSwap source discovery.
+
     pub fn set_network(&mut self, network: NetworkHandle) {
         self.network = Some(network);
     }
@@ -234,7 +240,7 @@ impl ResourceSyncService {
             }
         }
 
-        // Use DownloadManager for resilient HTTP downloads
+
         if !download_tasks.is_empty() {
             let mut deduped = download_tasks;
             DownloadManager::dedup(&mut deduped);
@@ -301,11 +307,15 @@ impl ResourceSyncService {
     async fn download_chunked_static(cache_dir: &Path, file: &ManifestFile) -> anyhow::Result<()> {
         let num_chunks = file.chunks.len();
         let mut chunk_tasks: Vec<DownloadTask> = Vec::with_capacity(num_chunks);
-        // Build a temporary directory for chunk downloads.
+
         let tmp_root = cache_dir.join(".chunks");
-        let _ = std::fs::create_dir_all(&tmp_root);
+        if let Err(e) = std::fs::create_dir_all(&tmp_root) {
+            warn!(path = %tmp_root.display(), error = %e, "failed to create chunks temp directory");
+        }
         let chunk_dest_dir = tmp_root.join(&file.hash);
-        let _ = std::fs::create_dir_all(&chunk_dest_dir);
+        if let Err(e) = std::fs::create_dir_all(&chunk_dest_dir) {
+            warn!(path = %chunk_dest_dir.display(), error = %e, "failed to create chunk destination directory");
+        }
 
         for chunk in &file.chunks {
             let url = resolve_chunk_download_url(file, chunk.offset, chunk.size)
@@ -324,8 +334,8 @@ impl ResourceSyncService {
             });
         }
 
-        // Phase 5 P0: Route chunk downloads through DownloadManager for
-        // retry, resume, and hash verification.
+
+
         let dm = DownloadManager::new();
         let progress_cb: Arc<dyn Fn(crate::resource::downloader::DownloadProgress) + Send + Sync> =
             Arc::new(|p| {
@@ -340,7 +350,7 @@ impl ResourceSyncService {
         DownloadManager::dedup(&mut chunk_tasks);
         let results = dm.download_batch(chunk_tasks, progress_cb).await;
 
-        // Check all chunks succeeded.
+
         let mut chunks_data: Vec<Vec<u8>> = Vec::with_capacity(num_chunks);
         chunks_data.resize(num_chunks, Vec::with_capacity(CHUNK_SIZE));
         for result in &results {
@@ -353,13 +363,13 @@ impl ResourceSyncService {
             }
         }
 
-        // Read downloaded chunk files in order.
+
         for chunk in &file.chunks {
             let chunk_path = chunk_dest_dir.join(format!("{}.chunk", chunk.index));
             let data = tokio::fs::read(&chunk_path)
                 .await
                 .with_context(|| format!("failed to read chunk {} file", chunk.index))?;
-            // Re-verify hash (defense in depth).
+
             let actual_hash = hex::encode(sha2::Sha256::digest(&data));
             if actual_hash != chunk.hash {
                 anyhow::bail!(
@@ -372,7 +382,7 @@ impl ResourceSyncService {
             chunks_data[chunk.index] = data;
         }
 
-        // Assemble full file and verify full hash.
+
         let mut full_data = Vec::with_capacity(file.size as usize);
         for chunk in &chunks_data {
             full_data.extend_from_slice(chunk);
@@ -393,8 +403,10 @@ impl ResourceSyncService {
         let mut cache_file = fs::File::create(&cache_path).await?;
         cache_file.write_all(&full_data).await?;
 
-        // Clean up temp chunk directory.
-        let _ = tokio::fs::remove_dir_all(&chunk_dest_dir).await;
+
+        if let Err(e) = tokio::fs::remove_dir_all(&chunk_dest_dir).await {
+            warn!(path = %chunk_dest_dir.display(), error = %e, "failed to clean up chunk temp directory");
+        }
 
         info!(hash = %file.hash, size = full_data.len(), chunks = chunks_data.len(), "cached via chunked download (DownloadManager)");
         Ok(())
@@ -511,7 +523,7 @@ mod tests {
         }
     }
 
-    // ── resolve_file_download_url ─────────────────────────────────────
+
 
     #[test]
     fn test_file_url_explicit_download_url_priority() {
@@ -534,7 +546,7 @@ mod tests {
         assert!(err.contains("missing download_url"));
     }
 
-    // ── resolve_chunk_download_url ─────────────────────────────────────
+
 
     #[test]
     fn test_chunk_url_explicit_no_query_appends_offset_size() {
@@ -571,7 +583,7 @@ mod tests {
         assert!(err.contains("missing chunk download_url"));
     }
 
-    // ── SyncStatus contract ────────────────────────────────────────────
+
 
     #[test]
     fn test_sync_status_contract() {
@@ -605,11 +617,11 @@ mod tests {
         assert_eq!(json["skipped"], 1);
     }
 
-    // ── Phase 5 P0: Hash algorithm inference for manifest files ────────
+
 
     #[test]
     fn test_infer_hash_algorithm_sha1_by_path() {
-        // libraries/ files use SHA1 (Mojang convention).
+
         let algo = infer_hash_algorithm_for_file(
             "libraries/net/minecraft/launchwrapper/1.12/launchwrapper-1.12.jar",
             "eeaaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
@@ -628,7 +640,7 @@ mod tests {
 
     #[test]
     fn test_infer_hash_algorithm_sha1_by_hash_length() {
-        // 40-char hex hash = SHA1.
+
         let algo = infer_hash_algorithm_for_file(
             "mods/some-mod.jar",
             "eeaaf4c61ddcc5e8a2dabede0f3b482cd9aea943",
@@ -638,7 +650,7 @@ mod tests {
 
     #[test]
     fn test_infer_hash_algorithm_sha256_by_hash_length() {
-        // 64-char hex hash = SHA256.
+
         let hash64 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
         let algo = infer_hash_algorithm_for_file("resources/chunk-file.bin", hash64);
         assert_eq!(algo, HashAlgorithm::Sha256);
@@ -646,15 +658,15 @@ mod tests {
 
     #[test]
     fn test_infer_hash_algorithm_default_sha256_for_unknown_length() {
-        // Non-standard hash length defaults to SHA256.
+
         let algo = infer_hash_algorithm_for_file("unknown/resource.bin", "abc123");
         assert_eq!(algo, HashAlgorithm::Sha256);
     }
 
     #[test]
     fn test_infer_hash_algorithm_sha256_by_path_overrides_length() {
-        // Even with a 40-char hash, if path doesn't match Mojang patterns, it depends on length.
-        // But a non-Mojang path with 40-char hash → SHA1 by length inference.
+
+
         let algo = infer_hash_algorithm_for_file(
             "mods/optifine.jar",
             "abcdef0123456789abcdef0123456789abcdef12",
@@ -662,9 +674,9 @@ mod tests {
         assert_eq!(algo, HashAlgorithm::Sha1);
     }
 
-    // ── Phase 6: Dedup regression tests (resource_sync consumption path) ─
 
-    /// Build download tasks from manifest files (mirrors do_sync task-building path).
+
+
     fn build_file_download_tasks(files: &[ManifestFile]) -> Vec<DownloadTask> {
         files
             .iter()
@@ -695,7 +707,7 @@ mod tests {
             .collect()
     }
 
-    /// Build chunk download tasks from a manifest file (mirrors download_chunked_static).
+
     fn build_chunk_download_tasks(file: &ManifestFile) -> Vec<DownloadTask> {
         file.chunks
             .iter()
@@ -720,8 +732,8 @@ mod tests {
             .collect()
     }
 
-    /// Normal file tasks: dedup must remove duplicate dest_path and leave
-    /// the vector mutated in-place (no clone regression).
+
+
     #[test]
     fn test_dedup_file_tasks_no_clone_regression() {
         let file_a = ManifestFile {
@@ -733,7 +745,7 @@ mod tests {
             chunks: vec![],
         };
         let file_a_dup = ManifestFile {
-            path: "libs/a.jar".to_string(), // same dest_path
+            path: "libs/a.jar".to_string(),
             hash: "aaa".to_string(),
             size: 100,
             required: true,
@@ -757,8 +769,8 @@ mod tests {
         assert!(tasks.iter().any(|t| t.dest_path.ends_with("libs/b.jar")));
     }
 
-    /// Chunk tasks: dedup must remove duplicate chunk dest_path entries
-    /// and leave the vector mutated in-place.
+
+
     #[test]
     fn test_dedup_chunk_tasks_no_clone_regression() {
         let chunk_file = ManifestFile {
@@ -774,7 +786,7 @@ mod tests {
                     size: 100,
                     hash: "c0".to_string(),
                 },
-                // Duplicate chunk 0 (same dest_path) — should be removed by dedup.
+
                 ManifestChunk {
                     index: 0,
                     offset: 0,
@@ -796,8 +808,8 @@ mod tests {
         assert_eq!(tasks.len(), 2, "duplicate chunk dest_path must be removed");
     }
 
-    /// Mixed file-style and chunk-style tasks must not collide when they
-    /// have distinct dest_path prefixes.
+
+
     #[test]
     fn test_dedup_mixed_file_and_chunk_no_collision() {
         let regular = ManifestFile {
@@ -825,9 +837,9 @@ mod tests {
         let mut file_tasks = build_file_download_tasks(&[regular]);
         let chunk_tasks = build_chunk_download_tasks(&chunked);
 
-        // Regular dest: cache/mods/example.jar
-        // Chunk dest:   cache/.chunks/xyz/0.chunk
-        // These are different paths → dedup should not remove either.
+
+
+
         file_tasks.extend(chunk_tasks);
         assert_eq!(file_tasks.len(), 2, "one file task + one chunk task");
         DownloadManager::dedup(&mut file_tasks);

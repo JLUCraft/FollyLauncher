@@ -1,10 +1,10 @@
-import { For, Show, createSignal, createMemo, createEffect, createResource } from "solid-js";
+import { For, Show, createSignal, createMemo, createEffect, createResource, onCleanup } from "solid-js";
 import { createQuery } from "@tanstack/solid-query";
+import { listen } from "@tauri-apps/api/event";
 import {
     listPeers,
     listInstances,
     resolveInstance,
-    getClusterMessages,
     measureLatency,
     listLocalInstances,
     createLocalInstance,
@@ -122,7 +122,7 @@ export function ServersPage() {
     const [modDeleteConfirm, setModDeleteConfirm] = createSignal<string | null>(null);
     const [actionPanelInstance, setActionPanelInstance] = createSignal<string | null>(null);
 
-    // ── Modpack export/import state ──
+
     const [exportResult, setExportResult] = createSignal<ExportModpackManifestResult | null>(null);
     const [exportError, setExportError] = createSignal("");
     const [exportLoading, setExportLoading] = createSignal(false);
@@ -132,7 +132,7 @@ export function ServersPage() {
     const [importError, setImportError] = createSignal("");
     const [importLoading, setImportLoading] = createSignal(false);
 
-    // ── Modpack ZIP export/import state (Phase 21) ──
+
     const [zipExportPath, setZipExportPath] = createSignal("");
     const [zipExportResult, setZipExportResult] = createSignal<ExportModpackZipResult | null>(null);
     const [zipExportError, setZipExportError] = createSignal("");
@@ -143,32 +143,32 @@ export function ServersPage() {
     const [zipImportError, setZipImportError] = createSignal("");
     const [zipImportLoading, setZipImportLoading] = createSignal(false);
 
-    // ── Client version install state ──
+
     const installClientOp = createInstallOperation<InstallClientVersionResult>();
     const [installOverwrite, setInstallOverwrite] = createSignal<Record<string, boolean>>({});
 
-    // ── Phase 31: Async client version install state ──
+
     const asyncInstallClientOp = createInstallOperation<AsyncInstallTaskStarted>();
 
-    // ── Libraries install state ──
+
     const installLibOp = createInstallOperation<InstallLibrariesResult>();
     const [libInstallOverwrite, setLibInstallOverwrite] = createSignal<Record<string, boolean>>({});
 
-    // ── Phase 32: Async libraries install state ──
+
     const asyncInstallLibOp = createInstallOperation<AsyncInstallLibrariesStarted>();
 
-    // ── Assets install state ──
+
     const installAssetOp = createInstallOperation<InstallAssetsResult>();
     const [assetInstallOverwrite, setAssetInstallOverwrite] = createSignal<Record<string, boolean>>({});
 
-    // ── Phase 33: Async assets install state ──
+
     const asyncInstallAssetOp = createInstallOperation<AsyncInstallAssetsStarted>();
 
-    // ── Loader install state (Phase 18) ──
+
     const installLoaderOp = createInstallOperation<InstallLoaderResult>();
     const [loaderInstallOverwrite, setLoaderInstallOverwrite] = createSignal<Record<string, boolean>>({});
 
-    // ── Phase 34: Async loader install state ──
+
     const asyncInstallLoaderOp = createInstallOperation<AsyncInstallLoaderStarted>();
 
     const instancesQuery = createQuery(() => ({
@@ -177,11 +177,17 @@ export function ServersPage() {
         refetchInterval: 10000,
     }));
 
-    const messages = createQuery(() => ({
-        queryKey: ["cluster-messages"],
-        queryFn: getClusterMessages,
-        refetchInterval: 15000,
-    }));
+
+
+
+    createEffect(() => {
+        const unlisten = listen("instances-changed", () => {
+            instancesQuery.refetch();
+        });
+        onCleanup(() => {
+            unlisten.then((fn) => fn());
+        });
+    });
 
     const peers = createQuery(() => ({
         queryKey: ["peers"],
@@ -255,7 +261,7 @@ export function ServersPage() {
                 const state = await launchGetState(result.launching_id);
                 setLaunchState(state);
             } catch {
-                // state query is best-effort, non-critical
+
             }
         } catch (e) {
             setLaunchError(String(e));
@@ -409,7 +415,7 @@ export function ServersPage() {
         }
     }
 
-    // ── Modpack export/import handlers ──
+
     async function handleExportManifest(instId: string) {
         setExportLoading(true);
         setExportResult(null);
@@ -447,7 +453,7 @@ export function ServersPage() {
                 overwrite: importOverwrite(),
             });
             setImportResult(result);
-            // Refresh workspace after import
+
             const data = await retrieveInstanceWorkspace(instId);
             setWorkspaceData(data);
         } catch (e) {
@@ -457,7 +463,7 @@ export function ServersPage() {
         }
     }
 
-    // ── Phase 21: ZIP export/import handlers ──
+
     async function handleExportZip(instId: string) {
         const path = zipExportPath().trim();
         if (!path) {
@@ -496,7 +502,7 @@ export function ServersPage() {
                 overwrite: zipImportOverwrite(),
             });
             setZipImportResult(result);
-            // Refresh workspace after import
+
             const data = await retrieveInstanceWorkspace(instId);
             setWorkspaceData(data);
         } catch (e) {
@@ -575,25 +581,13 @@ export function ServersPage() {
     });
 
     async function probeInstance(id: string) {
-        try { await resolveInstance(id); } catch { /* non-critical */ }
+        try { await resolveInstance(id); } catch {  }
     }
 
     const isLoading = createMemo(() => instancesQuery.isLoading);
 
-    const lastMessagePreview = createMemo(() => {
-        const data = messages.data;
-        if (!data || data.length === 0) return "";
-        const last = data[data.length - 1];
-        if (!last) return "";
-        const payload = typeof last.payload === "object"
-            ? JSON.stringify(last.payload).slice(0, 80)
-            : String(last.payload).slice(0, 80);
-        return `${last.topic} — ${payload}`;
-    });
-
     return (
         <div class="flex h-full flex-col">
-            {/* Page header */}
             <header class="border-b border-stone-200 px-8 py-5">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -673,7 +667,6 @@ export function ServersPage() {
                     </Show>
                 </div>
 
-                {/* Filter bar — federated only */}
                 <Show when={viewMode() === "federated"}>
                     <div class="mt-4 flex gap-3">
                         <input
@@ -702,7 +695,6 @@ export function ServersPage() {
                 </Show>
             </header>
 
-            {/* ── Federated instance list ── */}
             <Show when={viewMode() === "federated"}>
                 <div class="flex-1 overflow-y-auto">
                     <Show when={!isLoading() && filtered().length === 0}>
@@ -728,19 +720,8 @@ export function ServersPage() {
                         </For>
                     </div>
                 </div>
-
-                {/* Network messages strip */}
-                <Show when={messages.data && messages.data.length > 0}>
-                    <footer class="border-t border-stone-200 bg-stone-50 px-8 py-2">
-                        <div class="flex items-center gap-3 overflow-hidden text-xs text-stone-500">
-                            <span class="shrink-0 font-semibold text-teal-700">网络消息</span>
-                            <span class="truncate">{lastMessagePreview()}</span>
-                        </div>
-                    </footer>
-                </Show>
             </Show>
 
-            {/* ── Local instance list ── */}
             <Show when={viewMode() === "local"}>
                 <div class="flex-1 overflow-y-auto">
                     <Show when={(localInstances() ?? []).length === 0}>
@@ -791,7 +772,6 @@ export function ServersPage() {
                                                     {launchError()}
                                                 </div>
                                             </Show>
-                                            {/* ── Install version result ── */}
                                             <Show when={installClientOp.result() && installClientOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-green-50 px-2 py-1 text-xs text-green-700">
                                                     <span class="font-semibold">版本安装完成</span>
@@ -812,7 +792,6 @@ export function ServersPage() {
                                                     {installClientOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Async install result ── */}
                                             <Show when={asyncInstallClientOp.result() && asyncInstallClientOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
                                                     <span class="font-semibold">已在后台启动安装</span>
@@ -825,7 +804,6 @@ export function ServersPage() {
                                                     {asyncInstallClientOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Libraries install result ── */}
                                             <Show when={installLibOp.result() && installLibOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-green-50 px-2 py-1 text-xs text-green-700">
                                                     <span class="font-semibold">库文件安装完成</span>
@@ -846,7 +824,6 @@ export function ServersPage() {
                                                     {installLibOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Phase 32: Async libraries install result ── */}
                                             <Show when={asyncInstallLibOp.result() && asyncInstallLibOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
                                                     <span class="font-semibold">已在后台启动运行库安装</span>
@@ -859,7 +836,6 @@ export function ServersPage() {
                                                     {asyncInstallLibOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Assets install result ── */}
                                             <Show when={installAssetOp.result() && installAssetOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-green-50 px-2 py-1 text-xs text-green-700">
                                                     <span class="font-semibold">资源文件安装完成</span>
@@ -881,7 +857,6 @@ export function ServersPage() {
                                                     {installAssetOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Phase 33: Async assets install result ── */}
                                             <Show when={asyncInstallAssetOp.result() && asyncInstallAssetOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
                                                     <span class="font-semibold">已在后台启动资源文件安装</span>
@@ -894,7 +869,6 @@ export function ServersPage() {
                                                     {asyncInstallAssetOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Loader install result ── */}
                                             <Show when={installLoaderOp.result() && installLoaderOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-green-50 px-2 py-1 text-xs text-green-700">
                                                     <span class="font-semibold">Loader 安装完成</span>
@@ -914,7 +888,6 @@ export function ServersPage() {
                                                     {installLoaderOp.error()}
                                                 </div>
                                             </Show>
-                                            {/* ── Phase 34: Async loader install result ── */}
                                             <Show when={asyncInstallLoaderOp.result() && asyncInstallLoaderOp.result()!.instanceId === inst.id}>
                                                 <div class="mt-1 rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
                                                     <span class="font-semibold">已在后台启动 Loader 安装</span>
@@ -986,11 +959,9 @@ export function ServersPage() {
                                             </Show>
                                         </div>
                                     </article>
-                                    {/* ── Action panel (Stage 29: 版本文件 / 运行依赖 / Loader) ── */}
                                     <Show when={actionPanelInstance() === inst.id}>
                                         <div class="border-b border-stone-200 bg-stone-50 px-5 py-4">
                                             <div class="space-y-3">
-                                                {/* ── 版本文件 ── */}
                                                 <div>
                                                     <h4 class="mb-1.5 text-xs font-semibold text-stone-500">版本文件</h4>
                                                     <div class="flex items-center gap-2 flex-wrap">
@@ -1019,7 +990,6 @@ export function ServersPage() {
                                                         </label>
                                                     </div>
                                                 </div>
-                                                {/* ── 运行依赖 ── */}
                                                 <div>
                                                     <h4 class="mb-1.5 text-xs font-semibold text-stone-500">运行依赖</h4>
                                                     <div class="flex items-center gap-2 flex-wrap">
@@ -1071,7 +1041,6 @@ export function ServersPage() {
                                                         </label>
                                                     </div>
                                                 </div>
-                                                {/* ── Loader ── */}
                                                 <div>
                                                     <h4 class="mb-1.5 text-xs font-semibold text-stone-500">Loader</h4>
                                                     <div class="flex items-center gap-2 flex-wrap">
@@ -1145,7 +1114,6 @@ export function ServersPage() {
                                             </div>
                                         </div>
                                     </Show>
-                                    {/* ── Expanded workspace detail panel ── */}
                                     <Show when={expandedInstance() === inst.id}>
                                         <div class="border-b border-stone-200 bg-stone-50 px-5 py-4">
                                             <Show when={workspaceLoading()}>
@@ -1217,7 +1185,6 @@ export function ServersPage() {
                                                                                         ? `${(mod.size / 1024).toFixed(1)} KB`
                                                                                         : `${mod.size} B`}
                                                                                 </span>
-                                                                                {/* ── Toggle button ── */}
                                                                                 <Show when={!isLoading}>
                                                                                     <button
                                                                                         type="button"
@@ -1230,7 +1197,6 @@ export function ServersPage() {
                                                                                 <Show when={isLoading}>
                                                                                     <span class="ml-auto loading loading-spinner loading-xs shrink-0" />
                                                                                 </Show>
-                                                                                {/* ── Delete button ── */}
                                                                                 <Show when={modDeleteConfirm() === opKey}>
                                                                                     <div class="flex items-center gap-1 shrink-0">
                                                                                         <span class="text-[10px] text-amber-600">确认删除?</span>
@@ -1259,7 +1225,6 @@ export function ServersPage() {
                                                                                         删除
                                                                                     </button>
                                                                                 </Show>
-                                                                                {/* ── Error display ── */}
                                                                                 <Show when={showErr}>
                                                                                     <span class="text-[10px] text-red-600 shrink-0">{opErr!.error}</span>
                                                                                 </Show>
@@ -1270,10 +1235,8 @@ export function ServersPage() {
                                                             </div>
                                                         </div>
                                                     </Show>
-                                                    {/* ── Modpack export/import section ── */}
                                                     <div class="border-t border-stone-200 pt-3 mt-3">
                                                         <h4 class="mb-2 text-xs font-semibold text-stone-500">Modpack 清单</h4>
-                                                        {/* Export */}
                                                         <div class="flex items-center gap-2 mb-2">
                                                             <button
                                                                 type="button"
@@ -1300,7 +1263,6 @@ export function ServersPage() {
                                                                 value={JSON.stringify(exportResult()!.manifest, null, 2)}
                                                             />
                                                         </Show>
-                                                        {/* Import */}
                                                         <div class="border-t border-stone-100 pt-2">
                                                             <label class="mb-1 block text-xs font-medium text-stone-600">导入清单 JSON</label>
                                                             <textarea
@@ -1341,10 +1303,8 @@ export function ServersPage() {
                                                             </Show>
                                                         </div>
                                                     </div>
-                                                    {/* ── Phase 21: ZIP export/import ── */}
                                                     <div class="border-t border-stone-200 pt-3 mt-3">
                                                         <h4 class="mb-2 text-xs font-semibold text-stone-500">Modpack ZIP</h4>
-                                                        {/* ZIP Export */}
                                                         <div class="mb-3">
                                                             <label class="mb-1 block text-xs font-medium text-stone-600">导出 ZIP 输出路径</label>
                                                             <div class="flex items-center gap-2">
@@ -1377,7 +1337,6 @@ export function ServersPage() {
                                                                 </div>
                                                             </Show>
                                                         </div>
-                                                        {/* ZIP Import */}
                                                         <div>
                                                             <label class="mb-1 block text-xs font-medium text-stone-600">导入 ZIP 文件路径</label>
                                                             <div class="flex items-center gap-2">
@@ -1430,7 +1389,6 @@ export function ServersPage() {
                 </div>
             </Show>
 
-            {/* Join dialog */}
             <Show when={joinInstance()}>
                 {(inst) => (
                     <JoinDialog
@@ -1440,7 +1398,6 @@ export function ServersPage() {
                 )}
             </Show>
 
-            {/* Invite players dialog */}
             <Show when={inviteInstance()}>
                 {(inst) => (
                     <InviteDialog
@@ -1451,7 +1408,6 @@ export function ServersPage() {
                 )}
             </Show>
 
-            {/* Create room dialog */}
             <Show when={createRoomOpen()}>
                 <CreateRoomDialog
                     onClose={() => setCreateRoomOpen(false)}
@@ -1463,7 +1419,6 @@ export function ServersPage() {
                 />
             </Show>
 
-            {/* Create local instance dialog */}
             <Show when={createOpen()}>
                 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCreateOpen(false)}>
                     <div class="w-96 rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>

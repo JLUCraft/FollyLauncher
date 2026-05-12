@@ -3,6 +3,7 @@ pub mod commands;
 pub mod constants;
 pub mod file_validator;
 pub mod jre_selector;
+pub mod minecraft_command;
 pub mod models;
 pub mod process;
 pub mod process_monitor;

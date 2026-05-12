@@ -33,7 +33,7 @@ pub mod w3c_vc {
         pub proof_value: String,
     }
 
-    /// A DID Document for resolving verification methods.
+
     #[derive(Debug, Clone, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct DidDocument {
@@ -42,7 +42,7 @@ pub mod w3c_vc {
         pub verification_method: Vec<VerificationMethodEntry>,
     }
 
-    /// A single verification method entry in a DID Document.
+
     #[derive(Debug, Clone, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct VerificationMethodEntry {
@@ -58,13 +58,13 @@ pub mod w3c_vc {
         pub public_key_jwk: Option<serde_json::Value>,
     }
 
-    /// Resolve a DID into a DID Document.
-    ///
-    /// Supports:
-    /// - `did:key` — local/offline Ed25519 key decoding via multibase.
-    /// - `did:web` — fetch `https://{domain}/.well-known/did.json` via HTTP
-    ///   (timeout-based; tests may inject a mock).
-    /// - Unknown methods return `Err` with a "method not supported" message.
+
+
+
+
+
+
+
     pub async fn resolve_did(did: &str) -> Result<DidDocument> {
         if let Some(key_part) = did.strip_prefix("did:key:") {
             return resolve_did_key(key_part).context("failed to resolve did:key");
@@ -77,13 +77,13 @@ pub mod w3c_vc {
         anyhow::bail!("unsupported DID method: {did}");
     }
 
-    /// Resolve a `did:key` to a DID Document with an Ed25519 verification method.
+
     fn resolve_did_key(key_part: &str) -> Result<DidDocument> {
         let did = format!("did:key:{key_part}");
-        // Multibase: 'z' prefix = base58btc, rest is codec + key material.
+
         let (_base, decoded) =
             multibase::decode(key_part).context("invalid multibase in did:key")?;
-        // Ed25519 multicodec: 0xed 0x01 prefix (varint). Check for 2-byte prefix.
+
         let raw_key = if decoded.len() >= 2 && decoded[0] == 0xed && decoded[1] == 0x01 {
             &decoded[2..]
         } else {
@@ -108,12 +108,12 @@ pub mod w3c_vc {
         })
     }
 
-    /// Resolve a `did:web` by fetching `https://{domain}/.well-known/did.json`.
-    ///
-    /// Uses a 10-second HTTP timeout and structured failure.
-    /// For testing, an internal static mock can be injected via `DID_WEB_MOCK`.
+
+
+
+
     async fn resolve_did_web(domain: &str) -> Result<DidDocument> {
-        // Check for mock injection (test-only path)
+
         {
             let mock = DID_WEB_MOCK.lock().unwrap();
             if let Some(ref doc_json) = *mock {
@@ -150,8 +150,8 @@ pub mod w3c_vc {
         Ok(doc)
     }
 
-    /// Test-only global mock for did:web resolution.
-    /// Set via `set_mock_did_web()` in test cases.
+
+
     static DID_WEB_MOCK: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
 
     #[cfg(test)]
@@ -164,19 +164,19 @@ pub mod w3c_vc {
         *DID_WEB_MOCK.lock().unwrap() = None;
     }
 
-    /// Find a verification method in a DID Document by id or fragment.
-    ///
-    /// Matches by full `vm.id == vm_id` or by fragment (`did:...#fragment`).
+
+
+
     pub fn find_verification_method<'a>(
         doc: &'a DidDocument,
         vm_id: &str,
     ) -> Option<&'a VerificationMethodEntry> {
-        // Exact match on id
+
         let exact = doc.verification_method.iter().find(|vm| vm.id == vm_id);
         if exact.is_some() {
             return exact;
         }
-        // Fragment match: extract fragment after '#'
+
         let fragment = vm_id.rsplit_once('#').map(|(_, f)| f);
         if let Some(frag) = fragment {
             return doc
@@ -187,22 +187,22 @@ pub mod w3c_vc {
         None
     }
 
-    /// Extract an Ed25519 public key (32 bytes) from a verification method entry.
-    ///
-    /// Supports:
-    /// - `publicKeyMultibase` (multibase-encoded, e.g. `z6Mk...`)
-    /// - `publicKeyBase58` (base58btc raw Ed25519 bytes)
-    /// - `publicKeyJwk` (JWK with `kty: "OKP"`, `crv: "Ed25519"`, `x` as base64url)
+
+
+
+
+
+
     pub fn extract_ed25519_pubkey(vm: &VerificationMethodEntry) -> Result<[u8; 32]> {
-        // 1. publicKeyMultibase
+
         if let Some(ref mb) = vm.public_key_multibase {
             let (_base, decoded) =
                 multibase::decode(mb).context("invalid multibase in verificationMethod")?;
-            // Ed25519 multicodec prefix: 0xed 0x01
+
             let key = if decoded.len() >= 2 && decoded[0] == 0xed && decoded[1] == 0x01 {
                 &decoded[2..]
             } else if decoded.len() == 32 {
-                // Bare key without multicodec (lenient)
+
                 &decoded[..]
             } else {
                 anyhow::bail!("unexpected multibase length/codec in verificationMethod");
@@ -212,7 +212,7 @@ pub mod w3c_vc {
                 .map_err(|_| anyhow::anyhow!("invalid Ed25519 key length in verificationMethod"))?;
             return Ok(arr);
         }
-        // 2. publicKeyBase58
+
         if let Some(ref b58) = vm.public_key_base58 {
             let decoded = bs58::decode(b58)
                 .into_vec()
@@ -222,7 +222,7 @@ pub mod w3c_vc {
             })?;
             return Ok(arr);
         }
-        // 3. publicKeyJwk (JWK)
+
         if let Some(ref jwk) = vm.public_key_jwk {
             let kty = jwk
                 .get("kty")
@@ -250,10 +250,10 @@ pub mod w3c_vc {
         anyhow::bail!("no supported public key material in verificationMethod")
     }
 
-    /// Check if a string looks like a resolvable DID URL
-    /// (starts with `did:key:` or `did:web:`). Legacy `did:ex` is
-    /// not a real DID method and should fall through to the simplified
-    /// base64-based verification method.
+
+
+
+
     pub fn is_did_url(s: &str) -> bool {
         s.starts_with("did:key:") || s.starts_with("did:web:")
     }
@@ -829,12 +829,12 @@ impl IdentityManager {
 
     async fn extract_issuer_pubkey(&self, vc: &VerifiableCredential) -> Result<VerifyingKey> {
         let vm = &vc.proof.verification_method;
-        // Phase 5 P0: If verificationMethod is a DID URL, resolve the DID
-        // Document and extract the Ed25519 public key from the matching
-        // verificationMethod entry. Legacy simplified keys (non-DID) are
-        // supported for compatibility but must not override a resolvable DID URL.
+
+
+
+
         if w3c_vc::is_did_url(vm) {
-            // Resolve the issuer DID (the controller DID, before '#')
+
             let did = if let Some((controller, _fragment)) = vm.rsplit_once('#') {
                 controller.to_string()
             } else {
@@ -848,8 +848,8 @@ impl IdentityManager {
             return VerifyingKey::from_bytes(&pk_bytes)
                 .context("invalid Ed25519 pubkey from DID Document");
         }
-        // Legacy simplified mode: fragment after '#' or whole string is
-        // standard base64-encoded Ed25519 public key bytes.
+
+
         let pk_b64 = vm.rsplit_once('#').map(|(_, pk)| pk).unwrap_or(vm);
         let pk_bytes = base64::Engine::decode(&base64::engine::general_purpose::STANDARD, pk_b64)
             .context("invalid base64 in legacy verificationMethod")?;
@@ -901,9 +901,9 @@ impl IdentityManager {
         }
     }
 
-    /// Update CRL entries from a list of revoked credential IDs.
-    ///
-    /// Called after fetching the list via `ControlClient::list_revoked_credentials()`.
+
+
+
     pub async fn update_crl_entries(&mut self, revoked_ids: Vec<String>) -> Result<()> {
         let now = Utc::now().to_rfc3339();
         self.crl = CrlCache {
@@ -926,7 +926,9 @@ impl IdentityManager {
             if self.is_vc_revoked(vc) {
                 self.identity.vc = None;
                 self.identity.club = None;
-                let _ = self.save().await;
+                if let Err(e) = self.save().await {
+                    tracing::error!(error = %e, "failed to persist identity after VC auto-clear");
+                }
                 return true;
             }
         }
@@ -1074,11 +1076,11 @@ mod tests {
         assert!(!m.verify_vc(&sign_vc(&vc, &sk_b, &vk)).await.unwrap());
     }
 
-    // ── Phase 5 P0: DID resolution tests ─────────────────────────────
 
-    /// Create a did:key-based VC signed by a known Ed25519 key.
+
+
     fn make_did_key_vc(sk: &SigningKey, vk: &VerifyingKey) -> (VerifiableCredential, String) {
-        // Construct a multibase did:key
+
         let mut codec: Vec<u8> = Vec::new();
         codec.push(0xed);
         codec.push(0x01);
@@ -1133,7 +1135,7 @@ mod tests {
         let m = minimal_im(&d);
         let (sk, vk) = mk_keys();
 
-        // Build a multibase key for the mock DID document
+
         let mut codec: Vec<u8> = Vec::new();
         codec.push(0xed);
         codec.push(0x01);
@@ -1257,12 +1259,12 @@ mod tests {
         let d = TempDir::new().unwrap();
         let m = minimal_im(&d);
         let (sk, _vk) = mk_keys();
-        // Build a did:key that uses vk, but sign with a different key (sk2)
+
         let (sk2, _vk2) = mk_keys();
         let (vc, _did) = make_did_key_vc(&sk2, &sk.verifying_key());
-        // Signature is from sk2, but DID Document contains vk
+
         let result = m.verify_vc(&vc).await;
-        // The signature should not verify against the DID's key
+
         assert!(result.is_ok(), "verify should not error, just return false");
         assert!(!result.unwrap(), "key mismatch should produce false");
     }
@@ -1284,8 +1286,8 @@ mod tests {
         let mut m = minimal_im(&d);
         let (sk, vk) = mk_keys();
         let (vc, _did) = make_did_key_vc(&sk, &vk);
-        // Even with valid signature from did:key, if CRL marks it as revoked,
-        // is_vc_revoked should catch it (verified but revoked).
+
+
         m.crl.entries.push(CrlEntry {
             vc_id: vc.id.clone(),
             revoked_at: Utc::now().to_rfc3339(),
@@ -1317,9 +1319,9 @@ mod tests {
                 proof_value: String::new(),
             },
         };
-        // Legacy VM is "did:ex#k" — not a real DID URL, so it uses
-        // legacy simplified mode (treat "k" as base64). Since the sign_vc
-        // helper writes the actual base64 pubkey after #, it works.
+
+
+
         assert!(m.verify_vc(&sign_vc(&vc, &sk, &vk)).await.unwrap());
     }
 
@@ -1329,7 +1331,7 @@ mod tests {
         let m = minimal_im(&d);
         let (sk, vk) = mk_keys();
         let (vc, _did) = make_did_key_vc(&sk, &vk);
-        // vm_id is a real did:key URL; tampering with proof_value should fail
+
         let mut tampered = vc.clone();
         tampered.proof.proof_value =
             base64::Engine::encode(&base64::engine::general_purpose::STANDARD, [0u8; 64]);

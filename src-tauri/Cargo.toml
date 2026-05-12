@@ -52,7 +52,6 @@ futures-util = { version = "0.3.32", features = ["io", "sink"] }
 which = { version = "8.0.2", features = ["real-sys"] }
 sysinfo = { version = "0.38.4", features = ["system"] }
 portpicker = "0.1.1"
-mc-launcher-core = "0.0.3"
 tauri-plugin-log = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-autostart = "2"

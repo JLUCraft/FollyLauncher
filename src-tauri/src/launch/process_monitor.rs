@@ -23,7 +23,7 @@ pub async fn monitor_process(
     let stdout = child.stdout.take();
     let stderr = child.stderr.take();
 
-    // Stdout handler
+
     if let Some(out) = stdout {
         let game_ready_stdout = game_ready.clone();
         let app_stdout = app.clone();
@@ -44,7 +44,7 @@ pub async fn monitor_process(
                     );
                 }
 
-                // Append to launch_states.recent_logs
+
                 {
                     let mut states = launch_states_stdout.lock().await;
                     if let Some(state) = states.get_mut(&id) {
@@ -60,7 +60,7 @@ pub async fn monitor_process(
                         &format!("{GAME_READY_EVENT}-{instance_id_stdout}"),
                         serde_json::json!({ "session_id": &instance_id_stdout }),
                     );
-                    // Update game_ready in launch_states
+
                     let mut states = launch_states_stdout.lock().await;
                     if let Some(state) = states.get_mut(&id) {
                         state.game_ready = true;
@@ -70,7 +70,7 @@ pub async fn monitor_process(
         });
     }
 
-    // Stderr handler
+
     if let Some(err) = stderr {
         let app_stderr = app.clone();
         let instance_id_stderr = instance_id.clone();
@@ -90,7 +90,7 @@ pub async fn monitor_process(
                     );
                 }
 
-                // Append to launch_states.recent_logs
+
                 {
                     let mut states = launch_states_stderr.lock().await;
                     if let Some(state) = states.get_mut(&id) {
@@ -101,7 +101,7 @@ pub async fn monitor_process(
         });
     }
 
-    // Exit handler
+
     let game_ready_exit = game_ready.clone();
     let app_exit = app.clone();
     let instance_id_exit = instance_id.clone();
@@ -152,7 +152,7 @@ pub async fn monitor_process(
                         "crash_summary": crash_summary,
                     }),
                 );
-                // Update launch_states on exit
+
                 let mut states = launch_states_exit.lock().await;
                 if let Some(state) = states.get_mut(&id) {
                     state.current_step = classify_exit_step(exit_ok) as usize;
@@ -192,7 +192,7 @@ pub async fn monitor_process(
                         "error": e.to_string(),
                     }),
                 );
-                // Update launch_states for error case
+
                 let mut states = launch_states_exit.lock().await;
                 if let Some(state) = states.get_mut(&id) {
                     state.current_step = LaunchStep::Crashed as usize;
@@ -213,8 +213,8 @@ pub async fn monitor_process(
     });
 }
 
-/// Append a line to the log buffer, keeping at most `limit` lines.
-/// Drops the oldest lines when the buffer exceeds the limit.
+
+
 pub fn push_recent_log(lines: &mut Vec<String>, line: String, limit: usize) {
     lines.push(line);
     let excess = lines.len().saturating_sub(limit);
@@ -223,7 +223,7 @@ pub fn push_recent_log(lines: &mut Vec<String>, line: String, limit: usize) {
     }
 }
 
-/// Classify the final LaunchStep based on whether the process exited successfully.
+
 pub fn classify_exit_step(exit_ok: bool) -> LaunchStep {
     if exit_ok {
         LaunchStep::Exited

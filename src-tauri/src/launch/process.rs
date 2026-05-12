@@ -1,25 +1,24 @@
 use std::path::Path;
 
-/// How to handle process stdout/stderr.
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LogOutput {
-    /// Pipe stdout/stderr so a monitor can read them.
+
     Piped,
-    /// Let the child inherit the launcher's stdout/stderr.
+
     Inherit,
-    /// Discard all output.
+
     Null,
 }
 
-/// Build and spawn a Minecraft process with the given command array and options.
-///
-/// # Arguments
-/// * `command` - The full command array (argv\[0\] = executable, argv\[1..\] = args),
-///   typically built by `mc_launcher_core::command::get_minecraft_command`.
-/// * `game_dir` - Working directory for the process.
-/// * `log_output` - How to handle stdout/stderr (Piped, Inherit, or Null).
-///
-/// Returns the spawned `tokio::process::Child` on success, or a Chinese error string.
+
+
+
+
+
+
+
+
 pub fn spawn_minecraft_process(
     command: &[String],
     game_dir: &Path,
@@ -70,11 +69,10 @@ mod tests {
         assert!(result.unwrap_err().contains("为空"));
     }
 
-    #[test]
-    fn non_empty_command_does_not_panic_on_build() {
-        let cmd = vec!["java".to_string(), "-version".to_string()];
-        let result = spawn_minecraft_process(&cmd, Path::new("/tmp"), LogOutput::Null);
-        // Will fail at spawn time (no java on test machine) but should not panic
+    #[tokio::test]
+    async fn non_empty_command_does_not_panic_on_spawn_error() {
+        let cmd = vec!["__jlucraft_missing_executable__".to_string()];
+        let result = spawn_minecraft_process(&cmd, Path::new("."), LogOutput::Null);
         assert!(result.is_err());
     }
 }

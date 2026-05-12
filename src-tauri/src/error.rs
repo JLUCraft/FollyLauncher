@@ -1,16 +1,16 @@
 use serde::Serialize;
 
-/// Typed launcher error that carries a machine-readable code and a
-/// user-facing Chinese message. All Tauri commands should return
-/// `Result<T, LauncherError>` instead of `Result<T, String>`.
+
+
+
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct LauncherError {
-    /// Machine-readable error code, e.g. "CONFIG_NOT_FOUND".
+
     pub code: String,
-    /// User-facing message in Chinese.
+
     pub message: String,
-    /// Optional additional details (e.g. file path, field name).
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub detail: Option<String>,
 }
@@ -35,6 +35,16 @@ impl LauncherError {
             detail: Some(detail.into()),
         }
     }
+
+    #[cfg(test)]
+    pub fn contains(&self, needle: &str) -> bool {
+        self.code.contains(needle)
+            || self.message.contains(needle)
+            || self
+                .detail
+                .as_ref()
+                .is_some_and(|detail| detail.contains(needle))
+    }
 }
 
 impl std::fmt::Display for LauncherError {
@@ -45,7 +55,7 @@ impl std::fmt::Display for LauncherError {
 
 impl std::error::Error for LauncherError {}
 
-// Allow LauncherError to be used as a Tauri command error (implements Into<tauri::InvokeError>)
+
 impl From<LauncherError> for String {
     fn from(e: LauncherError) -> Self {
         e.message

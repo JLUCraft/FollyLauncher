@@ -11,7 +11,7 @@ use tauri::{AppHandle, Manager};
 
 const ALL_FILTER: &str = "All";
 
-// ── API types ──────────────────────────────────────────────────────────────
+
 
 #[derive(Deserialize, Debug)]
 pub struct ModrinthProject {
@@ -73,7 +73,7 @@ pub struct ModrinthTranslationRes {
     pub translated: String,
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+
 
 fn append_query_params(
     base_url: &str,
@@ -107,7 +107,7 @@ fn normalize_modrinth_loader(loader: &str) -> Option<String> {
     }
 }
 
-// ── Fetch functions ────────────────────────────────────────────────────────
+
 
 pub async fn fetch_resource_list_by_name_modrinth(
     app: &AppHandle,
@@ -275,7 +275,7 @@ pub async fn fetch_remote_resource_by_id_modrinth(
     Ok(resource_info)
 }
 
-// ── Version pack mapping ───────────────────────────────────────────────────
+
 
 pub fn map_modrinth_file_to_version_pack(
     res: Vec<ModrinthVersionPack>,
@@ -338,7 +338,7 @@ pub fn map_modrinth_file_to_version_pack(
     list
 }
 
-// ── From impls ─────────────────────────────────────────────────────────────
+
 
 impl From<ModrinthProject> for OtherResourceInfo {
     fn from(project: ModrinthProject) -> Self {
@@ -401,7 +401,7 @@ impl From<ModrinthSearchRes> for OtherResourceSearchRes {
     }
 }
 
-// ── API URL builder ────────────────────────────────────────────────────────
+
 
 pub fn get_modrinth_api(
     endpoint: OtherResourceApiEndpoint,
@@ -435,7 +435,7 @@ pub fn get_modrinth_api(
     Ok(url_str)
 }
 
-// ── Translation ────────────────────────────────────────────────────────────
+
 
 pub async fn translate_description_modrinth(
     app: &AppHandle,

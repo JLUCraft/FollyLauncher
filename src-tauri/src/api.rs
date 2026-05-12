@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use tracing::info;
 
-/// Tournament status enum — aligns with federated-server league.rs TournamentStatus.
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum TournamentStatus {
@@ -14,7 +14,7 @@ pub enum TournamentStatus {
     Completed,
 }
 
-/// Match status enum — aligns with federated-server league.rs MatchStatus.
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum MatchStatus {
@@ -116,7 +116,7 @@ pub struct Match {
     pub scheduled_at: String,
 }
 
-/// DESIGN.md §7.11: Dispute match for tournament disputes.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisputeMatch {
     pub dispute_id: String,
@@ -130,7 +130,7 @@ pub struct DisputeMatch {
     pub submitted_by: Option<String>,
     #[serde(default)]
     pub resolution: Option<String>,
-    /// DESIGN.md P2: Timeline fields for dispute governance.
+
     #[serde(default)]
     pub created_at: String,
     #[serde(default)]
@@ -201,7 +201,7 @@ impl AdmissionMode {
     }
 }
 
-/// Resources and admission configuration used when creating a new instance.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoomConfig {
     pub image_prefix: String,
@@ -246,7 +246,7 @@ impl LauncherConfig {
     }
 }
 
-/// Response from migration health probe.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MigrationProbeResponse {
     pub status: String,
@@ -271,7 +271,7 @@ pub struct Team {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct HttpInstance {
+pub struct ApiInstance {
     pub id: String,
     pub name: String,
     pub kind: String,
@@ -298,4 +298,10 @@ pub struct HttpInstance {
     pub migration_target: Option<String>,
     #[serde(default)]
     pub player_count: u32,
+    #[serde(default)]
+    pub mode: String,
+    #[serde(default)]
+    pub max_players: u32,
+    #[serde(default)]
+    pub version: String,
 }

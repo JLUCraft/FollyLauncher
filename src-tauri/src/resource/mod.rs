@@ -1,7 +1,6 @@
 pub mod commands;
 pub mod curseforge;
 pub mod downloader;
-pub mod install_async;
 pub mod loader_meta;
 pub mod misc;
 pub mod mod_db;

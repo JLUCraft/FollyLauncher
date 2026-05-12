@@ -1,12 +1,12 @@
-//! Version JSON / libraries / assets / native library validator.
-//!
-//! Parses version JSON, asset index, checks file existence and hashes,
-//! and generates a ValidationSummary with download/repair tasks.
+
+
+
+
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-/// Result of validating a Minecraft installation's completeness.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ValidationSummary {
@@ -17,12 +17,12 @@ pub struct ValidationSummary {
     pub native_actions: u32,
     pub download_group_id: Option<String>,
     pub ready_to_launch: bool,
-    /// Detailed download tasks generated from validation.
+
     #[serde(default)]
     pub download_tasks: Vec<DownloadTask>,
 }
 
-/// A single download/repair task produced by validation.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadTask {
@@ -45,7 +45,7 @@ pub enum DownloadTaskKind {
     Native,
 }
 
-/// Parsed version JSON structure (subset of fields needed for validation).
+
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct VersionJson {
     #[serde(default)]
@@ -75,8 +75,13 @@ pub struct LibraryDownloads {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct LibraryArtifact {
+    #[serde(default)]
+    pub path: Option<String>,
+    #[serde(default)]
     pub sha1: String,
+    #[serde(default)]
     pub size: u64,
+    #[serde(default)]
     pub url: String,
 }
 
@@ -94,15 +99,23 @@ pub struct AssetIndexInfo {
     pub url: String,
 }
 
-/// Parse a version JSON file from the given path.
+
 pub fn parse_version_json(path: &Path) -> Result<VersionJson, crate::error::LauncherError> {
-    let content = std::fs::read_to_string(path)
-        .map_err(|e| crate::error::LauncherError::from(format!("cannot read version JSON at {}: {e}", path.display())))?;
-    serde_json::from_str::<VersionJson>(&content)
-        .map_err(|e| crate::error::LauncherError::from(format!("invalid version JSON at {}: {e}", path.display())))
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        crate::error::LauncherError::from(format!(
+            "cannot read version JSON at {}: {e}",
+            path.display()
+        ))
+    })?;
+    serde_json::from_str::<VersionJson>(&content).map_err(|e| {
+        crate::error::LauncherError::from(format!(
+            "invalid version JSON at {}: {e}",
+            path.display()
+        ))
+    })
 }
 
-/// Resolve the library path for a given Maven coordinate name.
+
 pub fn library_artifact_path(name: &str, libraries_dir: &Path) -> Option<PathBuf> {
     let parts: Vec<&str> = name.split(':').collect();
     if parts.len() < 3 {
@@ -129,25 +142,25 @@ pub fn library_artifact_path(name: &str, libraries_dir: &Path) -> Option<PathBuf
     )
 }
 
-/// Result of checking whether native libraries are ready for launch.
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NativeReadiness {
     pub ready: bool,
     pub natives_dir_path: String,
-    /// Human-readable reasons why natives are not ready.
+
     pub reasons: Vec<String>,
-    /// Download tasks needed to repair missing natives.
+
     #[serde(default)]
     pub repair_tasks: Vec<DownloadTask>,
 }
 
-/// Check if native libraries are extracted and ready for the given version.
-///
-/// Parses the version JSON to determine if any library has native classifiers
-/// for the current platform. If no native libraries are required, returns
-/// ready=true immediately. Otherwise, verifies the natives directory exists
-/// and contains at least one platform-native file.
+
+
+
+
+
+
 pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness {
     let natives_dir = game_dir.join("versions").join(version).join("natives");
     let natives_dir_path = natives_dir.to_string_lossy().to_string();
@@ -157,7 +170,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
         .join(version)
         .join(format!("{version}.json"));
 
-    // Cannot determine native requirements without version JSON.
+
     if !version_json_path.exists() {
         return NativeReadiness {
             ready: false,
@@ -181,7 +194,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
         }
     };
 
-    // Determine whether any library requires native extraction for this platform.
+
     let has_native_libs = vj.libraries.iter().any(|lib| {
         if let Some(ref natives) = lib.natives {
             !extract_native_classifiers(natives).is_empty()
@@ -190,7 +203,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
         }
     });
 
-    // If no library has platform-native classifiers, natives are not required.
+
     if !has_native_libs {
         return NativeReadiness {
             ready: true,
@@ -200,7 +213,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
         };
     }
 
-    // Natives are required but the directory does not exist.
+
     if !natives_dir.exists() {
         return NativeReadiness {
             ready: false,
@@ -212,7 +225,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
         };
     }
 
-    // Check that the directory contains at least one regular file.
+
     let has_files = match std::fs::read_dir(&natives_dir) {
         Ok(entries) => entries
             .filter_map(|e| e.ok())
@@ -237,7 +250,7 @@ pub fn check_native_readiness(game_dir: &Path, version: &str) -> NativeReadiness
     }
 }
 
-/// Check whether a library at the given path has the expected SHA-1 hash.
+
 pub fn verify_sha1(path: &Path, expected_sha1: &str) -> bool {
     match std::fs::read(path) {
         Ok(bytes) => {
@@ -248,7 +261,7 @@ pub fn verify_sha1(path: &Path, expected_sha1: &str) -> bool {
     }
 }
 
-/// Current OS name for native classifier matching.
+
 pub fn current_os_name() -> &'static str {
     if cfg!(target_os = "windows") {
         "windows"
@@ -261,7 +274,7 @@ pub fn current_os_name() -> &'static str {
     }
 }
 
-/// Current architecture for native matching.
+
 pub fn current_arch() -> &'static str {
     if cfg!(target_arch = "x86_64") {
         "64"
@@ -274,9 +287,9 @@ pub fn current_arch() -> &'static str {
     }
 }
 
-/// Extract native library classifiers from a library entry's natives map.
+
 pub fn extract_native_classifiers(natives: &serde_json::Value) -> Vec<(String, String)> {
-    // Returns (classifier_key, classifier_value)
+
     let mut result = Vec::new();
     if let Some(obj) = natives.as_object() {
         for (key, val) in obj {
@@ -291,7 +304,7 @@ pub fn extract_native_classifiers(natives: &serde_json::Value) -> Vec<(String, S
     result
 }
 
-/// Validate a single Minecraft version installation and produce a summary.
+
 pub fn validate_version(
     instance_id: &str,
     game_dir: &Path,
@@ -325,7 +338,7 @@ pub fn validate_version(
     let mut native_actions: u32 = 0;
     let mut download_tasks: Vec<DownloadTask> = Vec::new();
 
-    // Check client JAR
+
     let client_jar_path = game_dir
         .join("versions")
         .join(version)
@@ -362,12 +375,12 @@ pub fn validate_version(
         }
     }
 
-    // Check libraries
+
     for lib in &vj.libraries {
         let name = &lib.name;
         if let Some(lib_path) = library_artifact_path(name, &libraries_dir) {
             if !lib_path.exists() {
-                // Generate download task if artifact download info is available
+
                 if let Some(dl) = &lib.downloads {
                     if let Some(artifact) = &dl.artifact {
                         download_tasks.push(DownloadTask {
@@ -400,9 +413,9 @@ pub fn validate_version(
             }
         }
 
-        // Check natives — generate download tasks for missing native JARs.
-        // Readiness of the extracted natives directory is determined via
-        // check_native_readiness (shared with the launch path) at the end.
+
+
+
         if let Some(natives) = &lib.natives {
             let classifiers = extract_native_classifiers(natives);
             if !classifiers.is_empty() {
@@ -445,7 +458,7 @@ pub fn validate_version(
         }
     }
 
-    // Check asset index
+
     let asset_index_path = assets_dir.join("indexes").join(
         vj.asset_index
             .as_ref()
@@ -478,7 +491,7 @@ pub fn validate_version(
             invalid_hashes += 1;
         }
 
-        // Check individual assets if index exists
+
         if asset_index_path.exists() {
             if let Ok(content) = std::fs::read_to_string(&asset_index_path) {
                 if let Ok(index_json) = serde_json::from_str::<serde_json::Value>(&content) {
@@ -527,12 +540,12 @@ pub fn validate_version(
         }
     }
 
-    // Use the shared check_native_readiness helper so validate_version
-    // and the launch path agree on whether extracted natives are ready.
+
+
     let native = check_native_readiness(game_dir, version);
     if !native.ready {
-        // Track native readiness failures as actions so consumers can
-        // differentiate "missing files" from "natives not extracted".
+
+
         if native_actions == 0 {
             native_actions = 1;
         }
@@ -556,7 +569,7 @@ pub fn validate_version(
     })
 }
 
-/// Helper to construct a library path from a path string within the libraries dir.
+
 fn lib_path(libraries_dir: &Path, path_str: &str) -> PathBuf {
     libraries_dir.join(path_str)
 }
@@ -606,7 +619,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let file_path = tmp.path().join("test.bin");
         std::fs::write(&file_path, b"hello").unwrap();
-        // SHA-1 of "hello" is "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
+
         assert!(verify_sha1(
             &file_path,
             "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
@@ -629,9 +642,9 @@ mod tests {
         assert!(!verify_sha1(Path::new("/no/file"), "abc"));
     }
 
-    // ── check_native_readiness ───────────────────────────────────────────
 
-    /// Build a minimal version JSON fixture with the given libraries.
+
+
     fn make_version_json(libraries: serde_json::Value) -> serde_json::Value {
         serde_json::json!({
             "libraries": libraries,
@@ -639,7 +652,7 @@ mod tests {
         })
     }
 
-    /// Build a library entry that requires native classifiers for the current OS.
+
     fn native_library_entry() -> serde_json::Value {
         let os = current_os_name();
         serde_json::json!({
@@ -662,7 +675,7 @@ mod tests {
         })
     }
 
-    /// Build a library entry without native classifiers.
+
     fn non_native_library_entry() -> serde_json::Value {
         serde_json::json!({
             "name": "com.google.guava:guava:31.0-jre",
@@ -681,7 +694,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let game_dir = tmp.path();
 
-        // Create version JSON with only non-native libraries.
+
         let version_json = make_version_json(serde_json::json!([non_native_library_entry()]));
         let version_dir = game_dir.join("versions").join("1.21");
         std::fs::create_dir_all(&version_dir).unwrap();
@@ -704,7 +717,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let game_dir = tmp.path();
 
-        // Create version JSON with a native library, but no natives directory.
+
         let version_json = make_version_json(serde_json::json!([native_library_entry()]));
         let version_dir = game_dir.join("versions").join("1.21");
         std::fs::create_dir_all(&version_dir).unwrap();
@@ -735,7 +748,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let game_dir = tmp.path();
 
-        // Create version JSON with a native library and an empty natives directory.
+
         let version_json = make_version_json(serde_json::json!([native_library_entry()]));
         let version_dir = game_dir.join("versions").join("1.21");
         let natives_dir = version_dir.join("natives");
@@ -767,12 +780,12 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let game_dir = tmp.path();
 
-        // Create version JSON with a native library and a populated natives directory.
+
         let version_json = make_version_json(serde_json::json!([native_library_entry()]));
         let version_dir = game_dir.join("versions").join("1.21");
         let natives_dir = version_dir.join("natives");
         std::fs::create_dir_all(&natives_dir).unwrap();
-        // Write a dummy native file to simulate extracted natives.
+
         std::fs::write(natives_dir.join("lwjgl.dll"), b"mock-native-content").unwrap();
         std::fs::write(
             version_dir.join("1.21.json"),

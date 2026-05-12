@@ -234,6 +234,7 @@ pub struct OptiFineResourceInfo {
 pub enum ResourceError {
     ParseError,
     NoDownloadApi,
+    InvalidUrl(String),
     NetworkError,
 }
 
@@ -242,6 +243,7 @@ impl std::fmt::Display for ResourceError {
         match self {
             ResourceError::ParseError => write!(f, "Parse error"),
             ResourceError::NoDownloadApi => write!(f, "No download API available"),
+            ResourceError::InvalidUrl(msg) => write!(f, "Invalid URL: {msg}"),
             ResourceError::NetworkError => write!(f, "Network error"),
         }
     }
@@ -270,7 +272,7 @@ pub struct InstallClientVersionResult {
     pub replaced_existing: bool,
 }
 
-// ── Phase 16: Libraries install models ────────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -292,17 +294,7 @@ pub struct InstallLibrariesResult {
     pub libraries_dir: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LibraryDownloadItem {
-    pub name: String,
-    pub url: String,
-    pub path: String,
-    pub sha1: Option<String>,
-    pub size: Option<u64>,
-}
 
-// ── Phase 17: Assets install models ──────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -326,15 +318,7 @@ pub struct InstallAssetsResult {
     pub assets_dir: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AssetObjectItem {
-    pub logical_path: String,
-    pub hash: String,
-    pub size: u64,
-}
 
-// ── Phase 31: Async client version install models ────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -352,7 +336,7 @@ pub struct AsyncInstallTaskStarted {
     pub game_version: String,
 }
 
-// ── Phase 32: Async libraries install models ───────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -370,7 +354,7 @@ pub struct AsyncInstallLibrariesStarted {
     pub game_version: String,
 }
 
-// ── Phase 33: Async assets install models ──────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -388,7 +372,7 @@ pub struct AsyncInstallAssetsStarted {
     pub game_version: String,
 }
 
-// ── Phase 35: Async resource install models ────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -408,7 +392,7 @@ pub struct AsyncInstallResourceStarted {
     pub file_name: String,
 }
 
-// ── Phase 34: Async loader install models ──────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -428,7 +412,7 @@ pub struct AsyncInstallLoaderStarted {
     pub kind: InstallLoaderKind,
 }
 
-// ── Phase 18: Loader install models ───────────────────────────────────────
+
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum InstallLoaderKind {

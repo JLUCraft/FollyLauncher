@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
 
-// ── Constants ──────────────────────────────────────────────────────────────
+
 
 const MINECRAFT_GAME_ID: &str = "432";
 const ALL_FILTER: &str = "All";
@@ -20,7 +20,7 @@ fn get_cf_api_key() -> String {
     std::env::var(CURSEFORGE_API_KEY_ENV).unwrap_or_default()
 }
 
-// ── API types ──────────────────────────────────────────────────────────────
+
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -141,7 +141,7 @@ pub struct CurseForgeTranslationRes {
     pub translated: String,
 }
 
-// ── HTTP helpers ───────────────────────────────────────────────────────────
+
 
 async fn cf_get<T: serde::de::DeserializeOwned>(
     client: &reqwest::Client,
@@ -195,7 +195,7 @@ async fn cf_post<T: serde::de::DeserializeOwned, P: serde::Serialize>(
         .map_err(|_| ResourceError::ParseError)
 }
 
-// ── Search helpers ─────────────────────────────────────────────────────────
+
 
 fn tokenize_words(text: &str) -> impl Iterator<Item = &str> {
     text.split(|c: char| !c.is_alphanumeric())
@@ -220,7 +220,7 @@ fn levenshtein_distance(a: &str, b: &str) -> usize {
     *prev.last().unwrap_or(&0)
 }
 
-// ── Fetch functions ────────────────────────────────────────────────────────
+
 
 pub async fn fetch_resource_list_by_name_curseforge(
     app: &AppHandle,
@@ -390,7 +390,7 @@ pub async fn fetch_remote_resource_by_id_curseforge(
     Ok(resource_info)
 }
 
-// ── Version pack mapping ───────────────────────────────────────────────────
+
 
 fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
     let mut versions = Vec::new();
@@ -461,7 +461,7 @@ pub fn map_curseforge_file_to_version_pack(
     list
 }
 
-// ── From impls ─────────────────────────────────────────────────────────────
+
 
 impl From<CurseForgeProject> for OtherResourceInfo {
     fn from(project: CurseForgeProject) -> Self {
@@ -531,7 +531,7 @@ impl From<CurseForgeSearchRes> for OtherResourceSearchRes {
     }
 }
 
-// ── API URL builder ────────────────────────────────────────────────────────
+
 
 pub fn get_curseforge_api(
     endpoint: OtherResourceApiEndpoint,
@@ -559,7 +559,7 @@ pub fn get_curseforge_api(
     Ok(url_str)
 }
 
-// ── Category map ───────────────────────────────────────────────────────────
+
 
 pub fn cvt_category_to_id(category: &str, class_id: u32) -> u32 {
     let map = get_category_map();
@@ -571,7 +571,7 @@ fn get_category_map() -> &'static HashMap<(String, u32), u32> {
     static MAP: OnceLock<HashMap<(String, u32), u32>> = OnceLock::new();
     MAP.get_or_init(|| {
         let mut map = HashMap::new();
-        // mods
+
         map.insert(("Food".to_string(), 6), 436);
         map.insert(("Ores and Resources".to_string(), 6), 408);
         map.insert(("Miscellaneous".to_string(), 6), 425);
@@ -598,7 +598,7 @@ fn get_category_map() -> &'static HashMap<(String, u32), u32> {
         map.insert(("API and Library".to_string(), 6), 421);
         map.insert(("Utility & QoL".to_string(), 6), 5191);
         map.insert(("Performance".to_string(), 6), 6814);
-        // resource packs
+
         map.insert(("Photo Realistic".to_string(), 12), 400);
         map.insert(("Traditional".to_string(), 12), 403);
         map.insert(("512x and Higher".to_string(), 12), 398);
@@ -611,23 +611,23 @@ fn get_category_map() -> &'static HashMap<(String, u32), u32> {
         map.insert(("16x".to_string(), 12), 393);
         map.insert(("Modern".to_string(), 12), 401);
         map.insert(("Mod Support".to_string(), 12), 4465);
-        // worlds
+
         map.insert(("Parkour".to_string(), 17), 251);
         map.insert(("Survival".to_string(), 17), 253);
         map.insert(("Creation".to_string(), 17), 249);
         map.insert(("Game Map".to_string(), 17), 250);
         map.insert(("Adventure".to_string(), 17), 248);
         map.insert(("Puzzle".to_string(), 17), 252);
-        // mod packs
+
         map.insert(("Adventure and RPG".to_string(), 4471), 4475);
         map.insert(("Tech".to_string(), 4471), 4472);
         map.insert(("Magic".to_string(), 4471), 4473);
         map.insert(("Skyblock".to_string(), 4471), 4736);
-        // shader packs
+
         map.insert(("Vanilla".to_string(), 6552), 6555);
         map.insert(("Fantasy".to_string(), 6552), 6554);
         map.insert(("Realistic".to_string(), 6552), 6553);
-        // data packs
+
         map.insert(("Magic".to_string(), 6945), 6952);
         map.insert(("Miscellaneous".to_string(), 6945), 6947);
         map.insert(("Tech".to_string(), 6945), 6951);
@@ -635,7 +635,7 @@ fn get_category_map() -> &'static HashMap<(String, u32), u32> {
     })
 }
 
-// ── Conversion helpers ─────────────────────────────────────────────────────
+
 
 pub fn cvt_class_id_to_type(class_id: i32) -> String {
     match class_id {
@@ -730,7 +730,7 @@ pub fn cvt_id_to_dependency_type(dependency_type: u32) -> String {
     }
 }
 
-// ── Translation ────────────────────────────────────────────────────────────
+
 
 pub async fn translate_description_curseforge(
     app: &AppHandle,

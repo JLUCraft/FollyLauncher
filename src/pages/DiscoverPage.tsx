@@ -42,8 +42,7 @@ function resourceTypeToInstallKind(rt: string): InstallResourceKind | null {
   }
 }
 
-/** Frontend mirror of the Rust normalize_dependency_relation.
- *  Returns the canonical category string. */
+
 function normalizeRelation(raw: string): string {
   const s = raw.trim().toLowerCase();
   if (s === "required" || s === "mandatory") return "required";
@@ -53,7 +52,7 @@ function normalizeRelation(raw: string): string {
   return "other";
 }
 
-/** Count required deps in the list (frontend mirror for highlighting). */
+
 function countRequired(deps: OtherResourceDependency[] | undefined): number {
   if (!deps) return 0;
   let count = 0;
@@ -108,7 +107,7 @@ export default function DiscoverPage() {
     if (e.key === "Enter") handleSearch();
   };
 
-  // ── Install flow state ──────────────────────────────────────────────────
+
 
   const [showInstallModal, setShowInstallModal] = createSignal(false);
   const [installResource, setInstallResource] = createSignal<OtherResourceInfo | null>(null);
@@ -118,7 +117,7 @@ export default function DiscoverPage() {
   const [installStep, setInstallStep] = createSignal<"select" | "confirm" | "done" | "error" | "asyncDone">("select");
   const [installResult, setInstallResult] = createSignal<InstallResourceResult | null>(null);
 
-  // ── Async install state ────────────────────────────────────────
+
   const [asyncInstallLoading, setAsyncInstallLoading] = createSignal(false);
   const [asyncInstallError, setAsyncInstallError] = createSignal("");
   const [asyncInstallResult, setAsyncInstallResult] =
@@ -247,9 +246,9 @@ export default function DiscoverPage() {
     <div class="p-6 max-w-7xl mx-auto">
       <h1 class="text-2xl font-bold mb-6">Resource Browser</h1>
 
-      {/* Filters */}
+      {}
       <div class="flex flex-wrap gap-4 mb-6">
-        {/* Resource Type Tabs */}
+        {}
         <div class="tabs tabs-box">
           <For each={RESOURCE_TYPES}>
             {(rt) => (
@@ -263,7 +262,7 @@ export default function DiscoverPage() {
           </For>
         </div>
 
-        {/* Source Toggle */}
+        {}
         <div class="join">
           <button
             class={`join-item btn btn-sm ${downloadSource() === "Modrinth" ? "btn-active" : ""}`}
@@ -279,7 +278,7 @@ export default function DiscoverPage() {
           </button>
         </div>
 
-        {/* Game Version */}
+        {}
         <select
           class="select select-bordered select-sm"
           value={gameVersion()}
@@ -293,7 +292,7 @@ export default function DiscoverPage() {
           </For>
         </select>
 
-        {/* Search */}
+        {}
         <div class="flex-1 join">
           <input
             type="text"
@@ -309,7 +308,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      {/* Results */}
+      {}
       <Show when={searchResults.loading}>
         <div class="flex justify-center py-12">
           <span class="loading loading-spinner loading-lg" />
@@ -393,7 +392,7 @@ export default function DiscoverPage() {
               </For>
             </div>
 
-            {/* Pagination */}
+            {}
             <Show when={(res().total ?? 0) > pageSize}>
               <div class="flex justify-center gap-2 mt-6">
                 <button
@@ -425,7 +424,7 @@ export default function DiscoverPage() {
         </div>
       </Show>
 
-      {/* Install Modal */}
+      {}
       <Show when={showInstallModal()}>
         <div class="modal modal-open">
           <div class="modal-box max-w-md">
@@ -489,7 +488,7 @@ export default function DiscoverPage() {
                 </Show>
               </div>
 
-              {/* Dependencies display */}
+              {}
               <Show when={(installFile()?.dependencies?.length ?? 0) > 0}>
                 <div class="mb-4">
                   <Show when={countRequired(installFile()?.dependencies) > 0}>
@@ -521,7 +520,7 @@ export default function DiscoverPage() {
                 </div>
               </Show>
 
-              {/* Async install error */}
+              {}
               <Show when={asyncInstallError()}>
                 <div class="alert alert-error mb-4 text-sm py-2">
                   {asyncInstallError()}
@@ -587,7 +586,7 @@ export default function DiscoverPage() {
                 <pre class="text-sm whitespace-pre-wrap">{installStatus()}</pre>
               </div>
 
-              {/* Dependency summary */}
+              {}
               <Show when={installResult()?.dependencySummary} keyed>
                 {(ds: ResourceDependencySummary) => (
                   <div class="mb-4">

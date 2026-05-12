@@ -12,7 +12,7 @@ pub struct GameSettings {
     pub resolution_height: u32,
     pub fullscreen: bool,
     pub show_game_log: bool,
-    /// P2-4 phase A: persisted last-launch tracking for resume.
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_instance_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -53,16 +53,16 @@ impl GameSettings {
         Ok(settings)
     }
 
-    /// Load settings from `game_settings.toml`. If the file does not exist, create
-    /// the data directory, write default settings, and return the default.
-    /// If the file exists but fails to parse, return an error without overwriting.
+
+
+
     pub fn load_or_default(data_dir: &Path) -> anyhow::Result<Self> {
         let path = data_dir.join("game_settings.toml");
         if path.exists() {
             return Self::load(data_dir);
         }
 
-        // Create data_dir and write defaults.
+
         std::fs::create_dir_all(data_dir).map_err(|e| {
             anyhow::anyhow!(
                 "failed to create data directory {}: {}",
@@ -81,7 +81,7 @@ impl GameSettings {
     }
 
     pub fn save(&self, data_dir: &Path) -> anyhow::Result<()> {
-        // Ensure parent directory exists before writing.
+
         std::fs::create_dir_all(data_dir).map_err(|e| {
             anyhow::anyhow!(
                 "failed to create data directory {}: {}",
@@ -98,8 +98,8 @@ impl GameSettings {
         Ok(())
     }
 
-    /// Validate settings for launching Minecraft. Returns an error with a
-    /// user-actionable message if any required field is missing or invalid.
+
+
     pub fn validate(&self) -> anyhow::Result<()> {
         if self.java_path.trim().is_empty() {
             anyhow::bail!("请先在「设置」页面选择 Java 路径");
@@ -156,14 +156,14 @@ mod tests {
         assert!(!settings.fullscreen);
         assert!(!settings.show_game_log);
         assert!(settings.java_path.is_empty());
-        // game_directory should default to <data_dir>/minecraft
+
         let expected_dir = data_dir.join("minecraft");
         assert_eq!(
             settings.game_directory,
             expected_dir.to_string_lossy().to_string()
         );
 
-        // The file should now exist.
+
         let path = data_dir.join("game_settings.toml");
         assert!(path.exists(), "game_settings.toml should have been created");
     }

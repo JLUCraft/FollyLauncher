@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tauri::State;
 use tokio::sync::Mutex;
 
-// ── Models ─────────────────────────────────────────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorldInfo {
@@ -70,17 +70,18 @@ pub struct ModOperationResult {
     pub deleted: bool,
 }
 
-// ── Legacy path helper (for backward-compatible commands) ─────────────────
+
 
 fn get_instance_dir(instance_id: &str) -> Result<PathBuf, LauncherError> {
-    let data_dir = crate::project_data_dir().map_err(|e| LauncherError::from(format!("无法确定项目数据目录: {e}")))?;
+    let data_dir = crate::project_data_dir()
+        .map_err(|e| LauncherError::from(format!("无法确定项目数据目录: {e}")))?;
     Ok(data_dir
         .join("instances")
         .join(instance_id)
         .join(".minecraft"))
 }
 
-// ── Low-level helpers ──────────────────────────────────────────────────────
+
 
 fn read_dir_names(dir: &Path) -> Vec<(String, PathBuf)> {
     let mut items = Vec::new();
@@ -111,20 +112,20 @@ fn file_size(path: &Path) -> u64 {
     std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
 }
 
-// ── Mod name parsing ──────────────────────────────────────────────────────
 
-/// Parse the display name from a mod file name.
-///
-/// Strips `.disabled` suffix first (case-insensitive), then `.jar` suffix
-/// (case-insensitive).
-///
-/// # Examples
-///
-/// - `foo.jar` → `foo`
-/// - `foo.jar.disabled` → `foo`
-/// - `foo.disabled` → `foo`
-/// - `foo.JAR` → `foo`
-/// - `foo.Jar.Disabled` → `foo`
+
+
+
+
+
+
+
+
+
+
+
+
+
 pub fn parse_mod_name(raw_name: &str) -> String {
     let lower = raw_name.to_lowercase();
     let mut result = raw_name.to_string();
@@ -143,7 +144,7 @@ pub fn parse_mod_name(raw_name: &str) -> String {
     result
 }
 
-// ── Workspace scanners (accept `game_dir: &Path`) ─────────────────────────
+
 
 pub fn scan_worlds(game_dir: &Path) -> Vec<WorldInfo> {
     let saves_dir = game_dir.join("saves");
@@ -239,7 +240,7 @@ pub fn scan_mods(game_dir: &Path) -> Vec<ModFileInfo> {
                 .unwrap_or("")
                 .to_lowercase();
 
-            // Only include .jar and .disabled files
+
             if ext != "jar" && ext != "disabled" {
                 continue;
             }
@@ -263,7 +264,7 @@ pub fn scan_mods(game_dir: &Path) -> Vec<ModFileInfo> {
     mods
 }
 
-// ── Tauri commands (backward-compatible) ──────────────────────────────────
+
 
 #[tauri::command]
 pub async fn retrieve_world_list(instance_id: String) -> Result<Vec<WorldInfo>, LauncherError> {
@@ -291,11 +292,11 @@ pub async fn retrieve_shader_pack_list(
     Ok(scan_shader_packs(&get_instance_dir(&instance_id)?))
 }
 
-// ── retrieve_game_server_list removed ──
-// Orphan command superseded by retrieve_instance_workspace which
-// already returns servers (ServerInfo[]) alongside worlds, mods, etc.
 
-// ── New command: retrieve full workspace for a local instance ─────────────
+
+
+
+
 
 #[tauri::command]
 pub async fn retrieve_instance_workspace(
@@ -328,7 +329,7 @@ pub async fn retrieve_instance_workspace(
     })
 }
 
-// ── Mod enable/disable & delete ────────────────────────────────────────────
+
 
 fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     if name.is_empty() {
@@ -340,7 +341,7 @@ fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     if name.contains('/') || name.contains('\\') {
         return Err(LauncherError::from("文件名包含路径分隔符"));
     }
-    // Reject the literal "." and ".." directory entries
+
     if name == "." || name == ".." {
         return Err(LauncherError::from("文件名不能为 '.' 或 '..'"));
     }
@@ -348,7 +349,7 @@ fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     if path.is_absolute() {
         return Err(LauncherError::from("文件名不能为绝对路径"));
     }
-    // Reject Windows drive letter (e.g. "C:foo")
+
     let bytes = name.as_bytes();
     if bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' {
         return Err(LauncherError::from("文件名不能包含盘符"));
@@ -356,8 +357,8 @@ fn sanitize_file_name(name: &str) -> Result<(), LauncherError> {
     Ok(())
 }
 
-/// Compute the target file name when enabling a mod.
-/// Returns `Some(new_name)` if a rename is needed, `None` for no-op (already enabled).
+
+
 fn target_for_enable(file_name: &str) -> Result<Option<String>, LauncherError> {
     let lower = file_name.to_lowercase();
     if lower.ends_with(".disabled") {
@@ -367,14 +368,17 @@ fn target_for_enable(file_name: &str) -> Result<Option<String>, LauncherError> {
     if lower.ends_with(".jar") {
         return Ok(None);
     }
-    Err(LauncherError::new("INVALID_INPUT", format!(
-        "无法启用文件 '{}'：仅支持 .jar 或 .disabled 文件",
-        file_name
-    )))
+    Err(LauncherError::new(
+        "INVALID_INPUT",
+        format!(
+            "无法启用文件 '{}'：仅支持 .jar 或 .disabled 文件",
+            file_name
+        ),
+    ))
 }
 
-/// Compute the target file name when disabling a mod.
-/// Returns `Some(new_name)` if a rename is needed, `None` for no-op (already disabled).
+
+
 fn target_for_disable(file_name: &str) -> Result<Option<String>, LauncherError> {
     let lower = file_name.to_lowercase();
     if lower.ends_with(".jar") {
@@ -384,10 +388,13 @@ fn target_for_disable(file_name: &str) -> Result<Option<String>, LauncherError> 
     if lower.ends_with(".disabled") {
         return Ok(None);
     }
-    Err(LauncherError::new("INVALID_INPUT", format!(
-        "无法禁用文件 '{}'：仅支持 .jar 或 .disabled 文件",
-        file_name
-    )))
+    Err(LauncherError::new(
+        "INVALID_INPUT",
+        format!(
+            "无法禁用文件 '{}'：仅支持 .jar 或 .disabled 文件",
+            file_name
+        ),
+    ))
 }
 
 #[tauri::command]
@@ -441,7 +448,7 @@ pub async fn set_mod_enabled(
             (Some(dst_path.to_string_lossy().to_string()), enabled)
         }
         None => {
-            // Already in desired state — no filesystem change
+
             (None, enabled)
         }
     };
@@ -515,25 +522,32 @@ pub async fn delete_mod_file(
     })
 }
 
-// ── NBT servers.dat parser ────────────────────────────────────────────────
+
 
 fn parse_servers_dat(path: &Path) -> Result<Vec<ServerInfo>, LauncherError> {
-    let data = std::fs::read(path).map_err(|e| LauncherError::from(format!("无法读取 servers.dat: {}", e)))?;
+    let data = std::fs::read(path)
+        .map_err(|e| LauncherError::from(format!("无法读取 servers.dat: {}", e)))?;
     let bytes: &[u8] = data.as_ref();
     let mut cursor = std::io::Cursor::new(bytes);
 
     let root_type = read_u8(&mut cursor)?;
     if root_type != 0x0a {
-        return Err(LauncherError::new("FORMAT_ERROR", format!(
-            "servers.dat 格式错误: 期望 Compound (0x0a), 得到 {:#x}",
-            root_type
-        )));
+        return Err(LauncherError::new(
+            "FORMAT_ERROR",
+            format!(
+                "servers.dat 格式错误: 期望 Compound (0x0a), 得到 {:#x}",
+                root_type
+            ),
+        ));
     }
     read_nbt_string(&mut cursor)?;
 
     let tag_type = read_u8(&mut cursor)?;
     if tag_type != 0x09 {
-        return Err(LauncherError::new("FORMAT_ERROR", format!("期望 List tag, 得到 {:#x}", tag_type)));
+        return Err(LauncherError::new(
+            "FORMAT_ERROR",
+            format!("期望 List tag, 得到 {:#x}", tag_type),
+        ));
     }
     read_nbt_string(&mut cursor)?;
     let list_type = read_u8(&mut cursor)?;
@@ -557,7 +571,8 @@ fn parse_servers_dat(path: &Path) -> Result<Vec<ServerInfo>, LauncherError> {
                 break;
             }
             let field_name = read_nbt_string(&mut cursor)?;
-            let ft = field_type.map_err(|e| LauncherError::from(format!("读取标签类型失败: {}", e)))?;
+            let ft =
+                field_type.map_err(|e| LauncherError::from(format!("读取标签类型失败: {}", e)))?;
             match ft {
                 0x08 => {
                     let value = read_nbt_string(&mut cursor)?;
@@ -684,19 +699,24 @@ fn skip_nbt_value(cursor: &mut std::io::Cursor<&[u8]>, tag_type: u8) -> Result<(
                 .seek_relative(len as i64 * 8)
                 .map_err(|e| LauncherError::from(e.to_string()))?;
         }
-        _ => return Err(LauncherError::new("FORMAT_ERROR", format!("unknown NBT tag type: {:#x}", tag_type))),
+        _ => {
+            return Err(LauncherError::new(
+                "FORMAT_ERROR",
+                format!("unknown NBT tag type: {:#x}", tag_type),
+            ))
+        }
     }
     Ok(())
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    // ── parse_mod_name ─────────────────────────────────────────────────
+
 
     #[test]
     fn parse_jar_name() {
@@ -730,7 +750,7 @@ mod tests {
 
     #[test]
     fn parse_double_jar_no_disabled() {
-        // "foo.jar.jar" — strip last .jar → "foo.jar"
+
         assert_eq!(parse_mod_name("foo.jar.jar"), "foo.jar");
     }
 
@@ -739,7 +759,7 @@ mod tests {
         assert_eq!(parse_mod_name("my.mod-1.0.jar"), "my.mod-1.0");
     }
 
-    // ── scan_mods ──────────────────────────────────────────────────────
+
 
     #[test]
     fn scan_mods_only_includes_jar_and_disabled() {
@@ -748,14 +768,14 @@ mod tests {
         let mods_dir = game_dir.join("mods");
         std::fs::create_dir_all(&mods_dir).expect("create mods dir");
 
-        // Valid mod files
+
         std::fs::write(mods_dir.join("alpha.jar"), b"aaa").expect("write");
         std::fs::write(mods_dir.join("beta.jar.disabled"), b"bbb").expect("write");
         std::fs::write(mods_dir.join("gamma.disabled"), b"ggg").expect("write");
-        // Should be skipped (not jar/disabled)
+
         std::fs::write(mods_dir.join("readme.txt"), b"rrr").expect("write");
         std::fs::write(mods_dir.join("config.json"), b"ccc").expect("write");
-        // Directory should be skipped
+
         std::fs::create_dir_all(mods_dir.join("nested_mod")).expect("create nested dir");
 
         let mods = scan_mods(game_dir);
@@ -768,7 +788,7 @@ mod tests {
         let names: Vec<&str> = mods.iter().map(|m| m.name.as_str()).collect();
         assert_eq!(names, vec!["alpha", "beta", "gamma"]);
 
-        // Verify enabled states
+
         assert!(mods[0].enabled);
         assert!(!mods[1].enabled);
         assert!(!mods[2].enabled);
@@ -805,7 +825,7 @@ mod tests {
     fn scan_mods_nonexistent_dir_returns_empty() {
         let dir = TempDir::new().expect("tempdir");
         let game_dir = dir.path();
-        // Do not create mods dir
+
 
         let mods = scan_mods(game_dir);
         assert!(mods.is_empty());
@@ -827,7 +847,7 @@ mod tests {
         assert!(mods[0].modified_at > 0);
     }
 
-    // ── scan_worlds ────────────────────────────────────────────────────
+
 
     #[test]
     fn scan_worlds_finds_directories() {
@@ -836,7 +856,7 @@ mod tests {
         let saves = game_dir.join("saves");
         std::fs::create_dir_all(saves.join("New World")).expect("create world dir");
         std::fs::create_dir_all(saves.join("Creative")).expect("create world dir");
-        // File should be ignored
+
         std::fs::write(saves.join("readme.txt"), b"ignored").expect("write");
 
         let worlds = scan_worlds(game_dir);
@@ -846,7 +866,7 @@ mod tests {
         assert!(names.contains(&"Creative"));
     }
 
-    // ── scan_screenshots ───────────────────────────────────────────────
+
 
     #[test]
     fn scan_screenshots_filters_png_only() {
@@ -862,7 +882,7 @@ mod tests {
         assert_eq!(shots.len(), 2);
     }
 
-    // ── scan_resource_packs / scan_shader_packs ────────────────────────
+
 
     #[test]
     fn scan_resource_packs_lists_files() {
@@ -890,7 +910,7 @@ mod tests {
         assert_eq!(packs[0].name, "SEUS.zip");
     }
 
-    // ── scan_servers ───────────────────────────────────────────────────
+
 
     #[test]
     fn scan_servers_empty_when_no_dat() {
@@ -898,38 +918,38 @@ mod tests {
         assert!(scan_servers(dir.path()).is_empty());
     }
 
-    // ── Workspace aggregation helper test ──────────────────────────────
+
 
     #[test]
     fn workspace_aggregation_uses_passed_game_dir() {
         let dir = TempDir::new().expect("tempdir");
         let game_dir = dir.path();
 
-        // Create mods
+
         let mods_dir = game_dir.join("mods");
         std::fs::create_dir_all(&mods_dir).expect("create mods dir");
         std::fs::write(mods_dir.join("example.jar"), b"mod data").expect("write");
 
-        // Create worlds
+
         let saves_dir = game_dir.join("saves");
         std::fs::create_dir_all(saves_dir.join("World1")).expect("create world");
 
-        // Create resource packs
+
         let rp_dir = game_dir.join("resourcepacks");
         std::fs::create_dir_all(&rp_dir).expect("create rp dir");
         std::fs::write(rp_dir.join("pack.zip"), b"pack").expect("write");
 
-        // Create shader packs
+
         let sp_dir = game_dir.join("shaderpacks");
         std::fs::create_dir_all(&sp_dir).expect("create sp dir");
         std::fs::write(sp_dir.join("shader.zip"), b"shader").expect("write");
 
-        // Create screenshots
+
         let ss_dir = game_dir.join("screenshots");
         std::fs::create_dir_all(&ss_dir).expect("create ss dir");
         std::fs::write(ss_dir.join("screen.png"), b"png").expect("write");
 
-        // Aggregate using helpers
+
         let mods = scan_mods(game_dir);
         let worlds = scan_worlds(game_dir);
         let rps = scan_resource_packs(game_dir);
@@ -947,7 +967,7 @@ mod tests {
         assert!(servers.is_empty());
     }
 
-    // ── sanitize_file_name ───────────────────────────────────────────────
+
 
     #[test]
     fn sanitize_legal_names() {
@@ -977,7 +997,7 @@ mod tests {
     fn sanitize_rejects_dotdot() {
         assert!(sanitize_file_name("..").is_err());
         assert!(sanitize_file_name(".").is_err());
-        // Embedded dots are safe when there is no path separator
+
         assert!(sanitize_file_name("foo..bar.jar").is_ok());
         assert!(sanitize_file_name("...").is_ok());
     }
@@ -998,7 +1018,7 @@ mod tests {
         assert!(sanitize_file_name("foo\0bar.jar").is_err());
     }
 
-    // ── target_for_enable ───────────────────────────────────────────────
+
 
     #[test]
     fn enable_disabled_file() {
@@ -1024,7 +1044,7 @@ mod tests {
         assert!(target_for_enable("config").is_err());
     }
 
-    // ── target_for_disable ──────────────────────────────────────────────
+
 
     #[test]
     fn disable_jar_file() {
@@ -1046,7 +1066,7 @@ mod tests {
         assert!(target_for_disable("config").is_err());
     }
 
-    // ── set_mod_enabled / delete_mod_file integration ───────────────────
+
 
     fn make_test_mods_dir() -> (TempDir, PathBuf) {
         let dir = TempDir::new().expect("tempdir");

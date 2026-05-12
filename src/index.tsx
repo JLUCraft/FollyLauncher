@@ -1,4 +1,4 @@
-/* @refresh reload */
+
 import { render } from "solid-js/web";
 import { Router, Route } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";

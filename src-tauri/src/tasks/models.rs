@@ -49,7 +49,7 @@ fn default_timestamp() -> String {
     chrono::Utc::now().to_rfc3339()
 }
 
-// ── Phase 36: Snapshot import/export models ──────────────────────────────
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -76,22 +76,22 @@ pub struct ImportTaskSnapshotResult {
     pub total: usize,
 }
 
-// ── Phase 37: Cancel semantics helper ────────────────────────────────────
 
-/// 任务中心取消标记的语义说明，与前端 confirm 及提示文案保持一致。
+
+
 pub const TASK_CENTER_CANCEL_NOTE: &str =
     "已在任务中心标记为取消；若后台下载已开始，底层操作可能仍会继续至自然结束。";
 
-/// 在任务中心记录中将任务标记为"取消"。
-///
-/// 仅对 `Running`、`Pending`、`Paused` 状态执行标记：
-/// - `status` 设为 `Cancelled`
-/// - `updated_at` 置为 `now`
-/// - `message` 若为空则写入 `TASK_CENTER_CANCEL_NOTE`
-/// - `message` 若已含 `"已在任务中心标记为取消"` 则不重复追加
-/// - 其余非空 `message` 会以 `；` 分隔追加说明
-///
-/// `Completed`、`Failed`、已 `Cancelled` 的任务不做任何修改。
+
+
+
+
+
+
+
+
+
+
 pub fn mark_task_cancelled_in_task_center(task: &mut TaskProgress, now: &str) {
     if matches!(
         task.status,
@@ -108,10 +108,10 @@ pub fn mark_task_cancelled_in_task_center(task: &mut TaskProgress, now: &str) {
     }
 }
 
-// ── Phase 36: Pure helper functions ──────────────────────────────────────
 
-/// Check whether a task group is "active" — its `overall_status` or any
-/// individual task is Running, Pending, or Paused.
+
+
+
 pub fn is_active_task_group(group: &TaskGroup) -> bool {
     if matches!(
         group.overall_status,
@@ -127,26 +127,29 @@ pub fn is_active_task_group(group: &TaskGroup) -> bool {
     })
 }
 
-/// Validate a snapshot group before import:
-/// - `group_id` trimmed must be non-empty.
-/// - `tasks` must be non-empty.
+
+
+
 pub fn validate_snapshot_group(group: &TaskGroup) -> Result<(), LauncherError> {
     if group.group_id.trim().is_empty() {
         return Err(LauncherError::from("任务组ID为空，跳过导入"));
     }
     if group.tasks.is_empty() {
-        return Err(LauncherError::from(format!("任务组 {} 没有任务，跳过导入", group.group_id)));
+        return Err(LauncherError::from(format!(
+            "任务组 {} 没有任务，跳过导入",
+            group.group_id
+        )));
     }
     Ok(())
 }
 
-/// Fill empty timestamps, handle active tasks based on `drop_active`, and
-/// refresh the group summary.
-///
-/// Returns `true` if the group should be **skipped** (because it is active
-/// and `drop_active` is true).
+
+
+
+
+
 pub fn normalize_imported_task_group(group: &mut TaskGroup, drop_active: bool, now: &str) -> bool {
-    // Fill empty timestamps on tasks
+
     for task in &mut group.tasks {
         if task.created_at.is_empty() {
             task.created_at = now.to_string();
@@ -160,9 +163,9 @@ pub fn normalize_imported_task_group(group: &mut TaskGroup, drop_active: bool, n
 
     if active {
         if drop_active {
-            return true; // skip
+            return true;
         } else {
-            // Cancel all Running / Pending / Paused tasks
+
             for task in &mut group.tasks {
                 if matches!(
                     task.status,
@@ -182,17 +185,17 @@ pub fn normalize_imported_task_group(group: &mut TaskGroup, drop_active: bool, n
     }
 
     refresh_group_summary(group, now.to_string());
-    false // not skipped
+    false
 }
 
-/// Calculate overall status from task list.
-/// Rules:
-/// - Empty → Pending
-/// - Any Failed → Failed
-/// - Any Cancelled and no Running/Pending → Cancelled
-/// - Any Running → Running
-/// - Any Pending → Pending
-/// - All Completed → Completed
+
+
+
+
+
+
+
+
 pub fn calculate_overall_status(tasks: &[TaskProgress]) -> TaskStatus {
     if tasks.is_empty() {
         return TaskStatus::Pending;
@@ -212,14 +215,14 @@ pub fn calculate_overall_status(tasks: &[TaskProgress]) -> TaskStatus {
     } else if has_cancelled {
         TaskStatus::Cancelled
     } else {
-        // All must be Completed (or Paused which should not happen alone)
+
         TaskStatus::Completed
     }
 }
 
-/// Calculate progress percentage (0..100) from task list.
-/// For each task: if total > 0 use current/total; Completed tasks count as 100%.
-/// Average across tasks, clamped to 0..100.
+
+
+
 pub fn calculate_progress_percent(tasks: &[TaskProgress]) -> u8 {
     if tasks.is_empty() {
         return 0;
@@ -242,8 +245,8 @@ pub fn calculate_progress_percent(tasks: &[TaskProgress]) -> u8 {
     (avg * 100.0).round() as u8
 }
 
-/// Refresh group summary fields: overall_status, completed_tasks,
-/// total_tasks, progress_percent, updated_at.
+
+
 pub fn refresh_group_summary(group: &mut TaskGroup, now: String) {
     group.overall_status = calculate_overall_status(&group.tasks);
     group.total_tasks = group.tasks.len();
@@ -256,7 +259,7 @@ pub fn refresh_group_summary(group: &mut TaskGroup, now: String) {
     group.updated_at = now;
 }
 
-// ── Tests ──
+
 
 #[cfg(test)]
 mod tests {
@@ -275,7 +278,7 @@ mod tests {
         }
     }
 
-    // ── calculate_overall_status ─────────────────────────────────────────
+
 
     #[test]
     fn empty_tasks_overall_pending() {
@@ -349,8 +352,8 @@ mod tests {
 
     #[test]
     fn single_paused_is_not_overridden_by_cancelled() {
-        // Paused alone with Cancelled → since all Cancelled + Paused (no Pending/Running)
-        // → Cancelled per spec
+
+
         let tasks = vec![
             task(TaskStatus::Paused, 20, 100),
             task(TaskStatus::Cancelled, 0, 100),
@@ -358,7 +361,7 @@ mod tests {
         assert_eq!(calculate_overall_status(&tasks), TaskStatus::Cancelled);
     }
 
-    // ── calculate_progress_percent ───────────────────────────────────────
+
 
     #[test]
     fn empty_tasks_progress_zero() {
@@ -386,8 +389,8 @@ mod tests {
     #[test]
     fn average_across_tasks() {
         let tasks = vec![
-            task(TaskStatus::Completed, 100, 100), // 100%
-            task(TaskStatus::Running, 0, 100),     // 0%
+            task(TaskStatus::Completed, 100, 100),
+            task(TaskStatus::Running, 0, 100),
         ];
         assert_eq!(calculate_progress_percent(&tasks), 50);
     }
@@ -401,15 +404,15 @@ mod tests {
     #[test]
     fn mixed_tasks_average() {
         let tasks = vec![
-            task(TaskStatus::Completed, 100, 100), // 100%
-            task(TaskStatus::Running, 25, 100),    // 25%
-            task(TaskStatus::Pending, 0, 100),     // 0%
+            task(TaskStatus::Completed, 100, 100),
+            task(TaskStatus::Running, 25, 100),
+            task(TaskStatus::Pending, 0, 100),
         ];
-        // average = (1.0 + 0.25 + 0.0) / 3 ≈ 41.67 → 42
+
         assert_eq!(calculate_progress_percent(&tasks), 42);
     }
 
-    // ── refresh_group_summary ────────────────────────────────────────────
+
 
     #[test]
     fn refresh_updates_all_summary_fields() {
@@ -432,7 +435,7 @@ mod tests {
         assert_eq!(group.overall_status, TaskStatus::Running);
         assert_eq!(group.total_tasks, 2);
         assert_eq!(group.completed_tasks, 1);
-        assert_eq!(group.progress_percent, 65); // (100 + 30) / 2 = 65
+        assert_eq!(group.progress_percent, 65);
         assert_eq!(group.updated_at, now);
     }
 
@@ -458,7 +461,7 @@ mod tests {
         assert_eq!(group.updated_at, now);
     }
 
-    // ── Serialization roundtrip (camelCase) ──────────────────────────────
+
 
     #[test]
     fn task_progress_serializes_camel_case() {
@@ -476,7 +479,7 @@ mod tests {
         assert!(json.contains("\"taskId\""));
         assert!(json.contains("\"createdAt\""));
         assert!(json.contains("\"updatedAt\""));
-        // Roundtrip
+
         let back: TaskProgress = serde_json::from_str(&json).expect("should deserialize");
         assert_eq!(back.task_id, 1);
         assert_eq!(back.created_at, "2026-01-01T00:00:00Z");
@@ -506,7 +509,7 @@ mod tests {
 
     #[test]
     fn task_progress_deserializes_with_default_timestamps() {
-        // Old-style JSON without createdAt/updatedAt
+
         let json =
             r#"{"taskId":1,"name":"t","current":0,"total":0,"status":"pending","message":""}"#;
         let task: TaskProgress = serde_json::from_str(json).expect("should deserialize");
@@ -520,7 +523,7 @@ mod tests {
         );
     }
 
-    // ── Phase 36: Snapshot helpers tests ──────────────────────────────────
+
 
     fn make_task_snapshot(
         id: u64,
@@ -561,7 +564,7 @@ mod tests {
         g
     }
 
-    // ── is_active_task_group ────────────────────────────────────────────
+
 
     #[test]
     fn active_when_overall_is_running() {
@@ -589,7 +592,7 @@ mod tests {
             TaskStatus::Completed,
             "2026-01-01T00:00:00Z",
         );
-        // overall_status is Completed but a task is Running
+
         assert!(is_active_task_group(&g));
     }
 
@@ -608,7 +611,7 @@ mod tests {
         assert!(!is_active_task_group(&g));
     }
 
-    // ── validate_snapshot_group ─────────────────────────────────────────
+
 
     #[test]
     fn validate_rejects_empty_group_id() {
@@ -638,7 +641,7 @@ mod tests {
         assert!(validate_snapshot_group(&g).is_ok());
     }
 
-    // ── normalize_imported_task_group ────────────────────────────────────
+
 
     #[test]
     fn normalize_fills_empty_timestamps() {
@@ -697,17 +700,17 @@ mod tests {
         let now = "2026-05-04T12:00:00Z";
         let skipped = normalize_imported_task_group(&mut g, false, now);
         assert!(!skipped);
-        // Running + Pending → Cancelled
+
         assert_eq!(g.tasks[0].status, TaskStatus::Cancelled);
         assert_eq!(g.tasks[1].status, TaskStatus::Cancelled);
-        // Completed unchanged
+
         assert_eq!(g.tasks[2].status, TaskStatus::Completed);
-        // Cancelled tasks' messages include the cancel note
+
         assert!(g.tasks[0].message.contains("从快照导入"));
         assert!(g.tasks[1].message.contains("从快照导入"));
-        // Summary refreshed
+
         assert_eq!(g.updated_at, now);
-        // overall_status: Completed + Cancelled + Cancelled → Cancelled
+
         assert_eq!(g.overall_status, TaskStatus::Cancelled);
     }
 
@@ -740,12 +743,12 @@ mod tests {
             "2026-01-01T00:00:00Z",
         );
         let now = "2026-05-04T12:00:00Z";
-        // drop_active=true but group is not active → should still import
+
         let skipped = normalize_imported_task_group(&mut g, true, now);
         assert!(!skipped);
     }
 
-    // ── serde camelCase roundtrip for snapshot types ─────────────────────
+
 
     #[test]
     fn task_snapshot_bundle_serializes_camel_case() {
@@ -785,7 +788,7 @@ mod tests {
         assert!(!req.drop_active);
     }
 
-    // ── snapshot bundle roundtrip with groups ────────────────────────────
+
 
     #[test]
     fn bundle_roundtrip_with_groups_preserves_data() {

@@ -38,7 +38,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tasks::models::TaskGroup;
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 use tokio::sync::Mutex;
 
 pub struct AppState {
@@ -141,7 +141,7 @@ async fn register_for_tournament(
         .map_err(LauncherError::from)
 }
 
-// ── DESIGN.md §7.11: Tournament dispute Tauri commands ──
+
 
 #[tauri::command]
 async fn create_match_dispute(
@@ -185,11 +185,11 @@ async fn get_dispute(
         .map_err(LauncherError::from)
 }
 
-// resolve_dispute removed — FollyLauncher is a player-side launcher
-// without admin TEE / canonical command signing capability. Dispute
-// resolution must go through union-manager's resolveDisputeViaProposal
-// path (multi-sig governance proposal via POST /v1/proposals with
-// ProposalType::DisputeResolve).
+
+
+
+
+
 
 #[tauri::command]
 async fn create_team(
@@ -297,7 +297,7 @@ async fn poll_mua_login(
         .await
         .map_err(|e| LauncherError::from(e.to_string()))?;
 
-    // Auto-bind peer_id to Yggdrasil UUID in the background
+
     let peer_id = state.identity.peer_id().to_string();
     let uuid = account.uuid.clone();
     let access_token = account.access_token.clone();
@@ -334,8 +334,8 @@ async fn poll_mua_login(
         username: Some(account.username),
         uuid: Some(account.uuid),
         auth_server_url: account.auth_server_url,
-        peer_bound: false, // Will be updated in background task
-        is_guest: true,    // New MUA login without VC is guest
+        peer_bound: false,
+        is_guest: true,
         is_member: false,
     })
 }
@@ -389,8 +389,8 @@ async fn update_game_settings(
     mut settings: GameSettings,
 ) -> Result<(), LauncherError> {
     let mut state = state.lock().await;
-    // Preserve last-launch tracking from current memory state;
-    // frontend may not include these fields in its settings payload.
+
+
     settings.last_instance_id = state.game_settings.last_instance_id.clone();
     settings.last_peer_id = state.game_settings.last_peer_id.clone();
     settings.last_connected_at = state.game_settings.last_connected_at.clone();
@@ -405,8 +405,8 @@ async fn update_game_settings(
     Ok(())
 }
 
-/// Shared helper that runs a dialog-picking closure inside `spawn_blocking`
-/// and maps the result to `Option<String>`.
+
+
 async fn show_blocking_dialog<F>(
     app: tauri::AppHandle,
     pick: F,
@@ -473,13 +473,13 @@ async fn sync_resources(
         .map_err(LauncherError::from)?;
 
     let (_cached, missing) = state.resource_sync.check_cache(&manifest);
-    // ResourceManifest files from proto may not have download URLs;
-    // sync_files ignores base_url when files have chunks (content-addressed).
+
+
     let result = state.resource_sync.sync_files(&missing, "").await;
     Ok(result)
 }
 
-/// DESIGN.md §2.6: Probe migration health before switching proxy target.
+
 #[tauri::command]
 async fn probe_migration_health(
     state: State<'_, Arc<Mutex<AppState>>>,
@@ -494,21 +494,22 @@ async fn probe_migration_health(
         .map_err(LauncherError::from)
 }
 
-// create_instance Tauri command removed — players must use create_quick_room,
-// which auto-derives kind/club/owner from the current identity and room config.
-// Admin instance creation goes through union-manager's governance path.
+
+
+
 
 #[tauri::command]
 async fn check_instance_eligibility(
     state: State<'_, Arc<Mutex<AppState>>>,
     instance_id: String,
 ) -> Result<EligibilityResult, LauncherError> {
-    let (vc_status, account, game_dir) = {
+    let (vc_status, account, game_dir, control) = {
         let s = state.lock().await;
         let vc_status = s.identity.vc_status().await;
         let account = s.identity.mua_account().cloned();
         let game_dir = s.data_dir.join("minecraft");
-        (vc_status, account, game_dir)
+        let control = s.control.clone();
+        (vc_status, account, game_dir, control)
     };
 
     let logged_in = account.is_some();
@@ -516,23 +517,25 @@ async fn check_instance_eligibility(
     let user_club = vc_status.club.clone();
     let user_role = vc_status.role.clone();
 
-    // Resolve instance over DHT to get peer connectivity info
-    let instance_resolved = {
-        let s = state.lock().await;
-        s.network.resolve_instance(instance_id.clone()).await?
-    };
+
+    let (instance_resolved, instance_info) = tokio::join!(
+        async {
+            let s = state.lock().await;
+            s.network.resolve_instance(instance_id.clone()).await
+        },
+        async {
+            let instances = control
+                .list_instances("", "", "")
+                .await
+                .map_err(LauncherError::from)?;
+            Ok::<_, LauncherError>(instances.into_iter().find(|i| i.id == instance_id))
+        },
+    );
+    let instance_resolved = instance_resolved?;
+    let instance_info = instance_info?;
     let found = instance_resolved.is_some();
 
-    // Look up instance metadata from known-instances GossipSub cache
-    // (populated by cluster "instance-created"/"instance-updated" events).
-    // The `mode` field maps to the server-side admission mode.
-    let instance_info = {
-        let s = state.lock().await;
-        let instances = s.network.list_instances().await?;
-        instances.into_iter().find(|i| i.id == instance_id)
-    };
-    // Treat empty club as None — an instance without a club annotation
-    // must not be mistaken for a mismatched club in compute_admission_block.
+
     let instance_club = instance_info.as_ref().and_then(|i| {
         if i.club.is_empty() {
             None
@@ -544,11 +547,11 @@ async fn check_instance_eligibility(
     let admission_mode = api::AdmissionMode::normalize(
         &instance_info
             .as_ref()
-            .ok_or_else(|| format!("实例 {instance_id} 缺少 GossipSub 元数据"))?
+            .ok_or_else(|| format!("实例 {instance_id} 缺少权威控制面元数据"))?
             .mode,
     );
 
-    // Admission preflight — launcher-side UX check, not authoritative enforcement.
+
     let (admission_blocked, admission_reason) = compute_admission_block(
         admission_mode.as_str(),
         is_member,
@@ -556,9 +559,9 @@ async fn check_instance_eligibility(
         instance_club.as_deref(),
     );
 
-    // Resource validation: check if version JSON / client JAR exist
+
     let resources_missing: bool = {
-        // Basic check: if game_dir/versions exists and has content
+
         let versions_dir = game_dir.join("versions");
         if !versions_dir.exists() {
             true
@@ -576,9 +579,9 @@ async fn check_instance_eligibility(
         }
     };
 
-    // Memory/disk preflight via sysinfo
+
     let (available_memory_mb, memory_warning) = {
-        let mut sys = sysinfo::System::new_all();
+        let mut sys = sysinfo::System::new();
         sys.refresh_memory();
         let avail = sys.available_memory() / (1024 * 1024);
         (avail, avail < 2048)
@@ -586,7 +589,7 @@ async fn check_instance_eligibility(
 
     let (available_disk_mb, disk_warning) = {
         let path = game_dir.clone();
-        // Use sysinfo disk list to find the volume
+
         let disks = sysinfo::Disks::new_with_refreshed_list();
         let mut avail_disk = 0u64;
         for disk in disks.list() {
@@ -599,7 +602,7 @@ async fn check_instance_eligibility(
         (avail_disk, avail_disk < 1024)
     };
 
-    // Assemble eligibility result
+
     let (eligible, reason) = if !logged_in {
         (false, Some("请先在「我的」页面完成 MUA 登录".to_string()))
     } else if !found {
@@ -633,7 +636,7 @@ async fn check_instance_eligibility(
     })
 }
 
-/// Phase 4: Validate a local Minecraft installation and produce download/repair tasks.
+
 #[tauri::command]
 async fn validate_and_update_game(
     app_state: State<'_, Arc<Mutex<AppState>>>,
@@ -652,7 +655,7 @@ async fn validate_and_update_game(
         .map_err(|e| LauncherError::from(e.to_string()))
 }
 
-/// Phase 4: Generate a launch plan with full JVM args, game args, classpath, natives, QuickPlay.
+
 #[tauri::command]
 async fn generate_launch_plan(
     app_state: State<'_, Arc<Mutex<AppState>>>,
@@ -689,15 +692,15 @@ async fn generate_launch_plan(
         .map_err(|e| LauncherError::from(e.to_string()))
 }
 
-// ── emit_download_progress / run_resource_download removed ──
-// These orphan commands had no TS call sites. Download progress is now
-// emitted by the downloader module directly via Tauri events.
 
-/// Pure-function admission preflight check.
-///
-/// Returns `(blocked, reason)` based on admission mode and the user's VC state.
-/// This function is side-effect free and is used by `check_instance_eligibility`
-/// as well as the unit-test suite.
+
+
+
+
+
+
+
+
 fn compute_admission_block(
     admission_mode: &str,
     is_member: bool,
@@ -756,25 +759,25 @@ struct EligibilityResult {
     reason: Option<String>,
     admission_mode: api::AdmissionMode,
     requires_vc: bool,
-    /// The user's club (from VC), used by the frontend for allowed_clubs pre-check.
+
     #[serde(skip_serializing_if = "Option::is_none")]
     user_club: Option<String>,
-    /// The user's VC role (guest, member, admin, president).
+
     #[serde(skip_serializing_if = "Option::is_none")]
     user_role: Option<String>,
-    /// Whether local resources (libraries, assets, client JAR) are missing.
+
     #[serde(default)]
     resources_missing: bool,
-    /// Available system memory in MB.
+
     #[serde(default)]
     available_memory_mb: u64,
-    /// Free disk space in MB on the game directory volume.
+
     #[serde(default)]
     available_disk_mb: u64,
-    /// True if memory headroom is insufficient (< 2048 MB free).
+
     #[serde(default)]
     memory_warning: bool,
-    /// True if disk headroom is insufficient (< 1024 MB free).
+
     #[serde(default)]
     disk_warning: bool,
 }
@@ -833,10 +836,7 @@ async fn create_quick_room(
     })
 }
 
-/// Invite players to an instance via the control protocol.
-///
-/// Subscribes to the instance GossipSub topic for invite propagation,
-/// then sends the invite through the control stream.
+
 #[tauri::command]
 async fn invite_players(
     state: State<'_, Arc<Mutex<AppState>>>,
@@ -845,9 +845,11 @@ async fn invite_players(
 ) -> Result<control_client::InvitePlayersResult, LauncherError> {
     let state = state.lock().await;
 
-    let topic = format!("mc.events.instance.{}", instance_id);
-    let _ = state.network.subscribe_topic(topic.clone()).await;
-
+    let topic = format!(
+        "{}{}",
+        crate::network::MC_INSTANCE_TOPIC_PREFIX,
+        instance_id
+    );
     let result = state
         .control
         .invite_players(&instance_id, &topic, players)
@@ -903,10 +905,10 @@ struct LaunchInstanceResult {
     member_vc: bool,
 }
 
-/// P2-4 phase A: resume the last launched instance from persisted settings.
-///
-/// Returns `Ok(None)` if no previous launch record exists. Otherwise attempts
-/// to resolve and launch the same (instance, version) pair that was last used.
+
+
+
+
 #[tauri::command]
 async fn resume_last_instance(
     state: State<'_, Arc<Mutex<AppState>>>,
@@ -929,7 +931,7 @@ async fn resume_last_instance(
     Ok(Some(result))
 }
 
-/// Core launch logic shared by `launch_instance` and `resume_last_instance`.
+
 async fn do_launch_instance(
     state: &State<'_, Arc<Mutex<AppState>>>,
     instance_id: String,
@@ -937,24 +939,24 @@ async fn do_launch_instance(
 ) -> Result<LaunchInstanceResult, LauncherError> {
     tracing::info!(%instance_id, %version, "launching instance via dedicated proxy");
 
-    // ── Phase 1: pre-checks under lock (short) ──
+
     let (account, resolved, peer_id, club, has_member_vc, settings, proxy, launcher_name, data_dir) = {
         let state_guard = state.lock().await;
 
-        // 1a. Check MUA account
+
         let identity = state_guard.identity.identity();
         let account = identity
             .mua_account
             .clone()
             .ok_or_else(|| "请先在「我的」页面完成 MUA 登录后再启动游戏".to_string())?;
 
-        // 1b. Validate game settings
+
         state_guard
             .game_settings
             .validate()
             .map_err(|e| LauncherError::from(e.to_string()))?;
 
-        // 1c. Resolve instance
+
         let resolved = state_guard
             .network
             .resolve_instance(instance_id.clone())
@@ -991,7 +993,7 @@ async fn do_launch_instance(
         "instance resolved"
     );
 
-    // ── Phase 2: bridge & spawn (no global lock held) ──
+
     let bridge_port = proxy
         .bridge_instance(proxy::BridgeConfig {
             instance_id: instance_id.clone(),
@@ -1007,7 +1009,7 @@ async fn do_launch_instance(
     let game_dir = std::path::PathBuf::from(&settings.game_directory);
     let jvm_args = settings.build_jvm_args();
 
-    let options = mc_launcher_core::types::MinecraftOptions {
+    let options = crate::launch::minecraft_command::MinecraftOptions {
         username: Some(account.username.clone()),
         uuid: Some(account.uuid.clone()),
         token: Some(account.access_token),
@@ -1020,11 +1022,11 @@ async fn do_launch_instance(
         custom_resolution: Some(true),
         resolution_width: Some(settings.resolution_width.to_string()),
         resolution_height: Some(settings.resolution_height.to_string()),
-        ..Default::default()
     };
 
-    let command = mc_launcher_core::command::get_minecraft_command(&version, &game_dir, &options)
-        .map_err(|e| format!("构建启动命令失败 (版本 {version} 可能未安装): {e}"))?;
+    let command =
+        crate::launch::minecraft_command::get_minecraft_command(&version, &game_dir, &options)
+            .map_err(|e| format!("构建启动命令失败 (版本 {version} 可能未安装): {e}"))?;
 
     let log_output = if settings.show_game_log {
         crate::launch::process::LogOutput::Inherit
@@ -1036,7 +1038,7 @@ async fn do_launch_instance(
     let pid = child.id();
     tracing::info!(pid = %pid.unwrap_or(0), %bridge_port, "minecraft process started via dedicated proxy");
 
-    // ── Phase 3: persist last-launch tracking for resume (P2-4 phase A) ──
+
     let now_iso = chrono::Utc::now().to_rfc3339();
     let mut persisted_settings = settings.clone();
     persisted_settings.last_instance_id = Some(instance_id.clone());
@@ -1046,7 +1048,7 @@ async fn do_launch_instance(
     if let Err(e) = persisted_settings.save(&data_dir) {
         tracing::warn!(error = %e, "failed to persist last-launch tracking");
     } else {
-        // Update in-memory state so subsequent get_game_settings reflects the change.
+
         let mut state_guard = state.lock().await;
         state_guard.game_settings = persisted_settings;
     }
@@ -1071,9 +1073,9 @@ async fn launch_instance(
     do_launch_instance(&state, instance_id, version).await
 }
 
-// ── launch_minecraft / parse_server_address removed ──
-// Legacy-mode launcher with no auth, no TS call sites. Superseded by
-// launch_local_instance and launch_instance for local/server play.
+
+
+
 
 pub fn run() {
     tauri::Builder::default()
@@ -1110,7 +1112,6 @@ pub fn run() {
             identity::commands::get_vc_status,
             identity::commands::import_vc,
             identity::commands::clear_vc,
-            network::commands::get_cluster_messages,
             network::commands::get_network_diagnostics,
             list_tournaments,
             get_tournament,
@@ -1131,39 +1132,34 @@ pub fn run() {
             get_resource_sync_status,
             sync_resources,
             get_bootstrap_status,
-            // Phase 1: Eligibility & quick room
+
             check_instance_eligibility,
             create_quick_room,
-            // Phase 1: Invite players
+
             invite_players,
-            // Phase 1: Migration health probe
+
             probe_migration_health,
-            // DESIGN.md §7.11: Tournament dispute commands
+
             create_match_dispute,
             list_disputes,
             get_dispute,
-            // Phase 1: PubSub dynamic topic subscriptions
-            network::commands::subscribe_instance_events,
-            network::commands::unsubscribe_instance_events,
-            network::commands::subscribe_tournament_events,
-            network::commands::unsubscribe_tournament_events,
-            // Phase 1: Launch pipeline
+
             launch::commands::launch_local_instance,
             launch::commands::launch_cancel,
             launch::commands::launch_get_state,
             launch::commands::launch_list_states,
             launch::commands::launch_export_crash,
-            // Phase 2: Java runtime management
+
             java::commands::retrieve_java_list,
             java::commands::validate_java,
-            // Phase 3: Task system
+
             tasks::commands::get_task_group,
             tasks::commands::list_task_groups,
             tasks::commands::cancel_task_group,
             tasks::commands::remove_task_group,
             tasks::commands::export_task_snapshot,
             tasks::commands::import_task_snapshot,
-            // Phase 4: Workspace
+
             workspace::commands::retrieve_world_list,
             workspace::commands::retrieve_screenshot_list,
             workspace::commands::retrieve_resource_pack_list,
@@ -1171,7 +1167,7 @@ pub fn run() {
             workspace::commands::retrieve_instance_workspace,
             workspace::commands::set_mod_enabled,
             workspace::commands::delete_mod_file,
-            // Resource download (CurseForge + Modrinth)
+
             resource::commands::fetch_game_version_list,
             resource::commands::fetch_mod_loader_version_list,
             resource::commands::fetch_optifine_version_list,
@@ -1191,43 +1187,43 @@ pub fn run() {
             resource::commands::install_loader_for_instance,
             resource::commands::start_install_loader_task,
             resource::commands::start_install_resource_task,
-            // Discover / News
+
             discover::commands::fetch_news_sources_info,
             discover::commands::fetch_news_post_summaries,
-            // Phase 3: Local instance management
+
             instance::commands::list_local_instances,
             instance::commands::create_local_instance,
             instance::commands::update_local_instance,
             instance::commands::delete_local_instance,
-            // Phase 4: Account system
+
             account::commands::list_launcher_accounts,
             account::commands::add_offline_account,
             account::commands::select_launcher_account,
             account::commands::delete_launcher_account,
             account::commands::add_third_party_account,
-            // Phase 20: Microsoft OAuth device flow
+
             account::commands::start_microsoft_login,
             account::commands::poll_microsoft_login,
-            // Phase 23: Microsoft token refresh
+
             account::commands::refresh_microsoft_account,
-            // Phase 24: Account avatar management
+
             account::commands::update_account_avatar,
             account::commands::refresh_account_avatar,
-            // Phase 27: Account export/import
+
             account::commands::export_launcher_accounts,
             account::commands::import_launcher_accounts,
-            // Phase 28: External (Prism/MultiMC) account import
+
             account::commands::import_external_accounts,
-            // Phase 5: Launcher config
+
             launcher_config::commands::retrieve_launcher_config,
             launcher_config::commands::update_launcher_config,
-            // Phase 13: Modpack manifest export/import
+
             modpack::commands::export_modpack_manifest,
             modpack::commands::import_modpack_manifest,
-            // Phase 21: Modpack ZIP export/import
+
             modpack::commands::export_modpack_zip,
             modpack::commands::import_modpack_zip,
-            // Phase 4: Enhanced validation and launch planning
+
             validate_and_update_game,
             generate_launch_plan,
         ])
@@ -1323,9 +1319,37 @@ async fn init_backend(handle: tauri::AppHandle) -> anyhow::Result<()> {
     handle.manage(task_groups);
 
     let notif = Arc::new(NotificationService::new());
-    notif.start(handle.clone()).await;
+    {
+        let control = {
+            let state = app_state.lock().await;
+            state.control.clone()
+        };
+        let handle_for_events = handle.clone();
+        let notif_for_events = notif.clone();
+        tokio::spawn(async move {
+            match control.subscribe_events_stream(Vec::new()).await {
+                Ok(mut events) => {
+                    while let Some(event) = events.recv().await {
+                        if event.event_type.starts_with("instance-")
+                            || event.topic.starts_with(network::MC_INSTANCE_TOPIC_PREFIX)
+                        {
+                            if let Err(e) = handle_for_events.emit("instances-changed", ()) {
+                                tracing::warn!(error = %e, "failed to emit instances-changed event");
+                            }
+                        }
+                        notif_for_events
+                            .handle_event(&handle_for_events, event)
+                            .await;
+                    }
+                }
+                Err(error) => {
+                    tracing::warn!(error = %error, "subscribe_events background task failed to start");
+                }
+            }
+        });
+    }
 
-    // Background tasks: periodic CRL refresh and VC expiry cleanup
+
     let app_state_bg = app_state.clone();
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(6 * 3600));
@@ -1333,7 +1357,7 @@ async fn init_backend(handle: tauri::AppHandle) -> anyhow::Result<()> {
             interval.tick().await;
             let mut state = app_state_bg.lock().await;
 
-            // Refresh CRL via control protocol
+
             match state.control.list_revoked_credentials().await {
                 Ok(ids) => {
                     if let Err(e) = state.identity.update_crl_entries(ids).await {
@@ -1347,7 +1371,7 @@ async fn init_backend(handle: tauri::AppHandle) -> anyhow::Result<()> {
                 }
             }
 
-            // Cleanup expired VCs (if expired > 1 day ago)
+
             let vc_state = state.identity.vc_status().await.state;
             if vc_state == VcHolderState::Expired {
                 if let Err(e) = state.identity.clear_vc().await {
@@ -1370,17 +1394,17 @@ fn project_data_dir() -> anyhow::Result<PathBuf> {
 
 use tracing::info;
 
-// ── Shared type contract tests ───────────────────────────────────────
-// These tests verify that Rust response types serialize to the JSON shapes
-// expected by the frontend TypeScript interfaces defined in src/services/*.ts
+
+
+
 
 #[cfg(test)]
 mod type_contract_tests {
     use super::*;
     use serde_json::json;
 
-    /// Verify that EligibilityResult serializes to the shape expected by
-    /// the frontend `EligibilityResult` interface in src/services/network.ts.
+
+
     #[test]
     fn test_eligibility_result_contract() {
         let result = EligibilityResult {
@@ -1399,7 +1423,7 @@ mod type_contract_tests {
         };
         let json = serde_json::to_value(&result).unwrap();
 
-        // All required frontend fields must be present
+
         assert_eq!(json["instance_id"], "550e8400-e29b-41d4-a716-446655440000");
         assert_eq!(json["eligible"], true);
         assert_eq!(json["reason"], json!(null));
@@ -1413,7 +1437,7 @@ mod type_contract_tests {
         assert_eq!(json["memory_warning"], false);
         assert_eq!(json["disk_warning"], false);
 
-        // When user_club is None, it should be omitted
+
         let result_no_club = EligibilityResult {
             instance_id: "test".to_string(),
             eligible: false,
@@ -1435,7 +1459,7 @@ mod type_contract_tests {
         );
     }
 
-    /// Verify that InvitePlayersResult matches frontend InvitePlayersResult.
+
     #[test]
     fn test_invite_result_contract() {
         let result = control_client::InvitePlayersResult {
@@ -1449,7 +1473,7 @@ mod type_contract_tests {
         assert_eq!(json["missing_recipients"], json!(["offline-a"]));
     }
 
-    /// Verify that BootstrapStatus matches frontend BootstrapStatus.
+
     #[test]
     fn test_bootstrap_status_contract() {
         let status = BootstrapStatus {
@@ -1468,7 +1492,7 @@ mod type_contract_tests {
         assert!(json["peers"].is_array());
         assert_eq!(json["peers"].as_array().unwrap().len(), 3);
 
-        // Empty bootstrap
+
         let empty = BootstrapStatus {
             configured: false,
             peer_count: 0,
@@ -1481,7 +1505,7 @@ mod type_contract_tests {
         assert!(empty_json["peers"].as_array().unwrap().is_empty());
     }
 
-    /// Verify that LaunchInstanceResult matches frontend LaunchInstanceResult.
+
     #[test]
     fn test_launch_result_contract() {
         let result = LaunchInstanceResult {
@@ -1501,7 +1525,7 @@ mod type_contract_tests {
         assert_eq!(json["uuid"], "abcdef1234567890abcdef1234567890");
         assert_eq!(json["member_vc"], true);
 
-        // pid can be null
+
         let result_no_pid = LaunchInstanceResult {
             bridge_port: 25567,
             pid: None,
@@ -1515,7 +1539,7 @@ mod type_contract_tests {
         assert_eq!(json_no_pid["pid"], json!(null));
     }
 
-    /// Verify that QuickRoomResult matches frontend QuickRoomResult.
+
     #[test]
     fn test_quick_room_contract() {
         let result = QuickRoomResult {
@@ -1535,35 +1559,35 @@ mod type_contract_tests {
         assert_eq!(json["peer_id"], "12D3KooWHost");
     }
 
-    // ── Phase 6: Admission preflight unit tests ──────────────────────
 
-    /// Public instances are always allowed (blocked=false, no reason).
+
+
     #[test]
     fn admission_public_always_allows() {
         let (blocked, reason) = compute_admission_block("public", false, None, None);
         assert!(!blocked);
         assert!(reason.is_none());
 
-        // Also works with member VC
+
         let (blocked2, reason2) =
             compute_admission_block("public", true, Some("builders"), Some("builders"));
         assert!(!blocked2);
         assert!(reason2.is_none());
     }
 
-    /// vc_only blocks guests (no VC membership).
+
     #[test]
     fn admission_vc_only_blocks_guest() {
         let (blocked, reason) = compute_admission_block("vc_only", false, None, None);
         assert!(blocked);
         assert!(reason.unwrap().contains("VC"));
 
-        // vc-only alias (kebab-case)
+
         let (blocked2, _) = compute_admission_block("vc-only", false, None, None);
         assert!(blocked2);
     }
 
-    /// vc_only allows members.
+
     #[test]
     fn admission_vc_only_allows_member() {
         let (blocked, reason) = compute_admission_block("vc_only", true, None, None);
@@ -1571,7 +1595,7 @@ mod type_contract_tests {
         assert!(reason.is_none());
     }
 
-    /// club_only blocks guests.
+
     #[test]
     fn admission_club_only_blocks_guest() {
         let (blocked, reason) = compute_admission_block("club_only", false, None, None);
@@ -1579,7 +1603,7 @@ mod type_contract_tests {
         assert!(reason.unwrap().contains("社团"));
     }
 
-    /// club_only with matching club allows member.
+
     #[test]
     fn admission_club_only_allows_matching_club() {
         let (blocked, reason) =
@@ -1588,7 +1612,7 @@ mod type_contract_tests {
         assert!(reason.is_none());
     }
 
-    /// club_only with mismatched club blocks even with VC.
+
     #[test]
     fn admission_club_only_blocks_mismatched_club() {
         let (blocked, reason) =
@@ -1599,7 +1623,7 @@ mod type_contract_tests {
         assert!(msg.contains("redstone"));
     }
 
-    /// club_only case-insensitive club matching.
+
     #[test]
     fn admission_club_only_case_insensitive() {
         let (blocked, _) =
@@ -1607,7 +1631,7 @@ mod type_contract_tests {
         assert!(!blocked);
     }
 
-    /// mua_member mode does not block at admission level (login check is separate).
+
     #[test]
     fn admission_mua_member_no_block() {
         let (blocked, reason) = compute_admission_block("mua_member", false, None, None);
@@ -1615,7 +1639,7 @@ mod type_contract_tests {
         assert!(reason.is_none());
     }
 
-    /// mua-member alias also allowed.
+
     #[test]
     fn admission_mua_member_alias() {
         let (blocked, reason) = compute_admission_block("mua-member", false, None, None);
@@ -1623,7 +1647,7 @@ mod type_contract_tests {
         assert!(reason.is_none());
     }
 
-    /// Unknown admission mode is always blocked with explicit reason.
+
     #[test]
     fn admission_unknown_mode_blocks() {
         let (blocked, reason) = compute_admission_block("invite_only", true, None, None);
@@ -1635,9 +1659,9 @@ mod type_contract_tests {
         assert!(reason2.unwrap().contains("未知"));
     }
 
-    /// When instance metadata has mode="unknown" (used for instance-created
-    /// events missing the mode field), the admission check must block with an
-    /// explicit reason.
+
+
+
     #[test]
     fn admission_unknown_explicit_blocks() {
         let (blocked, reason) = compute_admission_block("unknown", true, None, None);
@@ -1645,21 +1669,21 @@ mod type_contract_tests {
         assert!(reason.unwrap().contains("unknown"));
     }
 
-    /// club_only with an empty-string instance club must be treated as
-    /// instance club=None (no club annotation), not as a mismatched club.
-    /// This prevents harmless empty metadata from blocking members.
+
+
+
     #[test]
     fn admission_club_only_empty_instance_club_not_mismatched() {
-        // Simulates the eligibility path where instance_club is filtered:
-        // instance_info.club == "" → instance_club becomes None.
+
+
         let (blocked, reason) = compute_admission_block("club_only", true, Some("builders"), None);
-        // No club info available — let server decide.
+
         assert!(!blocked);
         assert!(reason.is_none());
     }
 
-    /// club_only with a non-member and empty instance club: blocks on
-    /// membership, not on club mismatch.
+
+
     #[test]
     fn admission_club_only_non_member_empty_instance_club() {
         let (blocked, reason) = compute_admission_block("club_only", false, None, None);
@@ -1671,9 +1695,9 @@ mod type_contract_tests {
         );
     }
 
-    // ── Phase 6: Download dedup regression test ──────────────────────
 
-    /// Ensures tasks are deduplicated in-place (not on a clone) before download_batch.
+
+
     #[test]
     fn test_download_dedup_applied_in_place() {
         use crate::resource::downloader::DownloadManager;

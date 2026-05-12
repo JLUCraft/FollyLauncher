@@ -1,15 +1,12 @@
 use anyhow::Context;
 use libp2p::{
-    dcutr, gossipsub, identify,
+    dcutr, identify,
     kad::{self, store::MemoryStore, Mode},
     noise, relay,
     swarm::NetworkBehaviour,
     yamux, StreamProtocol, Swarm, SwarmBuilder,
 };
-use std::hash::{Hash, Hasher};
 use std::time::Duration;
-
-use super::{MC_ADMIN_PUSH_TOPIC, MC_CLUSTER_TOPIC, MC_GOVERNANCE_TOPIC, MC_SYSTEM_TOPIC};
 
 const MC_DHT_PROTOCOL: &str = "/jlucraft/kad/1.0.0";
 const MC_IDENTIFY_PROTOCOL: &str = "/jlucraft/identify/1.0.0";
@@ -21,7 +18,6 @@ pub struct LauncherBehaviour {
     pub kademlia: kad::Behaviour<MemoryStore>,
     pub relay_client: relay::client::Behaviour,
     pub dcutr: dcutr::Behaviour,
-    pub gossipsub: gossipsub::Behaviour,
     pub stream: libp2p_stream::Behaviour,
 }
 
@@ -31,7 +27,6 @@ pub enum LauncherEvent {
     Kademlia(Box<kad::Event>),
     RelayClient(()),
     Dcutr(()),
-    Gossipsub(Box<gossipsub::Event>),
     Stream(()),
 }
 
@@ -55,11 +50,6 @@ impl From<dcutr::Event> for LauncherEvent {
         Self::Dcutr(())
     }
 }
-impl From<gossipsub::Event> for LauncherEvent {
-    fn from(e: gossipsub::Event) -> Self {
-        Self::Gossipsub(Box::new(e))
-    }
-}
 impl From<()> for LauncherEvent {
     fn from(_: ()) -> Self {
         Self::Stream(())
@@ -72,26 +62,6 @@ pub(super) fn build_swarm(
 ) -> anyhow::Result<Swarm<LauncherBehaviour>> {
     let dht_protocol = Box::leak(MC_DHT_PROTOCOL.to_string().into_boxed_str());
 
-    let message_id_fn = |message: &gossipsub::Message| {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        message.data.hash(&mut hasher);
-        gossipsub::MessageId::from(hasher.finish().to_string())
-    };
-
-    let gossipsub_config = gossipsub::ConfigBuilder::default()
-        .heartbeat_interval(Duration::from_secs(30))
-        .validation_mode(gossipsub::ValidationMode::Strict)
-        .message_id_fn(message_id_fn)
-        .build()
-        .map_err(|e| anyhow::anyhow!(e))?;
-
-    let static_topics = [
-        MC_CLUSTER_TOPIC.to_string(),
-        MC_GOVERNANCE_TOPIC.to_string(),
-        MC_SYSTEM_TOPIC.to_string(),
-        MC_ADMIN_PUSH_TOPIC.to_string(),
-    ];
-
     let swarm = SwarmBuilder::with_existing_identity(keypair)
         .with_tokio()
         .with_quic_config(|mut config| {
@@ -103,15 +73,6 @@ pub(super) fn build_swarm(
         .context("failed to enable relay client")?
         .with_behaviour(move |key: &libp2p::identity::Keypair, relay_client| {
             let local_peer_id = key.public().to_peer_id();
-
-            let mut gossipsub = gossipsub::Behaviour::new(
-                gossipsub::MessageAuthenticity::Signed(key.clone()),
-                gossipsub_config.clone(),
-            )
-            .expect("validated gossipsub config");
-            for topic in &static_topics {
-                let _ = gossipsub.subscribe(&gossipsub::IdentTopic::new(topic));
-            }
 
             let mut kad_config = kad::Config::new(StreamProtocol::new(dht_protocol));
             kad_config.set_query_timeout(Duration::from_secs(30));
@@ -136,7 +97,6 @@ pub(super) fn build_swarm(
                 kademlia,
                 relay_client,
                 dcutr: dcutr::Behaviour::new(local_peer_id),
-                gossipsub,
                 stream: stream_behaviour,
             }
         })?

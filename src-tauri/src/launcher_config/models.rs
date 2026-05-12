@@ -81,26 +81,33 @@ impl LauncherConfig {
 
     pub fn validate(&self) -> Result<(), crate::error::LauncherError> {
         if self.basic.language.trim().is_empty() {
-            return Err(crate::error::LauncherError::new("VALIDATION_ERROR", "语言设置不能为空"));
+            return Err(crate::error::LauncherError::new(
+                "VALIDATION_ERROR",
+                "语言设置不能为空",
+            ));
         }
 
         let theme = self.basic.theme.as_str();
         if theme != "system" && theme != "light" && theme != "dark" {
-            return Err(crate::error::LauncherError::new("VALIDATION_ERROR", format!(
-                "不支持的界面主题: {theme}（允许: system, light, dark）"
-            )));
+            return Err(crate::error::LauncherError::new(
+                "VALIDATION_ERROR",
+                format!("不支持的界面主题: {theme}（允许: system, light, dark）"),
+            ));
         }
 
         if self.basic.download_threads == 0 || self.basic.download_threads > 16 {
-            return Err(crate::error::LauncherError::new("VALIDATION_ERROR", format!(
-                "下载线程数必须在 1–16 之间（当前: {}）",
-                self.basic.download_threads
-            )));
+            return Err(crate::error::LauncherError::new(
+                "VALIDATION_ERROR",
+                format!(
+                    "下载线程数必须在 1–16 之间（当前: {}）",
+                    self.basic.download_threads
+                ),
+            ));
         }
 
-        self.game
-            .validate()
-            .map_err(|e| crate::error::LauncherError::new("VALIDATION_ERROR", format!("游戏设置校验失败: {e}")))?;
+        self.game.validate().map_err(|e| {
+            crate::error::LauncherError::new("VALIDATION_ERROR", format!("游戏设置校验失败: {e}"))
+        })?;
 
         Ok(())
     }

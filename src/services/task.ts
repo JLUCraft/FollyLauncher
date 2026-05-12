@@ -40,7 +40,7 @@ export async function removeTaskGroup(groupId: string): Promise<void> {
   return invoke("remove_task_group", { groupId });
 }
 
-// ── Phase 36: Snapshot import/export ──────────────────────────────────────
+
 
 export interface TaskSnapshotBundle {
   schemaVersion: number;
