@@ -8,6 +8,10 @@ export interface UnionTeam {
   registered: boolean;
 }
 export interface UnionLeague {
+  schedule?: { opens_ms: number; closes_ms: number; starts_ms: number };
+  manual_pause?: boolean;
+  paused_since?: number | null;
+  organizer?: string;
   phase: "Registration" | "Playing" | "Finished";
   rules: { cross_club: boolean; seats: number };
   teams: Record<string, UnionTeam>;
@@ -16,6 +20,18 @@ export interface UnionLeague {
 }
 export interface UnionState {
   revision: number;
+  clock_ms: number;
+  admins?: string[];
+  seasons?: Record<string, { title: string; leagues: string[] }>;
+  disputes?: Record<
+    string,
+    {
+      league: string;
+      member: string;
+      reason: string;
+      resolution: { response: string } | null;
+    }
+  >;
   ballots?: Record<
     string,
     {
@@ -26,6 +42,13 @@ export interface UnionState {
       votes: Record<string, number>;
     }
   >;
+  council?: {
+    epoch: number;
+    schools: Record<string, string[]>;
+    quorum: number;
+    change_quorum: number;
+    cooldown_ms: number;
+  };
   feedback?: Record<
     string,
     { member: string; category: string; text: string; response: string | null }
@@ -33,13 +56,20 @@ export interface UnionState {
   proposals?: Record<
     string,
     {
+      proposer: string;
       action: { type: string };
+      epoch: number;
+      created_ms: number;
+      expires_ms: number;
       approvals: Record<string, string>;
       executed: boolean;
       cancelled: boolean;
     }
   >;
-  members: Record<string, { club: string; device: string }>;
+  members: Record<
+    string,
+    { club: string; device: string; additional_devices?: string[] }
+  >;
   leagues: Record<string, UnionLeague>;
 }
 export class UnionService {

@@ -17,7 +17,9 @@ import { brand } from "@/brand";
 import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
+import { AdminConsole } from "@/components/federation/admin-console";
 import { MemberGovernance } from "@/components/federation/member-governance";
+import { SeasonPanel } from "@/components/federation/season-panel";
 import { useDeepLink } from "@/hooks/deep-link";
 import { UnionService, UnionState } from "@/services/union";
 
@@ -148,9 +150,23 @@ export default function FederationPage() {
         <MemberGovernance
           state={state}
           member={member}
+          identity={identity}
           busy={busy}
           request={handleRequest}
         />
+      )}
+
+      {state && (
+        <SeasonPanel
+          state={state}
+          member={member}
+          busy={busy}
+          request={handleRequest}
+        />
+      )}
+
+      {state && identity && state.admins?.includes(identity) && (
+        <AdminConsole state={state} busy={busy} request={handleRequest} />
       )}
 
       <Section
@@ -296,6 +312,43 @@ export default function FederationPage() {
                       ? t("FederationPage.league.crossClub")
                       : t("FederationPage.league.sameClubOnly")}
                   </Tag>
+                  {value.organizer === identity &&
+                    value.phase === "Registration" && (
+                      <Button
+                        size="sm"
+                        colorScheme="green"
+                        isDisabled={busy}
+                        onClick={() => {
+                          const seed = new Uint8Array(32);
+                          crypto.getRandomValues(seed);
+                          void handleRequest({
+                            type: "start",
+                            league,
+                            seed: Array.from(seed),
+                          });
+                        }}
+                      >
+                        {t("FederationPage.league.start")}
+                      </Button>
+                    )}
+                  {value.organizer === identity &&
+                    value.phase === "Playing" && (
+                      <Button
+                        size="sm"
+                        isDisabled={busy}
+                        onClick={() =>
+                          void handleRequest({
+                            type: "pause_league",
+                            league,
+                            paused: !value.manual_pause,
+                          })
+                        }
+                      >
+                        {value.manual_pause
+                          ? t("FederationPage.league.resume")
+                          : t("FederationPage.league.pause")}
+                      </Button>
+                    )}
                 </HStack>
               </Flex>
 

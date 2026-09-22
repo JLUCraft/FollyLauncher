@@ -226,6 +226,37 @@
       "usePasswordLogin": "账号密码登录"
     }
   },
+  "AdminConsole": {
+    "title": "赛季运营",
+    "description": "创建赛季、安排赛程、复核赛果并回复申请",
+    "createSeason": "创建赛季",
+    "seasonId": "赛季 ID",
+    "seasonTitle": "赛季标题",
+    "create": "创建",
+    "schedule": "安排赛程",
+    "scheduleSeason": "赛季",
+    "scheduleLeague": "联赛",
+    "selectSeason": "选择赛季",
+    "selectLeague": "选择联赛",
+    "opensAt": "报名开始",
+    "closesAt": "报名截止",
+    "startsAt": "开赛时间",
+    "submit": "提交",
+    "review": "赛果复核",
+    "reviewSelect": "复核申请",
+    "reviewPlaceholder": "选择待复核的申请",
+    "reviewResponse": "复核说明",
+    "playerDeltas": "玩家积分调整",
+    "teamDeltas": "队伍积分调整",
+    "deltasPlaceholder": "每行一条：名称 增减分",
+    "resolve": "提交复核",
+    "feedback": "回复申请",
+    "feedbackSelect": "成员申请",
+    "feedbackPlaceholder": "选择待回复的申请",
+    "feedbackResponse": "回复内容",
+    "respond": "发送回复",
+    "empty": "当前没有待处理事项。"
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "存在前置资源"
@@ -923,7 +954,10 @@
       "playerScoreboard": "玩家积分榜",
       "teamScoreboardEmpty": "队伍积分榜暂无数据。",
       "playerScoreboardEmpty": "玩家积分榜暂无数据。",
-      "points": "{{score}} 分"
+      "points": "{{score}} 分",
+      "start": "锁定报名并开赛",
+      "pause": "暂停",
+      "resume": "恢复"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "已执行",
       "cancelled": "已撤回",
-      "pending": "待处理"
+      "pending": "待处理",
+      "expired": "已过期"
     },
     "votes": "{{count}} 票",
     "closesAt": "截止 {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "申请或建议",
     "submit": "提交",
     "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "等待回复"
+    "awaitingResponse": "等待回复",
+    "proposalId": "提案 {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} 个社团同意",
+    "approve": "同意",
+    "execute": "执行",
+    "cancel": "撤回",
+    "feedbackReplied": "已回复",
+    "feedbackPending": "等待回复",
+    "feedbackResponse": "回复：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "内存状态",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "设置为启动器背景"
+    }
+  },
+  "SeasonPanel": {
+    "title": "赛程与历史",
+    "description": "赛季赛程与聚合积分榜",
+    "empty": "暂无赛季安排",
+    "noRecords": "暂无积分记录",
+    "pendingSchedule": "待安排",
+    "paused": "已暂停",
+    "review": {
+      "leagueLabel": "申请复核的比赛",
+      "leaguePlaceholder": "选择已参加的比赛",
+      "reasonLabel": "复核原因",
+      "submit": "提交赛果复核"
+    },
+    "dispute": {
+      "resolved": "已复核",
+      "pending": "等待复核",
+      "resolution": "复核结果：{{response}}"
     }
   },
   "SelectInstanceModal": {

@@ -12,47 +12,131 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
 import { UnionState } from "@/services/union";
 
 export function MemberGovernance({
   state,
   member,
+  identity,
   busy,
   request,
 }: {
   state: UnionState;
   member?: string;
+  identity: string;
   busy: boolean;
   request: (action: Record<string, unknown>) => Promise<void>;
 }) {
-  const [category, setCategory] = useState("联赛"),
+  const { t } = useTranslation();
+  const [category, setCategory] = useState(
+      t("MemberGovernance.defaultCategory")
+    ),
     [body, setBody] = useState("");
   return (
     <Section
-      title="成员议事"
-      description="查看提案、参与投票与提交申请"
+      title={t("MemberGovernance.title")}
+      description={t("MemberGovernance.description")}
       isAccordion
       initialIsOpen={false}
     >
       <VStack align="stretch" spacing={4}>
-        {Object.entries(state.proposals ?? {}).map(([id, p]) => (
-          <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
-            <HStack justify="space-between" align="center">
-              <Text fontSize="sm">提案 {id}</Text>
-              <Badge
-                colorScheme={
-                  p.executed ? "green" : p.cancelled ? "gray" : "yellow"
-                }
-              >
-                {p.executed ? "已执行" : p.cancelled ? "已撤回" : "待处理"}
-              </Badge>
-            </HStack>
-            <Text fontSize="xs" className="secondary-text" mt={1}>
-              {Object.keys(p.approvals).length} 个社团同意
-            </Text>
-          </Box>
-        ))}
+        {Object.entries(state.proposals ?? {}).map(([id, p]) => {
+          const expired = !!state.clock_ms && state.clock_ms >= p.expires_ms;
+          const settled = p.executed || p.cancelled || expired;
+          const myClub = member ? state.members[member]?.club : undefined;
+          const mySchoolDevices = myClub
+            ? state.council?.schools[myClub]
+            : undefined;
+          const threshold = state.council
+            ? p.action.type === "update_council"
+              ? state.council.change_quorum
+              : state.council.quorum
+            : 0;
+          const approvedByMySchool =
+            !!myClub && p.approvals[myClub] !== undefined;
+          const canApprove =
+            !settled &&
+            !!mySchoolDevices?.includes(identity) &&
+            !approvedByMySchool;
+          const canExecute =
+            !settled && Object.keys(p.approvals).length >= threshold;
+          const canCancel = !settled && p.proposer === identity;
+          return (
+            <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
+              <HStack justify="space-between" align="center">
+                <Text fontSize="sm">
+                  {t("MemberGovernance.proposalId", { id })}
+                </Text>
+                <Badge
+                  colorScheme={
+                    p.executed
+                      ? "green"
+                      : p.cancelled
+                        ? "gray"
+                        : expired
+                          ? "gray"
+                          : "yellow"
+                  }
+                >
+                  {p.executed
+                    ? t("MemberGovernance.proposalStatus.executed")
+                    : p.cancelled
+                      ? t("MemberGovernance.proposalStatus.cancelled")
+                      : expired
+                        ? t("MemberGovernance.proposalStatus.expired")
+                        : t("MemberGovernance.proposalStatus.pending")}
+                </Badge>
+              </HStack>
+              <Text fontSize="xs" className="secondary-text" mt={1}>
+                {t("MemberGovernance.approvalsProgress", {
+                  count: Object.keys(p.approvals).length,
+                  needed: threshold,
+                })}
+              </Text>
+              {(canApprove || canExecute || canCancel) && (
+                <HStack spacing={2} mt={2}>
+                  {canApprove && (
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      isDisabled={busy}
+                      onClick={() =>
+                        void request({ type: "approve_proposal", id })
+                      }
+                    >
+                      {t("MemberGovernance.approve")}
+                    </Button>
+                  )}
+                  {canExecute && (
+                    <Button
+                      size="sm"
+                      colorScheme="green"
+                      isDisabled={busy}
+                      onClick={() =>
+                        void request({ type: "execute_proposal", id })
+                      }
+                    >
+                      {t("MemberGovernance.execute")}
+                    </Button>
+                  )}
+                  {canCancel && (
+                    <Button
+                      size="sm"
+                      isDisabled={busy}
+                      onClick={() =>
+                        void request({ type: "cancel_proposal", id })
+                      }
+                    >
+                      {t("MemberGovernance.cancel")}
+                    </Button>
+                  )}
+                </HStack>
+              )}
+            </Box>
+          );
+        })}
         {Object.entries(state.ballots ?? {}).map(([id, b]) => (
           <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
             <Text fontWeight="bold">{b.title}</Text>
@@ -78,23 +162,31 @@ export function MemberGovernance({
                     {option}
                   </Button>
                   <Text fontSize="sm" className="secondary-text">
-                    {Object.values(b.votes).filter((v) => v === index).length}{" "}
-                    票
+                    {t("MemberGovernance.votes", {
+                      count: Object.values(b.votes).filter((v) => v === index)
+                        .length,
+                    })}
                   </Text>
                 </HStack>
               ))}
             </VStack>
             <Text fontSize="xs" className="secondary-text" mt={2}>
-              截止 {new Date(b.closes_ms).toLocaleString()}
+              {t("MemberGovernance.closesAt", {
+                time: new Date(b.closes_ms).toLocaleString(),
+              })}
             </Text>
           </Box>
         ))}
-        {!Object.keys(state.ballots ?? {}).length && <Text>暂无成员投票</Text>}
+        {!Object.keys(state.ballots ?? {}).length && (
+          <Text>{t("MemberGovernance.noBallots")}</Text>
+        )}
         {member && (
           <>
             <Divider />
             <FormControl>
-              <FormLabel htmlFor="feedback-category">申请类别</FormLabel>
+              <FormLabel htmlFor="feedback-category">
+                {t("MemberGovernance.categoryLabel")}
+              </FormLabel>
               <Input
                 id="feedback-category"
                 value={category}
@@ -103,7 +195,9 @@ export function MemberGovernance({
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="feedback-body">申请或建议</FormLabel>
+              <FormLabel htmlFor="feedback-body">
+                {t("MemberGovernance.bodyLabel")}
+              </FormLabel>
               <Textarea
                 id="feedback-body"
                 value={body}
@@ -123,7 +217,7 @@ export function MemberGovernance({
                 })
               }
             >
-              提交
+              {t("MemberGovernance.submit")}
             </Button>
           </>
         )}
@@ -136,7 +230,9 @@ export function MemberGovernance({
                   {f.category}
                 </Text>
                 <Badge colorScheme={f.response ? "green" : "gray"}>
-                  {f.response ? "已回复" : "等待回复"}
+                  {f.response
+                    ? t("MemberGovernance.feedbackReplied")
+                    : t("MemberGovernance.feedbackPending")}
                 </Badge>
               </HStack>
               <Text fontSize="sm" mt={1}>
@@ -144,7 +240,9 @@ export function MemberGovernance({
               </Text>
               {f.response && (
                 <Text fontSize="xs" className="secondary-text" mt={1}>
-                  回复：{f.response}
+                  {t("MemberGovernance.feedbackResponse", {
+                    response: f.response,
+                  })}
                 </Text>
               )}
             </Box>

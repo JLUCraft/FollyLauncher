@@ -226,6 +226,37 @@
       "usePasswordLogin": "Connexion par mot de passe"
     }
   },
+  "AdminConsole": {
+    "title": "Opérations des saisons",
+    "description": "Créer des saisons, planifier des matchs, réviser les résultats et répondre aux demandes",
+    "createSeason": "Créer une saison",
+    "seasonId": "ID de la saison",
+    "seasonTitle": "Titre de la saison",
+    "create": "Créer",
+    "schedule": "Planifier un match",
+    "scheduleSeason": "Saison",
+    "scheduleLeague": "Ligue",
+    "selectSeason": "Sélectionnez une saison",
+    "selectLeague": "Sélectionnez une ligue",
+    "opensAt": "Ouverture des inscriptions",
+    "closesAt": "Clôture des inscriptions",
+    "startsAt": "Début du match",
+    "submit": "Soumettre",
+    "review": "Révisions des résultats",
+    "reviewSelect": "Demande de révision",
+    "reviewPlaceholder": "Sélectionnez une révision en attente",
+    "reviewResponse": "Commentaire de révision",
+    "playerDeltas": "Ajustements des scores joueurs",
+    "teamDeltas": "Ajustements des scores équipes",
+    "deltasPlaceholder": "Une entrée par ligne : nom +/-points",
+    "resolve": "Soumettre la révision",
+    "feedback": "Répondre aux demandes",
+    "feedbackSelect": "Demande de membre",
+    "feedbackPlaceholder": "Sélectionnez une demande en attente",
+    "feedbackResponse": "Réponse",
+    "respond": "Envoyer la réponse",
+    "empty": "Rien à traiter pour le moment."
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "Des ressources prérequises sont manquantes"
@@ -923,7 +954,10 @@
       "playerScoreboard": "Classement des joueurs",
       "teamScoreboardEmpty": "Aucune donnée pour le classement des équipes.",
       "playerScoreboardEmpty": "Aucune donnée pour le classement des joueurs.",
-      "points": "{{score}} pts"
+      "points": "{{score}} pts",
+      "start": "Verrouiller & lancer",
+      "pause": "Suspendre",
+      "resume": "Reprendre"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "Exécutée",
       "cancelled": "Retirée",
-      "pending": "En attente"
+      "pending": "En attente",
+      "expired": "Expirée"
     },
     "votes": "{{count}} votes",
     "closesAt": "Clôture {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "Demande ou suggestion",
     "submit": "Soumettre",
     "feedbackEntry": "{{category}} : {{text}}",
-    "awaitingResponse": "En attente de réponse"
+    "awaitingResponse": "En attente de réponse",
+    "proposalId": "Proposition {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} clubs ont approuvé",
+    "approve": "Approuver",
+    "execute": "Exécuter",
+    "cancel": "Retirer",
+    "feedbackReplied": "Répondu",
+    "feedbackPending": "En attente de réponse",
+    "feedbackResponse": "Réponse : {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "État de la mémoire",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "Définir comme fond du lanceur"
+    }
+  },
+  "SeasonPanel": {
+    "title": "Calendrier et historique",
+    "description": "Calendriers des saisons et classements agrégés",
+    "empty": "Aucune saison pour le moment",
+    "noRecords": "Aucun classement pour le moment",
+    "pendingSchedule": "À planifier",
+    "paused": "En pause",
+    "review": {
+      "leagueLabel": "Match à réviser",
+      "leaguePlaceholder": "Sélectionnez un match disputé",
+      "reasonLabel": "Motif de la révision",
+      "submit": "Soumettre la révision"
+    },
+    "dispute": {
+      "resolved": "Révisé",
+      "pending": "En attente de révision",
+      "resolution": "Résultat de la révision : {{response}}"
     }
   },
   "SelectInstanceModal": {

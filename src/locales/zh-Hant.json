@@ -226,6 +226,37 @@
       "usePasswordLogin": "帳號密碼登入"
     }
   },
+  "AdminConsole": {
+    "title": "賽季運營",
+    "description": "建立賽季、安排賽程、覆核賽果並回覆申請",
+    "createSeason": "建立賽季",
+    "seasonId": "賽季 ID",
+    "seasonTitle": "賽季標題",
+    "create": "建立",
+    "schedule": "安排賽程",
+    "scheduleSeason": "賽季",
+    "scheduleLeague": "聯賽",
+    "selectSeason": "選擇賽季",
+    "selectLeague": "選擇聯賽",
+    "opensAt": "報名開始",
+    "closesAt": "報名截止",
+    "startsAt": "開賽時間",
+    "submit": "提交",
+    "review": "賽果複核",
+    "reviewSelect": "複核申請",
+    "reviewPlaceholder": "選擇待複核的申請",
+    "reviewResponse": "複核說明",
+    "playerDeltas": "玩家積分調整",
+    "teamDeltas": "隊伍積分調整",
+    "deltasPlaceholder": "每行一條：名稱 增減分",
+    "resolve": "提交複核",
+    "feedback": "回覆申請",
+    "feedbackSelect": "成員申請",
+    "feedbackPlaceholder": "選擇待回覆的申請",
+    "feedbackResponse": "回覆內容",
+    "respond": "發送回覆",
+    "empty": "目前沒有待處理事項。"
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "存在前置資源"
@@ -923,7 +954,10 @@
       "playerScoreboard": "玩家積分榜",
       "teamScoreboardEmpty": "隊伍積分榜暫無資料。",
       "playerScoreboardEmpty": "玩家積分榜暫無資料。",
-      "points": "{{score}} 分"
+      "points": "{{score}} 分",
+      "start": "鎖定報名並開賽",
+      "pause": "暫停",
+      "resume": "恢復"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "已執行",
       "cancelled": "已撤回",
-      "pending": "待處理"
+      "pending": "待處理",
+      "expired": "已過期"
     },
     "votes": "{{count}} 票",
     "closesAt": "截止 {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "申請或建議",
     "submit": "提交",
     "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "等待回覆"
+    "awaitingResponse": "等待回覆",
+    "proposalId": "提案 {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} 個社團同意",
+    "approve": "同意",
+    "execute": "執行",
+    "cancel": "撤回",
+    "feedbackReplied": "已回覆",
+    "feedbackPending": "等待回覆",
+    "feedbackResponse": "回覆：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "設定為啟動器背景"
+    }
+  },
+  "SeasonPanel": {
+    "title": "賽程與歷史",
+    "description": "賽季賽程與聚合積分榜",
+    "empty": "暫無賽季安排",
+    "noRecords": "暫無積分記錄",
+    "pendingSchedule": "待安排",
+    "paused": "已暫停",
+    "review": {
+      "leagueLabel": "申請複核的比賽",
+      "leaguePlaceholder": "選擇已參加的比賽",
+      "reasonLabel": "複核原因",
+      "submit": "提交賽果複核"
+    },
+    "dispute": {
+      "resolved": "已複核",
+      "pending": "等待複核",
+      "resolution": "複核結果：{{response}}"
     }
   },
   "SelectInstanceModal": {

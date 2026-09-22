@@ -226,6 +226,37 @@
       "usePasswordLogin": "アカウントとパスワードでログイン"
     }
   },
+  "AdminConsole": {
+    "title": "シーズン運営",
+    "description": "シーズン作成、日程設定、結果再審査、申請への返答",
+    "createSeason": "シーズン作成",
+    "seasonId": "シーズンID",
+    "seasonTitle": "シーズン名",
+    "create": "作成",
+    "schedule": "日程設定",
+    "scheduleSeason": "シーズン",
+    "scheduleLeague": "リーグ",
+    "selectSeason": "シーズンを選択",
+    "selectLeague": "リーグを選択",
+    "opensAt": "エントリー開始",
+    "closesAt": "エントリー締切",
+    "startsAt": "開催日時",
+    "submit": "送信",
+    "review": "結果の再審査",
+    "reviewSelect": "再審査申請",
+    "reviewPlaceholder": "保留中の申請を選択",
+    "reviewResponse": "再審査コメント",
+    "playerDeltas": "プレイヤースコア調整",
+    "teamDeltas": "チームスコア調整",
+    "deltasPlaceholder": "1行につき1件：名前 増減点",
+    "resolve": "再審査を送信",
+    "feedback": "申請への返答",
+    "feedbackSelect": "メンバーの申請",
+    "feedbackPlaceholder": "未返答の申請を選択",
+    "feedbackResponse": "返答内容",
+    "respond": "返答を送信",
+    "empty": "現在対応すべき事項はありません。"
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "前提リソースが存在"
@@ -923,7 +954,10 @@
       "playerScoreboard": "プレイヤースコア",
       "teamScoreboardEmpty": "チームスコアはまだありません。",
       "playerScoreboardEmpty": "プレイヤースコアはまだありません。",
-      "points": "{{score}} 点"
+      "points": "{{score}} 点",
+      "start": "エントリーを締めて開始",
+      "pause": "一時停止",
+      "resume": "再開"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "実行済み",
       "cancelled": "撤回",
-      "pending": "保留"
+      "pending": "保留",
+      "expired": "期限切れ"
     },
     "votes": "{{count}} 票",
     "closesAt": "締切 {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "申請または提案",
     "submit": "送信",
     "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "返答待ち"
+    "awaitingResponse": "返答待ち",
+    "proposalId": "提案 {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} クラブが同意",
+    "approve": "同意",
+    "execute": "実行",
+    "cancel": "撤回",
+    "feedbackReplied": "返答済み",
+    "feedbackPending": "返答待ち",
+    "feedbackResponse": "返答：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "メモリ状況",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "これをランチャーのバックグラウンドにする"
+    }
+  },
+  "SeasonPanel": {
+    "title": "日程と履歴",
+    "description": "シーズンの日程と集計スコア",
+    "empty": "シーズンはまだありません",
+    "noRecords": "まだスコアはありません",
+    "pendingSchedule": "未定",
+    "paused": "一時停止中",
+    "review": {
+      "leagueLabel": "再審査する試合",
+      "leaguePlaceholder": "参加した試合を選択",
+      "reasonLabel": "再審査の理由",
+      "submit": "再審査を送信"
+    },
+    "dispute": {
+      "resolved": "再審査済み",
+      "pending": "再審査待ち",
+      "resolution": "再審査結果：{{response}}"
     }
   },
   "SelectInstanceModal": {

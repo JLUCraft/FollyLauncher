@@ -226,6 +226,37 @@
       "usePasswordLogin": "Account & Password Login"
     }
   },
+  "AdminConsole": {
+    "title": "Season Operations",
+    "description": "Create seasons, schedule matches, review disputes and answer requests",
+    "createSeason": "Create Season",
+    "seasonId": "Season ID",
+    "seasonTitle": "Season title",
+    "create": "Create",
+    "schedule": "Schedule a Match",
+    "scheduleSeason": "Season",
+    "scheduleLeague": "League",
+    "selectSeason": "Select a season",
+    "selectLeague": "Select a league",
+    "opensAt": "Registration opens",
+    "closesAt": "Registration closes",
+    "startsAt": "Match starts",
+    "submit": "Submit",
+    "review": "Result Reviews",
+    "reviewSelect": "Dispute",
+    "reviewPlaceholder": "Select a pending dispute",
+    "reviewResponse": "Review statement",
+    "playerDeltas": "Player score adjustments",
+    "teamDeltas": "Team score adjustments",
+    "deltasPlaceholder": "One per line: name +/-points",
+    "resolve": "Submit Review",
+    "feedback": "Answer Requests",
+    "feedbackSelect": "Request",
+    "feedbackPlaceholder": "Select a pending request",
+    "feedbackResponse": "Response",
+    "respond": "Send Response",
+    "empty": "Nothing to operate right now."
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "Dependency Resources Exist"
@@ -923,7 +954,10 @@
       "playerScoreboard": "Player Scoreboard",
       "teamScoreboardEmpty": "No team scoreboard data yet.",
       "playerScoreboardEmpty": "No player scoreboard data yet.",
-      "points": "{{score}} pts"
+      "points": "{{score}} pts",
+      "start": "Lock rosters & Start",
+      "pause": "Pause",
+      "resume": "Resume"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "Executed",
       "cancelled": "Cancelled",
-      "pending": "Pending"
+      "pending": "Pending",
+      "expired": "Expired"
     },
     "votes": "{{count}} votes",
     "closesAt": "Closes {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "Request or suggestion",
     "submit": "Submit",
     "feedbackEntry": "{{category}}: {{text}}",
-    "awaitingResponse": "Awaiting response"
+    "awaitingResponse": "Awaiting response",
+    "proposalId": "Proposal {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} clubs approved",
+    "approve": "Approve",
+    "execute": "Execute",
+    "cancel": "Cancel",
+    "feedbackReplied": "Answered",
+    "feedbackPending": "Awaiting answer",
+    "feedbackResponse": "Response: {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "Memory Status",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "Set as Launcher Background"
+    }
+  },
+  "SeasonPanel": {
+    "title": "Schedule & History",
+    "description": "Season schedules and aggregated scoreboards",
+    "empty": "No seasons yet",
+    "noRecords": "No standings yet",
+    "pendingSchedule": "To be scheduled",
+    "paused": "Paused",
+    "review": {
+      "leagueLabel": "Match to review",
+      "leaguePlaceholder": "Select a finished match you played in",
+      "reasonLabel": "Reason for review",
+      "submit": "Submit Review"
+    },
+    "dispute": {
+      "resolved": "Reviewed",
+      "pending": "Awaiting review",
+      "resolution": "Review result: {{response}}"
     }
   },
   "SelectInstanceModal": {

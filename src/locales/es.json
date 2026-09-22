@@ -226,6 +226,37 @@
       "usePasswordLogin": "Inicio de Sesión con Cuenta y Contraseña"
     }
   },
+  "AdminConsole": {
+    "title": "Operaciones de temporadas",
+    "description": "Crear temporadas, programar partidas, revisar resultados y responder solicitudes",
+    "createSeason": "Crear temporada",
+    "seasonId": "ID de temporada",
+    "seasonTitle": "Título de la temporada",
+    "create": "Crear",
+    "schedule": "Programar partida",
+    "scheduleSeason": "Temporada",
+    "scheduleLeague": "Liga",
+    "selectSeason": "Selecciona una temporada",
+    "selectLeague": "Selecciona una liga",
+    "opensAt": "Apertura de inscripciones",
+    "closesAt": "Cierre de inscripciones",
+    "startsAt": "Inicio de la partida",
+    "submit": "Enviar",
+    "review": "Revisiones de resultados",
+    "reviewSelect": "Solicitud de revisión",
+    "reviewPlaceholder": "Selecciona una revisión pendiente",
+    "reviewResponse": "Comentario de revisión",
+    "playerDeltas": "Ajustes de puntuación de jugadores",
+    "teamDeltas": "Ajustes de puntuación de equipos",
+    "deltasPlaceholder": "Una entrada por línea: nombre +/-puntos",
+    "resolve": "Enviar revisión",
+    "feedback": "Responder solicitudes",
+    "feedbackSelect": "Solicitud de miembro",
+    "feedbackPlaceholder": "Selecciona una solicitud pendiente",
+    "feedbackResponse": "Respuesta",
+    "respond": "Enviar respuesta",
+    "empty": "Nada que procesar por ahora."
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "Existen Recursos Dependientes"
@@ -923,7 +954,10 @@
       "playerScoreboard": "Clasificación de jugadores",
       "teamScoreboardEmpty": "Sin datos de clasificación de equipos.",
       "playerScoreboardEmpty": "Sin datos de clasificación de jugadores.",
-      "points": "{{score}} pts"
+      "points": "{{score}} pts",
+      "start": "Cerrar inscripciones y comenzar",
+      "pause": "Pausar",
+      "resume": "Reanudar"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "Ejecutada",
       "cancelled": "Retirada",
-      "pending": "Pendiente"
+      "pending": "Pendiente",
+      "expired": "Caducada"
     },
     "votes": "{{count}} votos",
     "closesAt": "Cierra {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "Solicitud o sugerencia",
     "submit": "Enviar",
     "feedbackEntry": "{{category}}: {{text}}",
-    "awaitingResponse": "Esperando respuesta"
+    "awaitingResponse": "Esperando respuesta",
+    "proposalId": "Propuesta {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} clubes aprobaron",
+    "approve": "Aprobar",
+    "execute": "Ejecutar",
+    "cancel": "Retirar",
+    "feedbackReplied": "Respondido",
+    "feedbackPending": "Esperando respuesta",
+    "feedbackResponse": "Respuesta: {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "Estado de la memoria",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "Establecer como fondo del lanzador"
+    }
+  },
+  "SeasonPanel": {
+    "title": "Calendario e historial",
+    "description": "Calendarios de temporada y clasificaciones agregadas",
+    "empty": "Aún no hay temporadas",
+    "noRecords": "Aún no hay clasificaciones",
+    "pendingSchedule": "Por programar",
+    "paused": "En pausa",
+    "review": {
+      "leagueLabel": "Partida a revisar",
+      "leaguePlaceholder": "Selecciona una partida jugada",
+      "reasonLabel": "Motivo de la revisión",
+      "submit": "Enviar revisión"
+    },
+    "dispute": {
+      "resolved": "Revisado",
+      "pending": "Esperando revisión",
+      "resolution": "Resultado de la revisión: {{response}}"
     }
   },
   "SelectInstanceModal": {

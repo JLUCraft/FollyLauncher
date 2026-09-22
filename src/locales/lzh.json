@@ -226,6 +226,37 @@
       "usePasswordLogin": "以戶簿符節登入"
     }
   },
+  "AdminConsole": {
+    "title": "賽季之治",
+    "description": "立賽季、定賽程、覆賽果、答申請",
+    "createSeason": "立賽季",
+    "seasonId": "賽季之號",
+    "seasonTitle": "賽季之名",
+    "create": "立",
+    "schedule": "定賽程",
+    "scheduleSeason": "賽季",
+    "scheduleLeague": "聯賽",
+    "selectSeason": "擇賽季",
+    "selectLeague": "擇聯賽",
+    "opensAt": "報名之始",
+    "closesAt": "報名之訖",
+    "startsAt": "開賽之時",
+    "submit": "呈",
+    "review": "賽果之覆",
+    "reviewSelect": "覆核之請",
+    "reviewPlaceholder": "擇待覆之請",
+    "reviewResponse": "覆核之語",
+    "playerDeltas": "員積分之調",
+    "teamDeltas": "隊積分之調",
+    "deltasPlaceholder": "每行一條：名 增減分",
+    "resolve": "呈覆核",
+    "feedback": "答申請",
+    "feedbackSelect": "員之申請",
+    "feedbackPlaceholder": "擇待答之請",
+    "feedbackResponse": "答之內容",
+    "respond": "發答",
+    "empty": "今無可理之事。"
+  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "有先資"
@@ -923,7 +954,10 @@
       "playerScoreboard": "員積分榜",
       "teamScoreboardEmpty": "隊積分榜尚無據。",
       "playerScoreboardEmpty": "員積分榜尚無據。",
-      "points": "{{score}} 分"
+      "points": "{{score}} 分",
+      "start": "鎖名單而開賽",
+      "pause": "暫停",
+      "resume": "復行"
     }
   },
   "FileDnDProvider": {
@@ -1872,7 +1906,8 @@
     "proposalStatus": {
       "executed": "已行",
       "cancelled": "已撤",
-      "pending": "待決"
+      "pending": "待決",
+      "expired": "已逾"
     },
     "votes": "{{count}} 票",
     "closesAt": "訖於 {{time}}",
@@ -1882,7 +1917,15 @@
     "bodyLabel": "申請或獻議",
     "submit": "呈",
     "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "俟復"
+    "awaitingResponse": "俟復",
+    "proposalId": "提案 {{id}}",
+    "approvalsProgress": "{{count}}/{{needed}} 社許之",
+    "approve": "許之",
+    "execute": "行之",
+    "cancel": "撤之",
+    "feedbackReplied": "已答",
+    "feedbackPending": "候答",
+    "feedbackResponse": "答：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -2321,6 +2364,25 @@
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "置設為啟者繪景"
+    }
+  },
+  "SeasonPanel": {
+    "title": "賽程與往績",
+    "description": "賽季之日程與合積分",
+    "empty": "今無賽季",
+    "noRecords": "尚無積分",
+    "pendingSchedule": "未定",
+    "paused": "暫停",
+    "review": {
+      "leagueLabel": "請覆核之局",
+      "leaguePlaceholder": "擇已與之局",
+      "reasonLabel": "覆核之由",
+      "submit": "呈覆核"
+    },
+    "dispute": {
+      "resolved": "已覆",
+      "pending": "候覆",
+      "resolution": "覆核之果：{{response}}"
     }
   },
   "SelectInstanceModal": {
