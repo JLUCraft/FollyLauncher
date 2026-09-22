@@ -869,6 +869,60 @@
     "title": "Update Extension",
     "body": "Extension {{identifier}} downloaded the new version {{version}} from {{src}}. Do you want to confirm installation?"
   },
+  "FederationPage": {
+    "title": "Federation",
+    "subtitle": "Connect to the union to browse leagues, create teams, invite teammates and register.",
+    "gameConnection": {
+      "title": "Match Connection",
+      "description": "Paste the match connection link provided by the organizer",
+      "linkLabel": "Connection link",
+      "connected": "Game server address: {{address}}. Launch Minecraft 26.3 from the launcher and you will join automatically; keep the launcher running.",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "error": "Game connection failed; check the link or contact the organizer"
+    },
+    "settings": {
+      "title": "Connection Settings",
+      "description": "The union address and union identity are provided by the organizer",
+      "addressLabel": "Union address",
+      "peerLabel": "Union identity",
+      "connect": "Connect / Refresh",
+      "myDevice": "My device: {{id}}",
+      "myMember": "My member no.: {{id}}",
+      "myClub": "({{club}})"
+    },
+    "error": "Operation failed; check the connection and registration status, then retry",
+    "empty": {
+      "notConnected": "Once connected, leagues, teams and scoreboards will show up here.",
+      "noLeagues": "This union has no leagues yet."
+    },
+    "phase": {
+      "Registration": "Registration",
+      "Playing": "In Progress",
+      "Finished": "Finished"
+    },
+    "league": {
+      "seatsPerTeam": "{{seats}} per team",
+      "crossClub": "Cross-club teams allowed",
+      "sameClubOnly": "Same club only",
+      "teamNamePlaceholder": "New team name",
+      "createTeam": "Create Team",
+      "teamsTitle": "Teams",
+      "teamsEmpty": "No teams yet. Members of the union can create teams during registration.",
+      "memberCount": "{{count}} members",
+      "registered": "Registered",
+      "notRegistered": "Not registered",
+      "acceptInvite": "Accept Invite",
+      "register": "Submit Registration",
+      "inviteePlaceholder": "Member no. to invite",
+      "invite": "Invite Member",
+      "teamScoreboard": "Team Scoreboard",
+      "playerScoreboard": "Player Scoreboard",
+      "teamScoreboardEmpty": "No team scoreboard data yet.",
+      "playerScoreboardEmpty": "No player scoreboard data yet.",
+      "points": "{{score}} pts"
+    }
+  },
   "FileDnDProvider": {
     "fileName": "{{fileName}} and others ({{count}} total)"
   },
@@ -1807,6 +1861,25 @@
     "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
     "linkText": "Read the official article",
     "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
+  "MemberGovernance": {
+    "title": "Member Governance",
+    "description": "Review proposals, vote in ballots and submit requests",
+    "proposal": "Proposal {{id}} · {{approvals}} clubs approved · {{status}}",
+    "proposalStatus": {
+      "executed": "Executed",
+      "cancelled": "Cancelled",
+      "pending": "Pending"
+    },
+    "votes": "{{count}} votes",
+    "closesAt": "Closes {{time}}",
+    "noBallots": "No ballots yet",
+    "defaultCategory": "League",
+    "categoryLabel": "Request category",
+    "bodyLabel": "Request or suggestion",
+    "submit": "Submit",
+    "feedbackEntry": "{{category}}: {{text}}",
+    "awaitingResponse": "Awaiting response"
   },
   "MemoryStatusProgress": {
     "title": "Memory Status",

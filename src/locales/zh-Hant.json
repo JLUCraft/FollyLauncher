@@ -869,6 +869,60 @@
     "title": "更新擴充套件",
     "body": "擴充套件 {{identifier}} 已從 {{src}} 下載新版本 {{version}}，是否確認安裝？"
   },
+  "FederationPage": {
+    "title": "高校聯賽",
+    "subtitle": "連接聯盟後檢視聯賽、建立隊伍、邀請隊友並提交報名。",
+    "gameConnection": {
+      "title": "比賽連線",
+      "description": "貼上主辦方提供的比賽連線連結",
+      "linkLabel": "連線連結",
+      "connected": "遊戲伺服器位址：{{address}}。從啟動器啟動 Minecraft 26.3 後會自動加入，請保持啟動器運行。",
+      "connect": "建立連線",
+      "disconnect": "斷開連線",
+      "error": "遊戲連線未完成，請檢查連結或聯繫主辦方"
+    },
+    "settings": {
+      "title": "連線設定",
+      "description": "聯盟連線位址與聯盟身分由主辦方提供",
+      "addressLabel": "聯盟連線位址",
+      "peerLabel": "聯盟身分",
+      "connect": "連線 / 重新整理",
+      "myDevice": "我的裝置：{{id}}",
+      "myMember": "我的編號：{{id}}",
+      "myClub": "（{{club}}）"
+    },
+    "error": "操作未完成，請檢查連線與報名狀態後重試",
+    "empty": {
+      "notConnected": "完成連線設定後，這裡會顯示聯賽列表、隊伍與積分榜。",
+      "noLeagues": "目前聯盟暫無聯賽。"
+    },
+    "phase": {
+      "Registration": "報名中",
+      "Playing": "進行中",
+      "Finished": "已結束"
+    },
+    "league": {
+      "seatsPerTeam": "每隊 {{seats}} 人",
+      "crossClub": "允許跨校",
+      "sameClubOnly": "同校組隊",
+      "teamNamePlaceholder": "新隊伍名稱",
+      "createTeam": "建立隊伍",
+      "teamsTitle": "參賽隊伍",
+      "teamsEmpty": "暫無隊伍。報名階段，已加入聯盟的隊員可以建立隊伍。",
+      "memberCount": "{{count}} 人",
+      "registered": "已提交報名",
+      "notRegistered": "未提交報名",
+      "acceptInvite": "接受邀請",
+      "register": "提交報名",
+      "inviteePlaceholder": "邀請成員的聯盟編號",
+      "invite": "邀請成員",
+      "teamScoreboard": "隊伍積分榜",
+      "playerScoreboard": "玩家積分榜",
+      "teamScoreboardEmpty": "隊伍積分榜暫無資料。",
+      "playerScoreboardEmpty": "玩家積分榜暫無資料。",
+      "points": "{{score}} 分"
+    }
+  },
   "FileDnDProvider": {
     "fileName": "{{fileName}} 等（共 {{count}} 個）"
   },
@@ -1807,6 +1861,25 @@
     "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
     "linkText": "閱讀官方文件",
     "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
+  "MemberGovernance": {
+    "title": "成員議事",
+    "description": "檢視提案、參與投票與提交申請",
+    "proposal": "提案 {{id}} · {{approvals}} 個社團同意 · {{status}}",
+    "proposalStatus": {
+      "executed": "已執行",
+      "cancelled": "已撤回",
+      "pending": "待處理"
+    },
+    "votes": "{{count}} 票",
+    "closesAt": "截止 {{time}}",
+    "noBallots": "暫無成員投票",
+    "defaultCategory": "聯賽",
+    "categoryLabel": "申請類別",
+    "bodyLabel": "申請或建議",
+    "submit": "提交",
+    "feedbackEntry": "{{category}}：{{text}}",
+    "awaitingResponse": "等待回覆"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",

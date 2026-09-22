@@ -869,6 +869,60 @@
     "title": "迭更擴充套件",
     "body": "擴充套件 {{identifier}} 已自 {{src}} 得新版本 {{version}}，然否確認安之？"
   },
+  "FederationPage": {
+    "title": "高校聯賽",
+    "subtitle": "連盟而後，可覽聯賽、立隊伍、邀同儕、呈報名。",
+    "gameConnection": {
+      "title": "對局連接",
+      "description": "請粘主辦者所授之比賽連接",
+      "linkLabel": "連接之鏈",
+      "connected": "戲伺服之址：{{address}}。自啟器啟 Minecraft 26.3，當自入，毋輟啟器。",
+      "connect": "立連接",
+      "disconnect": "斷連接",
+      "error": "戲連接未成，請覈其鏈，或問主辦者"
+    },
+    "settings": {
+      "title": "連接之設",
+      "description": "連盟之址與連盟之身，主辦者授之",
+      "addressLabel": "連盟之址",
+      "peerLabel": "連盟之身",
+      "connect": "連接 / 新",
+      "myDevice": "吾之機：{{id}}",
+      "myMember": "吾之號：{{id}}",
+      "myClub": "（{{club}}）"
+    },
+    "error": "事未成，請覈連接與報名之況，而後復試",
+    "empty": {
+      "notConnected": "既設連接，聯賽、隊伍、積分榜將列於此。",
+      "noLeagues": "今連盟無聯賽。"
+    },
+    "phase": {
+      "Registration": "報名中",
+      "Playing": "行局中",
+      "Finished": "已訖"
+    },
+    "league": {
+      "seatsPerTeam": "每隊 {{seats}} 人",
+      "crossClub": "許跨校",
+      "sameClubOnly": "限同校",
+      "teamNamePlaceholder": "新隊之名",
+      "createTeam": "立隊",
+      "teamsTitle": "與賽諸隊",
+      "teamsEmpty": "尚無隊。報名之際，連盟之士可立隊。",
+      "memberCount": "{{count}} 人",
+      "registered": "已呈報",
+      "notRegistered": "未呈報",
+      "acceptInvite": "受邀",
+      "register": "呈報名",
+      "inviteePlaceholder": "所邀者之連盟號",
+      "invite": "邀員",
+      "teamScoreboard": "隊積分榜",
+      "playerScoreboard": "員積分榜",
+      "teamScoreboardEmpty": "隊積分榜尚無據。",
+      "playerScoreboardEmpty": "員積分榜尚無據。",
+      "points": "{{score}} 分"
+    }
+  },
   "FileDnDProvider": {
     "fileName": "{{fileName}} 等（凡 {{count}} 個）"
   },
@@ -1807,6 +1861,25 @@
     "content": "自 2026 年起，礦藝 版號採取新的命名規則，以年份作為版號首位（如 26.1）以取代原有的 1.x 版號規則。",
     "linkText": "覽官方案文",
     "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
+  "MemberGovernance": {
+    "title": "成員議事",
+    "description": "覽提案、與投票、呈申請",
+    "proposal": "提案 {{id}} · {{approvals}} 社許之 · {{status}}",
+    "proposalStatus": {
+      "executed": "已行",
+      "cancelled": "已撤",
+      "pending": "待決"
+    },
+    "votes": "{{count}} 票",
+    "closesAt": "訖於 {{time}}",
+    "noBallots": "尚無成員之投票",
+    "defaultCategory": "聯賽",
+    "categoryLabel": "申請之類",
+    "bodyLabel": "申請或獻議",
+    "submit": "呈",
+    "feedbackEntry": "{{category}}：{{text}}",
+    "awaitingResponse": "俟復"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",

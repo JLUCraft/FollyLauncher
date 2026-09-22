@@ -869,6 +869,60 @@
     "title": "拡張機能を更新",
     "body": "拡張機能 {{identifier}} は {{src}} から新しいバージョン {{version}} をダウンロードしました。インストールを確認しますか？"
   },
+  "FederationPage": {
+    "title": "リーグ",
+    "subtitle": "ユニオンに接続してリーグを確認し、チームを作成、仲間を招待してエントリーしましょう。",
+    "gameConnection": {
+      "title": "マッチ接続",
+      "description": "主催者から提供されたマッチ接続リンクを貼り付けてください",
+      "linkLabel": "接続リンク",
+      "connected": "ゲームサーバーアドレス：{{address}}。ランチャーから Minecraft 26.3 を起動すると自動的に参加します。ランチャーを起動したままにしてください。",
+      "connect": "接続",
+      "disconnect": "切断",
+      "error": "ゲーム接続が完了しませんでした。リンクを確認するか、主催者に連絡してください"
+    },
+    "settings": {
+      "title": "接続設定",
+      "description": "ユニオン接続アドレスとユニオンIDは主催者から提供されます",
+      "addressLabel": "ユニオン接続アドレス",
+      "peerLabel": "ユニオンID",
+      "connect": "接続 / 更新",
+      "myDevice": "自分のデバイス：{{id}}",
+      "myMember": "自分のメンバー番号：{{id}}",
+      "myClub": "（{{club}}）"
+    },
+    "error": "操作が完了しませんでした。接続とエントリーの状態を確認して再試行してください",
+    "empty": {
+      "notConnected": "接続設定を完了すると、リーグ一覧、チーム、スコアボードが表示されます。",
+      "noLeagues": "このユニオンにはまだリーグがありません。"
+    },
+    "phase": {
+      "Registration": "エントリー受付中",
+      "Playing": "開催中",
+      "Finished": "終了"
+    },
+    "league": {
+      "seatsPerTeam": "1チーム {{seats}} 人",
+      "crossClub": "クロークラブ可",
+      "sameClubOnly": "同じクラブのみ",
+      "teamNamePlaceholder": "新しいチーム名",
+      "createTeam": "チーム作成",
+      "teamsTitle": "参加チーム",
+      "teamsEmpty": "チームはまだありません。エントリー期間中は、ユニオンメンバーがチームを作成できます。",
+      "memberCount": "{{count}} 人",
+      "registered": "エントリー済み",
+      "notRegistered": "未エントリー",
+      "acceptInvite": "招待を受ける",
+      "register": "エントリーする",
+      "inviteePlaceholder": "招待するメンバー番号",
+      "invite": "メンバーを招待",
+      "teamScoreboard": "チームスコア",
+      "playerScoreboard": "プレイヤースコア",
+      "teamScoreboardEmpty": "チームスコアはまだありません。",
+      "playerScoreboardEmpty": "プレイヤースコアはまだありません。",
+      "points": "{{score}} 点"
+    }
+  },
   "FileDnDProvider": {
     "fileName": "{{fileName}} など（全{{count}}件）"
   },
@@ -1392,7 +1446,7 @@
       "launch": "起動",
       "instances": "ゲーム",
       "accounts": "アカウント",
-      "federation": "Federation",
+      "federation": "リーグ",
       "discover": "ディスカバー",
       "search": "メタサーチ",
       "settings": "設定"
@@ -1807,6 +1861,25 @@
     "content": "2026年より、Minecraftのバージョン番号は新しい命名規則を採用します。従来の1.x形式に代わり、西暦の下2桁をバージョン番号の先頭に配置します（例: 26.1）。",
     "linkText": "公式ドキュメントを読む",
     "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
+  "MemberGovernance": {
+    "title": "メンバー議決",
+    "description": "提案の確認、投票、申請の提出ができます",
+    "proposal": "提案 {{id}} ・ {{approvals}} クラブが同意 ・ {{status}}",
+    "proposalStatus": {
+      "executed": "実行済み",
+      "cancelled": "撤回",
+      "pending": "保留"
+    },
+    "votes": "{{count}} 票",
+    "closesAt": "締切 {{time}}",
+    "noBallots": "メンバー投票はありません",
+    "defaultCategory": "リーグ",
+    "categoryLabel": "申請カテゴリ",
+    "bodyLabel": "申請または提案",
+    "submit": "送信",
+    "feedbackEntry": "{{category}}：{{text}}",
+    "awaitingResponse": "返答待ち"
   },
   "MemoryStatusProgress": {
     "title": "メモリ状況",

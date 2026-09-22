@@ -869,6 +869,60 @@
     "title": "Actualizar Extensión",
     "body": "La extensión {{identifier}} descargó la nueva versión {{version}} de {{src}}. ¿Deseas confirmar la instalación?"
   },
+  "FederationPage": {
+    "title": "Federación",
+    "subtitle": "Conéctate a la unión para ver ligas, crear equipos, invitar compañeros e inscribirte.",
+    "gameConnection": {
+      "title": "Conexión de partida",
+      "description": "Pega el enlace de conexión proporcionado por el organizador",
+      "linkLabel": "Enlace de conexión",
+      "connected": "Dirección del servidor de juego: {{address}}. Al iniciar Minecraft 26.3 desde el launcher te unirás automáticamente; mantén el launcher abierto.",
+      "connect": "Conectar",
+      "disconnect": "Desconectar",
+      "error": "No se pudo completar la conexión al juego; revisa el enlace o contacta al organizador"
+    },
+    "settings": {
+      "title": "Ajustes de conexión",
+      "description": "La dirección de la unión y la identidad de unión las proporciona el organizador",
+      "addressLabel": "Dirección de la unión",
+      "peerLabel": "Identidad de unión",
+      "connect": "Conectar / Actualizar",
+      "myDevice": "Mi dispositivo: {{id}}",
+      "myMember": "Mi número de miembro: {{id}}",
+      "myClub": "({{club}})"
+    },
+    "error": "Operación incompleta; revisa la conexión y el estado de inscripción e inténtalo de nuevo",
+    "empty": {
+      "notConnected": "Una vez conectado, aquí aparecerán las ligas, equipos y clasificaciones.",
+      "noLeagues": "Esta unión aún no tiene ligas."
+    },
+    "phase": {
+      "Registration": "Inscripción",
+      "Playing": "En curso",
+      "Finished": "Finalizada"
+    },
+    "league": {
+      "seatsPerTeam": "{{seats}} por equipo",
+      "crossClub": "Equipos entre clubes permitidos",
+      "sameClubOnly": "Solo mismo club",
+      "teamNamePlaceholder": "Nombre del nuevo equipo",
+      "createTeam": "Crear equipo",
+      "teamsTitle": "Equipos participantes",
+      "teamsEmpty": "Aún no hay equipos. Durante la inscripción, los miembros de la unión pueden crear equipos.",
+      "memberCount": "{{count}} miembros",
+      "registered": "Inscrito",
+      "notRegistered": "No inscrito",
+      "acceptInvite": "Aceptar invitación",
+      "register": "Enviar inscripción",
+      "inviteePlaceholder": "Número de miembro a invitar",
+      "invite": "Invitar miembro",
+      "teamScoreboard": "Clasificación de equipos",
+      "playerScoreboard": "Clasificación de jugadores",
+      "teamScoreboardEmpty": "Sin datos de clasificación de equipos.",
+      "playerScoreboardEmpty": "Sin datos de clasificación de jugadores.",
+      "points": "{{score}} pts"
+    }
+  },
   "FileDnDProvider": {
     "fileName": "{{fileName}} y otros ({{count}} en total)"
   },
@@ -1392,7 +1446,7 @@
       "launch": "Iniciar",
       "instances": "Juegos",
       "accounts": "Cuentas",
-      "federation": "Federation",
+      "federation": "Federación",
       "discover": "Descubrir",
       "search": "Buscar",
       "settings": "Configuración"
@@ -1807,6 +1861,25 @@
     "content": "A partir de 2026, Minecraft adopta un nuevo sistema de numeración de versiones. Los números de versión comenzarán con el año de lanzamiento (por ejemplo, 26.1), reemplazando el anterior esquema de versionado 1.x.",
     "linkText": "Leer el artículo oficial",
     "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
+  "MemberGovernance": {
+    "title": "Gobernanza de miembros",
+    "description": "Revisa propuestas, participa en votaciones y envía solicitudes",
+    "proposal": "Propuesta {{id}} · {{approvals}} clubes aprobaron · {{status}}",
+    "proposalStatus": {
+      "executed": "Ejecutada",
+      "cancelled": "Retirada",
+      "pending": "Pendiente"
+    },
+    "votes": "{{count}} votos",
+    "closesAt": "Cierra {{time}}",
+    "noBallots": "Aún no hay votaciones de miembros",
+    "defaultCategory": "Liga",
+    "categoryLabel": "Categoría de solicitud",
+    "bodyLabel": "Solicitud o sugerencia",
+    "submit": "Enviar",
+    "feedbackEntry": "{{category}}: {{text}}",
+    "awaitingResponse": "Esperando respuesta"
   },
   "MemoryStatusProgress": {
     "title": "Estado de la memoria",

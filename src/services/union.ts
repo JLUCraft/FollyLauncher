@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { brand } from "@/brand";
 
 export interface UnionTeam {
   captain: string;
@@ -44,7 +45,10 @@ export interface UnionState {
 export class UnionService {
   static async connectGame(link: string): Promise<string> {
     const url = new URL(link);
-    if (url.protocol !== "jlucraft:" || url.hostname !== "connect") {
+    if (
+      url.protocol !== `${brand.deeplinkScheme}:` ||
+      url.hostname !== "connect"
+    ) {
       throw new Error("连接链接无效");
     }
     const peer = url.searchParams.get("peer");

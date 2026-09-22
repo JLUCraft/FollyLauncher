@@ -18,6 +18,7 @@ import {
   LuCircleUserRound,
   LuCompass,
   LuSettings,
+  LuTrophy,
   LuZap,
 } from "react-icons/lu";
 import AdvancedCard from "@/components/common/advanced-card";
@@ -52,7 +53,7 @@ const HeadNavBar = () => {
     { icon: LuZap, label: "launch", path: "/launch" },
     { icon: LuBox, label: "instances", path: "/instances" },
     { icon: LuCircleUserRound, label: "accounts", path: "/accounts" },
-    { icon: LuCircleUserRound, label: "federation", path: "/federation" },
+    { icon: LuTrophy, label: "federation", path: "/federation" },
     { icon: LuCompass, label: "discover", path: "/discover" },
     { icon: LuSettings, label: "settings", path: "/settings" },
   ];

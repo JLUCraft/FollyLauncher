@@ -8,6 +8,7 @@ export interface BrandFederationConfig {
 export interface BrandConfig {
   id: string;
   productName: string;
+  shortName: string;
   identifier: string;
   deeplinkScheme: string;
   copyright: string;

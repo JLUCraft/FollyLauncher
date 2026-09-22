@@ -1,5 +1,8 @@
 import {
+  Badge,
+  Box,
   Button,
+  Divider,
   FormControl,
   FormLabel,
   HStack,
@@ -34,43 +37,62 @@ export function MemberGovernance({
     >
       <VStack align="stretch" spacing={4}>
         {Object.entries(state.proposals ?? {}).map(([id, p]) => (
-          <Text key={id}>
-            提案 {id} · {Object.keys(p.approvals).length} 个社团同意 ·{" "}
-            {p.executed ? "已执行" : p.cancelled ? "已撤回" : "待处理"}
-          </Text>
+          <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
+            <HStack justify="space-between" align="center">
+              <Text fontSize="sm">提案 {id}</Text>
+              <Badge
+                colorScheme={
+                  p.executed ? "green" : p.cancelled ? "gray" : "yellow"
+                }
+              >
+                {p.executed ? "已执行" : p.cancelled ? "已撤回" : "待处理"}
+              </Badge>
+            </HStack>
+            <Text fontSize="xs" className="secondary-text" mt={1}>
+              {Object.keys(p.approvals).length} 个社团同意
+            </Text>
+          </Box>
         ))}
         {Object.entries(state.ballots ?? {}).map(([id, b]) => (
-          <VStack key={id} align="stretch">
+          <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
             <Text fontWeight="bold">{b.title}</Text>
-            {b.options.map((option, index) => (
-              <HStack key={index}>
-                <Button
-                  isDisabled={
-                    busy ||
-                    !member ||
-                    !b.electorate.includes(member) ||
-                    b.votes[member] !== undefined ||
-                    Date.now() >= b.closes_ms
-                  }
-                  onClick={() =>
-                    void request({ type: "member_vote", id, option: index })
-                  }
-                >
-                  {option}
-                </Button>
-                <Text>
-                  {Object.values(b.votes).filter((v) => v === index).length} 票
-                </Text>
-              </HStack>
-            ))}
-            <Text fontSize="sm">
+            <VStack align="stretch" mt={2} spacing={2}>
+              {b.options.map((option, index) => (
+                <HStack key={index}>
+                  <Button
+                    size="sm"
+                    maxW="100%"
+                    whiteSpace="normal"
+                    textAlign="left"
+                    isDisabled={
+                      busy ||
+                      !member ||
+                      !b.electorate.includes(member) ||
+                      b.votes[member] !== undefined ||
+                      Date.now() >= b.closes_ms
+                    }
+                    onClick={() =>
+                      void request({ type: "member_vote", id, option: index })
+                    }
+                  >
+                    {option}
+                  </Button>
+                  <Text fontSize="sm" className="secondary-text">
+                    {Object.values(b.votes).filter((v) => v === index).length}{" "}
+                    票
+                  </Text>
+                </HStack>
+              ))}
+            </VStack>
+            <Text fontSize="xs" className="secondary-text" mt={2}>
               截止 {new Date(b.closes_ms).toLocaleString()}
             </Text>
-          </VStack>
+          </Box>
         ))}
         {!Object.keys(state.ballots ?? {}).length && <Text>暂无成员投票</Text>}
         {member && (
           <>
+            <Divider />
             <FormControl>
               <FormLabel htmlFor="feedback-category">申请类别</FormLabel>
               <Input
@@ -90,6 +112,7 @@ export function MemberGovernance({
               />
             </FormControl>
             <Button
+              alignSelf="flex-start"
               isDisabled={busy || !body.trim() || !category.trim()}
               onClick={() =>
                 void request({
@@ -107,12 +130,24 @@ export function MemberGovernance({
         {Object.entries(state.feedback ?? {})
           .filter(([, f]) => f.member === member)
           .map(([id, f]) => (
-            <VStack key={id} align="stretch">
-              <Text>
-                {f.category}：{f.text}
+            <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
+              <HStack justify="space-between" align="center">
+                <Text fontSize="sm" fontWeight="semibold">
+                  {f.category}
+                </Text>
+                <Badge colorScheme={f.response ? "green" : "gray"}>
+                  {f.response ? "已回复" : "等待回复"}
+                </Badge>
+              </HStack>
+              <Text fontSize="sm" mt={1}>
+                {f.text}
               </Text>
-              <Text>{f.response ?? "等待回复"}</Text>
-            </VStack>
+              {f.response && (
+                <Text fontSize="xs" className="secondary-text" mt={1}>
+                  回复：{f.response}
+                </Text>
+              )}
+            </Box>
           ))}
       </VStack>
     </Section>

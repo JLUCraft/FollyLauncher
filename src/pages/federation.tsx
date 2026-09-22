@@ -12,17 +12,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { brand } from "@/brand";
 import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { MemberGovernance } from "@/components/federation/member-governance";
+import { useDeepLink } from "@/hooks/deep-link";
 import { UnionService, UnionState } from "@/services/union";
-
-const PHASE_LABELS: Record<string, string> = {
-  Registration: "报名中",
-  Playing: "进行中",
-  Finished: "已结束",
-};
 
 const Scoreboard = ({
   title,
@@ -32,46 +29,54 @@ const Scoreboard = ({
   title: string;
   scores: Record<string, number>;
   emptyText: string;
-}) => (
-  <Box>
-    <Text fontWeight="bold" fontSize="sm" mb={2}>
-      {title}
-    </Text>
-    {Object.keys(scores).length === 0 ? (
-      <Text fontSize="sm" className="secondary-text">
-        {emptyText}
+}) => {
+  const { t } = useTranslation();
+  return (
+    <Box>
+      <Text fontWeight="bold" fontSize="sm" mb={2}>
+        {title}
       </Text>
-    ) : (
-      <VStack spacing={1} align="stretch">
-        {Object.entries(scores)
-          .sort((a, b) => b[1] - a[1])
-          .map(([id, score], index) => (
-            <Flex key={id} fontSize="sm" align="center">
-              <Text
-                w={8}
-                flexShrink={0}
-                fontWeight={index < 3 ? "bold" : "normal"}
-                color={index < 3 ? "blue.500" : "gray.500"}
-              >
-                {index + 1}
-              </Text>
-              <Text flex="1" overflowWrap="anywhere">
-                {id}
-              </Text>
-              <Text fontWeight="medium" flexShrink={0}>
-                {score} 分
-              </Text>
-            </Flex>
-          ))}
-      </VStack>
-    )}
-  </Box>
-);
+      {Object.keys(scores).length === 0 ? (
+        <Text fontSize="sm" className="secondary-text">
+          {emptyText}
+        </Text>
+      ) : (
+        <VStack spacing={1} align="stretch">
+          {Object.entries(scores)
+            .sort((a, b) => b[1] - a[1])
+            .map(([id, score], index) => (
+              <Flex key={id} fontSize="sm" align="center">
+                <Text
+                  w={8}
+                  flexShrink={0}
+                  fontWeight={index < 3 ? "bold" : "normal"}
+                  color={index < 3 ? "blue.500" : "gray.500"}
+                >
+                  {index + 1}
+                </Text>
+                <Text flex="1" overflowWrap="anywhere">
+                  {id}
+                </Text>
+                <Text fontWeight="medium" flexShrink={0}>
+                  {t("FederationPage.league.points", { score })}
+                </Text>
+              </Flex>
+            ))}
+        </VStack>
+      )}
+    </Box>
+  );
+};
 
 export default function FederationPage() {
+  const { t } = useTranslation();
   const [gameLink, setGameLink] = useState("");
   const [gameAddress, setGameAddress] = useState<string | null>(null);
   const [gameBusy, setGameBusy] = useState(false);
+  useDeepLink({
+    trigger: (subpath) => subpath.startsWith("connect"),
+    onCall: (url) => setGameLink(url),
+  });
   useEffect(() => {
     let active = true;
     const refresh = () => {
@@ -99,13 +104,13 @@ export default function FederationPage() {
         setGameAddress(await UnionService.connectGame(gameLink));
       }
     } catch {
-      setError("游戏连接未完成，请检查链接或联系组织者");
+      setError(t("FederationPage.gameConnection.error"));
     } finally {
       setGameBusy(false);
     }
   };
-  const [address, setAddress] = useState("");
-  const [peer, setPeer] = useState("");
+  const [address, setAddress] = useState(brand.federation.defaultAddress);
+  const [peer, setPeer] = useState(brand.federation.defaultPeer);
   const [identity, setIdentity] = useState("");
   const [state, setState] = useState<UnionState>();
   const [teamName, setTeamName] = useState("");
@@ -121,21 +126,21 @@ export default function FederationPage() {
         await UnionService.request(address, peer, state?.revision, action)
       );
     } catch {
-      setError("操作未完成，请检查连接与报名状态后重试");
+      setError(t("FederationPage.error"));
     } finally {
       setBusy(false);
     }
   };
   const member = Object.entries(state?.members || {}).find(
-    ([, m]) => m.device === identity
+    ([, m]) => m.device === identity || m.additional_devices?.includes(identity)
   )?.[0];
   const leagues = Object.entries(state?.leagues || {});
   return (
     <VStack p={6} spacing={6} align="stretch">
       <Box>
-        <Heading size="lg">高校联赛</Heading>
+        <Heading size="lg">{t("FederationPage.title")}</Heading>
         <Text fontSize="sm" className="secondary-text" mt={1}>
-          连接联盟后查看联赛、创建队伍、邀请队友并提交报名。
+          {t("FederationPage.subtitle")}
         </Text>
       </Box>
 
@@ -148,10 +153,15 @@ export default function FederationPage() {
         />
       )}
 
-      <Section title="比赛连接" description="粘贴组织者提供的比赛连接链接">
+      <Section
+        title={t("FederationPage.gameConnection.title")}
+        description={t("FederationPage.gameConnection.description")}
+      >
         <VStack align="stretch" spacing={3}>
           <FormControl>
-            <FormLabel htmlFor="game-link">连接链接</FormLabel>
+            <FormLabel htmlFor="game-link">
+              {t("FederationPage.gameConnection.linkLabel")}
+            </FormLabel>
             <Input
               id="game-link"
               value={gameLink}
@@ -161,8 +171,9 @@ export default function FederationPage() {
           </FormControl>
           {gameAddress && (
             <Text fontSize="sm">
-              游戏服务器地址：{gameAddress}
-              。从启动器启动 Minecraft 26.3 后会自动加入，请保持启动器运行。
+              {t("FederationPage.gameConnection.connected", {
+                address: gameAddress,
+              })}
             </Text>
           )}
           <Button
@@ -171,20 +182,24 @@ export default function FederationPage() {
             isDisabled={!gameAddress && !gameLink}
             onClick={() => void handleGameConnection()}
           >
-            {gameAddress ? "断开游戏连接" : "建立游戏连接"}
+            {gameAddress
+              ? t("FederationPage.gameConnection.disconnect")
+              : t("FederationPage.gameConnection.connect")}
           </Button>
         </VStack>
       </Section>
 
       <Section
-        title="连接设置"
-        description="联盟连接地址与联盟身份由组织者提供"
+        title={t("FederationPage.settings.title")}
+        description={t("FederationPage.settings.description")}
         isAccordion
         initialIsOpen={!state}
       >
         <VStack spacing={3} align="stretch">
           <FormControl>
-            <FormLabel htmlFor="federation-address">联盟连接地址</FormLabel>
+            <FormLabel htmlFor="federation-address">
+              {t("FederationPage.settings.addressLabel")}
+            </FormLabel>
             <Input
               id="federation-address"
               isDisabled={busy}
@@ -196,7 +211,9 @@ export default function FederationPage() {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="federation-peer">联盟身份</FormLabel>
+            <FormLabel htmlFor="federation-peer">
+              {t("FederationPage.settings.peerLabel")}
+            </FormLabel>
             <Input
               id="federation-peer"
               isDisabled={busy}
@@ -214,20 +231,22 @@ export default function FederationPage() {
               isDisabled={!address || !peer}
               onClick={() => void handleRequest()}
             >
-              连接 / 刷新
+              {t("FederationPage.settings.connect")}
             </Button>
           </HStack>
           {identity && (
             <VStack spacing={1} align="start" fontSize="sm">
               <Text overflowWrap="anywhere">
-                我的设备：<Text as="span">{identity}</Text>
+                {t("FederationPage.settings.myDevice", { id: identity })}
               </Text>
               {member && (
                 <Text>
-                  我的编号：<Text as="span">{member}</Text>
+                  {t("FederationPage.settings.myMember", { id: member })}
                   {state?.members[member]?.club && (
                     <Text as="span" className="secondary-text">
-                      （{state.members[member].club}）
+                      {t("FederationPage.settings.myClub", {
+                        club: state.members[member].club,
+                      })}
                     </Text>
                   )}
                 </Text>
@@ -244,12 +263,9 @@ export default function FederationPage() {
       )}
 
       {!state ? (
-        <Empty
-          size="md"
-          description="完成连接设置后，这里会显示联赛列表、队伍与积分榜。"
-        />
+        <Empty size="md" description={t("FederationPage.empty.notConnected")} />
       ) : leagues.length === 0 ? (
-        <Empty size="md" description="当前联盟暂无联赛。" />
+        <Empty size="md" description={t("FederationPage.empty.noLeagues")} />
       ) : (
         leagues.map(([league, value]) => (
           <AdvancedCard key={league} level="front">
@@ -266,11 +282,19 @@ export default function FederationPage() {
                           : "gray"
                     }
                   >
-                    {PHASE_LABELS[value.phase] || value.phase}
+                    {t(`FederationPage.phase.${value.phase}`, {
+                      defaultValue: value.phase,
+                    })}
                   </Tag>
-                  <Tag colorScheme="gray">每队 {value.rules.seats} 人</Tag>
+                  <Tag colorScheme="gray">
+                    {t("FederationPage.league.seatsPerTeam", {
+                      seats: value.rules.seats,
+                    })}
+                  </Tag>
                   <Tag colorScheme={value.rules.cross_club ? "green" : "gray"}>
-                    {value.rules.cross_club ? "允许跨校" : "同校组队"}
+                    {value.rules.cross_club
+                      ? t("FederationPage.league.crossClub")
+                      : t("FederationPage.league.sameClubOnly")}
                   </Tag>
                 </HStack>
               </Flex>
@@ -278,8 +302,8 @@ export default function FederationPage() {
               {value.phase === "Registration" && member && (
                 <HStack spacing={2}>
                   <Input
-                    aria-label="队伍名称"
-                    placeholder="新队伍名称"
+                    aria-label={t("FederationPage.league.teamNamePlaceholder")}
+                    placeholder={t("FederationPage.league.teamNamePlaceholder")}
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                   />
@@ -295,18 +319,18 @@ export default function FederationPage() {
                       })
                     }
                   >
-                    创建队伍
+                    {t("FederationPage.league.createTeam")}
                   </Button>
                 </HStack>
               )}
 
               <Box>
                 <Text fontWeight="bold" fontSize="sm" mb={2}>
-                  参赛队伍
+                  {t("FederationPage.league.teamsTitle")}
                 </Text>
                 {Object.keys(value.teams).length === 0 ? (
                   <Text fontSize="sm" className="secondary-text">
-                    暂无队伍。报名阶段，已加入联盟的队员可以创建队伍。
+                    {t("FederationPage.league.teamsEmpty")}
                   </Text>
                 ) : (
                   Object.entries(value.teams).map(([team, roster]) => (
@@ -319,9 +343,15 @@ export default function FederationPage() {
                     >
                       <Flex wrap="wrap" gap={2} align="center">
                         <Text fontWeight="medium">{team}</Text>
-                        <Tag colorScheme="gray">{roster.members.length} 人</Tag>
+                        <Tag colorScheme="gray">
+                          {t("FederationPage.league.memberCount", {
+                            count: roster.members.length,
+                          })}
+                        </Tag>
                         <Tag colorScheme={roster.registered ? "green" : "gray"}>
-                          {roster.registered ? "已提交报名" : "未提交报名"}
+                          {roster.registered
+                            ? t("FederationPage.league.registered")
+                            : t("FederationPage.league.notRegistered")}
                         </Tag>
                         <HStack spacing={2} ml="auto">
                           {value.phase === "Registration" &&
@@ -338,7 +368,7 @@ export default function FederationPage() {
                                   })
                                 }
                               >
-                                接受邀请
+                                {t("FederationPage.league.acceptInvite")}
                               </Button>
                             )}
                           {value.phase === "Registration" &&
@@ -355,7 +385,7 @@ export default function FederationPage() {
                                     })
                                   }
                                 >
-                                  提交报名
+                                  {t("FederationPage.league.register")}
                                 </Button>
                               </>
                             )}
@@ -365,8 +395,12 @@ export default function FederationPage() {
                         roster.captain === member && (
                           <HStack spacing={2} mt={2}>
                             <Input
-                              aria-label={`邀请成员加入 ${team}`}
-                              placeholder="邀请成员的联盟编号"
+                              aria-label={t(
+                                "FederationPage.league.inviteePlaceholder"
+                              )}
+                              placeholder={t(
+                                "FederationPage.league.inviteePlaceholder"
+                              )}
                               value={invitee}
                               onChange={(e) => setInvitee(e.target.value)}
                             />
@@ -382,7 +416,7 @@ export default function FederationPage() {
                                 })
                               }
                             >
-                              邀请成员
+                              {t("FederationPage.league.invite")}
                             </Button>
                           </HStack>
                         )}
@@ -398,16 +432,16 @@ export default function FederationPage() {
               >
                 <Box flex="1" minW={0}>
                   <Scoreboard
-                    title="队伍积分榜"
+                    title={t("FederationPage.league.teamScoreboard")}
                     scores={value.team_scores}
-                    emptyText="队伍积分榜暂无数据。"
+                    emptyText={t("FederationPage.league.teamScoreboardEmpty")}
                   />
                 </Box>
                 <Box flex="1" minW={0}>
                   <Scoreboard
-                    title="玩家积分榜"
+                    title={t("FederationPage.league.playerScoreboard")}
                     scores={value.player_scores}
-                    emptyText="玩家积分榜暂无数据。"
+                    emptyText={t("FederationPage.league.playerScoreboardEmpty")}
                   />
                 </Box>
               </Flex>
