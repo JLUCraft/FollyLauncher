@@ -1,11 +1,11 @@
 {
-  "id": "jlucraft",
-  "productName": "JLUCraft Launcher",
-  "shortName": "JLUCraft",
-  "statsPrefix": "jlucraft",
-  "identifier": "cn.edu.jlu.jlucraft",
-  "deeplinkScheme": "jlucraft",
-  "copyright": "Copyright © 2026 JLUCraft Team",
+  "id": "folly",
+  "productName": "Folly Launcher",
+  "shortName": "Folly",
+  "statsPrefix": "folly",
+  "identifier": "cn.edu.jlu.folly",
+  "deeplinkScheme": "folly",
+  "copyright": "Copyright © 2026 Folly Launcher Team",
   "federation": {
     "defaultAddress": "",
     "defaultPeer": ""

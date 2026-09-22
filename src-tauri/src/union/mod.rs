@@ -3,18 +3,10 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use union_core::{Identity, client};
 
+mod vault;
 fn identity(app: &AppHandle) -> Result<Identity, String> {
   let directory = app.path().app_data_dir().map_err(|e| e.to_string())?;
-  std::fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
-  let path = directory.join("union-device.key");
-  if !path.exists() {
-    if let Err(error) = Identity::generate().save_new(&path) {
-      if !path.exists() {
-        return Err(error.to_string());
-      }
-    }
-  }
-  Identity::load(path).map_err(|e| e.to_string())
+  vault::identity(&directory)
 }
 #[tauri::command]
 pub fn union_identity(app: AppHandle) -> Result<String, String> {

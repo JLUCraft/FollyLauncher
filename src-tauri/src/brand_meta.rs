@@ -6,4 +6,4 @@
 /// server, as required by LICENSE.EXTRA for modified distributions
 /// (e.g. "jlucraft" produces "jlucraft-1.3.1"). Empty for the unmodified
 /// upstream build.
-pub const STATS_VERSION_PREFIX: &str = "jlucraft";
+pub const STATS_VERSION_PREFIX: &str = "folly";

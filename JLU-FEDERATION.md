@@ -1,7 +1,8 @@
 # JLUCraft federation integration
 
-Fork base: [UNIkeEN/SJMCL](https://github.com/UNIkeEN/SJMCL), maintained on the
-`jlucraft` branch. Upstream launch/account/instance functions remain in place.
+Folly Launcher (formerly branded JLUCraft Launcher) — fork base:
+[UNIkeEN/SJMCL](https://github.com/UNIkeEN/SJMCL), maintained on the
+`folly` branch. Upstream launch/account/instance functions remain in place.
 Federation navigation opens `/federation`.
 
 ## Architecture
@@ -60,6 +61,7 @@ data-driven, not code-driven:
      "id": "myclub",
      "productName": "MyClub Launcher",
      "shortName": "MyClub",
+     "statsPrefix": "myclub",
      "identifier": "org.myclub.launcher",
      "deeplinkScheme": "myclub",
      "copyright": "Copyright © 2026 MyClub",
@@ -69,6 +71,8 @@ data-driven, not code-driven:
 
    - `identifier`: reverse-DNS bundle identifier; must be unique per club.
    - `deeplinkScheme`: lowercase URI scheme for club links.
+   - `statsPrefix`: version prefix reported to the upstream statistics server
+     per LICENSE.EXTRA (e.g. `folly` produces `folly-1.3.1`).
    - `federation.defaultAddress` / `defaultPeer`: optional pre-filled union
      connection for distributions handed out by organizers.
    - `shortName`: compact name for the navigation bar logo.
