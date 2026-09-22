@@ -10,7 +10,7 @@ use crate::launcher_config::models::MemoryInfo;
 /// Sends app version, OS type and self SHA-256 as statistic data to SJMC asynchronously.
 ///
 /// Per LICENSE.EXTRA, modified distributions report their version with a
-/// brand prefix (e.g. "jlucraft-1.3.1"); unmodified builds report the plain
+/// brand prefix (e.g. "folly-1.3.1"); unmodified builds report the plain
 /// version.
 ///
 /// # Examples

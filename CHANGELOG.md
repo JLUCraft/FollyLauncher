@@ -2,6 +2,29 @@
 
 SJMCL follows [Semantic Versioning 2.0.0](http://semver.org/).
 
+## Folly Launcher fork (based on 1.3.1)
+
+`2026-09-22`
+
+The Folly Launcher fork adds the Jilin University union federation on top of
+upstream SJMCL. Branding is data-driven via `brands/<club>/brand.json` +
+`pnpm brand <club>`; see `JLU-FEDERATION.md` for the architecture.
+
+- 🌟 Union federation page: connect to an authority, create teams, invite and
+  register, follow proposals, ballots and feedback, seasons, scoreboards and
+  result reviews.
+- 🌟 Game connection proxy with school-credential gating and launch-time
+  auto-join (union-core).
+- 🌟 Organizer controls (lock rosters & start, pause/resume) and an admin
+  season console (create seasons, schedule matches, resolve disputes).
+- 🌟 Data-driven multi-club branding (product name, identifier, deeplink
+  scheme, statistics version prefix), reported as `folly-x.y.z`.
+- 🌟 Instance management backed by minecraftd (discovery scan, server status
+  ping, well-known subdirectories).
+- 📦 Replace the `mc-server-status` dependency with minecraftd.
+- 📦 Remove the standalone CLI launcher; its proxy and instance listing live
+  on in `unionctl` (union-core).
+
 ## 1.3.1
 
 `2026-09-16`

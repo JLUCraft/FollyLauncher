@@ -89,9 +89,10 @@ data-driven, not code-driven:
 5. Build and publish normally. Per upstream `LICENSE.EXTRA`, redistribution
    must not use the SJMCL name or logo — step 1–4 is what enforces that.
 
-Upstream `main` stays unbranded: the committed default of
-`src/brand.gen.json` keeps the SJMCL identity, so the brand script only needs
-to run when building a club distribution.
+Upstream `main` stays unbranded (its committed `src/brand.gen.json` keeps the
+SJMCL identity), so the brand script only needs to run when building a club
+distribution. On this `folly` branch the generated files already carry the
+Folly Launcher brand.
 
 ## Validation status
 

@@ -1,5 +1,7 @@
 <img src="figs/banner.png" alt="SJMCL" />
 
+> **Folly Launcher** 是基于 [SJMCL](https://github.com/UNIkeEN/SJMCL)（上海交通大学 Minecraft 社团）的修改发行版，为吉林大学 Minecraft 联盟联赛定制。架构详见 [`JLU-FEDERATION.md`](../JLU-FEDERATION.md)。
+
 [![Test Build](https://img.shields.io/github/actions/workflow/status/UNIkeEN/SJMCL/test.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/UNIkeEN/SJMCL/blob/main/.github/workflows/test.yml)
 ![Downloads](https://img.shields.io/github/downloads/UNIkeEN/SJMCL/total?logo=github&style=for-the-badge)
 ![Stars](https://img.shields.io/github/stars/UNIkeEN/SJMCL?style=for-the-badge)

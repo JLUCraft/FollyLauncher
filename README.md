@@ -155,7 +155,7 @@ If you want to develop extensions for SJMCL, check out the [Extension Documentat
 
 ## Copyright
 
-Copyright © 2024-2026 SJMCL Team.
+Copyright © 2026 Folly Launcher Team. Based on SJMCL © 2024-2026 SJMCL Team.
 
 > NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
 
