@@ -67,10 +67,7 @@ if (fs.existsSync(iconDir)) {
   }
 }
 
-fs.writeFileSync(
-  tauriConfigPath,
-  JSON.stringify(tauriConfig, null, 2) + "\n"
-);
+fs.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, 2) + "\n");
 
 // Expose the brand to the frontend at runtime.
 const genPath = path.join(repoRoot, "src/brand.gen.json");
