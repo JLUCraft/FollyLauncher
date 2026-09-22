@@ -1,0 +1,11 @@
+{
+  "id": "jlucraft",
+  "productName": "JLUCraft Launcher",
+  "identifier": "cn.edu.jlu.jlucraft",
+  "deeplinkScheme": "jlucraft",
+  "copyright": "Copyright © 2026 JLUCraft Team",
+  "federation": {
+    "defaultAddress": "",
+    "defaultPeer": ""
+  }
+}
