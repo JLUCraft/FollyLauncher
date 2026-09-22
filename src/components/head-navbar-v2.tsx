@@ -95,6 +95,7 @@ const HeadNavBar = () => {
       { icon: LuZap, label: "launch", path: "/launch" },
       { icon: LuBox, label: "instances", path: "/instances" },
       { icon: LuCircleUserRound, label: "accounts", path: "/accounts" },
+      { icon: LuCircleUserRound, label: "federation", path: "/federation" },
       ...(discoverPageMode === "on"
         ? [{ icon: LuCompass, label: "discover", path: "/discover" }]
         : discoverPageMode === "search-only"

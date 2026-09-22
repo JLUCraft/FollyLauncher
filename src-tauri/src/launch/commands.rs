@@ -62,7 +62,12 @@ pub async fn select_suitable_jre(
     .get(&instance_id)
     .ok_or(InstanceError::InstanceNotFoundByID)?
     .clone();
-  let game_config = get_instance_game_config(&app, &instance);
+  let mut game_config = get_instance_game_config(&app, &instance);
+  if let Some(address) = crate::union::active_game_address(&app).await {
+    game_config.game_server.auto_join = true;
+    game_config.game_server.server_url = address;
+    game_config.launcher_visibility = LauncherVisiablity::Always;
+  }
 
   let client_path = instance
     .version_path

@@ -1392,6 +1392,7 @@
       "launch": "Launch",
       "instances": "Games",
       "accounts": "Accounts",
+      "federation": "Federation",
       "discover": "Discover",
       "search": "Search",
       "settings": "Settings"

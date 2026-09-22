@@ -164,6 +164,8 @@ lto = false
 expat-sys = { git = "https://github.com/SJMC-dev/libexpat.git" }
 
 [dependencies]
+union-core = { path = "../../union-core" }
+terminal-runtime = { path = "../../union-core/crates/terminal-runtime" }
 async-speed-limit.workspace = true
 async-trait.workspace = true
 axum.workspace = true

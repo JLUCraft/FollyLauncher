@@ -1392,6 +1392,7 @@
       "launch": "起動",
       "instances": "ゲーム",
       "accounts": "アカウント",
+      "federation": "Federation",
       "discover": "ディスカバー",
       "search": "メタサーチ",
       "settings": "設定"

@@ -7,6 +7,7 @@ mod launch;
 mod launcher_config;
 mod resource;
 mod tasks;
+mod union;
 mod utils;
 
 use account::helpers::authlib_injector::info::refresh_and_update_auth_servers;
@@ -86,7 +87,13 @@ pub async fn run() {
     let builder = builder.plugin(tauri_plugin_decorum::init());
 
     builder
+      .manage(union::ProxyState::default())
       .invoke_handler(tauri::generate_handler![
+        union::union_identity,
+        union::union_proxy_start,
+        union::union_proxy_stop,
+        union::union_proxy_status,
+        union::union_governance,
         launcher_config::commands::retrieve_launcher_config,
         launcher_config::commands::update_launcher_config,
         launcher_config::commands::reset_launcher_config,

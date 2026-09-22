@@ -1,0 +1,18 @@
+[package]
+name = "union-launcher-cli"
+version = "0.2.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+union-core = { path = "../../../union-core" }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "io-util", "sync", "time", "signal"] }
+terminal-runtime = { path = "../../../union-core/crates/terminal-runtime" }
+minecraftd = { path = "../../../minecraftd" }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[workspace]
