@@ -1,11 +1,10 @@
-use mc_server_status::{McClient, McError, ServerData, ServerEdition, ServerInfo, ServerStatus};
+use futures::stream::StreamExt;
 use quartz_nbt::io::Flavor;
 use serde::{self, Deserialize, Serialize};
 use sjmcl_types::error::SJMCLResult;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tauri::AppHandle;
-use tauri::async_runtime;
 
 use crate::instance::helpers::misc::get_instance_subdir_path_by_id;
 use crate::instance::models::misc::InstanceSubdirType;
@@ -109,6 +108,28 @@ pub async fn save_servers_to_nbt(path: &Path, servers: &[GameServerInfo]) -> SJM
   Ok(())
 }
 
+/// Query a single server's online status via the minecraftd ping protocol.
+async fn ping_game_server(ip: &str) -> minecraftd::minecraft::ping::ServerStatus {
+  const PING_TIMEOUT: Duration = Duration::from_secs(5);
+
+  let fallback = ip.to_string();
+  let address = tokio::net::lookup_host(ip)
+    .await
+    .ok()
+    .and_then(|mut addrs| addrs.next())
+    .unwrap_or_else(|| {
+      // `lookup_host` already accepts "host:port"; this fallback only guards
+      // malformed entries so the task still completes.
+      fallback
+        .parse()
+        .unwrap_or_else(|_| std::net::SocketAddr::from(([0, 0, 0, 0], 0)))
+    });
+
+  minecraftd::minecraft::ping::ping_java_server(address, PING_TIMEOUT)
+    .await
+    .unwrap_or_default()
+}
+
 /// Query multiple servers online status in parallel.
 pub async fn query_servers_online(
   mut servers: Vec<GameServerInfo>,
@@ -117,43 +138,27 @@ pub async fn query_servers_online(
     return Ok(servers);
   }
 
-  let servers_clone = servers.clone();
+  let results: Vec<(String, minecraftd::minecraft::ping::ServerStatus)> = {
+    let ips: Vec<String> = servers.iter().map(|sv| sv.ip.clone()).collect();
+    futures::stream::iter(ips)
+      .map(|ip| async move { (ip.clone(), ping_game_server(&ip).await) })
+      .buffer_unordered(10)
+      .collect()
+      .await
+  };
 
-  let results: Vec<(ServerInfo, Result<ServerStatus, McError>)> =
-    async_runtime::spawn_blocking(move || {
-      let rt = tokio::runtime::Runtime::new().unwrap();
-      rt.block_on(async {
-        let client = McClient::new()
-          .with_timeout(Duration::from_secs(5))
-          .with_max_parallel(10);
-
-        let server_infos: Vec<ServerInfo> = servers_clone
-          .iter()
-          .map(|sv| ServerInfo {
-            address: sv.ip.clone(),
-            edition: ServerEdition::Java,
-          })
-          .collect();
-
-        client.ping_many(&server_infos).await
-      })
-    })
-    .await?;
-
-  for (info, result) in results.into_iter() {
-    if let Some(server) = servers.iter_mut().find(|s| s.ip == info.address) {
+  for (ip, status) in results.into_iter() {
+    if let Some(server) = servers.iter_mut().find(|s| s.ip == ip) {
       server.is_queried = true;
 
-      if let Ok(status) = result
-        && let ServerData::Java(sv) = status.data
-      {
+      if status.online {
         server.online = true;
-        server.latency = Some(status.latency.round() as u64);
-        server.players_online = sv.players.online as usize;
-        server.players_max = sv.players.max as usize;
-        server.description = sv.description.clone();
+        server.latency = Some(status.latency_ms);
+        server.players_online = usize::try_from(status.current_players).unwrap_or(0);
+        server.players_max = usize::try_from(status.max_players).unwrap_or(0);
+        server.description = status.description.clone();
 
-        if let Some(favicon) = sv.favicon {
+        if let Some(favicon) = status.favicon {
           server.icon_src = favicon;
         }
       }

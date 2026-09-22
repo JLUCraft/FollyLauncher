@@ -50,18 +50,21 @@ pub fn get_instance_subdir_paths(
   let paths = directory_types
     .iter()
     .map(|directory_type| {
+      use minecraftd::instance::path::InstanceSubdir;
       let path_buf = match directory_type {
-        InstanceSubdirType::Assets => game_dir.join("assets"),
-        InstanceSubdirType::Libraries => game_dir.join("libraries"),
-        InstanceSubdirType::Mods => path.join("mods"),
-        InstanceSubdirType::ResourcePacks => path.join("resourcepacks"),
-        InstanceSubdirType::Root => path.to_path_buf(),
-        InstanceSubdirType::Saves => path.join("saves"),
-        InstanceSubdirType::Schematics => path.join("schematics"),
-        InstanceSubdirType::Screenshots => path.join("screenshots"),
-        InstanceSubdirType::ServerResourcePacks => path.join("server-resource-packs"),
-        InstanceSubdirType::ShaderPacks => path.join("shaderpacks"),
-        // native libraries extracted by SJMCL
+        InstanceSubdirType::Assets => InstanceSubdir::Assets.resolve(game_dir),
+        InstanceSubdirType::Libraries => InstanceSubdir::Libraries.resolve(game_dir),
+        InstanceSubdirType::Mods => InstanceSubdir::Mods.resolve(&path),
+        InstanceSubdirType::ResourcePacks => InstanceSubdir::ResourcePacks.resolve(&path),
+        InstanceSubdirType::Root => InstanceSubdir::Root.resolve(&path),
+        InstanceSubdirType::Saves => InstanceSubdir::Saves.resolve(&path),
+        InstanceSubdirType::Schematics => InstanceSubdir::Schematics.resolve(&path),
+        InstanceSubdirType::Screenshots => InstanceSubdir::Screenshots.resolve(&path),
+        InstanceSubdirType::ServerResourcePacks => {
+          InstanceSubdir::ServerResourcePacks.resolve(&path)
+        }
+        InstanceSubdirType::ShaderPacks => InstanceSubdir::ShaderPacks.resolve(&path),
+        // native libraries extracted by SJMCL (no minecraftd equivalent)
         InstanceSubdirType::NativeLibraries => version_path.join(format!(
           "natives-{}-{}",
           tauri_plugin_os::platform(),
@@ -338,31 +341,15 @@ pub async fn refresh_instances(
   is_first_run: bool,
 ) -> SJMCLResult<Vec<Instance>> {
   let mut instances = vec![];
-  // traverse the "versions" directory
-  let versions_dir = game_directory.dir.join("versions");
-  for entry in fs::read_dir(versions_dir)? {
-    let entry = match entry {
-      Ok(v) => v,
-      Err(_) => continue,
-    };
-    let version_path = entry.path();
-    if !version_path.is_dir() {
-      continue;
-    }
-
-    let name = match entry.file_name().into_string() {
-      Ok(v) => v,
-      Err(_) => {
-        log::warn!("Skipped instance with non-UTF-8 name: {:?}", version_path);
-        continue;
-      }
-    };
-    // if there exists name.jar and name.json, then it's a valid instance
+  // Enumerate candidate version directories via minecraftd's strict
+  // `versions/<id>/` scan (requires `<id>.jar` + `<id>.json`); this launcher
+  // then loads its own per-instance configuration on top of each candidate.
+  let discovered = minecraftd::discovery::scan_version_instances(&[game_directory.dir.clone()]);
+  for candidate in discovered {
+    let version_path = candidate.path;
+    let name = candidate.id;
     let jar_path = version_path.join(format!("{}.jar", name));
     let json_path = version_path.join(format!("{}.json", name));
-    if !jar_path.exists() || !json_path.exists() {
-      continue; // not a valid instance
-    }
 
     match refresh_instance(
       app,

@@ -44,8 +44,9 @@ selected third-party account's saved HTTPS provider
 destination. Credentials refresh every ten minutes; a failed refresh or a
 changed selected profile closes the connection and the user must reconnect
 after authenticating. The native game gateway performs Minecraft identity and
-room routing checks. `tools/union-launcher-cli` remains available for
-standalone use and optional relay hosting.
+room routing checks. For headless debugging and smoke tests, the same proxy is
+available as `unionctl proxy` in the union-core repository; everyday players
+use the federation page in this launcher.
 
 ## Branding (multi-club)
 

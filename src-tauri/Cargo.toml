@@ -47,7 +47,6 @@ jsonwebtoken = { version = "10.3.0", default-features = false, features = [
 ] }
 lazy_static = "1.5"
 log = "0.4"
-mc-server-status = "1.0.0"
 murmur2 = "0.1"
 native-dialog = "0.9.6"
 pin-project = "1.1.8"
@@ -164,8 +163,12 @@ lto = false
 expat-sys = { git = "https://github.com/SJMC-dev/libexpat.git" }
 
 [dependencies]
+keyring = { version = "=3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
+zeroize = "1"
+
 union-core = { path = "../../union-core" }
 terminal-runtime = { path = "../../union-core/crates/terminal-runtime" }
+minecraftd = { path = "../../minecraftd" }
 async-speed-limit.workspace = true
 async-trait.workspace = true
 axum.workspace = true
@@ -185,7 +188,6 @@ java-properties.workspace = true
 jsonwebtoken.workspace = true
 lazy_static.workspace = true
 log.workspace = true
-mc-server-status.workspace = true
 murmur2.workspace = true
 native-dialog.workspace = true
 pin-project.workspace = true
@@ -247,3 +249,6 @@ tauri-plugin-single-instance.workspace = true
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-window-state.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

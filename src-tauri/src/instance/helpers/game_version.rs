@@ -34,6 +34,11 @@ fn try_find(versions: &[String], version: &str) -> Option<usize> {
 /// The order is determined by `assets/game/versions.txt`,
 /// or fallback to cache, and optionally refresh from remote manifest if not found.
 ///
+/// Note: `minecraftd::minecraft::version::compare_versions` is intentionally
+/// not used here — the launcher requires Mojang-manifest ordering (pre-releases,
+/// snapshots and unknown-version semantics), not minecraftd's semver-like
+/// comparison.
+///
 /// # Examples
 /// ```rust,ignore
 /// if compare_game_versions(&app, version, "1.19", true).await.le(&Ordering::Equal) {
