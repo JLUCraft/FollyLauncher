@@ -74,6 +74,17 @@ SJMCL/
 - 前端导入优先使用已配置别名和绝对路径、不使用相对路径；后端导入使用绝对路径（`use crate::...`），不使用相对路径（`use super::...`）。
 - 新增或修改 `src/locales` 下的国际化文本时，同时更新所有语言文件。注意语言文件的一级 key 使用字母序排序。
 
+## 品牌系统（多社团分发）
+
+本 fork 由多个社团共享 union-core 基础设施，每个社团使用自己的品牌分发。品牌身份是数据驱动的：
+
+- 品牌定义位于 `brands/<id>/brand.json`（productName、shortName、identifier、deeplinkScheme、copyright、federation 默认值、可选 icons/）。
+- `pnpm brand <id>`（`scripts/brand/apply.js`）将品牌写入 `src-tauri/tauri.conf.json`（原生身份）并重新生成 `src/brand.gen.json`；前端通过 `src/brand.ts` 在运行时读取品牌。
+- `src/brand.gen.json` 是生成文件，不要手改；其提交默认值保持上游 SJMCL 身份，仅在构建社团分发时运行品牌脚本。
+- 不要在页面组件中硬编码产品名或深链 scheme，一律取自 `brand`。
+
+Federation 集成详见 `JLU-FEDERATION.md`。
+
 ## 扩展开发规范
 
 SJMCL 的扩展系统允许开发者在不修改核心代码的情况下添加各类有趣功能
