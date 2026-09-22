@@ -83,7 +83,7 @@ SJMCL/
 - `src/brand.gen.json` 是生成文件，不要手改；其提交默认值保持上游 SJMCL 身份，仅在构建社团分发时运行品牌脚本。
 - 不要在页面组件中硬编码产品名或深链 scheme，一律取自 `brand`。
 
-Federation 集成详见 `JLU-FEDERATION.md`。
+Federation 集成文档已外移至团队知识库（本地草稿 `../docs/guides/folly-federation.md`）。
 
 ## 扩展开发规范
 
