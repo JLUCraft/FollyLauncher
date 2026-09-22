@@ -13,6 +13,9 @@
             "error": "檢查更新失敗"
           }
         },
+        "basedOn": {
+          "title": "基於開源啟動器 SJMCL"
+        },
         "contributors": {
           "title": "開發者名單"
         },

@@ -108,6 +108,22 @@ const AboutSettingsPage = () => {
           ),
         },
         {
+          title: t("AboutSettingsPage.about.settings.basedOn.title"),
+          children: (
+            <CommonIconButton
+              label="https://github.com/UNIkeEN/SJMCL"
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() => {
+                openUrl("https://github.com/UNIkeEN/SJMCL");
+              }}
+            />
+          ),
+        },
+        {
           title: t("AboutSettingsPage.about.settings.contributors.title"),
           children: (
             <HStack spacing={2.5}>

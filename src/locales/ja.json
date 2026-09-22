@@ -13,6 +13,9 @@
             "error": "アップデートの確認に失敗"
           }
         },
+        "basedOn": {
+          "title": "SJMCL ベース"
+        },
         "contributors": {
           "title": "開発チーム"
         },

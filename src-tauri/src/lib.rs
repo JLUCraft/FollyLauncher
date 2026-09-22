@@ -1,4 +1,5 @@
 mod account;
+mod brand_meta;
 mod discover;
 mod extension;
 mod instance;

@@ -13,6 +13,9 @@
             "error": "Error al buscar actualizaciones"
           }
         },
+        "basedOn": {
+          "title": "Basado en SJMCL"
+        },
         "contributors": {
           "title": "Colaboradores"
         },

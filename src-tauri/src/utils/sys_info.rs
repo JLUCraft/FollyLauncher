@@ -9,12 +9,21 @@ use crate::launcher_config::models::MemoryInfo;
 
 /// Sends app version, OS type and self SHA-256 as statistic data to SJMC asynchronously.
 ///
+/// Per LICENSE.EXTRA, modified distributions report their version with a
+/// brand prefix (e.g. "jlucraft-1.3.1"); unmodified builds report the plain
+/// version.
+///
 /// # Examples
 ///
 /// ```rust,ignore
 /// send_statistics("1.0.0".to_string(), "windows".to_string(), "sha256".to_string()).await;
 /// ```
 pub async fn send_statistics(version: String, os: String, sha256: String) {
+  let version = if crate::brand_meta::STATS_VERSION_PREFIX.is_empty() {
+    version
+  } else {
+    format!("{}-{}", crate::brand_meta::STATS_VERSION_PREFIX, version)
+  };
   _ = reqwest::Client::new()
     .post("https://mc.sjtu.cn/api-sjmcl/statistics")
     .json(&json!({

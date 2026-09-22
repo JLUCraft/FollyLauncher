@@ -13,6 +13,9 @@
             "error": "Échec de la vérification des mises à jour."
           }
         },
+        "basedOn": {
+          "title": "Basé sur SJMCL"
+        },
         "contributors": {
           "title": "Liste des développeurs"
         },

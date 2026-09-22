@@ -13,6 +13,9 @@
             "error": "驗迭更未成"
           }
         },
+        "basedOn": {
+          "title": "基於 SJMCL"
+        },
         "contributors": {
           "title": "開發諸君之列"
         },

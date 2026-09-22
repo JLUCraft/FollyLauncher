@@ -13,6 +13,9 @@
             "error": "Failed to check for updates"
           }
         },
+        "basedOn": {
+          "title": "Based on SJMCL"
+        },
         "contributors": {
           "title": "Contributors"
         },
