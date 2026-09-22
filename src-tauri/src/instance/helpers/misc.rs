@@ -54,16 +54,16 @@ pub fn get_instance_subdir_paths(
       let path_buf = match directory_type {
         InstanceSubdirType::Assets => InstanceSubdir::Assets.resolve(game_dir),
         InstanceSubdirType::Libraries => InstanceSubdir::Libraries.resolve(game_dir),
-        InstanceSubdirType::Mods => InstanceSubdir::Mods.resolve(&path),
-        InstanceSubdirType::ResourcePacks => InstanceSubdir::ResourcePacks.resolve(&path),
-        InstanceSubdirType::Root => InstanceSubdir::Root.resolve(&path),
-        InstanceSubdirType::Saves => InstanceSubdir::Saves.resolve(&path),
-        InstanceSubdirType::Schematics => InstanceSubdir::Schematics.resolve(&path),
-        InstanceSubdirType::Screenshots => InstanceSubdir::Screenshots.resolve(&path),
+        InstanceSubdirType::Mods => InstanceSubdir::Mods.resolve(path),
+        InstanceSubdirType::ResourcePacks => InstanceSubdir::ResourcePacks.resolve(path),
+        InstanceSubdirType::Root => InstanceSubdir::Root.resolve(path),
+        InstanceSubdirType::Saves => InstanceSubdir::Saves.resolve(path),
+        InstanceSubdirType::Schematics => InstanceSubdir::Schematics.resolve(path),
+        InstanceSubdirType::Screenshots => InstanceSubdir::Screenshots.resolve(path),
         InstanceSubdirType::ServerResourcePacks => {
-          InstanceSubdir::ServerResourcePacks.resolve(&path)
+          InstanceSubdir::ServerResourcePacks.resolve(path)
         }
-        InstanceSubdirType::ShaderPacks => InstanceSubdir::ShaderPacks.resolve(&path),
+        InstanceSubdirType::ShaderPacks => InstanceSubdir::ShaderPacks.resolve(path),
         // native libraries extracted by SJMCL (no minecraftd equivalent)
         InstanceSubdirType::NativeLibraries => version_path.join(format!(
           "natives-{}-{}",
@@ -344,7 +344,8 @@ pub async fn refresh_instances(
   // Enumerate candidate version directories via minecraftd's strict
   // `versions/<id>/` scan (requires `<id>.jar` + `<id>.json`); this launcher
   // then loads its own per-instance configuration on top of each candidate.
-  let discovered = minecraftd::discovery::scan_version_instances(&[game_directory.dir.clone()]);
+  let discovered =
+    minecraftd::discovery::scan_version_instances(std::slice::from_ref(&game_directory.dir));
   for candidate in discovered {
     let version_path = candidate.path;
     let name = candidate.id;
