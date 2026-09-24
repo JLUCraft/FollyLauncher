@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Card,
   Center,
   Flex,
   HStack,
@@ -16,11 +15,13 @@ import {
   VStack,
   useColorModeValue,
   useDisclosure,
+  useToken,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { cloneElement, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuArrowLeftRight, LuPlus, LuSettings } from "react-icons/lu";
+import AdvancedCard from "@/components/common/advanced-card";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { CompactButtonGroup } from "@/components/common/compact-button-group";
 import InstancesView from "@/components/instances-view";
@@ -30,10 +31,12 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { PlayerType } from "@/enums/account";
-import cardStyles from "@/styles/card.module.css";
 import styles from "@/styles/launch.module.css";
 
-interface CustomButtonProps extends Omit<IconButtonProps, "onClick"> {
+interface CustomButtonProps extends Omit<
+  IconButtonProps,
+  "onClick" | "aria-label"
+> {
   tooltip: string;
   onClick: () => void;
   popoverContent: React.ReactElement;
@@ -74,6 +77,7 @@ const ButtonWithPopover: React.FC<CustomButtonProps> = ({
               size="xs"
               icon={showAdd ? <LuPlus /> : <LuArrowLeftRight />}
               {...props}
+              aria-label={tooltip}
               onClick={() => {
                 if (showAdd) return (onAddClick ?? onClick)();
                 quickSwitch ? onToggle() : onClick();
@@ -100,8 +104,30 @@ const HomeButtonGroup = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { openSharedModal } = useSharedModals();
+  const { config } = useLauncherConfig();
   const { selectedPlayer, selectedInstance, getPlayerList, getInstanceList } =
     useGlobalData();
+
+  const primaryColor = config.appearance.theme.primaryColor;
+  const [glowBase, glowHover, glowActive] = useToken("colors", [
+    `${primaryColor}.400`,
+    `${primaryColor}.500`,
+    `${primaryColor}.600`,
+  ]);
+
+  // glow shadows for the launch button, following the theme primary color
+  const toRgba = (hex: string, alpha: number) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+  };
+  const glowShadow = (color: string, alpha: number, spread: number) =>
+    [
+      `-${spread}px 0 5px ${spread}px`,
+      `0px 0 5px ${spread}px`,
+      `${spread}px 0 5px ${spread}px`,
+    ]
+      .map((shadow) => `${shadow} ${toRgba(color, alpha)}`)
+      .join(", ");
 
   const playerList = getPlayerList() || [];
   const instanceList = getInstanceList() || [];
@@ -110,15 +136,12 @@ const HomeButtonGroup = () => {
 
   return (
     <Flex wrap="wrap" justify="flex-end" align="flex-end" gap={4}>
-      <Card
-        className={styles["selected-user-card"] + " " + cardStyles["card-back"]}
-      >
+      <AdvancedCard className={styles["selected-user-card"]}>
         <Box position="absolute" top={1} right={1}>
           <ButtonWithPopover
             tooltip={t(
               `LaunchPage.SwitchButton.tooltip.${hasPlayers ? "switchPlayer" : "addPlayer"}`
             )}
-            aria-label="player"
             variant="subtle"
             popoverContent={
               <PlayersView
@@ -171,13 +194,16 @@ const HomeButtonGroup = () => {
             </Center>
           )}
         </HStack>
-      </Card>
+      </AdvancedCard>
 
       <Box position="relative">
         <Button
           id="main-launch-button"
           colorScheme="blackAlpha"
           className={styles["launch-button"]}
+          boxShadow={glowShadow(glowBase, 0.3, 1)}
+          _hover={{ boxShadow: glowShadow(glowHover, 0.5, 2) }}
+          _active={{ boxShadow: glowShadow(glowActive, 0.7, 3) }}
           onClick={() => {
             if (selectedInstance) {
               openSharedModal("launch", {
@@ -221,7 +247,6 @@ const HomeButtonGroup = () => {
               tooltip={t(
                 `LaunchPage.SwitchButton.tooltip.${hasInstances ? "switchInstance" : "addInstance"}`
               )}
-              aria-label="instance"
               popoverContent={
                 <InstancesView
                   instances={instanceList}

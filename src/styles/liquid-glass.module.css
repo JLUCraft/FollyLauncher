@@ -3,8 +3,10 @@
   display: flex;
   overflow: hidden;
 
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 6px 6px var(--chakra-colors-blackAlpha-400),
+    0 0 20px var(--chakra-colors-blackAlpha-200);
+  background: var(--chakra-colors-whiteAlpha-700);
   border-radius: 1rem;
 }
 
@@ -27,15 +29,17 @@
   overflow: hidden;
   border-radius: 1rem;
 
-  box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
-    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 2px 2px 1px 0 var(--chakra-colors-whiteAlpha-700),
+    inset -1px -1px 1px 1px var(--chakra-colors-whiteAlpha-700);
 }
 
 :global([data-theme="dark"]) .wrapper {
-  background: rgba(0, 0, 0, 0.78);
+  background: var(--chakra-colors-blackAlpha-900);
 }
 
 :global([data-theme="dark"]) .shine {
-  box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.2),
-    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 2px 2px 1px 0 var(--chakra-colors-whiteAlpha-400),
+    inset -1px -1px 1px 1px var(--chakra-colors-whiteAlpha-400);
 }

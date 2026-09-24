@@ -1,17 +1,17 @@
 .card-back {
-  background-color: rgba(255, 255, 255, 0.75) !important;
+  background-color: var(--chakra-colors-whiteAlpha-900) !important;
   backdrop-filter: blur(20px);
 }
 
 .card-front {
-  background-color: #FAFAFA !important;
+  background-color: var(--chakra-colors-gray-50) !important;
   padding: var(--chakra-space-3);
 }
 
 :global([data-theme="dark"]) .card-back {
-  background-color: rgba(0, 0, 0, 0.83) !important;
+  background-color: var(--chakra-colors-blackAlpha-900) !important;
 }
 
 :global([data-theme="dark"]) .card-front {
-  background-color: #2E2E2E !important;
+  background-color: var(--chakra-colors-gray-700) !important;
 }
