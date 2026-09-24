@@ -432,7 +432,15 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
                       borderColor={borderColor}
                       _hover={{ bg: hoverBg }}
                       cursor="pointer"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleModToggle(mod)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleModToggle(mod);
+                        }
+                      }}
                     >
                       <Checkbox
                         isChecked={selectedMods.some(

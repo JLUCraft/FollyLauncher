@@ -149,7 +149,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       <Tooltip label={t("General.viewOnWiki")}>
         <IconButton
           size="sm"
-          aria-label="viewOnWiki"
+          aria-label={t("General.viewOnWiki")}
           icon={<LuEarth />}
           variant="ghost"
           onClick={(e) => {
@@ -218,7 +218,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         </InputGroup>
         <MCVersionNumberHelper placement="bottom-end" />
         <IconButton
-          aria-label="refresh"
+          aria-label={t("General.refresh")}
           icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
           onClick={getGameVersionListWrapper}
           size="xs"

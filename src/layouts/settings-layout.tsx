@@ -61,9 +61,9 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
         <VStack align="stretch" spacing={4}>
-          {settingsDomainList.map((group, index) => (
+          {settingsDomainList.map((group) => (
             <NavMenu
-              key={index}
+              key={group[0].key}
               selectedKeys={[selectedKey]}
               onClick={(value) => {
                 router.push(value);

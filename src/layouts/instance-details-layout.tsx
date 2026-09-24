@@ -26,7 +26,10 @@ import {
   LuSquareLibrary,
   LuSquarePlus,
 } from "react-icons/lu";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import NavMenu from "@/components/common/nav-menu";
 import { Section } from "@/components/common/section";
 import ExportModpackModal from "@/components/modals/export-modpack-modal";
@@ -183,7 +186,7 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
             }}
             size="xs"
             fontSize="sm"
-            h={21}
+            h={COMPACT_ICON_BUTTON_HEIGHT}
           />
           {isChakraColor(summary?.tag) && (
             <Icon as={GoDotFill} color={`${summary.tag}.500`} />
@@ -192,16 +195,16 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       }
       headExtra={
         <HStack spacing={2}>
-          {instanceSecMenuOperations.map((btn, index) => (
+          {instanceSecMenuOperations.map((btn) => (
             <CommonIconButton
-              key={index}
+              key={String(btn.icon)}
               icon={btn.icon}
               label={btn.label}
               colorScheme={btn.danger ? "red" : "gray"}
               onClick={btn.onClick}
               size="xs"
               fontSize="sm"
-              h={21}
+              h={COMPACT_ICON_BUTTON_HEIGHT}
             />
           ))}
           <Button

@@ -19,7 +19,10 @@ import {
   LuRotateCcw,
   LuX,
 } from "react-icons/lu";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -112,7 +115,7 @@ export const DownloadTasksPage = () => {
             )}
             size="xs"
             fontSize="sm"
-            h={21}
+            h={COMPACT_ICON_BUTTON_HEIGHT}
           />
           <CommonIconButton
             icon={LuSettings}
@@ -122,7 +125,7 @@ export const DownloadTasksPage = () => {
             }}
             size="xs"
             fontSize="sm"
-            h={21}
+            h={COMPACT_ICON_BUTTON_HEIGHT}
           />
         </HStack>
       }
@@ -187,7 +190,9 @@ export const DownloadTasksPage = () => {
                         )}
                       >
                         <IconButton
-                          aria-label="pause / download"
+                          aria-label={t(
+                            `DownloadTasksPage.button.${group.status === GTaskEventStatusEnums.Started ? "pause" : "begin"}`
+                          )}
                           icon={
                             group.status === GTaskEventStatusEnums.Started ? (
                               <LuPause />
@@ -197,7 +202,7 @@ export const DownloadTasksPage = () => {
                           }
                           size="xs"
                           fontSize="sm"
-                          h={21}
+                          h={COMPACT_ICON_BUTTON_HEIGHT}
                           ml={1}
                           variant="ghost"
                           onClick={() => {
@@ -215,11 +220,11 @@ export const DownloadTasksPage = () => {
                       group.status === GTaskEventStatusEnums.Cancelled) && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
-                          aria-label="retry"
+                          aria-label={t("DownloadTasksPage.button.retry")}
                           icon={<LuRotateCcw />}
                           size="xs"
                           fontSize="sm"
-                          h={21}
+                          h={COMPACT_ICON_BUTTON_HEIGHT}
                           ml={1}
                           variant="ghost"
                           onClick={() =>
@@ -245,11 +250,11 @@ export const DownloadTasksPage = () => {
                       group.status !== GTaskEventStatusEnums.Completed && (
                         <Tooltip label={t("General.cancel")}>
                           <IconButton
-                            aria-label="cancel"
+                            aria-label={t("General.cancel")}
                             icon={<LuX />}
                             size="xs"
                             fontSize="sm"
-                            h={21}
+                            h={COMPACT_ICON_BUTTON_HEIGHT}
                             variant="ghost"
                             onClick={() =>
                               handleCancelProgressiveTaskGroup(group.taskGroup)
@@ -259,11 +264,11 @@ export const DownloadTasksPage = () => {
                       )}
 
                     <IconButton
-                      aria-label="toggle expansion"
+                      aria-label={t("DownloadTasksPage.button.toggleExpansion")}
                       icon={expanded ? <LuChevronDown /> : <LuChevronRight />}
                       size="xs"
                       fontSize="sm"
-                      h={21}
+                      h={COMPACT_ICON_BUTTON_HEIGHT}
                       variant="ghost"
                       onClick={() => toggleTaskExpansion(group.taskGroup)}
                     />
@@ -323,7 +328,7 @@ export const DownloadTasksPage = () => {
                           icon="revealFile"
                           size="xs"
                           fontSize="sm"
-                          h={21}
+                          h={COMPACT_ICON_BUTTON_HEIGHT}
                           onClick={() => revealItemInDir(task.payload.dest)}
                         />
                       )}

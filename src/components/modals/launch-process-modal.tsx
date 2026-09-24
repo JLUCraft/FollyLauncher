@@ -367,7 +367,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
             colorScheme={errorPaused ? "red" : primaryColor}
           >
             {launchProcessSteps.map((step, index) => (
-              <Step key={index}>
+              <Step key={step.label}>
                 <StepIndicator>
                   <StepStatus
                     complete={<StepIcon />}

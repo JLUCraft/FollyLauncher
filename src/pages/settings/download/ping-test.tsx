@@ -3,7 +3,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import { OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { UtilsService } from "@/services/utils";
@@ -111,7 +114,7 @@ const PingTestPage = () => {
           onClick={checkAllServices}
           size="xs"
           fontSize="sm"
-          h={21}
+          h={COMPACT_ICON_BUTTON_HEIGHT}
           isLoading={Object.values(servicesStatus).some((s) => s.loading)}
         />
       }

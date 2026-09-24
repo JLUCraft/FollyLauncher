@@ -13,7 +13,10 @@ import { openPath, openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "react-i18next";
 import { LuCircleCheck, LuCircleMinus } from "react-icons/lu";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
@@ -233,9 +236,9 @@ const ExtensionSettingsPage = () => {
         }
       >
         <HStack spacing={0}>
-          {extensionItemMenuOperations(extension).map((item, index) => (
+          {extensionItemMenuOperations(extension).map((item) => (
             <CommonIconButton
-              key={index}
+              key={String(item.icon)}
               icon={item.icon}
               label={item.label}
               colorScheme={item.danger ? "red" : "gray"}
@@ -305,14 +308,14 @@ const ExtensionSettingsPage = () => {
         isAccordion
         headExtra={
           <HStack spacing={2}>
-            {secMenu.map((btn, index) => (
+            {secMenu.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>

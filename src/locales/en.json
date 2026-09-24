@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "Back",
+    "openDevTestPage": "Open dev test page",
+    "reload": "Reload",
     "tooltip": "Dev Toolbar"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "Pause",
       "begin": "Start",
       "retry": "Retry",
-      "clearHistory": "Clear History Records"
+      "clearHistory": "Clear History Records",
+      "toggleExpansion": "Toggle Expansion"
     },
     "label": {
       "paused": "Paused",
@@ -1215,9 +1219,11 @@
         "description": "Please log in with your Microsoft account before accessing this feature."
       }
     },
+    "back": "Back",
     "browse": "Browse",
     "cancel": "Cancel",
     "close": "Close",
+    "color": "Color",
     "confirm": "OK",
     "copy": {
       "text": "Copy",
@@ -1258,6 +1264,7 @@
     "refresh": "Refresh",
     "revealFile": "Reveal in {{opener}}",
     "search": "Search",
+    "select": "Select",
     "settings": "Settings",
     "share": {
       "text": "Share",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "Skip",
+    "unselectColor": "Unselect Color",
     "version": {
       "dev": "development version",
       "nightly": "nightly build",
       "beta": "beta version",
       "test-build": "test build"
     },
+    "versionNumberingHelp": "Version Numbering Help",
     "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "Enable Rotation",
       "disableRotation": "Disable Rotation",
       "play": "Play",
-      "pause": "Pause"
+      "pause": "Pause",
+      "switchAnimation": "Switch Animation"
     },
     "error": {
       "loadSkin": "Failed to load skin"
@@ -3345,7 +3355,8 @@
         "last-hour": "last hour",
         "hours-ago": "{{count}} hours ago",
         "yesterday": "yesterday",
-        "others": "on {{time}}"
+        "others": "on {{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {

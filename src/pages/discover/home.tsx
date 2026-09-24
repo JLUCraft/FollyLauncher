@@ -23,7 +23,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -108,6 +111,18 @@ const NewsCard: React.FC<{ post: NewsPostSummary | null }> = ({ post }) => {
       h="100%"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      role={post?.link ? "button" : undefined}
+      tabIndex={post?.link ? 0 : undefined}
+      onKeyDown={
+        post?.link
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openUrl(post.link as string);
+              }
+            }
+          : undefined
+      }
       onClick={
         post?.link
           ? () => {
@@ -127,7 +142,7 @@ const NewsCard: React.FC<{ post: NewsPostSummary | null }> = ({ post }) => {
         </HStack>
         {post?.createAt && (
           <Text fontSize="xs" className="secondary-text">
-            {formatRelativeTime(post.createAt, t).replace("on", "")}
+            {formatRelativeTime(post.createAt, t, { withoutPrefix: true })}
           </Text>
         )}
       </HStack>
@@ -190,9 +205,10 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
   onMore,
   accentColor,
 }) => {
-  const arrowHoverColor = useColorModeValue("gray.500", "gray.500");
+  const arrowHoverColor = "gray.500";
   const arrowColor = useColorModeValue("gray.400", "gray.600");
   const arrowDisabledColor = useColorModeValue("gray.300", "gray.700");
+  const { t } = useTranslation();
 
   const [page, setPage] = useState<number>(0);
   const itemsPerPage = useBreakpointValue({ base: 2, xl: 3 }) ?? 2;
@@ -259,7 +275,7 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
               isDisabled={btn.isDisabled}
               size="xs"
               fontSize="sm"
-              h={21}
+              h={COMPACT_ICON_BUTTON_HEIGHT}
             />
           ))}
         </HStack>
@@ -327,7 +343,7 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
             {showArrows && (
               <>
                 <IconButton
-                  aria-label="previous"
+                  aria-label={t("General.previous")}
                   icon={LongChevron({
                     size: longChevronSize,
                     direction: "left",
@@ -350,7 +366,7 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
                   }}
                 />
                 <IconButton
-                  aria-label="next"
+                  aria-label={t("General.next")}
                   icon={LongChevron({
                     size: longChevronSize,
                     direction: "right",
@@ -478,14 +494,17 @@ const HotModpackGrid: React.FC<HotModpackGridProps> = ({
           size="sm"
           fontSize="sm"
           isDisabled={loading}
-          h={21}
+          h={COMPACT_ICON_BUTTON_HEIGHT}
         />
       }
     >
       <SimpleGrid columns={{ base: 1, lg: 2, xl: 3 }} gap={3} w="100%">
         {loading ? (
           <VStack gridColumn="1 / -1" my={6}>
-            <BeatLoader size={16} color="gray" />
+            <BeatLoader
+              size={16}
+              color={`var(--chakra-colors-${accentColor}-400)`}
+            />
           </VStack>
         ) : items.length === 0 ? (
           <Empty gridColumn="1 / -1" py={6} withIcon={false} size="sm" />
@@ -574,12 +593,6 @@ export const DiscoverHomePage = () => {
         source === OtherResourceSource.CurseForge
           ? setCfModpacks(response.data.list)
           : setMrModpacks(response.data.list);
-      } else {
-        // toast({
-        //   title: response.message,
-        //   description: response.details,
-        //   status: "error",
-        // });
       }
     } finally {
       source === OtherResourceSource.CurseForge

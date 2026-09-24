@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "Atrás",
+    "openDevTestPage": "Abrir página de pruebas",
+    "reload": "Recargar",
     "tooltip": "Barra de Herramientas de Desarrollo"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "Pausar",
       "begin": "Iniciar",
       "retry": "Reintentar",
-      "clearHistory": "Limpiar Registros de Historial"
+      "clearHistory": "Limpiar Registros de Historial",
+      "toggleExpansion": "Expandir/Contraer"
     },
     "label": {
       "paused": "Pausado",
@@ -1215,9 +1219,11 @@
         "description": "Por favor inicia sesión con tu cuenta de Microsoft antes de acceder a esta función."
       }
     },
+    "back": "Atrás",
     "browse": "Examinar",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "color": "Color",
     "confirm": "Aceptar",
     "copy": {
       "text": "Copiar",
@@ -1258,6 +1264,7 @@
     "refresh": "Actualizar",
     "revealFile": "Mostrar en {{opener}}",
     "search": "Buscar",
+    "select": "Seleccionar",
     "settings": "Configuración",
     "share": {
       "text": "Compartir",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "Omitir",
+    "unselectColor": "Deseleccionar color",
     "version": {
       "dev": "versión de desarrollo",
       "nightly": "compilación nocturna",
       "beta": "versión beta",
       "test-build": "compilación de prueba"
     },
+    "versionNumberingHelp": "Ayuda sobre la numeración de versiones",
     "viewOnWiki": "Ver en Minecraft Wiki"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "Habilitar Rotación",
       "disableRotation": "Deshabilitar Rotación",
       "play": "Reproducir",
-      "pause": "Pausar"
+      "pause": "Pausar",
+      "switchAnimation": "Cambiar animación"
     },
     "error": {
       "loadSkin": "Error al cargar la skin"
@@ -3345,7 +3355,8 @@
         "last-hour": "la última hora",
         "hours-ago": "hace {{count}} horas",
         "yesterday": "ayer",
-        "others": "el {{time}}"
+        "others": "el {{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {

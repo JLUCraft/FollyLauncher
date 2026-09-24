@@ -29,7 +29,10 @@ import {
   LuX,
 } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
@@ -474,7 +477,7 @@ const InstanceModsPage = () => {
                 </HStack>
                 <HStack spacing={0}>
                   <IconButton
-                    aria-label="select"
+                    aria-label={t("General.select")}
                     icon={<Icon as={LuChevronRight} boxSize={3.5} />}
                     variant="ghost"
                     size="xs"
@@ -506,15 +509,15 @@ const InstanceModsPage = () => {
         }}
         headExtra={
           <HStack spacing={2}>
-            {modSecMenuOperations.map((btn, index) => (
+            {modSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 label={btn.label}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
                 isDisabled={btn.disable}
               />
             ))}
@@ -646,9 +649,9 @@ const InstanceModsPage = () => {
                 titleLineWrap={false}
               >
                 <HStack spacing={0}>
-                  {modItemMenuOperations(mod).map((item, index) => (
+                  {modItemMenuOperations(mod).map((item) => (
                     <CommonIconButton
-                      key={index}
+                      key={String(item.icon)}
                       icon={item.icon}
                       label={item.label}
                       colorScheme={item.danger ? "red" : "gray"}

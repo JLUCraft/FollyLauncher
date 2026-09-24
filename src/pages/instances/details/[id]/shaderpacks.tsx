@@ -14,7 +14,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronRight, LuHaze } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
@@ -194,7 +197,7 @@ const InstanceShaderPacksPage = () => {
           </HStack>
           <HStack spacing={0}>
             <IconButton
-              aria-label="select"
+              aria-label={t("General.select")}
               icon={<Icon as={LuChevronRight} boxSize={3.5} />}
               variant="ghost"
               size="xs"
@@ -235,14 +238,14 @@ const InstanceShaderPacksPage = () => {
         titleExtra={<CountTag count={shaderPacks.length} />}
         headExtra={
           <HStack spacing={2}>
-            {shaderSecMenuOperations.map((btn, index) => (
+            {shaderSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>
@@ -257,9 +260,9 @@ const InstanceShaderPacksPage = () => {
             items={shaderPacks.map((pack) => (
               <OptionItem key={pack.fileName} title={pack.fileName}>
                 <HStack spacing={0}>
-                  {shaderItemMenuOperations(pack).map((item, index) => (
+                  {shaderItemMenuOperations(pack).map((item) => (
                     <CommonIconButton
-                      key={index}
+                      key={String(item.icon)}
                       icon={item.icon}
                       label={item.label}
                       onClick={item.onClick}

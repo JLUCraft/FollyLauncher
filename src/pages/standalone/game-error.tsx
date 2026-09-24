@@ -21,6 +21,7 @@ import { openPath, openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCircleAlert, LuFolderOpen } from "react-icons/lu";
+import { COMPACT_ICON_BUTTON_HEIGHT } from "@/components/common/common-icon-button";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { ExtensionUISlotKey } from "@/enums/extension";
@@ -189,7 +190,7 @@ const GameErrorPage: React.FC = () => {
                       icon={<LuFolderOpen />}
                       variant="ghost"
                       size="sm"
-                      h={21}
+                      h={COMPACT_ICON_BUTTON_HEIGHT}
                       onClick={async () => {
                         await openPath(instanceInfo.versionPath);
                       }}
@@ -213,7 +214,7 @@ const GameErrorPage: React.FC = () => {
                       icon={<LuFolderOpen />}
                       variant="ghost"
                       size="sm"
-                      h={21}
+                      h={COMPACT_ICON_BUTTON_HEIGHT}
                       onClick={() => revealItemInDir(javaInfo.execPath)}
                     />
                   </Tooltip>

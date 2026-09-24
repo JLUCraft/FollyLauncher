@@ -103,7 +103,15 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
                   size="lg"
                   color={`${primaryColor}.500`}
                   cursor="pointer"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => copyText(token || "", { toast })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      copyText(token || "", { toast });
+                    }
+                  }}
                 >
                   {token}
                 </Heading>

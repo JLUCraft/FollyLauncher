@@ -12,6 +12,7 @@ import {
   Text,
   Tooltip,
   VStack,
+  useToken,
 } from "@chakra-ui/react";
 import { save } from "@tauri-apps/plugin-dialog";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -79,6 +80,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const [darkCanvasBg] = useToken("colors", ["gray.700"]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const skinViewerRef = useRef<skinview3d.SkinViewer | null>(null);
   const [currentAnimation, setCurrentAnimation] =
@@ -218,7 +220,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
         btnVariant: "solid",
         operation: () => {
           if (skinViewerRef.current)
-            skinViewerRef.current.background = "#2D3748";
+            skinViewerRef.current.background = darkCanvasBg;
         },
       },
       panorama: {
@@ -231,7 +233,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
         },
       },
     }),
-    [skinViewerRef]
+    [skinViewerRef, darkCanvasBg]
   );
 
   const backgroundTypes = Object.keys(backgroundList) as backgroundType[];
@@ -245,7 +247,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
             colorScheme={backgroundList[background].colorScheme}
             variant={backgroundList[background].btnVariant}
             mr={1}
-            aria-label="color"
+            aria-label={t("General.color")}
             icon={<LuChevronUp />}
             style={
               background === "panorama"
@@ -267,7 +269,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
                   size="xs"
                   colorScheme={backgroundList[type].colorScheme}
                   variant={backgroundList[type].btnVariant}
-                  aria-label="color"
+                  aria-label={t("General.color")}
                   icon={
                     type === background ? <FaCircleCheck /> : <FaRegCircle />
                   }
@@ -325,7 +327,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
             <BackGroundSelector />
             <Tooltip label={t(`SkinPreview.animation.${currentAnimation}`)}>
               <IconButton
-                aria-label="Switch Animation"
+                aria-label={t("SkinPreview.button.switchAnimation")}
                 icon={animationList[currentAnimation].icon}
                 variant="ghost"
                 onClick={() => {
@@ -341,7 +343,11 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
               )}
             >
               <IconButton
-                aria-label="Toggle Rotation"
+                aria-label={t(
+                  autoRotate
+                    ? "SkinPreview.button.disableRotation"
+                    : "SkinPreview.button.enableRotation"
+                )}
                 icon={autoRotate ? <LuRefreshCw /> : <LuRefreshCwOff />}
                 variant="ghost"
                 onClick={() => setAutoRotate(!autoRotate)}
@@ -351,7 +357,11 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
               label={t(`SkinPreview.button.${isPlaying ? "pause" : "play"}`)}
             >
               <IconButton
-                aria-label="Play/Pause Animation"
+                aria-label={t(
+                  isPlaying
+                    ? "SkinPreview.button.pause"
+                    : "SkinPreview.button.play"
+                )}
                 icon={isPlaying ? <LuPause /> : <LuPlay />}
                 variant="ghost"
                 onClick={() => {

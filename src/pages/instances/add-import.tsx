@@ -150,8 +150,8 @@ const AddAndImportInstancePage = () => {
   return (
     <>
       <VStack w="100%" spacing={4}>
-        {optionGroups.map((group, index) => (
-          <OptionItemGroup w="100%" {...group} key={index} />
+        {optionGroups.map((group) => (
+          <OptionItemGroup w="100%" {...group} key={group.title} />
         ))}
       </VStack>
       <CreateInstanceModal

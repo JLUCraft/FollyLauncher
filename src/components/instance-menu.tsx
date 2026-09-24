@@ -71,7 +71,7 @@ export const InstanceMenu: React.FC<InstanceMenuProps> = ({
             as={IconButton}
             size="xs"
             variant="ghost"
-            aria-label="operations"
+            aria-label={t("General.more")}
             icon={<LuEllipsis />}
           />
           <Portal>

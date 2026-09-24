@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { UnionState } from "@/services/union";
 
 // Parse per-line "name delta" entries (whitespace separated, delta last)
@@ -41,6 +42,8 @@ export function AdminConsole({
   request: (action: Record<string, unknown>) => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const [seasonId, setSeasonId] = useState(""),
     [seasonTitle, setSeasonTitle] = useState(""),
     [scheduleSeason, setScheduleSeason] = useState(""),
@@ -106,7 +109,7 @@ export function AdminConsole({
               </FormControl>
               <Button
                 flexShrink={0}
-                colorScheme="blue"
+                colorScheme={primaryColor}
                 isDisabled={busy || !seasonId.trim() || !seasonTitle.trim()}
                 onClick={() =>
                   void request({
@@ -186,7 +189,7 @@ export function AdminConsole({
               ))}
               <Button
                 flexShrink={0}
-                colorScheme="blue"
+                colorScheme={primaryColor}
                 isDisabled={
                   busy ||
                   !scheduleSeason ||
@@ -280,7 +283,7 @@ export function AdminConsole({
                   </FormControl>
                   <Button
                     alignSelf="flex-start"
-                    colorScheme="blue"
+                    colorScheme={primaryColor}
                     isDisabled={busy || !reviewResponse.trim()}
                     onClick={() => {
                       const players = parseDeltas(playerDeltas);
@@ -352,7 +355,7 @@ export function AdminConsole({
                   </FormControl>
                   <Button
                     alignSelf="flex-start"
-                    colorScheme="blue"
+                    colorScheme={primaryColor}
                     isDisabled={busy || !feedbackResponse.trim()}
                     onClick={() => {
                       void request({

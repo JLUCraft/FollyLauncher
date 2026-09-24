@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "返回",
+    "openDevTestPage": "開啟開發測試頁",
+    "reload": "重新載入",
     "tooltip": "開發之欄"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "暫止",
       "begin": "始",
       "retry": "復試",
-      "clearHistory": "清其舊錄"
+      "clearHistory": "清其舊錄",
+      "toggleExpansion": "展開或收合"
     },
     "label": {
       "paused": "已暫止",
@@ -1215,9 +1219,11 @@
         "description": "請先登微軟戶簿，而後用是功。"
       }
     },
+    "back": "返回",
     "browse": "覽",
     "cancel": "罷",
     "close": "閉",
+    "color": "顏色",
     "confirm": "然",
     "copy": {
       "text": "鈔",
@@ -1258,6 +1264,7 @@
     "refresh": "重整",
     "revealFile": "顯於{{opener}}",
     "search": "尋",
+    "select": "選擇",
     "settings": "置設",
     "share": {
       "text": "共之",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "跳過",
+    "unselectColor": "取消選擇顏色",
     "version": {
       "dev": "開發版",
       "nightly": "夜間構建版",
       "beta": "測試版",
       "test-build": "測試構建版"
     },
+    "versionNumberingHelp": "版本號規則說明",
     "viewOnWiki": "在 礦藝大典 中覽"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "啟旋轉",
       "disableRotation": "禁旋轉",
       "play": "播放",
-      "pause": "暫止"
+      "pause": "暫止",
+      "switchAnimation": "切換動畫"
     },
     "error": {
       "loadSkin": "載入外觀未成"
@@ -3345,7 +3355,8 @@
         "last-hour": "1 小時前",
         "hours-ago": "{{count}} 小時前",
         "yesterday": "昨天",
-        "others": "{{time}}"
+        "others": "{{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {

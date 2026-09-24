@@ -572,11 +572,11 @@ const GameAdvancedSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           <AlertIcon />
           {t("GameAdvancedSettingsPage.topWarning")}
         </Alert>
-        {settingGroups.map((group, index) => (
+        {settingGroups.map((group) => (
           <OptionItemGroup
             title={group.title}
             items={group.items}
-            key={index}
+            key={group.title}
           />
         ))}
       </VStack>

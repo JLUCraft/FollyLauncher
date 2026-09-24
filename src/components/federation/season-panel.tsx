@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { UnionState } from "@/services/union";
 
 export function SeasonPanel({
@@ -28,6 +29,8 @@ export function SeasonPanel({
   request: (action: Record<string, unknown>) => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const [league, setLeague] = useState(""),
     [reason, setReason] = useState("");
   // Mirrors union_core::season::season_rankings: only finished leagues count.
@@ -103,15 +106,7 @@ export function SeasonPanel({
                 {rankings(s.leagues, kind).map(([name, score], index) => (
                   <HStack key={name} fontSize="sm" spacing={2}>
                     {index < 3 ? (
-                      <Badge
-                        colorScheme={
-                          index === 0
-                            ? "yellow"
-                            : index === 1
-                              ? "gray"
-                              : "orange"
-                        }
-                      >
+                      <Badge colorScheme={index === 0 ? primaryColor : "gray"}>
                         {index + 1}
                       </Badge>
                     ) : (

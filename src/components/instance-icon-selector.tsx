@@ -192,6 +192,7 @@ export const InstanceIconSelector: React.FC<InstanceIconSelectorProps> = ({
 export const InstanceIconSelectorPopover: React.FC<
   InstanceIconSelectorProps
 > = ({ ...props }) => {
+  const { t } = useTranslation();
   return (
     <Popover placement="bottom-end">
       <PopoverTrigger>
@@ -199,7 +200,7 @@ export const InstanceIconSelectorPopover: React.FC<
           icon={<LuPenLine />}
           size="xs"
           variant="ghost"
-          aria-label="edit"
+          aria-label={t("General.edit")}
         />
       </PopoverTrigger>
       <Portal>

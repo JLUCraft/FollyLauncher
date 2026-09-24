@@ -118,9 +118,9 @@ const PreviewScreenshotModal: React.FC<PreviewScreenshotModalProps> = ({
                 {UNIXToDatetime(screenshot.time)}
               </Text>
               <HStack spacing={0}>
-                {screenshotMenuOperations.map((btn, index) => (
+                {screenshotMenuOperations.map((btn) => (
                   <CommonIconButton
-                    key={index}
+                    key={String(btn.icon)}
                     icon={btn.icon}
                     label={btn.label}
                     onClick={btn.onClick}

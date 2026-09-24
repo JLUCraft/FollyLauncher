@@ -538,11 +538,11 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   return (
     <>
       <VStack align="stretch" spacing={4} flex="1">
-        {settingGroups.map((group, index) => (
+        {settingGroups.map((group) => (
           <OptionItemGroup
             title={group.title}
             items={group.items}
-            key={index}
+            key={group.title}
           />
         ))}
       </VStack>

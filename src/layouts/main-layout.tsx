@@ -304,7 +304,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   if (config.mocked)
     return (
       <Center h="100vh" style={getGlobalExtraStyle(config)}>
-        <BeatLoader size={16} color="gray" />
+        <BeatLoader
+          size={16}
+          color={`var(--chakra-colors-${primaryColor}-400)`}
+        />
       </Center>
     );
 

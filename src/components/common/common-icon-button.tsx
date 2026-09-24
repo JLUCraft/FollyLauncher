@@ -38,6 +38,9 @@ interface CommonIconButtonProps extends Omit<
   tooltipPlacement?: PlacementWithLogical;
 }
 
+/** Shared height for compact (size="xs") icon buttons, to replace scattered magic-number heights. */
+export const COMPACT_ICON_BUTTON_HEIGHT = 21;
+
 export const CommonIconButton = forwardRef<
   HTMLButtonElement,
   CommonIconButtonProps

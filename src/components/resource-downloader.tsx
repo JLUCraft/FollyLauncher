@@ -182,8 +182,8 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
 
           return (
             <>
-              {visibleTags.map((t, index) => (
-                <Tag key={index} colorScheme={primaryColor} className="tag-xs">
+              {visibleTags.map((t) => (
+                <Tag key={t} colorScheme={primaryColor} className="tag-xs">
                   {t}
                 </Tag>
               ))}
@@ -558,8 +558,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           defaultValue={"All"}
           options={
             gameVersionList ? (
-              gameVersionList.map((item, index) => (
-                <MenuItemOption key={index} value={item} fontSize="xs">
+              gameVersionList.map((item) => (
+                <MenuItemOption key={String(item)} value={item} fontSize="xs">
                   {item === "All"
                     ? t("ResourceDownloader.versionList.All")
                     : item}
@@ -580,8 +580,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onChange={onDownloadSourceChange}
           value={downloadSource}
           defaultValue={OtherResourceSource.CurseForge}
-          options={downloadSourceLists[resourceType].map((item, index) => (
-            <MenuItemOption key={index} value={item} fontSize="xs">
+          options={downloadSourceLists[resourceType].map((item) => (
+            <MenuItemOption key={String(item)} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
           ))}
@@ -600,8 +600,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
               ? "Popularity"
               : "relevance"
           }
-          options={sortByList.map((item, index) => (
-            <MenuItemOption key={index} value={item} fontSize="xs">
+          options={sortByList.map((item) => (
+            <MenuItemOption key={String(item)} value={item} fontSize="xs">
               {t(`ResourceDownloader.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>
           ))}

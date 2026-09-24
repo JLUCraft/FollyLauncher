@@ -198,7 +198,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
               as={IconButton}
               size="xs"
               variant="ghost"
-              aria-label="operations"
+              aria-label={t("General.more")}
               icon={<LuEllipsis />}
             />
             <Portal>

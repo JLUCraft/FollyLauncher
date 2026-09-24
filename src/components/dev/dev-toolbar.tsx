@@ -26,6 +26,7 @@ import { isProd } from "@/utils/env";
 
 const DevToolbarContent: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { openSharedModal } = useSharedModals();
   const [inputValue, setInputValue] = useState("");
   const [inputType, setInputType] = useState<string>("route");
@@ -124,13 +125,13 @@ const DevToolbarContent: React.FC = () => {
     <HStack spacing={0}>
       <IconButton
         icon={<LuArrowLeft />}
-        aria-label="Back"
+        aria-label={t("DevToolbar.back")}
         variant="ghost"
         onClick={() => router.back()}
       />
       <IconButton
         icon={<LuRotateCw />}
-        aria-label="Reload"
+        aria-label={t("DevToolbar.reload")}
         variant="ghost"
         onClick={() => router.reload()}
       />
@@ -177,7 +178,7 @@ const DevToolbarContent: React.FC = () => {
       )}
       <IconButton
         icon={<LuFlaskConical />}
-        aria-label="Open dev test page"
+        aria-label={t("DevToolbar.openDevTestPage")}
         variant="ghost"
         onClick={() => router.push("/dev-test")}
       />
@@ -379,7 +380,7 @@ const DevToolbar: React.FC = () => {
           <Tooltip label={t("DevToolbar.tooltip")} isDisabled={isExpanded}>
             <IconButton
               icon={isExpanded ? <LuX /> : <LuCode />}
-              aria-label="DevTools"
+              aria-label={t("DevToolbar.tooltip")}
               variant="ghost"
               cursor={isDragging ? "grabbing" : "grab"}
               onClick={() => {

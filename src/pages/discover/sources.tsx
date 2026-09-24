@@ -163,7 +163,7 @@ export const DiscoverSourcesPage = () => {
                   <Tooltip label={t("DiscoverSourcesPage.button.deleteSource")}>
                     <IconButton
                       size="sm"
-                      aria-label="delete-source"
+                      aria-label={t("DiscoverSourcesPage.button.deleteSource")}
                       icon={<LuTrash />}
                       variant="ghost"
                       colorScheme="red"

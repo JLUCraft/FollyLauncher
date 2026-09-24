@@ -5,7 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuNewspaper } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
@@ -117,15 +120,15 @@ export const CommunityNewsPage = () => {
       title={t("DiscoverLayout.discoverDomainList.community-news")}
       headExtra={
         <HStack spacing={2}>
-          {secMenu.map((btn, index) => (
+          {secMenu.map((btn) => (
             <CommonIconButton
-              key={index}
+              key={String(btn.icon)}
               icon={btn.icon}
               label={btn.label}
               onClick={btn.onClick}
               size="xs"
               fontSize="sm"
-              h={21}
+              h={COMPACT_ICON_BUTTON_HEIGHT}
             />
           ))}
         </HStack>

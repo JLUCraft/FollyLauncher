@@ -386,7 +386,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             my={1.5}
           >
             {steps.map((step, index) => (
-              <Step key={index}>
+              <Step key={step.key}>
                 <StepIndicator>
                   <StepStatus
                     complete={<StepIcon />}

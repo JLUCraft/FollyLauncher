@@ -158,8 +158,12 @@ const HelpSettingsPage = () => {
 
   return (
     <>
-      {helpSettingGroups.map((group, index) => (
-        <OptionItemGroup title={group.title} items={group.items} key={index} />
+      {helpSettingGroups.map((group) => (
+        <OptionItemGroup
+          title={group.title}
+          items={group.items}
+          key={group.title}
+        />
       ))}
     </>
   );

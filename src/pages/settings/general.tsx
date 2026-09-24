@@ -380,8 +380,12 @@ const GeneralSettingsPage = () => {
 
   return (
     <>
-      {generalSettingGroups.map((group, index) => (
-        <OptionItemGroup title={group.title} items={group.items} key={index} />
+      {generalSettingGroups.map((group) => (
+        <OptionItemGroup
+          title={group.title}
+          items={group.items}
+          key={group.title}
+        />
       ))}
 
       <SyncConfigExportModal

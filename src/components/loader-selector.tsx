@@ -354,9 +354,9 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
           flexShrink={0}
           ref={selectableCardListRef}
         >
-          {selectableCardItems.map((item, index) => (
+          {selectableCardItems.map((item) => (
             <SelectableCard
-              key={index}
+              key={item.title}
               {...item}
               minW="3xs"
               w="100%"

@@ -104,7 +104,7 @@ const InstanceScreenshotsPage: React.FC = () => {
           >
             <IconButton
               icon={<LuEllipsis />}
-              aria-label="details"
+              aria-label={t("InstanceScreenshotsPage.button.details")}
               colorScheme="blackAlpha"
               variant="solid"
               size="xs"

@@ -83,7 +83,7 @@ const Editable: React.FC<EditableProps> = ({
             size="xs"
             variant="ghost"
             h={18}
-            aria-label="cancel"
+            aria-label={t("General.cancel")}
             onMouseDown={(e) => {
               e.preventDefault();
               onCancel();
@@ -98,7 +98,7 @@ const Editable: React.FC<EditableProps> = ({
           size="xs"
           variant="ghost"
           h={18}
-          aria-label="edit"
+          aria-label={t("General.edit")}
           onClick={() => {
             setTempValue(value);
             setIsEditing(true);

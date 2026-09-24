@@ -219,6 +219,7 @@ const InstanceDownloadIndicator: React.FC<{ task: TaskGroupDesc }> = ({
 }) => {
   const { handleStopProgressiveTaskGroup, handleResumeProgressiveTaskGroup } =
     useTaskContext();
+  const { t } = useTranslation();
   const isStarted = task.status === GTaskEventStatusEnums.Started;
 
   return (
@@ -228,6 +229,21 @@ const InstanceDownloadIndicator: React.FC<{ task: TaskGroupDesc }> = ({
         if (isStarted) handleStopProgressiveTaskGroup(task.taskGroup);
         else handleResumeProgressiveTaskGroup(task.taskGroup);
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          if (isStarted) handleStopProgressiveTaskGroup(task.taskGroup);
+          else handleResumeProgressiveTaskGroup(task.taskGroup);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={t(
+        isStarted
+          ? "DownloadTasksPage.button.pause"
+          : "DownloadTasksPage.button.begin"
+      )}
       cursor="pointer"
       borderRadius="full"
       display="flex"

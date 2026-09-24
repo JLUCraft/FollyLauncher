@@ -288,9 +288,9 @@ export const InstanceModsWidget = () => {
         ) : localMods.length > 0 ? (
           <>
             <AvatarGroup size="sm" max={5} spacing={-2.5}>
-              {localMods.map((mod, index) => (
+              {localMods.map((mod) => (
                 <Avatar
-                  key={index}
+                  key={mod.modId}
                   name={mod.name || mod.fileName}
                   src={base64ImgSrc(mod.iconSrc)}
                   style={{

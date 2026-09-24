@@ -33,15 +33,15 @@ const IntelligenceSettingsPage = () => {
 
   const SparklesIconBox = () => {
     const bg = useColorModeValue(
-      // light mode: colorful background
+      // light mode: colorful background following the theme primary color
       `
-      radial-gradient(circle at top left,     #4299E1 0%, transparent 70%),   // blue.400
-      radial-gradient(circle at top right,    #ED64A6 0%, transparent 70%),   // pink.400
-      radial-gradient(circle at bottom left,  #ED8936 0%, transparent 70%),   // orange.400
-      radial-gradient(circle at bottom right, #ED64A6 0%, transparent 70%)
+      radial-gradient(circle at top left,     var(--chakra-colors-${primaryColor}-400) 0%, transparent 70%),
+      radial-gradient(circle at top right,    var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%),
+      radial-gradient(circle at bottom left,  var(--chakra-colors-${primaryColor}-300) 0%, transparent 70%),
+      radial-gradient(circle at bottom right, var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%)
       `,
       // dark mode: neutral gray background
-      "linear-gradient(135deg, #171923, #2D3748)"
+      "linear-gradient(135deg, var(--chakra-colors-gray-900), var(--chakra-colors-gray-700))"
     );
 
     return (

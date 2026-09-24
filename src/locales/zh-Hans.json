@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "返回",
+    "openDevTestPage": "打开开发测试页",
+    "reload": "重新加载",
     "tooltip": "开发工具栏"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "暂停",
       "begin": "开始",
       "retry": "重试",
-      "clearHistory": "清空历史记录"
+      "clearHistory": "清空历史记录",
+      "toggleExpansion": "展开或折叠"
     },
     "label": {
       "paused": "已暂停",
@@ -1215,9 +1219,11 @@
         "description": "请先登录微软账户后使用此功能。"
       }
     },
+    "back": "返回",
     "browse": "浏览",
     "cancel": "取消",
     "close": "关闭",
+    "color": "颜色",
     "confirm": "确定",
     "copy": {
       "text": "复制",
@@ -1258,6 +1264,7 @@
     "refresh": "刷新",
     "revealFile": "在{{opener}}中显示",
     "search": "搜索",
+    "select": "选择",
     "settings": "设置",
     "share": {
       "text": "分享",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "跳过",
+    "unselectColor": "取消选择颜色",
     "version": {
       "dev": "开发版本",
       "nightly": "夜间构建版本",
       "beta": "测试版本",
       "test-build": "测试构建版本"
     },
+    "versionNumberingHelp": "版本号规则说明",
     "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "启用旋转",
       "disableRotation": "禁用旋转",
       "play": "播放",
-      "pause": "暂停"
+      "pause": "暂停",
+      "switchAnimation": "切换动画"
     },
     "error": {
       "loadSkin": "加载皮肤失败"
@@ -3345,7 +3355,8 @@
         "last-hour": "1 小时前",
         "hours-ago": "{{count}} 小时前",
         "yesterday": "昨天",
-        "others": "{{time}}"
+        "others": "{{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {

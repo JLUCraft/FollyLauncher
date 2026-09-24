@@ -77,6 +77,7 @@ export const ChakraColorSelectPopover: React.FC<
   withUnselectButton = false,
   onUnselect,
 }) => {
+  const { t } = useTranslation();
   const hasSelectedColor = current !== "";
 
   return (
@@ -86,7 +87,7 @@ export const ChakraColorSelectPopover: React.FC<
           size={size}
           colorScheme={current || "gray"}
           variant={hasSelectedColor ? "solid" : "outline"}
-          aria-label="color"
+          aria-label={t("General.color")}
           icon={<LuChevronDown />}
         />
       </PopoverTrigger>
@@ -104,7 +105,7 @@ export const ChakraColorSelectPopover: React.FC<
                 size={size}
                 colorScheme={current || "gray"}
                 variant="outline"
-                aria-label="unselect-color"
+                aria-label={t("General.unselectColor")}
                 icon={<LuX />}
                 onClick={onUnselect}
                 isDisabled={!onUnselect}

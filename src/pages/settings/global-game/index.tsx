@@ -15,7 +15,10 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolder, LuFolderX } from "react-icons/lu";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
@@ -153,7 +156,7 @@ const GlobalGameSettingsPage = () => {
           icon="add"
           size="xs"
           fontSize="sm"
-          h={21}
+          h={COMPACT_ICON_BUTTON_HEIGHT}
           onClick={onAddDirModalOpen}
         />
       ),
@@ -189,9 +192,9 @@ const GlobalGameSettingsPage = () => {
               ),
               children: (
                 <HStack spacing={0}>
-                  {dirItemMenuOperations(directory).map((item, index) => (
+                  {dirItemMenuOperations(directory).map((item) => (
                     <CommonIconButton
-                      key={index}
+                      key={String(item.icon)}
                       icon={item.icon}
                       colorScheme={item.danger ? "red" : "gray"}
                       onClick={item.onClick}
@@ -247,8 +250,8 @@ const GlobalGameSettingsPage = () => {
         </Alert>
       )}
       {/* Game directory list */}
-      {globalSpecSettingsGroups.map((group, index) => (
-        <OptionItemGroup {...group} key={index} />
+      {globalSpecSettingsGroups.map((group) => (
+        <OptionItemGroup {...group} key={group.title} />
       ))}
 
       <EditGameDirectoryModal

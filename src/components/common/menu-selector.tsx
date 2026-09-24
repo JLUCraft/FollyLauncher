@@ -125,11 +125,11 @@ export const MenuSelector: React.FC<MenuSelectorProps> = ({
             }
           }}
         >
-          {options.map((opt, i) => {
+          {options.map((opt) => {
             const { value: v, label, disabled } = buildOptions(opt);
             return (
               <MenuItemOption
-                key={i}
+                key={String(v)}
                 value={v}
                 fontSize={fontSize}
                 isDisabled={disabled}

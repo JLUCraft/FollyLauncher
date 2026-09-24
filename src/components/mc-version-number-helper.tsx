@@ -26,7 +26,7 @@ const MCVersionNumberHelper: React.FC<PopoverProps> = (props) => {
           icon={<LuCircleHelp size={14} />}
           size="xs"
           variant="ghost"
-          aria-label="version-numbering-help"
+          aria-label={t("General.versionNumberingHelp")}
         />
       </PopoverTrigger>
       <PopoverContent width="xs">

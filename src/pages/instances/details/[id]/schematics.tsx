@@ -4,7 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuBookDashed } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
@@ -139,14 +142,14 @@ const InstanceSchematicsPage = () => {
         titleExtra={<CountTag count={schematics.length} />}
         headExtra={
           <HStack spacing={2}>
-            {schemSecMenuOperations.map((btn, index) => (
+            {schemSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>
@@ -164,9 +167,9 @@ const InstanceSchematicsPage = () => {
                 title={renderSchematicPath(schem.relativePath)}
               >
                 <HStack spacing={0}>
-                  {schemItemMenuOperations(schem).map((item, index) => (
+                  {schemItemMenuOperations(schem).map((item) => (
                     <CommonIconButton
-                      key={index}
+                      key={String(item.icon)}
                       icon={item.icon}
                       label={item.label}
                       onClick={item.onClick}

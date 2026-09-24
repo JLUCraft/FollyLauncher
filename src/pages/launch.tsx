@@ -3,6 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import HomeWidgetContainer from "@/components/extension/home-widget-container";
 import HomeButtonGroup from "@/components/home-button-group";
 
+/**
+ * Width reserved next to the launch button group when computing the max widget
+ * width. Keep in sync with the HStack below: p={7} (28px per side) + spacing={6}
+ * (24px) + 8px safety margin for the scrollbar/rounding.
+ */
+const LAYOUT_RESERVED_WIDTH = 28 * 2 + 24 + 8;
+
 const LaunchPage = () => {
   const layoutRef = useRef<HTMLDivElement>(null);
   const [maxWidgetWidth, setMaxWidgetWidth] = useState<number>(550);
@@ -12,11 +19,11 @@ const LaunchPage = () => {
     if (!layoutEl) return;
 
     const updateMaxWidgetWidth = () => {
-      const spacing = 88; // main layout padding + spacing
       const minButtonGroupWidth =
         document.getElementById("main-launch-button")?.getBoundingClientRect()
           .width ?? 14.5 * 16;
-      const available = layoutEl.clientWidth - minButtonGroupWidth - spacing;
+      const available =
+        layoutEl.clientWidth - minButtonGroupWidth - LAYOUT_RESERVED_WIDTH;
       const safeMax = Math.max(0, available);
       setMaxWidgetWidth(safeMax);
     };

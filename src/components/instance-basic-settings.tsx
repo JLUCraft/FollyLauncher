@@ -115,11 +115,11 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
   return (
     <Box h="100%" w="100%" overflowX="hidden" overflowY="auto">
       <VStack w="100%" spacing={4}>
-        {instanceSpecSettingsGroups.map((group, index) => (
+        {instanceSpecSettingsGroups.map((group) => (
           <OptionItemGroup
             title={group.title}
             items={group.items}
-            key={index}
+            key={group.title}
             w="100%"
           />
         ))}

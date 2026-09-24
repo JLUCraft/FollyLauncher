@@ -13,7 +13,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuEarth, LuX } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
@@ -320,14 +323,14 @@ const InstanceWorldsPage = () => {
         }}
         headExtra={
           <HStack spacing={2}>
-            {worldSecMenuOperations.map((btn, index) => (
+            {worldSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>
@@ -373,9 +376,9 @@ const InstanceWorldsPage = () => {
                   }
                 >
                   <HStack spacing={0}>
-                    {worldItemMenuOperations(world).map((item, index) => (
+                    {worldItemMenuOperations(world).map((item) => (
                       <CommonIconButton
-                        key={index}
+                        key={String(item.icon)}
                         icon={item.icon}
                         label={item.label}
                         onClick={item.onClick}
@@ -411,14 +414,14 @@ const InstanceWorldsPage = () => {
         }}
         headExtra={
           <HStack spacing={2}>
-            {serverSecMenuOperations.map((btn, index) => (
+            {serverSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>
@@ -486,9 +489,9 @@ const InstanceWorldsPage = () => {
                     </Tag>
                   )}
                   <HStack spacing={0}>
-                    {serverItemMenuOperations(server).map((item, index) => (
+                    {serverItemMenuOperations(server).map((item) => (
                       <CommonIconButton
-                        key={index}
+                        key={String(item.icon)}
                         icon={item.icon}
                         label={item.label}
                         colorScheme={item.danger ? "red" : "gray"}

@@ -49,6 +49,14 @@ const PosterCard = ({ data }: PosterCardProps) => {
       }
       transition="box-shadow 0.2s"
       onClick={() => openUrl(link)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openUrl(link);
+        }
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -70,8 +78,8 @@ const PosterCard = ({ data }: PosterCardProps) => {
           <Text fontSize="xs-sm">{cleanHtmlText(title)}</Text>
           {keywords && keywords.trim() && (
             <Wrap spacing={1}>
-              {keywords.split(",").map((keyword, index) => (
-                <WrapItem key={index}>
+              {keywords.split(",").map((keyword) => (
+                <WrapItem key={keyword.trim()}>
                   <Tag colorScheme={primaryColor}>{keyword.trim()}</Tag>
                 </WrapItem>
               ))}
@@ -84,7 +92,9 @@ const PosterCard = ({ data }: PosterCardProps) => {
           )}
           <HStack className="secondary-text" fontSize="xs" mt={1} spacing={1}>
             <LuCalendar size={12} />
-            <Text>{formatRelativeTime(createAt, t).replace("on", "")}</Text>
+            <Text>
+              {formatRelativeTime(createAt, t, { withoutPrefix: true })}
+            </Text>
             {(source as NewsSourceInfo).name !== undefined && (
               <>
                 <Avatar

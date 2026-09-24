@@ -1,15 +1,18 @@
 import { BoxProps, HStack, Heading, Highlight, Image } from "@chakra-ui/react";
 import { brand } from "@/brand";
+import { useLauncherConfig } from "@/contexts/config";
 import styles from "@/styles/logo-title.module.css";
 
 interface LogoTitleProps extends BoxProps {}
 
 export const TitleShort: React.FC<LogoTitleProps> = (props) => {
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   return (
     <Heading size="md" className={styles.title} {...props}>
       <Highlight
         query={brand.shortName.slice(-1)}
-        styles={{ color: "blue.600", userSelect: "none" }}
+        styles={{ color: `${primaryColor}.600`, userSelect: "none" }}
       >
         {brand.shortName}
       </Highlight>
@@ -18,11 +21,13 @@ export const TitleShort: React.FC<LogoTitleProps> = (props) => {
 };
 
 export const TitleFull: React.FC<LogoTitleProps> = (props) => {
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   return (
     <Heading size="md" className={styles.title} {...props}>
       <Highlight
-        query={brand.shortName.slice(-1)}
-        styles={{ color: "blue.600", userSelect: "none" }}
+        query={brand.productName.slice(-1)}
+        styles={{ color: `${primaryColor}.600`, userSelect: "none" }}
       >
         {brand.productName}
       </Highlight>

@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "返回",
+    "openDevTestPage": "開啟開發測試頁",
+    "reload": "重新載入",
     "tooltip": "開發工具列"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "暫停",
       "begin": "開始",
       "retry": "重試",
-      "clearHistory": "清空歷史記錄"
+      "clearHistory": "清空歷史記錄",
+      "toggleExpansion": "展開或收合"
     },
     "label": {
       "paused": "已暫停",
@@ -1215,9 +1219,11 @@
         "description": "請先登入微軟帳戶後使用此功能。"
       }
     },
+    "back": "返回",
     "browse": "瀏覽",
     "cancel": "取消",
     "close": "關閉",
+    "color": "顏色",
     "confirm": "確定",
     "copy": {
       "text": "複製",
@@ -1258,6 +1264,7 @@
     "refresh": "重新整理",
     "revealFile": "在{{opener}}中顯示",
     "search": "搜尋",
+    "select": "選擇",
     "settings": "設定",
     "share": {
       "text": "分享",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "跳過",
+    "unselectColor": "取消選擇顏色",
     "version": {
       "dev": "開發版本",
       "nightly": "夜間構建版本",
       "beta": "測試版本",
       "test-build": "測試構建版本"
     },
+    "versionNumberingHelp": "版本號規則說明",
     "viewOnWiki": "在 Minecraft Wiki 中檢視"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "啟用旋轉",
       "disableRotation": "停用旋轉",
       "play": "播放",
-      "pause": "暫停"
+      "pause": "暫停",
+      "switchAnimation": "切換動畫"
     },
     "error": {
       "loadSkin": "載入外觀失敗"
@@ -3345,7 +3355,8 @@
         "last-hour": "1 小時前",
         "hours-ago": "{{count}} 小時前",
         "yesterday": "昨天",
-        "others": "{{time}}"
+        "others": "{{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {

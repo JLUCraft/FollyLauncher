@@ -4,7 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuPackage } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { FormattedMCText } from "@/components/common/formatted-mc-text";
@@ -218,14 +221,14 @@ const InstanceResourcePacksPage = () => {
             }}
             headExtra={
               <HStack spacing={2}>
-                {value.secMenu.map((btn, index) => (
+                {value.secMenu.map((btn) => (
                   <CommonIconButton
-                    key={index}
+                    key={String(btn.icon)}
                     icon={btn.icon}
                     onClick={btn.onClick}
                     size="xs"
                     fontSize="sm"
-                    h={21}
+                    h={COMPACT_ICON_BUTTON_HEIGHT}
                   />
                 ))}
               </HStack>
@@ -266,9 +269,9 @@ const InstanceResourcePacksPage = () => {
                       {(value.locale === "resourcePackList"
                         ? resourcePackItemMenuOperations(pack)
                         : serverResPackItemMenuOperations(pack)
-                      ).map((item, index) => (
+                      ).map((item) => (
                         <CommonIconButton
-                          key={index}
+                          key={String(item.icon)}
                           icon={item.icon}
                           label={item.label}
                           onClick={item.onClick}

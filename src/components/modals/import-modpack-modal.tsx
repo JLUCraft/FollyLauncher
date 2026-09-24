@@ -221,11 +221,11 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
                 gameDirectory={gameDirectory}
                 setGameDirectory={setGameDirectory}
               />
-              {modpackInfoGroup.map((group, index) => (
+              {modpackInfoGroup.map((group) => (
                 <OptionItemGroup
                   title={group.title}
                   items={group.items}
-                  key={index}
+                  key={group.title}
                   w="100%"
                 />
               ))}

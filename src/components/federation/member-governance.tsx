@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { UnionState } from "@/services/union";
 
 export function MemberGovernance({
@@ -30,10 +31,12 @@ export function MemberGovernance({
   request: (action: Record<string, unknown>) => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const [category, setCategory] = useState(
-      t("MemberGovernance.defaultCategory")
-    ),
-    [body, setBody] = useState("");
+    t("MemberGovernance.defaultCategory")
+  );
+  const [body, setBody] = useState("");
   return (
     <Section
       title={t("MemberGovernance.title")}
@@ -100,7 +103,7 @@ export function MemberGovernance({
                   {canApprove && (
                     <Button
                       size="sm"
-                      colorScheme="blue"
+                      colorScheme={primaryColor}
                       isDisabled={busy}
                       onClick={() =>
                         void request({ type: "approve_proposal", id })
@@ -112,7 +115,7 @@ export function MemberGovernance({
                   {canExecute && (
                     <Button
                       size="sm"
-                      colorScheme="green"
+                      colorScheme={primaryColor}
                       isDisabled={busy}
                       onClick={() =>
                         void request({ type: "execute_proposal", id })
@@ -142,7 +145,7 @@ export function MemberGovernance({
             <Text fontWeight="bold">{b.title}</Text>
             <VStack align="stretch" mt={2} spacing={2}>
               {b.options.map((option, index) => (
-                <HStack key={index}>
+                <HStack key={option}>
                   <Button
                     size="sm"
                     maxW="100%"

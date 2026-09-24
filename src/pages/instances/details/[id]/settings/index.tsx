@@ -242,11 +242,11 @@ const InstanceSettingsPage = () => {
   return (
     <Box height="100%" overflowY="auto">
       <VStack overflow="clip" align="stretch" spacing={4} flex="1">
-        {instanceSpecSettingsGroups.map((group, index) => (
+        {instanceSpecSettingsGroups.map((group) => (
           <OptionItemGroup
             title={group.title}
             items={group.items}
-            key={index}
+            key={group.title}
           />
         ))}
         {!useSpecGameConfig && (

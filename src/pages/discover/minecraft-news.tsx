@@ -3,7 +3,10 @@ import { Masonry } from "masonic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BeatLoader } from "react-spinners";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
@@ -111,14 +114,14 @@ export const MinecraftNewsPage = () => {
       title={t("DiscoverLayout.discoverDomainList.minecraft-news")}
       headExtra={
         <HStack spacing={2}>
-          {secMenu.map((btn, index) => (
+          {secMenu.map((btn) => (
             <CommonIconButton
-              key={index}
+              key={String(btn.icon)}
               icon={btn.icon}
               onClick={btn.onClick}
               size="xs"
               fontSize="sm"
-              h={21}
+              h={COMPACT_ICON_BUTTON_HEIGHT}
             />
           ))}
         </HStack>

@@ -4,7 +4,10 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuX } from "react-icons/lu";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -184,15 +187,15 @@ const JavaSettingsPage = () => {
         title={t("JavaSettingsPage.javaList.title")}
         headExtra={
           <HStack spacing={2}>
-            {javaSecMenuOperations.map((btn, index) => (
+            {javaSecMenuOperations.map((btn) => (
               <CommonIconButton
-                key={index}
+                key={String(btn.icon)}
                 icon={btn.icon}
                 label={btn.label}
                 onClick={btn.onClick}
                 size="xs"
                 fontSize="sm"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
               />
             ))}
           </HStack>
@@ -231,9 +234,9 @@ const JavaSettingsPage = () => {
                 }
               >
                 <HStack spacing={0}>
-                  {javaItemMenuOperations(java).map((item, index) => (
+                  {javaItemMenuOperations(java).map((item) => (
                     <CommonIconButton
-                      key={index}
+                      key={String(item.icon)}
                       icon={item.icon}
                       label={item.label}
                       onClick={item.onClick}

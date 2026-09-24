@@ -547,9 +547,9 @@ const DownloadSpecificResourceModal: React.FC<
           <OptionItemGroup
             maxFirstVisibleItems={20}
             showMoreStep={20}
-            items={pack.items.map((item, index) => (
+            items={pack.items.map((item) => (
               <OptionItem
-                key={index}
+                key={item.name}
                 title={item.name}
                 description={
                   <Grid
@@ -769,7 +769,7 @@ const DownloadSpecificResourceModal: React.FC<
               />
               <MCVersionNumberHelper placement="bottom-start" />
               <IconButton
-                aria-label="refresh-version-packs"
+                aria-label={t("General.refresh")}
                 icon={<LuRefreshCw size={14} />}
                 size="xs"
                 variant="ghost"

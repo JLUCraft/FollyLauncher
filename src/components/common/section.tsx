@@ -13,7 +13,9 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import { LuArrowLeft, LuChevronRight } from "react-icons/lu";
+import { COMPACT_ICON_BUTTON_HEIGHT } from "@/components/common/common-icon-button";
 
 export interface SectionProps extends Omit<BoxProps, "children"> {
   title?: string;
@@ -47,6 +49,7 @@ export const Section: React.FC<SectionProps> = ({
     defaultIsOpen: initialIsOpen,
   });
   const router = useRouter();
+  const { t } = useTranslation();
   const lineClampProps: TextProps = {
     noOfLines: maxTitleLines,
     sx: {
@@ -60,10 +63,10 @@ export const Section: React.FC<SectionProps> = ({
           <HStack spacing={1}>
             {withBackButton && (
               <IconButton
-                aria-label="back"
+                aria-label={t("General.back")}
                 icon={<Icon as={LuArrowLeft} boxSize={3.5} />}
                 size="xs"
-                h={21}
+                h={COMPACT_ICON_BUTTON_HEIGHT}
                 variant="ghost"
                 colorScheme="gray"
                 onClick={() => {

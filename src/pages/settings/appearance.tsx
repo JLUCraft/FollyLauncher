@@ -35,6 +35,178 @@ import { ConfigService } from "@/services/config";
 import { UtilsService } from "@/services/utils";
 import { removeFileExt } from "@/utils/string";
 
+const HeadNavStyleMenu = ({
+  value,
+  onSelect,
+}: {
+  value: string;
+  onSelect: (value: string) => void;
+}) => {
+  const { t } = useTranslation();
+  const headNavStyleTypes = ["standard", "simplified", "adaptive"];
+
+  return (
+    <MenuSelector
+      options={headNavStyleTypes.map((type) => ({
+        value: type,
+        label: t(
+          `AppearanceSettingsPage.theme.settings.headNavStyle.type.${type}`
+        ),
+      }))}
+      value={value}
+      onSelect={(v) => onSelect(v as string)}
+      placeholder={t(
+        `AppearanceSettingsPage.theme.settings.headNavStyle.type.${value}`
+      )}
+    />
+  );
+};
+
+const buildFontName = (t: (key: string) => string, font: string) =>
+  font === "%built-in"
+    ? t("AppearanceSettingsPage.font.settings.fontFamily.default")
+    : font;
+
+const FontFamilyMenu = ({
+  fonts,
+  value,
+  onChange,
+}: {
+  fonts: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const { t } = useTranslation();
+  return (
+    <MenuSelector
+      options={fonts.map((font) => ({
+        value: font,
+        label: (
+          <Text
+            fontFamily={font === "%built-in" ? "-apple-system, Sinter" : font}
+            fontSize="xs"
+          >
+            {buildFontName(t, font)}
+          </Text>
+        ),
+      }))}
+      value={value}
+      onSelect={(v) => onChange(v as string)}
+      placeholder={buildFontName(t, value)}
+      isLazy
+      menuListProps={{ maxH: "40vh", overflowY: "auto" }}
+    />
+  );
+};
+
+const FontSizeSlider = ({
+  primaryColor,
+  value,
+  onChange,
+}: {
+  primaryColor: string;
+  value: number;
+  onChange: (value: number) => void;
+}) => {
+  const { t } = useTranslation();
+  return (
+    <HStack spacing={2}>
+      <Text fontSize="0.68rem">
+        {/* 85% of xs-sm (0.8rem) */}
+        {t("AppearanceSettingsPage.font.settings.fontSize.small")}
+      </Text>
+      <Slider
+        value={value}
+        min={85}
+        max={115}
+        step={5}
+        w={32}
+        colorScheme={primaryColor}
+        onChange={onChange}
+      >
+        <SliderTrack>
+          <SliderFilledTrack />
+        </SliderTrack>
+        <SliderThumb />
+      </Slider>
+      <Text fontSize="0.92rem">
+        {/* 115% of xs-sm (0.8rem) */}
+        {t("AppearanceSettingsPage.font.settings.fontSize.large")}
+      </Text>
+    </HStack>
+  );
+};
+
+interface BackgroundCardProps {
+  primaryColor: string;
+  bgAlt: string;
+  bgSrc: string;
+  selected: boolean;
+  onSelect: () => void;
+  label: string;
+  extra?: React.ReactNode;
+  extraOnHover?: React.ReactNode;
+}
+
+const BackgroundCard: React.FC<BackgroundCardProps> = ({
+  primaryColor,
+  bgAlt,
+  bgSrc,
+  selected,
+  onSelect,
+  label,
+  extra,
+  extraOnHover,
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <VStack spacing={1}>
+      <Card
+        w="6rem"
+        h="3.375rem"
+        {...(selected && {
+          boxShadow: `0 0 0 1.5px var(--chakra-colors-${primaryColor}-500)`,
+        })}
+        overflow="hidden"
+        cursor="pointer"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Image
+          w="100%"
+          h="100%"
+          src={bgSrc}
+          alt={bgAlt}
+          objectFit="cover"
+          position="absolute"
+          borderRadius="sm"
+          role="button"
+          tabIndex={0}
+          onClick={onSelect}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onSelect();
+            }
+          }}
+        />
+        {extra}
+        {isHovered && extraOnHover}
+      </Card>
+      <Text
+        maxW="6rem"
+        fontSize="xs"
+        className={!selected ? "secondary-text" : ""}
+        mt={selected ? "-1px" : 0} // compensate for the offset caused by selected card's border
+        isTruncated
+      >
+        {label}
+      </Text>
+    </VStack>
+  );
+};
+
 const AppearanceSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
@@ -168,156 +340,6 @@ const AppearanceSettingsPage = () => {
     });
   };
 
-  const HeadNavStyleMenu = () => {
-    const headNavStyleTypes = ["standard", "simplified", "adaptive"];
-
-    return (
-      <MenuSelector
-        options={headNavStyleTypes.map((type) => ({
-          value: type,
-          label: t(
-            `AppearanceSettingsPage.theme.settings.headNavStyle.type.${type}`
-          ),
-        }))}
-        value={appearanceConfigs.theme.headNavStyle}
-        onSelect={(value) =>
-          update("appearance.theme.headNavStyle", value as string)
-        }
-        placeholder={t(
-          `AppearanceSettingsPage.theme.settings.headNavStyle.type.${appearanceConfigs.theme.headNavStyle}`
-        )}
-      />
-    );
-  };
-
-  const buildFontName = (font: string) => {
-    return font === "%built-in"
-      ? t("AppearanceSettingsPage.font.settings.fontFamily.default")
-      : font;
-  };
-
-  const FontFamilyMenu = ({
-    value,
-    onChange,
-  }: {
-    value: string;
-    onChange: (v: string) => void;
-  }) => {
-    return (
-      <MenuSelector
-        options={fonts.map((font) => ({
-          value: font,
-          label: (
-            <Text
-              fontFamily={font === "%built-in" ? "-apple-system, Sinter" : font}
-              fontSize="xs"
-            >
-              {buildFontName(font)}
-            </Text>
-          ),
-        }))}
-        value={value}
-        onSelect={(v) => onChange(v as string)}
-        placeholder={buildFontName(value)}
-        isLazy
-        menuListProps={{ maxH: "40vh", overflowY: "auto" }}
-      />
-    );
-  };
-
-  const FontSizeSlider = () => {
-    return (
-      <HStack spacing={2}>
-        <Text fontSize="10.88px">
-          {" "}
-          {/* 85% */}
-          {t("AppearanceSettingsPage.font.settings.fontSize.small")}
-        </Text>
-        <Slider
-          value={appearanceConfigs.font.fontSize}
-          min={85}
-          max={115}
-          step={5}
-          w={32}
-          colorScheme={primaryColor}
-          onChange={(value) => {
-            update("appearance.font.fontSize", value);
-          }}
-        >
-          <SliderTrack>
-            <SliderFilledTrack />
-          </SliderTrack>
-          <SliderThumb />
-        </Slider>
-        <Text fontSize="14.72px">
-          {" "}
-          {/* 115% */}
-          {t("AppearanceSettingsPage.font.settings.fontSize.large")}
-        </Text>
-      </HStack>
-    );
-  };
-
-  interface BackgroundCardProps {
-    bgAlt: string;
-    bgSrc: string;
-    selected: boolean;
-    onSelect: () => void;
-    label: string;
-    extra?: React.ReactNode;
-    extraOnHover?: React.ReactNode;
-  }
-
-  const BackgroundCard: React.FC<BackgroundCardProps> = ({
-    bgAlt,
-    bgSrc,
-    selected,
-    onSelect,
-    label,
-    extra,
-    extraOnHover,
-  }) => {
-    const [isHovered, setIsHovered] = useState(false);
-
-    return (
-      <VStack spacing={1}>
-        <Card
-          w="6rem"
-          h="3.375rem"
-          {...(selected && {
-            boxShadow: `0 0 0 1.5px var(--chakra-colors-${primaryColor}-500)`,
-          })}
-          overflow="hidden"
-          cursor="pointer"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <Image
-            w="100%"
-            h="100%"
-            src={bgSrc}
-            alt={bgAlt}
-            objectFit="cover"
-            position="absolute"
-            borderRadius="sm"
-            onClick={onSelect}
-          />
-          {extra}
-          {isHovered && extraOnHover}
-        </Card>
-        <Text
-          maxW="6rem"
-          fontSize="xs"
-          className={!selected ? "secondary-text" : ""}
-          mt={selected ? "-1px" : 0} // compensate for the offset caused by selected card's border
-          isTruncated
-        >
-          {label}
-        </Text>
-      </VStack>
-    );
-  };
-
   const PresetBackgroundList = () => {
     const presetBgList = ["Florwyn", "SJTU-eastgate"];
 
@@ -326,6 +348,7 @@ const AppearanceSettingsPage = () => {
         {presetBgList.map((bg) => (
           <WrapItem key={bg}>
             <BackgroundCard
+              primaryColor={primaryColor}
               bgAlt={bg}
               bgSrc={`/images/backgrounds/${bg}-thumbnail.jpg`}
               selected={selectedBgKey === bg}
@@ -351,6 +374,7 @@ const AppearanceSettingsPage = () => {
         {customBgList.map((bg) => (
           <WrapItem key={bg.fileName}>
             <BackgroundCard
+              primaryColor={primaryColor}
               bgAlt={bg.fileName}
               bgSrc={convertFileSrc(bg.fullPath) + "?v=" + bgCacheKey}
               selected={selectedBgKey === bg.fileName}
@@ -362,7 +386,7 @@ const AppearanceSettingsPage = () => {
                 <Tooltip label={t("General.delete")} placement="top">
                   <IconButton
                     icon={<Icon as={LuTrash} />}
-                    aria-label="delete"
+                    aria-label={t("General.delete")}
                     size="xs"
                     colorScheme="blackAlpha"
                     position="absolute"
@@ -457,7 +481,14 @@ const AppearanceSettingsPage = () => {
         },
         {
           title: t("AppearanceSettingsPage.theme.settings.headNavStyle.title"),
-          children: <HeadNavStyleMenu />,
+          children: (
+            <HeadNavStyleMenu
+              value={appearanceConfigs.theme.headNavStyle}
+              onSelect={(value) =>
+                update("appearance.theme.headNavStyle", value)
+              }
+            />
+          ),
         },
       ],
     },
@@ -469,6 +500,7 @@ const AppearanceSettingsPage = () => {
           title: t("AppearanceSettingsPage.font.settings.fontFamily.title"),
           children: (
             <FontFamilyMenu
+              fonts={fonts}
               value={appearanceConfigs.font.fontFamily}
               onChange={(v) => update("appearance.font.fontFamily", v)}
             />
@@ -491,6 +523,7 @@ const AppearanceSettingsPage = () => {
           ),
           children: (
             <FontFamilyMenu
+              fonts={fonts}
               value={appearanceConfigs.font.logFontFamily}
               onChange={(v) => update("appearance.font.logFontFamily", v)}
             />
@@ -501,7 +534,15 @@ const AppearanceSettingsPage = () => {
           ? [
               {
                 title: t("AppearanceSettingsPage.font.settings.fontSize.title"),
-                children: <FontSizeSlider />,
+                children: (
+                  <FontSizeSlider
+                    primaryColor={primaryColor}
+                    value={appearanceConfigs.font.fontSize}
+                    onChange={(value) =>
+                      update("appearance.font.fontSize", value)
+                    }
+                  />
+                ),
               },
             ]
           : []),
@@ -605,8 +646,12 @@ const AppearanceSettingsPage = () => {
 
   return (
     <>
-      {appearanceSettingGroups.map((group, index) => (
-        <OptionItemGroup title={group.title} items={group.items} key={index} />
+      {appearanceSettingGroups.map((group) => (
+        <OptionItemGroup
+          title={group.title}
+          items={group.items}
+          key={group.title}
+        />
       ))}
     </>
   );

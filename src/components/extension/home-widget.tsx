@@ -22,7 +22,10 @@ import {
   LuSettings,
 } from "react-icons/lu";
 import AdvancedCard from "@/components/common/advanced-card";
-import { CommonIconButton } from "@/components/common/common-icon-button";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import ExtensionContributionWrapper from "@/components/extension/contribution-wrapper";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -117,7 +120,7 @@ const ExtraOperationMenu = ({
         icon="more"
         withTooltip={false}
         size="xs"
-        h={21}
+        h={COMPACT_ICON_BUTTON_HEIGHT}
         ml="auto"
       />
       <Portal>
@@ -216,7 +219,7 @@ const HomeWidget = ({
               />
             }
             size="xs"
-            h={21}
+            h={COMPACT_ICON_BUTTON_HEIGHT}
             variant="ghost"
             onClick={() => onCollapsedChange(!isCollapsed)}
           />

@@ -138,7 +138,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
         <VStack align="stretch" spacing={4}>
-          {discoverDomainList.map((group, index) => {
+          {discoverDomainList.map((group) => {
             const menuItems = createMenuItems(group);
             const itemsWithMetadata = menuItems.map((item, idx) => ({
               ...item,
@@ -147,7 +147,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
 
             return (
               <NavMenu
-                key={index}
+                key={group[0].key}
                 selectedKeys={[router.asPath]}
                 onClick={(value) => {
                   const item = itemsWithMetadata.find((i) => i.value === value);

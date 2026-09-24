@@ -517,6 +517,9 @@
     }
   },
   "DevToolbar": {
+    "back": "戻る",
+    "openDevTestPage": "開発テストページを開く",
+    "reload": "再読み込み",
     "tooltip": "開発ツールバー"
   },
   "DiscoverCommunityNewsPage": {
@@ -665,7 +668,8 @@
       "pause": "一時停止",
       "begin": "開始",
       "retry": "再試行",
-      "clearHistory": "履歴をクリア"
+      "clearHistory": "履歴をクリア",
+      "toggleExpansion": "展開/折りたたみ"
     },
     "label": {
       "paused": "一時停止中",
@@ -1215,9 +1219,11 @@
         "description": "この機能を使用するには、まず Microsoft アカウントでログインしてください。"
       }
     },
+    "back": "戻る",
     "browse": "参照",
     "cancel": "キャンセル",
     "close": "閉じる",
+    "color": "色",
     "confirm": "OK",
     "copy": {
       "text": "コピー",
@@ -1258,6 +1264,7 @@
     "refresh": "再読み込み",
     "revealFile": "{{opener}}で表示",
     "search": "サーチ",
+    "select": "選択",
     "settings": "設定",
     "share": {
       "text": "共有",
@@ -1266,12 +1273,14 @@
       }
     },
     "skip": "スキップ",
+    "unselectColor": "色を解除",
     "version": {
       "dev": "開発版",
       "nightly": "ナイトリービルド版",
       "beta": "ベータ版",
       "test-build": "テストビルド版"
     },
+    "versionNumberingHelp": "バージョン番号の説明",
     "viewOnWiki": "Minecraft Wiki へ"
   },
   "GeneralSettingsPage": {
@@ -3254,7 +3263,8 @@
       "enableRotation": "回転を有効化",
       "disableRotation": "回転を無効化",
       "play": "再生",
-      "pause": "一時停止"
+      "pause": "一時停止",
+      "switchAnimation": "アニメーション切替"
     },
     "error": {
       "loadSkin": "スキンのロードに失敗"
@@ -3345,7 +3355,8 @@
         "last-hour": "1 时前",
         "hours-ago": "{{count}} 时前",
         "yesterday": "昨日",
-        "others": "{{time}}"
+        "others": "{{time}}",
+        "others-without-prefix": "{{time}}"
       }
     },
     "env": {
