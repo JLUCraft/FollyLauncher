@@ -19,8 +19,7 @@ type OptionValue = string;
 type OptionLabel = React.ReactNode | { title: string; desc: string };
 
 type MenuSelectorOption =
-  | OptionValue
-  | { value: OptionValue; label: OptionLabel; disabled?: boolean };
+  OptionValue | { value: OptionValue; label: OptionLabel; disabled?: boolean };
 
 export interface MenuSelectorProps extends Omit<MenuProps, "children"> {
   options: MenuSelectorOption[];

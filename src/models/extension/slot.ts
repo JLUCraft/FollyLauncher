@@ -40,9 +40,11 @@ export type ExtensionSlotContextMap = {
     javaInfo: JavaInfo | undefined;
   };
 } & {
-  [K in
-    | ExtensionUISlotKey.InstanceResourcePackItemMenuOperations
-    | ExtensionUISlotKey.InstanceServerResPackItemMenuOperations]: ExtensionInstanceSlotContextBase & {
+  [
+    K in
+      | ExtensionUISlotKey.InstanceResourcePackItemMenuOperations
+      | ExtensionUISlotKey.InstanceServerResPackItemMenuOperations
+  ]: ExtensionInstanceSlotContextBase & {
     pack: ResourcePackInfo;
   };
 };
@@ -55,14 +57,16 @@ interface CommonIconButtonSlotItem {
 }
 
 export type ExtensionSlotItemMap = {
-  [K in
-    | ExtensionUISlotKey.InstanceWorldItemMenuOperations
-    | ExtensionUISlotKey.InstanceServerItemMenuOperations
-    | ExtensionUISlotKey.InstanceModItemMenuOperations
-    | ExtensionUISlotKey.InstanceResourcePackItemMenuOperations
-    | ExtensionUISlotKey.InstanceServerResPackItemMenuOperations
-    | ExtensionUISlotKey.InstanceSchematicItemMenuOperations
-    | ExtensionUISlotKey.InstanceShaderPackItemMenuOperations]: CommonIconButtonSlotItem;
+  [
+    K in
+      | ExtensionUISlotKey.InstanceWorldItemMenuOperations
+      | ExtensionUISlotKey.InstanceServerItemMenuOperations
+      | ExtensionUISlotKey.InstanceModItemMenuOperations
+      | ExtensionUISlotKey.InstanceResourcePackItemMenuOperations
+      | ExtensionUISlotKey.InstanceServerResPackItemMenuOperations
+      | ExtensionUISlotKey.InstanceSchematicItemMenuOperations
+      | ExtensionUISlotKey.InstanceShaderPackItemMenuOperations
+  ]: CommonIconButtonSlotItem;
 } & {
   [ExtensionUISlotKey.GameErrorWindowOperations]: ButtonProps;
 };

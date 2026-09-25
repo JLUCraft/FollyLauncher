@@ -94,20 +94,18 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
     {
       title: t("InstanceBasicSettings.selectDirectory"),
       items: [
-        ...config.localGameDirectories.map(
-          (directory): OptionItemProps => ({
-            title: getGameDirName(directory),
-            description: directory.dir,
-            prefixElement: (
-              <Radio isChecked={directory.dir === gameDirectory?.dir} />
-            ),
-            children: <></>,
-            isFullClickZone: true,
-            onClick: () => {
-              setGameDirectory(directory);
-            },
-          })
-        ),
+        ...config.localGameDirectories.map((directory): OptionItemProps => ({
+          title: getGameDirName(directory),
+          description: directory.dir,
+          prefixElement: (
+            <Radio isChecked={directory.dir === gameDirectory?.dir} />
+          ),
+          children: <></>,
+          isFullClickZone: true,
+          onClick: () => {
+            setGameDirectory(directory);
+          },
+        })),
       ],
     },
   ];

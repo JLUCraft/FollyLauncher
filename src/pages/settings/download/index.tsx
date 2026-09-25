@@ -375,8 +375,8 @@ const DownloadSettingsPage = () => {
 
   return (
     <>
-      {downloadSettingGroups.map((group, index) => (
-        <OptionItemGroup key={index} {...group} />
+      {downloadSettingGroups.map((group) => (
+        <OptionItemGroup key={group.title} {...group} />
       ))}
     </>
   );
