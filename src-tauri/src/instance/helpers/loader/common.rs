@@ -1,12 +1,8 @@
 use sjmcl_types::error::SJMCLResult;
-use std::fs::File;
-use std::io::Read;
 use std::path::PathBuf;
-use std::process::Command;
 use tauri::AppHandle;
-use zip::ZipArchive;
 
-use crate::instance::helpers::client_json::{LibrariesValue, McClientInfo};
+use crate::instance::helpers::client_json::McClientInfo;
 use crate::instance::helpers::loader::cleanroom::install_cleanroom_loader;
 use crate::instance::helpers::loader::fabric::install_fabric_loader;
 use crate::instance::helpers::loader::forge::{InstallProfile, install_forge_loader};
@@ -14,24 +10,9 @@ use crate::instance::helpers::loader::neoforge::install_neoforge_loader;
 use crate::instance::helpers::loader::quilt::install_quilt_loader;
 use crate::instance::helpers::misc::get_instance_game_config;
 use crate::instance::models::misc::{Instance, InstanceError, ModLoader, ModLoaderType};
-use crate::launch::helpers::file_validator::merge_library_lists;
 use crate::launch::helpers::jre_selector::select_java_runtime;
-use crate::launch::helpers::misc::get_separator;
 use crate::resource::models::SourceType;
 use crate::tasks::PTaskParam;
-
-pub fn add_library_entry(
-  libraries: &mut Vec<LibrariesValue>,
-  lib_path: &str,
-  params: Option<LibrariesValue>,
-) -> SJMCLResult<()> {
-  let new_library = LibrariesValue {
-    name: lib_path.to_string(),
-    ..params.unwrap_or_default()
-  };
-  *libraries = merge_library_lists(libraries, &[new_library]);
-  Ok(())
-}
 
 pub async fn install_mod_loader(
   app: AppHandle,
@@ -106,53 +87,76 @@ pub async fn execute_processors(
   )
   .await?;
 
-  for processor in &install_profile.processors {
-    let mut archive = ZipArchive::new(File::open(processor.jar.clone())?)?;
-    let mut manifest = archive.by_name("META-INF/MANIFEST.MF")?;
-    let mut manifest_content = String::new();
-    manifest.read_to_string(&mut manifest_content)?;
-    let main_class = manifest_content
-      .lines()
-      .find_map(|line| {
-        if line.starts_with("Main-Class: ") {
-          Some(line.trim_start_matches("Main-Class: ").trim())
-        } else {
-          None
-        }
-      })
-      .ok_or(InstanceError::MainClassNotFound)?;
-    let mut cmd_base = Command::new(selected_java.exec_path.clone());
-    #[cfg(target_os = "windows")]
-    {
-      use std::os::windows::process::CommandExt;
-      cmd_base.creation_flags(0x08000000);
-    }
+  Ok(
+    minecraftd::minecraft::loader::processors::execute_processors(
+      std::path::Path::new(&selected_java.exec_path),
+      &instance.version_path,
+      install_profile,
+    )
+    .await?,
+  )
+}
 
-    let processor_path = instance.version_path.join(&processor.jar);
-    let mut classpath_arr = processor.classpath.clone();
-    classpath_arr.push(processor_path.to_string_lossy().to_string());
-
-    let classpath = classpath_arr.join(get_separator());
-
-    let args = &processor.args;
-
-    cmd_base.arg("-cp").arg(&classpath).arg(main_class);
-
-    for arg in args {
-      cmd_base.arg(arg);
-    }
-
-    let output = cmd_base.output()?;
-
-    if !output.status.success() {
-      eprintln!(
-        "[{}] Processor failed with exit code: {:?}",
-        instance.name,
-        output.status.code()
-      );
-      return Err(InstanceError::ProcessorExecutionFailed.into());
-    }
+pub struct MetadataClient<'a>(pub &'a tauri_plugin_http::reqwest::Client);
+#[async_trait::async_trait]
+impl minecraftd::minecraft::loader::libraries::MetadataClient for MetadataClient<'_> {
+  async fn get_json(
+    &self,
+    url: url::Url,
+  ) -> Result<serde_json::Value, minecraftd::minecraft::loader::installer::LoaderInstallError> {
+    let response = self
+      .0
+      .get(url)
+      .send()
+      .await
+      .and_then(|response| response.error_for_status())
+      .map_err(|error| {
+        minecraftd::minecraft::loader::installer::LoaderInstallError::Network(error.to_string())
+      })?;
+    response.json().await.map_err(|error| {
+      minecraftd::minecraft::loader::installer::LoaderInstallError::Parse(error.to_string())
+    })
   }
+}
 
+pub async fn prepare_libraries(
+  app: &AppHandle,
+  priority: &[SourceType],
+  instance: &Instance,
+  client_info: &mut McClientInfo,
+  loader: ModLoaderType,
+) -> SJMCLResult<()> {
+  use crate::instance::helpers::misc::get_instance_subdir_paths;
+  use crate::instance::models::misc::InstanceSubdirType;
+  let paths = get_instance_subdir_paths(
+    app,
+    instance,
+    &[&InstanceSubdirType::Root, &InstanceSubdirType::Libraries],
+  )
+  .ok_or(InstanceError::InvalidSourcePath)?;
+  let [root, libraries] = paths.as_slice() else {
+    return Err(InstanceError::InvalidSourcePath.into());
+  };
+  let target = minecraftd::minecraft::loader::processors::InstallTarget {
+    loader,
+    loader_version: &instance.mod_loader.version,
+    name: &instance.name,
+    version_dir: &instance.version_path,
+    root_dir: root,
+    library_dir: libraries,
+  };
+  let downloads =
+    minecraftd::minecraft::loader::processors::prepare_libraries(priority, &target, client_info)?;
+  crate::tasks::commands::schedule_progressive_task_group(
+    app.clone(),
+    format!(
+      "{}-libraries?{}",
+      loader.to_string().to_lowercase(),
+      instance.id
+    ),
+    downloads.into_iter().map(PTaskParam::Download).collect(),
+    true,
+  )
+  .await?;
   Ok(())
 }

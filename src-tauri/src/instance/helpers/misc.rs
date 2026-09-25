@@ -1,5 +1,5 @@
+use crate::instance::models::misc::ModLoaderIcon;
 use sanitize_filename;
-use serde_json::Value;
 use sjmcl_types::error::SJMCLResult;
 use sjmcl_types::storage::load_json_async;
 use std::collections::HashMap;
@@ -8,7 +8,6 @@ use std::io::Cursor;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use zip::ZipArchive;
 
 use crate::instance::helpers::client_jar::load_game_version_from_jar;
 use crate::instance::helpers::client_json::{McClientInfo, libraries_to_info, patches_to_info};
@@ -100,38 +99,10 @@ pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJM
   if !sanitize_filename::is_sanitized(tgt_name) {
     return Err(InstanceError::InvalidNameError.into());
   }
-  let src_name = src_version_path
-    .file_name()
-    .ok_or(InstanceError::InvalidSourcePath)?
-    .to_string_lossy()
-    .to_string();
-  let version_root = src_version_path.parent().unwrap();
-  // rename version directory (if already exists, return conflict error)
-  let dst_dir = version_root.join(tgt_name);
-  if dst_dir.exists() {
-    let mut entries = fs::read_dir(&dst_dir)?;
-    if entries.next().is_some() {
-      return Err(InstanceError::ConflictNameError.into());
-    }
-  }
-  fs::rename(src_version_path, &dst_dir).map_err(|_| InstanceError::FileMoveFailed)?;
-
-  // rename client jar
-  let old_jar = dst_dir.join(format!("{}.jar", src_name));
-  let new_jar = dst_dir.join(format!("{}.jar", tgt_name));
-  fs::rename(old_jar, new_jar).map_err(|_| InstanceError::FileMoveFailed)?;
-
-  // rewrite client json, update "id" field and filename
-  let old_json = dst_dir.join(format!("{}.json", src_name));
-  let new_json = dst_dir.join(format!("{}.json", tgt_name));
-  let mut json_value: Value = serde_json::from_reader(fs::File::open(&old_json)?)?;
-  if let Some(obj) = json_value.as_object_mut() {
-    obj.insert("id".to_string(), Value::String(tgt_name.clone()));
-  }
-  fs::write(&new_json, json_value.to_string())?;
-  fs::remove_file(old_json)?;
-
-  Ok(dst_dir)
+  Ok(minecraftd::instance::directory::rename_client(
+    src_version_path,
+    tgt_name,
+  )?)
 }
 
 async fn refresh_instance(
@@ -282,14 +253,12 @@ async fn refresh_instance(
     if !client_data.patches.is_empty() {
       patches_to_info(&client_data.patches)
     } else {
-      libraries_to_info(&client_data).await
+      libraries_to_info(&client_data)
     };
   // TODO: patches related logic
   if game_version.is_none() {
     let file = Cursor::new(tokio::fs::read(jar_path).await?);
-    if let Ok(mut jar) = ZipArchive::new(file) {
-      game_version = load_game_version_from_jar(&mut jar);
-    }
+    game_version = load_game_version_from_jar(file);
   }
 
   if cfg_read.icon_src.is_empty() {

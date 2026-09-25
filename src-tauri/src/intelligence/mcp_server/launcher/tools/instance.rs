@@ -1,3 +1,4 @@
+use crate::instance::models::misc::ModLoaderIcon;
 use rmcp::handler::server::tool::ToolRoute;
 use std::path::PathBuf;
 use std::str::FromStr;

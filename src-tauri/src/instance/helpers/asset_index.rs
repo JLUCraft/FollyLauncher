@@ -1,25 +1,12 @@
-use serde::{Deserialize, Serialize};
 use sjmcl_types::error::SJMCLResult;
 use sjmcl_types::storage::{load_json_async, save_json_async};
-use std::collections::HashMap;
 use std::path::Path;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use crate::instance::models::misc::InstanceError;
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
-pub struct AssetIndex {
-  pub objects: HashMap<String, AssetIndexItem>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
-pub struct AssetIndexItem {
-  pub hash: String,
-  pub size: i64,
-}
+pub use minecraftd::minecraft::assets::AssetIndexData as AssetIndex;
 
 pub async fn load_asset_index(
   app: &AppHandle,

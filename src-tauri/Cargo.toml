@@ -22,7 +22,6 @@ async-speed-limit = "0.4.2"
 async-trait = "0.1.89"
 axum = "0.8.6"
 base64 = "0.22.1"
-cafebabe = "0.8.1"
 chacha20poly1305 = "0.10.1"
 chrono = { version = "0.4.40", features = ["serde"] }
 config = { version = "0.15.18", default-features = false, features = ["ini"] }
@@ -47,12 +46,10 @@ jsonwebtoken = { version = "10.3.0", default-features = false, features = [
 ] }
 lazy_static = "1.5"
 log = "0.4"
-murmur2 = "0.1"
 native-dialog = "0.9.6"
 pin-project = "1.1.8"
 plist = "1"
 proc-macro2 = "1"
-quartz_nbt = { version = "0.2.9", features = ["serde"] }
 quote = "1"
 rand = "0.9.3"
 regex = "1.11"
@@ -124,7 +121,6 @@ winapi = { version = "0.3", features = [
   "winuser",
   "windef",
 ] }
-winreg = "0.55.0"
 zip = { version = "2.3", default-features = false, features = [
   "deflate",
   "deflate64",
@@ -188,10 +184,8 @@ java-properties.workspace = true
 jsonwebtoken.workspace = true
 lazy_static.workspace = true
 log.workspace = true
-murmur2.workspace = true
 native-dialog.workspace = true
 pin-project.workspace = true
-quartz_nbt.workspace = true
 rand.workspace = true
 regex.workspace = true
 reqwest-middleware.workspace = true
@@ -239,7 +233,6 @@ zip.workspace = true
 [target."cfg(windows)".dependencies]
 tauri-plugin-decorum.workspace = true
 winapi.workspace = true
-winreg.workspace = true
 
 [target."cfg(target_os = \"macos\")".dependencies]
 plist.workspace = true

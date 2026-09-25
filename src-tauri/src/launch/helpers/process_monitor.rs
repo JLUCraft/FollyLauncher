@@ -1,68 +1,20 @@
-use sjmcl_types::error::SJMCLResult;
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::{BufRead, BufReader, Write};
-use std::path::PathBuf;
-use std::process::{Child, Command};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
-use std::time::Instant;
-use std::{fs, thread};
-use tauri::path::BaseDirectory;
-use tauri::{AppHandle, Emitter, Manager};
-use tokio;
-
 use crate::instance::models::misc::Instance;
-use crate::launch::constants::*;
+use crate::launch::constants::GAME_PROCESS_OUTPUT_EVENT;
 use crate::launch::models::{LaunchError, LaunchingState};
 use crate::launcher_config::models::{LauncherVisiablity, ProcessPriority};
 use crate::utils::shell::execute_command_line;
 use crate::utils::window::create_webview_window;
-
+use sjmcl_types::error::SJMCLResult;
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use tauri::path::BaseDirectory;
+use tauri::{AppHandle, Emitter, Manager};
 const POLLING_OPERATION_INTERVAL_MS: u64 = 2000;
-
-struct OutputPipe<T: Read + Send + 'static> {
-  app: AppHandle,
-  out: T,
-  label: String,
-  start_time: Arc<Mutex<Option<Instant>>>,
-  log_file: Arc<Mutex<File>>,
-  display_log_window: bool,
-  ready_tx: Sender<()>,
-  game_ready_flag: Arc<AtomicBool>,
-}
-
-impl<T: Read + Send + 'static> OutputPipe<T> {
-  fn listen_from_output(self) -> thread::JoinHandle<()> {
-    thread::spawn(move || {
-      let reader = BufReader::new(self.out);
-      for line in reader.lines().map_while(Result::ok) {
-        if self.display_log_window {
-          let _ = self
-            .app
-            .emit_to(&self.label, GAME_PROCESS_OUTPUT_EVENT, &line);
-        }
-        writeln!(self.log_file.lock().unwrap(), "{line}").unwrap();
-        // the first time when log contains 'render thread', 'lwjgl version', or 'lwjgl openal', send signal to launch command, close frontend modal.
-        if !self.game_ready_flag.load(Ordering::SeqCst)
-          && READY_FLAG.iter().any(|p| line.to_lowercase().contains(p))
-        {
-          self.game_ready_flag.store(true, Ordering::SeqCst);
-          // record Instant::now as game start time
-          let mut start_time_lock = self.start_time.lock().unwrap();
-          if start_time_lock.is_none() {
-            *start_time_lock = Some(Instant::now());
-          }
-          let _ = self.ready_tx.send(());
-        }
-      }
-    })
-  }
-}
-
-pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: String) {
+pub async fn record_play_time(app: AppHandle, play_time_secs: u64, instance_id: String) {
   let instance_in_mem = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
 
@@ -76,7 +28,7 @@ pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: 
       .await
       .unwrap_or(instance_in_mem);
 
-    let elapsed = start_time.elapsed().as_secs() as u128;
+    let elapsed = u128::from(play_time_secs);
     instance.play_time = instance.play_time.saturating_add(elapsed);
 
     let _ = instance.save_json_cfg().await;
@@ -86,31 +38,19 @@ pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: 
 pub async fn monitor_process(
   app: AppHandle,
   id: u64,
-  mut child: Child,
+  spec: minecraftd::core::process::ProcessSpec,
   instance_id: String,
   display_log_window: bool,
   custom_title: &str,
   launcher_visibility: LauncherVisiablity,
-  ready_tx: Sender<()>,
+  priority: &ProcessPriority,
   post_exit_command: Option<String>,
-) -> SJMCLResult<()> {
+) -> SJMCLResult<bool> {
   // create unique log window
   let label = format!("game_log_{id}");
   let log_file_path = app
     .path()
     .resolve::<PathBuf>(format!("game/{label}.log").into(), BaseDirectory::AppLog)?;
-  if let Some(parent_dir) = log_file_path.parent() {
-    fs::create_dir_all(parent_dir)?;
-  }
-
-  let log_file = Arc::new(Mutex::new(
-    std::fs::OpenOptions::new()
-      .create_new(true)
-      .write(true)
-      .read(true)
-      .open(&log_file_path)?,
-  ));
-
   let log_window = if display_log_window {
     create_webview_window(&app, &label, "game_log", None, true)
       .await
@@ -119,43 +59,30 @@ pub async fn monitor_process(
     None
   };
 
-  let game_ready_flag = Arc::new(AtomicBool::new(false));
-  let start_time: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None)); // used to calculate play time
-
-  let stdout = child.stdout.take().map(|out| {
-    (OutputPipe {
-      app: app.clone(),
-      label: label.clone(),
-      out,
-      start_time: start_time.clone(),
-      log_file: log_file.clone(),
-      display_log_window,
-      ready_tx: ready_tx.clone(),
-      game_ready_flag: game_ready_flag.clone(),
+  let events = app.clone();
+  let output_label = label.clone();
+  let processes = app.state::<minecraftd::process::client::ClientProcesses>();
+  let mut session = processes
+    .spawn(&spec, &log_file_path, move |line| {
+      if display_log_window {
+        let _ = events.emit_to(&output_label, GAME_PROCESS_OUTPUT_EVENT, line);
+      }
     })
-    .listen_from_output()
-  });
-
-  // handle game process stderr
-  let stderr = child.stderr.take().map(|out| {
-    (OutputPipe {
-      app: app.clone(),
-      label: label.clone(),
-      out,
-      start_time: start_time.clone(),
-      log_file: log_file.clone(),
-      display_log_window,
-      ready_tx: ready_tx.clone(),
-      game_ready_flag: game_ready_flag.clone(),
-    })
-    .listen_from_output()
-  });
-
+    .await
+    .map_err(|error| sjmcl_types::error::SJMCLError(error.to_string()))?;
+  let pid = session.pid;
+  let _ = set_process_priority(pid, priority);
+  {
+    let queue = app.state::<Mutex<Vec<LaunchingState>>>();
+    let mut queue = queue.lock()?;
+    if let Some(launching) = queue.iter_mut().find(|launching| launching.id == id) {
+      launching.pid = pid;
+    }
+  }
   // polling thread (for changing window title, etc.)
   let stop_polling_flag = Arc::new(AtomicBool::new(false));
   {
     let stop_polling_flag = stop_polling_flag.clone();
-    let pid = child.id();
     let custom_title = custom_title.to_string();
     thread::spawn(move || {
       while !stop_polling_flag.load(Ordering::SeqCst) {
@@ -169,40 +96,19 @@ pub async fn monitor_process(
 
   // handle game process exit
   let instance_id_clone = instance_id.clone();
-  let game_ready_flag = game_ready_flag.clone();
   let stop_polling_flag = stop_polling_flag.clone();
+  let ready = session.wait_ready().await;
 
   tokio::spawn(async move {
-    let exit_ok = match child.wait() {
-      Ok(status) => {
-        if let Some(h) = stdout {
-          let _ = h.join();
-        }
-
-        if let Some(h) = stderr {
-          let _ = h.join();
-        }
-
-        if !game_ready_flag.load(Ordering::SeqCst) {
-          false
-        } else {
-          log_file.lock().unwrap().flush().unwrap();
-          status.success()
-        }
-      }
-
-      Err(e) => {
-        writeln!(
-          log_file.lock().unwrap(),
-          "[FATAL] Game process was killed Reason: {e}."
-        )
-        .unwrap();
-        false
-      }
-    };
-
+    let result = session.wait().await;
     stop_polling_flag.store(true, Ordering::SeqCst);
-    drop(log_file);
+    let exit_ok = result
+      .as_ref()
+      .is_ok_and(|exit| exit.code == 0 && exit.reached_ready);
+    let play_time_secs = result.as_ref().map_or(0, |exit| exit.play_time_secs);
+    if let Err(error) = result {
+      log::error!("Client process failed: {error}");
+    }
     // handle launcher main window visiablity
     match launcher_visibility {
       LauncherVisiablity::RunningHidden => {
@@ -226,10 +132,7 @@ pub async fn monitor_process(
       _ => {}
     }
 
-    let start_time_lock = *start_time.lock().unwrap();
-    if let Some(start_time) = start_time_lock {
-      record_play_time(app.clone(), start_time, instance_id_clone).await;
-    }
+    record_play_time(app.clone(), play_time_secs, instance_id_clone).await;
 
     if exit_ok {
       if let Some(ref window) = log_window {
@@ -266,31 +169,7 @@ pub async fn monitor_process(
     }
   });
 
-  Ok(())
-}
-
-pub fn kill_process(pid: u32) -> SJMCLResult<()> {
-  // KNOWN ISSUE: kill process means exit abnormally, which will not close the game-log window automatically.
-  #[cfg(any(target_os = "linux", target_os = "macos"))]
-  {
-    Command::new("kill")
-      .args(["-9", &pid.to_string()])
-      .output()
-      .map_err(|_| LaunchError::KillProcessFailed)?;
-  }
-
-  #[cfg(target_os = "windows")]
-  {
-    use std::os::windows::process::CommandExt;
-
-    Command::new("taskkill")
-      .args(["/F", "/T", "/PID", &pid.to_string()])
-      .creation_flags(0x08000000) // CREATE_NO_WINDOW
-      .output()
-      .map_err(|_| LaunchError::KillProcessFailed)?;
-  }
-
-  Ok(())
+  Ok(ready)
 }
 
 pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult<()> {

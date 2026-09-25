@@ -1,11 +1,9 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sjmcl_types::error::SJMCLResult;
-use std::fs;
 use std::fs::File;
 use std::path::Path;
 use tauri::AppHandle;
-use zip::ZipArchive;
 
 use crate::instance::helpers::modpack::curseforge::CurseForgeManifest;
 use crate::instance::helpers::modpack::modrinth::ModrinthManifest;
@@ -119,30 +117,9 @@ pub fn extract_overrides(file: &File, instance_path: &Path) -> SJMCLResult<()> {
     None
   };
   let overrides_path = get_overrides_path(file).ok_or(InstanceError::ModpackManifestParseError)?;
-  let mut archive = ZipArchive::new(file)?;
-  for i in 0..archive.len() {
-    let mut file = archive.by_index(i)?;
-    let path = file.mangled_name();
-    let outpath = if path.starts_with(format!("{}/", overrides_path)) {
-      // Remove "{overrides}/" prefix and join with instance path
-      let relative_path = path.strip_prefix(format!("{}/", overrides_path)).unwrap();
-      instance_path.join(relative_path)
-    } else {
-      continue;
-    };
-
-    if file.is_file() {
-      // Create parent directories if they don't exist
-      if let Some(p) = outpath.parent()
-        && !p.exists()
-      {
-        fs::create_dir_all(p)?;
-      }
-
-      // Extract file
-      let mut outfile = File::create(&outpath)?;
-      std::io::copy(&mut file, &mut outfile)?;
-    }
-  }
-  Ok(())
+  Ok(minecraftd::modpack::extract_overrides_reader(
+    file,
+    instance_path,
+    &overrides_path,
+  )?)
 }

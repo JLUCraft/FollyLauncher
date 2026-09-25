@@ -1,6 +1,5 @@
 use futures::{StreamExt, TryStreamExt};
-use lazy_static::lazy_static;
-use regex::{Regex, RegexBuilder};
+use regex::RegexBuilder;
 use sjmcl_types::error::SJMCLResult;
 use sjmcl_types::partial::{PartialError, PartialUpdate};
 use sjmcl_types::storage::{Storage, load_json_async, save_json_async};
@@ -937,48 +936,9 @@ pub fn retrieve_screenshot_list(
   Ok(screenshot_list)
 }
 
-lazy_static! {
-  static ref RENAME_LOCK: Mutex<()> = Mutex::new(());
-  static ref RENAME_REGEX: Regex = RegexBuilder::new(r"^(.*?)(\.disabled)*$")
-    .case_insensitive(true)
-    .build()
-    .unwrap();
-}
-
 #[tauri::command]
 pub fn toggle_mod_by_extension(file_path: PathBuf, enable: bool) -> SJMCLResult<()> {
-  let _lock = RENAME_LOCK.lock().expect("Failed to acquire lock");
-  if !file_path.is_file() {
-    return Err(InstanceError::FileNotFoundError.into());
-  }
-
-  let file_name = file_path
-    .file_name()
-    .unwrap_or_default()
-    .to_str()
-    .unwrap_or_default();
-
-  let new_name = if enable {
-    if let Some(captures) = RENAME_REGEX.captures(file_name) {
-      captures
-        .get(1)
-        .map(|m| m.as_str())
-        .unwrap_or(file_name)
-        .to_string()
-    } else {
-      file_name.to_string()
-    }
-  } else if RENAME_REGEX.is_match(file_name) {
-    format!("{}.disabled", file_name)
-  } else {
-    file_name.to_string()
-  };
-  let new_path = file_path.with_file_name(new_name);
-
-  if new_path != file_path {
-    fs::rename(&file_path, &new_path)?;
-  }
-
+  minecraftd::minecraft::metadata::set_enabled(&file_path, enable)?;
   Ok(())
 }
 
@@ -1123,16 +1083,7 @@ pub async fn create_instance(
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 
-  version_info.id = name.clone();
-  version_info.jar = Some(name.clone());
-
-  // convert vanilla version info to vanilla patch
-  let mut vanilla_patch = version_info.clone();
-  vanilla_patch.id = "game".to_string();
-  vanilla_patch.version = Some(game.id.clone());
-  vanilla_patch.inherits_from = None;
-  vanilla_patch.priority = Some(0);
-  version_info.patches.push(vanilla_patch);
+  version_info.initialize_client(&name, &game.id);
 
   let mut task_params = Vec::<PTaskParam>::new();
 

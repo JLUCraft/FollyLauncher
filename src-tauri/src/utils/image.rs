@@ -4,31 +4,13 @@ use image::imageops::{FilterType, resize};
 use image::{ImageEncoder, ImageError, ImageReader, RgbaImage};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fs;
-use std::io::{Cursor, Read, Seek};
+use std::io::Cursor;
 use std::path::Path;
-use tokio;
-use zip::ZipArchive;
 
 pub fn decode_image(buffer: Vec<u8>) -> Result<RgbaImage, ImageError> {
   let reader = ImageReader::new(Cursor::new(buffer)).with_guessed_format()?;
   let image = reader.decode()?;
   Ok(image.to_rgba8())
-}
-
-pub fn load_image_from_jar<R: Read + Seek>(
-  jar: &mut ZipArchive<R>,
-  path: &str,
-) -> Option<RgbaImage> {
-  let mut file = jar.by_name(path).ok()?;
-
-  let mut buffer = Vec::new();
-  file.read_to_end(&mut buffer).ok()?;
-  decode_image(buffer).ok()
-}
-
-pub async fn load_image_from_dir_async(path: &Path) -> Option<RgbaImage> {
-  let buffer = tokio::fs::read(path).await.ok()?;
-  decode_image(buffer).ok()
 }
 
 pub fn load_image_from_dir(path: &Path) -> Option<RgbaImage> {

@@ -1,6 +1,4 @@
-use regex::Regex;
 use std::cmp::Ordering;
-use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -26,18 +24,11 @@ fn load_versions(app: &AppHandle, path: &str, from_cache: bool) -> Vec<String> {
     .unwrap_or_default()
 }
 
-fn try_find(versions: &[String], version: &str) -> Option<usize> {
-  versions.iter().position(|v| v == version)
-}
-
 /// Compare two Minecraft version IDs.
 /// The order is determined by `assets/game/versions.txt`,
 /// or fallback to cache, and optionally refresh from remote manifest if not found.
 ///
-/// Note: `minecraftd::minecraft::version::compare_versions` is intentionally
-/// not used here — the launcher requires Mojang-manifest ordering (pre-releases,
-/// snapshots and unknown-version semantics), not minecraftd's semver-like
-/// comparison.
+/// Ordering is supplied by minecraftd's manifest-based VersionOrder.
 ///
 /// # Examples
 /// ```rust,ignore
@@ -56,45 +47,31 @@ fn try_find(versions: &[String], version: &str) -> Option<usize> {
 /// - Returns `Ordering::Greater` if `version_a` > `version_b`, or if `version_a` not found
 /// - If both versions are not found, returns `Ordering::Equal`
 ///
-pub async fn compare_game_versions(
+async fn load_order(
   app: &AppHandle,
-  version_a: &str,
-  version_b: &str,
-  fallback_fetch_remote: bool,
-) -> Ordering {
-  let mut versions = load_versions(app, "assets/game/versions.txt", false);
-  let mut idx_a = try_find(&versions, version_a);
-  let mut idx_b = try_find(&versions, version_b);
-
-  // Fallback to search in cache version list saved by `get_game_version_manifest()`.
-  if idx_a.is_none() || idx_b.is_none() {
-    versions = load_versions(app, "game_versions.txt", true);
-    idx_a = try_find(&versions, version_a);
-    idx_b = try_find(&versions, version_b);
+  needed: &[&str],
+  refresh: bool,
+) -> minecraftd::minecraft::order::VersionOrder {
+  use minecraftd::minecraft::order::VersionOrder;
+  let mut order = VersionOrder::new(load_versions(app, "assets/game/versions.txt", false));
+  if !needed.iter().all(|version| order.contains(version)) {
+    order = VersionOrder::new(load_versions(app, "game_versions.txt", true));
   }
-
-  // Fallback to fetch remote manifest and retry.
-  if fallback_fetch_remote
-    && (idx_a.is_none() || idx_b.is_none())
+  if refresh
+    && !needed.iter().all(|version| order.contains(version))
     && let Some(state) = app.try_state::<Mutex<LauncherConfig>>()
   {
-    let priority_list = {
-      let locked = state.lock().unwrap();
-      get_source_priority_list(&locked)
-    };
-    let _ = get_game_version_manifest(app, &priority_list).await;
-    versions = load_versions(app, "game_versions.txt", true);
-    idx_a = try_find(&versions, version_a);
-    idx_b = try_find(&versions, version_b);
+    let priority = state
+      .lock()
+      .map(|config| get_source_priority_list(&config))
+      .unwrap_or_default();
+    let _ = get_game_version_manifest(app, &priority).await;
+    order = VersionOrder::new(load_versions(app, "game_versions.txt", true));
   }
-
-  // compare version ids
-  match (idx_a, idx_b) {
-    (Some(a), Some(b)) => a.cmp(&b),
-    (Some(_), None) => Ordering::Less,
-    (None, Some(_)) => Ordering::Greater,
-    (None, None) => Ordering::Equal,
-  }
+  order
+}
+pub async fn compare_game_versions(app: &AppHandle, a: &str, b: &str, refresh: bool) -> Ordering {
+  load_order(app, &[a, b], refresh).await.compare(a, b)
 }
 
 /// Build a comparator function for Minecraft version IDs based on
@@ -118,24 +95,8 @@ pub fn build_game_version_cmp_fn(app: &AppHandle) -> impl Fn(&str, &str) -> Orde
     versions = load_versions(app, "game_versions.txt", true);
   }
 
-  let index_map: HashMap<String, usize> = versions
-    .into_iter()
-    .enumerate()
-    .map(|(i, v)| (v, i))
-    .collect();
-
-  // Return the comparator closure
-  move |a: &str, b: &str| {
-    let idx_a = index_map.get(a);
-    let idx_b = index_map.get(b);
-
-    match (idx_a, idx_b) {
-      (Some(&a), Some(&b)) => a.cmp(&b),
-      (Some(_), None) => Ordering::Less,
-      (None, Some(_)) => Ordering::Greater,
-      (None, None) => Ordering::Equal,
-    }
-  }
+  let order = minecraftd::minecraft::order::VersionOrder::new(versions);
+  move |a, b| order.compare(a, b)
 }
 
 /// Find the major game version ("1.x" or "YY.x") corresponding to the provided game version.
@@ -171,63 +132,11 @@ pub async fn get_major_game_version(
   version: &str,
   fallback_fetch_remote: bool,
 ) -> String {
-  fn is_semver_like_version(version: &str) -> bool {
-    lazy_static::lazy_static! {
-        static ref SEMVER_LIKE_PREFIX: Regex = Regex::new(
-          r"^\d+\..+"
-        ).unwrap();
-    }
-    SEMVER_LIKE_PREFIX.is_match(version.trim())
+  if let Some(major) = minecraftd::minecraft::order::release_major(version) {
+    return major;
   }
-
-  fn extract_major_version(version: &str) -> String {
-    let version = version.split_whitespace().next().unwrap_or(version); // handle "1.14 Pre-Release 1" 😣
-    version
-      .split('-')
-      .next()
-      .map(|v| v.split('.').take(2).collect::<Vec<_>>().join("."))
-      .unwrap_or_else(|| version.to_string())
-  }
-
-  fn find_closest_major_version(versions: &[String], idx: usize) -> String {
-    for i in (0..idx).rev() {
-      if is_semver_like_version(&versions[i]) {
-        return extract_major_version(&versions[i]);
-      }
-    }
-    String::new() // no major version found before the input version
-  }
-
-  if version.trim().is_empty() {
-    return String::new();
-  }
-
-  // If the input version starts with "1.x" or "YY.x", return the major version directly (e.g., 1.21 from 1.21.4)
-  if is_semver_like_version(version) {
-    return extract_major_version(version);
-  }
-
-  let mut versions = load_versions(app, "assets/game/versions.txt", false);
-  if let Some(idx) = try_find(&versions, version) {
-    return find_closest_major_version(&versions, idx);
-  }
-
-  versions = load_versions(app, "game_versions.txt", true);
-  if let Some(idx) = try_find(&versions, version) {
-    return find_closest_major_version(&versions, idx);
-  }
-
-  if fallback_fetch_remote && let Some(state) = app.try_state::<Mutex<LauncherConfig>>() {
-    let priority_list = {
-      let locked = state.lock().unwrap();
-      get_source_priority_list(&locked)
-    };
-    let _ = get_game_version_manifest(app, &priority_list).await;
-    versions = load_versions(app, "game_versions.txt", true);
-    if let Some(idx) = try_find(&versions, version) {
-      return find_closest_major_version(&versions, idx);
-    }
-  }
-
-  String::new()
+  load_order(app, &[version], fallback_fetch_remote)
+    .await
+    .major(version)
+    .unwrap_or_default()
 }

@@ -1,70 +1,64 @@
-use async_trait::async_trait;
-use image::imageops::FilterType;
-use regex::RegexBuilder;
-use sjmcl_types::error::{SJMCLError, SJMCLResult};
-use std::io::{Cursor, Read, Seek};
-use std::path::{Path, PathBuf};
-use walkdir::WalkDir;
-use zip::ZipArchive;
-
 use crate::instance::constants::COMPRESSED_ICON_SIZE;
-use crate::instance::helpers::mods::{fabric, forge, legacy_forge, liteloader, quilt};
 use crate::instance::models::misc::{LocalModInfo, ModLoaderType};
 use crate::utils::image::ImageWrapper;
-
-pub fn discover_local_mod_paths(
-  mods_dir: &Path,
-  installed_loader_type: Option<ModLoaderType>,
-) -> Vec<PathBuf> {
-  let valid_extensions = RegexBuilder::new(r"\.(jar|zip|litemod)(\.disabled)*$")
-    .case_insensitive(true)
-    .build()
-    .unwrap();
-
-  let supports_mod_subdirectories = matches!(
-    installed_loader_type,
-    Some(
-      ModLoaderType::Forge
-        | ModLoaderType::LegacyForge
-        | ModLoaderType::Cleanroom
-        | ModLoaderType::LiteLoader
-        | ModLoaderType::Quilt
-    )
-  );
-  let max_depth = usize::from(supports_mod_subdirectories) + 1;
-
-  WalkDir::new(mods_dir)
-    .min_depth(1)
-    .max_depth(max_depth)
-    .into_iter()
-    .filter_entry(|entry| {
-      entry.depth() == 0
-        || !entry.file_type().is_dir()
-        || !entry
-          .file_name()
-          .to_string_lossy()
-          .eq_ignore_ascii_case(".connector")
-    })
-    .filter_map(|entry| match entry {
-      Ok(entry)
-        if (entry.file_type().is_file()
-          || (entry.file_type().is_symlink() && entry.path().is_file()))
-          && entry
-            .file_name()
-            .to_str()
-            .is_some_and(|name| valid_extensions.is_match(name)) =>
-      {
-        Some(entry.into_path())
-      }
-      Ok(_) => None,
-      Err(error) => {
-        log::warn!("Skipping unreadable mod entry: {}", error);
-        None
-      }
-    })
-    .collect()
+use image::imageops::FilterType;
+pub use minecraftd::minecraft::metadata::discover_local_mod_paths;
+use minecraftd::minecraft::metadata::{self, ModMetadata};
+use sjmcl_types::error::SJMCLResult;
+use std::path::Path;
+fn present(info: ModMetadata) -> LocalModInfo {
+  LocalModInfo {
+    icon_src: image::load_from_memory(&info.icon)
+      .ok()
+      .map(|image| ImageWrapper::from(image.to_rgba8()))
+      .map(compress_icon)
+      .unwrap_or_default(),
+    enabled: info.enabled,
+    mod_id: info.mod_id,
+    name: info.name,
+    version: info.version,
+    loader_type: info.loader_type,
+    file_name: info.file_name,
+    file_path: info.file_path,
+    description: info.description,
+    potential_incompatibility: info.potential_incompatibility,
+    ..Default::default()
+  }
 }
-
+pub async fn get_mod_info_from_jar(
+  path: &Path,
+  preferred: Option<ModLoaderType>,
+) -> SJMCLResult<LocalModInfo> {
+  Ok(present(
+    metadata::get_mod_info_from_jar(path, preferred).await?,
+  ))
+}
+pub async fn get_mod_info_from_dir(
+  path: &Path,
+  preferred: Option<ModLoaderType>,
+) -> SJMCLResult<LocalModInfo> {
+  Ok(present(
+    metadata::get_mod_info_from_dir(path, preferred).await?,
+  ))
+}
+pub fn check_potential_incompatibility(
+  infos: &mut [LocalModInfo],
+  loader: Option<ModLoaderType>,
+  version: &str,
+) {
+  let mut metadata: Vec<ModMetadata> = infos
+    .iter()
+    .map(|info| ModMetadata {
+      mod_id: info.mod_id.clone(),
+      loader_type: info.loader_type,
+      ..Default::default()
+    })
+    .collect();
+  metadata::check_potential_incompatibility(&mut metadata, loader, version);
+  for (info, meta) in infos.iter_mut().zip(metadata) {
+    info.potential_incompatibility = meta.potential_incompatibility;
+  }
+}
 pub fn compress_icon(wrapper: ImageWrapper) -> ImageWrapper {
   let resized_image = image::imageops::resize(
     &wrapper.image,
@@ -75,270 +69,4 @@ pub fn compress_icon(wrapper: ImageWrapper) -> ImageWrapper {
   ImageWrapper {
     image: resized_image,
   }
-}
-
-#[async_trait]
-pub trait LocalModMetadataParser {
-  type Metadata;
-
-  fn get_mod_metadata_from_jar<R: Read + Seek>(
-    jar: &mut ZipArchive<R>,
-  ) -> SJMCLResult<Self::Metadata>;
-
-  async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<Self::Metadata>;
-
-  fn get_icon_from_jar<R: Read + Seek>(
-    _meta: &mut Self::Metadata,
-    _jar: &mut ZipArchive<R>,
-  ) -> ImageWrapper {
-    ImageWrapper::default()
-  }
-
-  async fn get_icon_from_dir(_meta: &mut Self::Metadata, _dir_path: &Path) -> ImageWrapper {
-    ImageWrapper::default()
-  }
-
-  fn parse_mod_info_from_jar(jar: &mut ZipArchive<Cursor<Vec<u8>>>) -> Option<LocalModInfo>
-  where
-    LocalModInfo: From<Self::Metadata>,
-  {
-    let mut meta = Self::get_mod_metadata_from_jar(jar).ok()?;
-    let icon_src = Self::get_icon_from_jar(&mut meta, jar);
-    let mut info = LocalModInfo::from(meta);
-    info.icon_src = icon_src;
-    Some(info)
-  }
-
-  async fn parse_mod_info_from_dir(dir_path: &Path) -> Option<LocalModInfo>
-  where
-    Self::Metadata: Send,
-    LocalModInfo: From<Self::Metadata>,
-  {
-    let mut meta = Self::get_mod_metadata_from_dir(dir_path).await.ok()?;
-    let icon_src = Self::get_icon_from_dir(&mut meta, dir_path).await;
-    let mut info = LocalModInfo::from(meta);
-    info.icon_src = icon_src;
-    Some(info)
-  }
-}
-
-struct FallbackManifestModMetadataParser;
-
-fn build_fallback_manifest_local_mod_info<F>(mut get: F) -> LocalModInfo
-where
-  F: FnMut(&str) -> Option<String>,
-{
-  let pick = |keys: &[&str], get: &mut F| -> String {
-    keys.iter().find_map(|key| get(key)).unwrap_or_default()
-  };
-  LocalModInfo {
-    name: pick(
-      &["Implementation-Title", "Specification-Title", "Bundle-Name"],
-      &mut get,
-    ),
-    version: pick(
-      &["Implementation-Version", "Specification-Version"],
-      &mut get,
-    ),
-    description: pick(&["Implementation-Vendor", "Specification-Vendor"], &mut get),
-    loader_type: ModLoaderType::Unknown,
-    ..Default::default()
-  }
-}
-
-#[async_trait]
-impl LocalModMetadataParser for FallbackManifestModMetadataParser {
-  type Metadata = LocalModInfo;
-
-  fn get_mod_metadata_from_jar<R: Read + Seek>(
-    jar: &mut ZipArchive<R>,
-  ) -> SJMCLResult<Self::Metadata> {
-    let manifest_file = jar.by_name("META-INF/MANIFEST.MF")?;
-    let manifest = java_properties::read(manifest_file)?;
-    Ok(build_fallback_manifest_local_mod_info(|key| {
-      manifest.get(key).cloned()
-    }))
-  }
-
-  async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<Self::Metadata> {
-    let manifest_string = tokio::fs::read_to_string(dir_path.join("META-INF/MANIFEST.MF")).await?;
-    let manifest = java_properties::read(Cursor::new(manifest_string))?;
-    Ok(build_fallback_manifest_local_mod_info(|key| {
-      manifest.get(key).cloned()
-    }))
-  }
-}
-
-// Cleanroom and NeoForge are omitted because they reuse the LegacyForge and Forge parsers, respectively.
-const DEFAULT_MOD_LOADER_PRIORITY_LIST: [ModLoaderType; 6] = [
-  ModLoaderType::Fabric,
-  ModLoaderType::Forge,
-  ModLoaderType::LegacyForge,
-  ModLoaderType::LiteLoader,
-  ModLoaderType::Quilt,
-  ModLoaderType::Unknown,
-];
-
-impl ModLoaderType {
-  fn parse_mod_info_from_jar(self, jar: &mut ZipArchive<Cursor<Vec<u8>>>) -> Option<LocalModInfo> {
-    match self {
-      Self::Fabric => fabric::FabricModMetadataParser::parse_mod_info_from_jar(jar),
-      Self::Forge | Self::NeoForge => forge::ForgeModMetadataParser::parse_mod_info_from_jar(jar),
-      Self::LegacyForge | Self::Cleanroom => {
-        legacy_forge::LegacyForgeModMetadataParser::parse_mod_info_from_jar(jar)
-      }
-      Self::LiteLoader => liteloader::LiteLoaderModMetadataParser::parse_mod_info_from_jar(jar),
-      Self::Quilt => quilt::QuiltModMetadataParser::parse_mod_info_from_jar(jar),
-      Self::Unknown => FallbackManifestModMetadataParser::parse_mod_info_from_jar(jar),
-    }
-  }
-
-  async fn parse_mod_info_from_dir(self, dir_path: &Path) -> Option<LocalModInfo> {
-    match self {
-      Self::Fabric => fabric::FabricModMetadataParser::parse_mod_info_from_dir(dir_path).await,
-      Self::Forge | Self::NeoForge => {
-        forge::ForgeModMetadataParser::parse_mod_info_from_dir(dir_path).await
-      }
-      Self::LegacyForge | Self::Cleanroom => {
-        legacy_forge::LegacyForgeModMetadataParser::parse_mod_info_from_dir(dir_path).await
-      }
-      Self::LiteLoader => {
-        liteloader::LiteLoaderModMetadataParser::parse_mod_info_from_dir(dir_path).await
-      }
-      Self::Quilt => quilt::QuiltModMetadataParser::parse_mod_info_from_dir(dir_path).await,
-      Self::Unknown => FallbackManifestModMetadataParser::parse_mod_info_from_dir(dir_path).await,
-    }
-  }
-}
-
-fn mod_metadata_parser_priority(
-  prior_loader_type: Option<ModLoaderType>,
-) -> impl Iterator<Item = ModLoaderType> {
-  // Normalize loaders that share a parser before filtering the fallback list.
-  let preferred_loader = prior_loader_type.map(|loader| match loader {
-    ModLoaderType::NeoForge => ModLoaderType::Forge,
-    ModLoaderType::Cleanroom => ModLoaderType::LegacyForge,
-    loader => loader,
-  });
-  preferred_loader.into_iter().chain(
-    DEFAULT_MOD_LOADER_PRIORITY_LIST
-      .into_iter()
-      .filter(move |loader| Some(*loader) != preferred_loader),
-  )
-}
-
-pub async fn get_mod_info_from_jar(
-  path: &PathBuf,
-  prior_loader_type: Option<ModLoaderType>,
-) -> SJMCLResult<LocalModInfo> {
-  let file = Cursor::new(tokio::fs::read(path).await?);
-  let file_name = path
-    .file_name()
-    .map(|name| name.to_string_lossy().to_string())
-    .ok_or_else(|| SJMCLError(format!("invalid mod file path: {}", path.display())))?;
-  let normalized_file_name = file_name.strip_suffix(".disabled").unwrap_or(&file_name);
-  let file_stem = Path::new(normalized_file_name)
-    .file_stem()
-    .map(|stem| stem.to_string_lossy().to_string())
-    .unwrap_or_else(|| normalized_file_name.to_string());
-  let file_path = path.clone();
-  let enabled = !file_name.ends_with(".disabled");
-  let mut jar = ZipArchive::new(file)?;
-
-  for parser in mod_metadata_parser_priority(prior_loader_type) {
-    if let Some(mut local_mod_info) = parser.parse_mod_info_from_jar(&mut jar) {
-      local_mod_info.enabled = enabled;
-      local_mod_info.file_name = file_stem.clone();
-      local_mod_info.file_path = file_path.clone();
-      return Ok(local_mod_info);
-    }
-  }
-
-  Err(SJMCLError(format!(
-    "{} cannot be recognized as known",
-    file_name
-  )))
-}
-
-pub async fn get_mod_info_from_dir(
-  path: &Path,
-  prior_loader_type: Option<ModLoaderType>,
-) -> SJMCLResult<LocalModInfo> {
-  let dir_name = path
-    .file_name()
-    .map(|name| name.to_string_lossy().to_string())
-    .unwrap_or_else(|| path.to_string_lossy().to_string());
-  // only remove .disabled suffix if exists, not consider other extension-like suffix in dir name.
-  let dir_stem = dir_name
-    .strip_suffix(".disabled")
-    .unwrap_or(&dir_name)
-    .to_string();
-  let enabled = !dir_name.ends_with(".disabled");
-
-  for parser in mod_metadata_parser_priority(prior_loader_type) {
-    if let Some(mut local_mod_info) = parser.parse_mod_info_from_dir(path).await {
-      local_mod_info.enabled = enabled;
-      local_mod_info.file_name = dir_stem.clone();
-      local_mod_info.file_path = path.to_path_buf();
-      return Ok(local_mod_info);
-    }
-  }
-
-  Err(SJMCLError(format!(
-    "{} cannot be recognized as known",
-    dir_name
-  )))
-}
-
-// update the potential_incompatibility field of LocalModInfo.
-pub fn check_potential_incompatibility(
-  mod_infos: &mut [LocalModInfo],
-  installed_loader_type: Option<ModLoaderType>,
-  game_version: &str,
-) {
-  let Some(installed_loader_type) = installed_loader_type else {
-    return;
-  };
-
-  let mut supported_loaders = vec![installed_loader_type];
-
-  if installed_loader_type == ModLoaderType::Quilt {
-    supported_loaders.push(ModLoaderType::Fabric);
-  }
-  if installed_loader_type == ModLoaderType::Cleanroom {
-    supported_loaders.push(ModLoaderType::Forge);
-  }
-  if installed_loader_type == ModLoaderType::NeoForge && game_version == "1.20.1" {
-    supported_loaders.push(ModLoaderType::Forge);
-  }
-
-  let contains_mod = |mod_id: &str, loader_type: ModLoaderType| -> bool {
-    mod_infos
-      .iter()
-      .any(|m| m.loader_type == loader_type && m.mod_id == mod_id)
-  };
-
-  // Sinytra Connector
-  if installed_loader_type == ModLoaderType::NeoForge
-    && (contains_mod("connector", ModLoaderType::NeoForge)
-      || contains_mod("connectormod", ModLoaderType::NeoForge))
-  {
-    supported_loaders.push(ModLoaderType::Fabric);
-  }
-  if installed_loader_type == ModLoaderType::Forge
-    && game_version == "1.20.1"
-    && contains_mod("connectormod", ModLoaderType::Forge)
-  {
-    supported_loaders.push(ModLoaderType::Fabric);
-  }
-
-  // Kilt
-  if installed_loader_type == ModLoaderType::Fabric && contains_mod("kilt", ModLoaderType::Fabric) {
-    supported_loaders.push(ModLoaderType::Forge);
-    supported_loaders.push(ModLoaderType::NeoForge);
-  }
-
-  mod_infos.iter_mut().for_each(|mod_info| {
-    mod_info.potential_incompatibility = !supported_loaders.contains(&mod_info.loader_type);
-  });
 }

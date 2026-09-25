@@ -1,78 +1,11 @@
-use futures::stream::StreamExt;
-use quartz_nbt::io::Flavor;
-use serde::{self, Deserialize, Serialize};
 use sjmcl_types::error::SJMCLResult;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
 use tauri::AppHandle;
 
 use crate::instance::helpers::misc::get_instance_subdir_path_by_id;
 use crate::instance::models::misc::InstanceSubdirType;
 
-pub const SERVERS_DAT_FILENAME: &str = "servers.dat";
-
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct GameServerInfo {
-  pub icon_src: String,
-  pub ip: String,
-  pub name: String,
-  pub hidden: bool,
-  pub description: String,
-  pub is_queried: bool, // if true, this is a complete result from a successful query
-  pub players_online: usize,
-  pub players_max: usize,
-  pub online: bool, // if false, it may be offline in the query result or failed in the query.
-  pub latency: Option<u64>, // ping latency in milliseconds
-}
-
-#[derive(Debug, Serialize, Deserialize, Default)]
-pub struct NbtServerInfo {
-  pub ip: String,
-  pub icon: Option<String>,
-  pub name: String,
-  #[serde(default)]
-  pub hidden: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, Default)]
-struct NbtServersInfo {
-  pub servers: Vec<NbtServerInfo>,
-}
-
-impl From<NbtServerInfo> for GameServerInfo {
-  fn from(nbt: NbtServerInfo) -> Self {
-    Self {
-      ip: nbt.ip,
-      name: nbt.name,
-      icon_src: nbt.icon.unwrap_or_default(),
-      hidden: nbt.hidden,
-      ..Default::default()
-    }
-  }
-}
-
-impl From<GameServerInfo> for NbtServerInfo {
-  fn from(server: GameServerInfo) -> Self {
-    Self {
-      ip: server.ip,
-      icon: (!server.icon_src.is_empty()).then_some(server.icon_src),
-      name: server.name,
-      hidden: server.hidden,
-    }
-  }
-}
-
-impl From<&GameServerInfo> for NbtServerInfo {
-  fn from(server: &GameServerInfo) -> Self {
-    Self {
-      ip: server.ip.clone(),
-      icon: (!server.icon_src.is_empty()).then_some(server.icon_src.clone()),
-      name: server.name.clone(),
-      hidden: server.hidden,
-    }
-  }
-}
+pub use minecraftd::minecraft::servers::{GameServerInfo, SERVERS_DAT_FILENAME};
 
 pub fn get_servers_nbt_path_by_instance_id(
   app: &AppHandle,
@@ -83,87 +16,14 @@ pub fn get_servers_nbt_path_by_instance_id(
 }
 
 pub async fn load_servers_info_from_nbt(path: &Path) -> SJMCLResult<Vec<GameServerInfo>> {
-  if !path.exists() {
-    return Ok(Vec::new());
-  }
-  let bytes = tokio::fs::read(path).await?;
-  let (servers_info, _snbt) =
-    quartz_nbt::serde::deserialize::<NbtServersInfo>(&bytes, Flavor::Uncompressed)?;
-  let game_server_list = servers_info
-    .servers
-    .into_iter()
-    .map(|nbt| nbt.into())
-    .collect();
-
-  Ok(game_server_list)
+  Ok(minecraftd::minecraft::servers::load_servers_info_from_nbt(path).await?)
 }
-
 pub async fn save_servers_to_nbt(path: &Path, servers: &[GameServerInfo]) -> SJMCLResult<()> {
-  let servers_info = NbtServersInfo {
-    servers: servers.iter().map(NbtServerInfo::from).collect(),
-  };
-  let bytes = quartz_nbt::serde::serialize(&servers_info, None, Flavor::Uncompressed)?;
-  tokio::fs::write(path, bytes).await?;
-
-  Ok(())
+  Ok(minecraftd::minecraft::servers::save_servers_to_nbt(path, servers).await?)
 }
 
-/// Query a single server's online status via the minecraftd ping protocol.
-async fn ping_game_server(ip: &str) -> minecraftd::minecraft::ping::ServerStatus {
-  const PING_TIMEOUT: Duration = Duration::from_secs(5);
-
-  let fallback = ip.to_string();
-  let address = tokio::net::lookup_host(ip)
-    .await
-    .ok()
-    .and_then(|mut addrs| addrs.next())
-    .unwrap_or_else(|| {
-      // `lookup_host` already accepts "host:port"; this fallback only guards
-      // malformed entries so the task still completes.
-      fallback
-        .parse()
-        .unwrap_or_else(|_| std::net::SocketAddr::from(([0, 0, 0, 0], 0)))
-    });
-
-  minecraftd::minecraft::ping::ping_java_server(address, PING_TIMEOUT)
-    .await
-    .unwrap_or_default()
-}
-
-/// Query multiple servers online status in parallel.
 pub async fn query_servers_online(
-  mut servers: Vec<GameServerInfo>,
+  servers: Vec<GameServerInfo>,
 ) -> SJMCLResult<Vec<GameServerInfo>> {
-  if servers.is_empty() {
-    return Ok(servers);
-  }
-
-  let results: Vec<(String, minecraftd::minecraft::ping::ServerStatus)> = {
-    let ips: Vec<String> = servers.iter().map(|sv| sv.ip.clone()).collect();
-    futures::stream::iter(ips)
-      .map(|ip| async move { (ip.clone(), ping_game_server(&ip).await) })
-      .buffer_unordered(10)
-      .collect()
-      .await
-  };
-
-  for (ip, status) in results.into_iter() {
-    if let Some(server) = servers.iter_mut().find(|s| s.ip == ip) {
-      server.is_queried = true;
-
-      if status.online {
-        server.online = true;
-        server.latency = Some(status.latency_ms);
-        server.players_online = usize::try_from(status.current_players).unwrap_or(0);
-        server.players_max = usize::try_from(status.max_players).unwrap_or(0);
-        server.description = status.description.clone();
-
-        if let Some(favicon) = status.favicon {
-          server.icon_src = favicon;
-        }
-      }
-    }
-  }
-
-  Ok(servers)
+  Ok(minecraftd::minecraft::servers::query_servers_online(servers).await)
 }

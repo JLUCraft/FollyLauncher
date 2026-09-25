@@ -5,7 +5,6 @@ use tauri::{AppHandle, Manager};
 
 use crate::instance::helpers::game_version::compare_game_versions;
 use crate::instance::models::misc::Instance;
-use crate::instance::models::misc::ModLoaderType::Cleanroom;
 use crate::launch::models::LaunchError;
 use crate::launcher_config::models::{GameJava, JavaInfo};
 
@@ -19,32 +18,27 @@ pub async fn select_java_runtime(
 ) -> SJMCLResult<JavaInfo> {
   let java_list = app.state::<Mutex<Vec<JavaInfo>>>().lock()?.clone();
 
-  if let Some(game_java) = game_java.filter(|game_java| !game_java.auto) {
-    return java_list
-      .iter()
-      .find(|j| j.exec_path == game_java.exec_path)
-      .cloned()
-      .ok_or_else(|| LaunchError::SelectedJavaUnavailable.into());
-  }
-
-  let min_version_req =
-    get_minimum_java_version_by_game(app, instance, client_json_req, true).await;
-
-  let mut suitable_candidates = Vec::new();
-  for java in &java_list {
-    match java.major_version.cmp(&min_version_req) {
-      Ordering::Equal => return Ok(java.clone()),
-      Ordering::Greater => suitable_candidates.push(java.clone()),
-      _ => {}
-    }
-  }
-
-  if suitable_candidates.is_empty() {
-    Err(LaunchError::NoSuitableJava.into())
+  let preferred = game_java
+    .filter(|java| !java.auto)
+    .map(|java| java.exec_path.as_str());
+  let required = if preferred.is_some() {
+    0
   } else {
-    suitable_candidates.sort_by_key(|j| j.major_version);
-    Ok(suitable_candidates[0].clone())
-  }
+    get_minimum_java_version_by_game(app, instance, client_json_req, true).await
+  };
+  let entries = java_list
+    .iter()
+    .map(|java| (java.exec_path.as_str(), java.major_version))
+    .collect::<Vec<_>>();
+  minecraftd::minecraft::java::select_runtime_index(&entries, preferred, required)
+    .and_then(|index| java_list.get(index).cloned())
+    .ok_or_else(|| {
+      if preferred.is_some() {
+        LaunchError::SelectedJavaUnavailable.into()
+      } else {
+        LaunchError::NoSuitableJava.into()
+      }
+    })
 }
 
 /// Get minimum java version requirement by game client version.
@@ -54,54 +48,22 @@ async fn get_minimum_java_version_by_client(
   instance: &Instance,
   fallback_fetch_remote: bool,
 ) -> i32 {
-  // only allow fallback remote fetch here in the launch process, as Java selection and command generation are used sequentially.
-  // ref: https://github.com/UNIkeEN/SJMCL/pull/799
-  // 26.1(26.1-snapshot-1)+
-  if compare_game_versions(
-    app,
-    &instance.version,
-    "26.1-snapshot-1",
-    fallback_fetch_remote,
-  )
-  .await
-    >= Ordering::Equal
+  for (index, &(threshold, major)) in minecraftd::minecraft::java::JAVA_THRESHOLDS
+    .iter()
+    .enumerate()
   {
-    return 25;
-  }
-  // 1.20.5(24w14a)+
-  if compare_game_versions(app, &instance.version, "24w14a", false).await >= Ordering::Equal {
-    return 21;
-  }
-  // 1.18(1.18-pre2)+
-  if compare_game_versions(app, &instance.version, "1.18-pre2", false).await >= Ordering::Equal {
-    return 17;
-  }
-  // 1.17(21w19a)+
-  if compare_game_versions(app, &instance.version, "21w19a", false).await >= Ordering::Equal {
-    return 16;
-  }
-  // 1.12(17w13a)+
-  if compare_game_versions(app, &instance.version, "17w13a", false).await >= Ordering::Equal {
-    return 8;
-  }
-  0
-}
-
-fn get_minimum_java_version_by_mod_loader(instance: &Instance) -> i32 {
-  // Cleanroom
-  if instance.mod_loader.loader_type == Cleanroom {
-    let parsed_cleanroom_version = semver::Version::parse(&instance.mod_loader.version);
-    let minimum_java_25_version = semver::Version::parse("0.5.0-alpha");
-
-    return if let Ok(parsed) = parsed_cleanroom_version
-      && let Ok(minimum_java_25) = minimum_java_25_version
+    if compare_game_versions(
+      app,
+      &instance.version,
+      threshold,
+      fallback_fetch_remote && index == 0,
+    )
+    .await
+      >= Ordering::Equal
     {
-      if parsed < minimum_java_25 { 21 } else { 25 }
-    } else {
-      25
-    };
+      return major;
+    }
   }
-
   0
 }
 
@@ -116,7 +78,10 @@ pub async fn get_minimum_java_version_by_game(
     get_minimum_java_version_by_client(app, instance, fallback_fetch_remote).await;
 
   // override by the mod loader
-  let mod_loader_version_req = get_minimum_java_version_by_mod_loader(instance);
+  let mod_loader_version_req = minecraftd::minecraft::java::loader_java_requirement(
+    instance.mod_loader.loader_type,
+    &instance.mod_loader.version,
+  );
 
   // override by the client.json requirement
   client_version_req

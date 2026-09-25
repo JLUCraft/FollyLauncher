@@ -1,83 +1,21 @@
-use semver::Version;
-use serde::{Deserialize, Serialize};
+use crate::instance::helpers::loader::common::MetadataClient;
+use crate::resource::models::{ModLoaderResourceInfo, SourceType};
 use sjmcl_types::error::SJMCLResult;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
-
-use crate::instance::models::misc::ModLoaderType;
-use crate::resource::helpers::misc::get_download_api;
-use crate::resource::models::{ModLoaderResourceInfo, ResourceError, ResourceType, SourceType};
-
-#[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
-struct QuiltMetaItem {
-  pub loader: QuiltLoaderInfo,
-  // Quilt Meta may omit `intermediary` for Minecraft 26.1+ (#1937).
-  // pub intermediary: serde_json::Value,
-}
-
-#[derive(Serialize, Deserialize, Default)]
-struct QuiltLoaderInfo {
-  pub version: String,
-}
-
-/// Fetch Quilt loader versions for a specific Minecraft version
 pub async fn get_quilt_meta_by_game_version(
   app: &AppHandle,
-  priority_list: &[SourceType],
+  priority: &[SourceType],
   game_version: &str,
 ) -> SJMCLResult<Vec<ModLoaderResourceInfo>> {
   let client = app.state::<reqwest::Client>();
-
-  for source_type in priority_list.iter() {
-    let url = get_download_api(*source_type, ResourceType::QuiltMeta)?
-      .join("v3/versions/loader/")?
-      .join(game_version)?;
-
-    match client.get(url).send().await {
-      Ok(response) => {
-        if response.status().is_success() {
-          // API response may not be in current order, sort by semver here.
-          if let Ok(mut manifest) = response.json::<Vec<QuiltMetaItem>>().await {
-            manifest.sort_by(|a, b| {
-              match (
-                Version::parse(&a.loader.version),
-                Version::parse(&b.loader.version),
-              ) {
-                (Ok(left), Ok(right)) => right.cmp(&left),
-                (Ok(_), Err(_)) => std::cmp::Ordering::Less,
-                (Err(_), Ok(_)) => std::cmp::Ordering::Greater,
-                (Err(_), Err(_)) => b.loader.version.cmp(&a.loader.version),
-              }
-            });
-            return Ok(
-              manifest
-                .into_iter()
-                .map(|info| {
-                  let version = info.loader.version;
-                  let stable = !version.contains("beta")
-                    && !version.contains("alpha")
-                    && !version.contains("rc");
-                  ModLoaderResourceInfo {
-                    loader_type: ModLoaderType::Quilt,
-                    version,
-                    description: String::new(),
-                    stable: Some(stable),
-                    branch: None,
-                  }
-                })
-                .collect(),
-            );
-          } else {
-            return Err(ResourceError::ParseError.into());
-          }
-        } else {
-          continue;
-        }
-      }
-      Err(_) => continue,
-    }
-  }
-
-  Err(ResourceError::NetworkError.into())
+  Ok(
+    minecraftd::minecraft::loader::catalog::versions(
+      &MetadataClient(&client),
+      priority,
+      minecraftd::minecraft::loaders::ModLoaderType::Quilt,
+      game_version,
+    )
+    .await?,
+  )
 }

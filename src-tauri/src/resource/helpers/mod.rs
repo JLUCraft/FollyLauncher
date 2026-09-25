@@ -5,3 +5,5 @@ pub mod mod_db;
 pub mod modrinth;
 pub mod translation;
 pub mod version_manifest;
+
+pub mod http;

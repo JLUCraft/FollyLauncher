@@ -16,7 +16,6 @@ pub enum LaunchError {
   GameFilesIncomplete,
   SetProcessPriorityFailed,
   ChangeWindowTitleFailed,
-  KillProcessFailed,
   LaunchingStateNotFound,
   AuthlibInjectorNotReady,
   AuthServerNotFound,

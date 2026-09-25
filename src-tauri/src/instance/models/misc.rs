@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use sjmcl_types::storage::{load_json_async, save_json_async};
 use std::cmp::{Ord, Ordering, PartialOrd};
 use std::path::PathBuf;
-use std::str::FromStr;
 use strum_macros::Display;
 use tauri::AppHandle;
 
@@ -26,39 +25,12 @@ pub enum InstanceSubdirType {
   ShaderPacks,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize, Default, Display)]
-pub enum ModLoaderType {
-  #[default]
-  Unknown,
-  Fabric,
-  Forge,
-  Cleanroom,
-  LegacyForge,
-  NeoForge,
-  LiteLoader,
-  Quilt,
+pub use minecraftd::minecraft::loaders::ModLoaderType;
+pub trait ModLoaderIcon {
+  fn to_icon_path(self) -> &'static str;
 }
-
-impl FromStr for ModLoaderType {
-  type Err = String;
-
-  fn from_str(input: &str) -> Result<Self, Self::Err> {
-    match input.to_lowercase().as_str() {
-      "unknown" => Ok(ModLoaderType::Unknown),
-      "fabric" => Ok(ModLoaderType::Fabric),
-      "forge" => Ok(ModLoaderType::Forge),
-      "cleanroom" => Ok(ModLoaderType::Cleanroom),
-      "legacyforge" => Ok(ModLoaderType::LegacyForge),
-      "neoforge" => Ok(ModLoaderType::NeoForge),
-      "liteloader" => Ok(ModLoaderType::LiteLoader),
-      "quilt" => Ok(ModLoaderType::Quilt),
-      _ => Err(format!("Unsupported ModLoaderType: {}", input)),
-    }
-  }
-}
-
-impl ModLoaderType {
-  pub fn to_icon_path(self) -> &'static str {
+impl ModLoaderIcon for ModLoaderType {
+  fn to_icon_path(self) -> &'static str {
     match self {
       ModLoaderType::Unknown => "/images/icons/JEIcon_Release.png",
       ModLoaderType::Fabric => "/images/icons/Fabric.png",
@@ -67,6 +39,7 @@ impl ModLoaderType {
       ModLoaderType::NeoForge => "/images/icons/NeoForge.png",
       ModLoaderType::LiteLoader => "/images/icons/LiteLoader.png",
       ModLoaderType::Quilt => "/images/icons/Quilt.png",
+      ModLoaderType::Paper => "/images/icons/JEIcon_Release.png",
     }
   }
 }
@@ -276,10 +249,8 @@ pub enum InstanceError {
   InvalidNameError,
   ClientJsonParseError,
   AssetIndexParseError,
-  InstallProfileParseError,
   ModLoaderVersionParseError,
   ModpackManifestParseError,
-  CurseForgeFileManifestParseError,
   NetworkError,
   UnsupportedModLoader,
   NotSupportChangeModLoader,
@@ -287,7 +258,6 @@ pub enum InstanceError {
   InstallationDuplicated,
   ProcessorExecutionFailed,
   SemaphoreAcquireFailed,
-  LoaderInstallerNotFound,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
@@ -300,9 +270,4 @@ pub struct OptiFine {
 
 impl std::error::Error for InstanceError {}
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ModpackFileList {
-  pub all: Vec<String>,
-  pub unchecked: Vec<String>,
-}
+pub use minecraftd::modpack::export::ModpackFileList;

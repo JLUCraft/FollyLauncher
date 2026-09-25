@@ -5,14 +5,10 @@ use std::fs;
 use std::io::BufReader;
 use std::io::prelude::*;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
-use std::sync::{Mutex, mpsc};
+use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager, State};
-
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
 
 use crate::account::helpers::misc::get_selected_player_info;
 use crate::account::helpers::offline::yggdrasil_server::YggdrasilServer;
@@ -32,10 +28,7 @@ use crate::launch::helpers::graphics_handler::{
 };
 use crate::launch::helpers::jre_selector::select_java_runtime;
 use crate::launch::helpers::log_parser::parse_crash_report_path_from_log;
-use crate::launch::helpers::misc::get_separator;
-use crate::launch::helpers::process_monitor::{
-  kill_process, monitor_process, set_process_priority,
-};
+use crate::launch::helpers::process_monitor::monitor_process;
 use crate::launch::models::{LaunchError, LaunchingState};
 use crate::launcher_config::helpers::java::refresh_and_update_javas;
 use crate::launcher_config::models::{FileValidatePolicy, LauncherConfig, LauncherVisiablity};
@@ -43,7 +36,7 @@ use crate::resource::helpers::misc::get_source_priority_list;
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::utils::fs::create_zip_from_dirs;
 use crate::utils::logging::get_launcher_log_path;
-use crate::utils::shell::{execute_command_line, split_command_line};
+use crate::utils::shell::execute_command_line;
 use crate::utils::window::create_webview_window;
 
 #[cfg(target_os = "windows")]
@@ -325,13 +318,6 @@ pub async fn launch_game(
     .wrapper_launcher
     .clone();
 
-  let mut cmd_base = if let Some(mut c) = split_command_line(&wrapper)? {
-    c.arg(&selected_java.exec_path);
-    c
-  } else {
-    Command::new(&selected_java.exec_path)
-  };
-
   let full_cmd = export_full_launch_command(&class_paths, &cmd_args, &selected_java.exec_path);
   println!("[Launch Command] {}", full_cmd);
 
@@ -349,44 +335,36 @@ pub async fn launch_game(
     &game_config.advanced.jvm.environment_variable,
   ));
 
-  // execute launch command
-  #[cfg(target_os = "windows")]
-  cmd_base.creation_flags(0x08000000);
-
-  let child = cmd_base
-    .current_dir(&work_dir)
-    .env("CLASSPATH", class_paths.join(get_separator()))
-    .envs(graphics_env_var)
-    .args(cmd_args)
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .spawn()?;
-
-  let pid = child.id();
-
-  // set process priority (if error, keep silent)
-  let _ = set_process_priority(pid, &game_config.performance.process_priority);
+  let spec = LaunchCommand {
+    class_paths,
+    args: cmd_args,
+  }
+  .process_spec(
+    &selected_java.exec_path,
+    work_dir,
+    graphics_env_var,
+    &wrapper,
+  )
+  .map_err(|error| sjmcl_types::error::SJMCLError(error.to_string()))?;
 
   {
     let mut launching_queue = launching_queue_state.lock()?;
     let launching = launching_queue
       .last_mut()
       .ok_or(LaunchError::LaunchingStateNotFound)?;
-    launching.pid = pid;
     launching.full_command = full_cmd;
   }
 
   // wait for the game window, create log window if needed
-  let (tx, rx) = mpsc::channel();
-  monitor_process(
+  let ready = monitor_process(
     app.clone(),
     id,
-    child,
+    spec,
     instance_id,
     game_config.display_game_log,
     &game_config.game_window.custom_title,
     game_config.launcher_visibility.clone(),
-    tx,
+    &game_config.performance.process_priority,
     Some(
       game_config
         .advanced
@@ -396,9 +374,8 @@ pub async fn launch_game(
     ),
   )
   .await?;
-  let _ = rx.recv();
 
-  if game_config.launcher_visibility != LauncherVisiablity::Always {
+  if ready && game_config.launcher_visibility != LauncherVisiablity::Always {
     let _ = app
       .get_webview_window("main")
       .expect("no main window")
@@ -409,19 +386,25 @@ pub async fn launch_game(
 }
 
 #[tauri::command]
-pub fn cancel_launch_process(
-  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
-) -> SJMCLResult<()> {
-  let mut launching_queue = launching_queue_state.lock()?;
-
-  // kill process if pid exists
-  if let Some(launching) = launching_queue.last_mut()
-    && launching.pid != 0
-  {
-    launching.current_step = 0; // mark as manually cancelled to avoid game error window popping up
-    kill_process(launching.pid)?;
+pub async fn cancel_launch_process(app: AppHandle) -> SJMCLResult<()> {
+  let pid = {
+    let state = app.state::<Mutex<Vec<LaunchingState>>>();
+    let mut queue = state.lock()?;
+    queue
+      .last_mut()
+      .filter(|launching| launching.pid != 0)
+      .map(|launching| {
+        launching.current_step = 0;
+        launching.pid
+      })
+  };
+  if let Some(pid) = pid {
+    app
+      .state::<minecraftd::process::client::ClientProcesses>()
+      .kill(pid)
+      .await
+      .map_err(|error| sjmcl_types::error::SJMCLError(error.to_string()))?;
   }
-
   Ok(())
 }
 
