@@ -5,7 +5,7 @@ const { execSync } = require("child_process");
 const newVersion = process.argv[3];
 
 if (!newVersion) {
-  console.error("Usage: pnpm run version bump <new-version>");
+  console.error("Usage: bun run version bump <new-version>");
   process.exit(1);
 }
 
@@ -32,15 +32,15 @@ fs.writeFileSync(cargoTomlPath, cargoToml);
 
 console.log(`✅ Updated all version numbers to ${newVersion}`);
 
-// Sync pnpm-lock.yaml with package.json
-console.log("\n🔄 Syncing pnpm-lock.yaml with package.json...");
+// Sync bun.lock with package.json
+console.log("\n🔄 Syncing bun.lock with package.json...");
 try {
-  execSync("pnpm install --lockfile-only", {
+  execSync("bun install --lockfile-only", {
     stdio: "inherit",
     cwd: path.join(__dirname, "../../"),
   });
-  console.log("✅ pnpm-lock.yaml synced successfully!");
+  console.log("✅ bun.lock synced successfully!");
 } catch (error) {
-  console.error("❌ Failed to sync pnpm-lock.yaml:", error.message);
+  console.error("❌ Failed to sync bun.lock:", error.message);
   process.exit(1);
 }

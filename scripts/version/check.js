@@ -42,20 +42,16 @@ if (uniqueVersions.size !== 1) {
   console.log("\n✅ All versions match:", Object.values(versions)[0]);
 }
 
-// Check whether pnpm-lock.yaml is in sync
+// Check whether bun.lock is in sync
 try {
-  const result = spawnSync(
-    "git",
-    ["diff", "--exit-code", "--", "pnpm-lock.yaml"],
-    {
-      stdio: "inherit",
-    }
-  );
+  const result = spawnSync("git", ["diff", "--exit-code", "--", "bun.lock"], {
+    stdio: "inherit",
+  });
   if (result.status !== 0) {
     throw new Error(`git diff failed with exit code ${result.status}`);
   }
-  console.log("\n✅ pnpm-lock.yaml is in sync");
+  console.log("\n✅ bun.lock is in sync");
 } catch (error) {
-  console.error("\n❌ pnpm-lock.yaml is not in sync!");
+  console.error("\n❌ bun.lock is not in sync!");
   process.exit(1);
 }

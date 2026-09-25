@@ -4,8 +4,8 @@
  * compared to a reference locale file.
  *
  * Usage:
- *   pnpm locale diff <base_locale> <target_locales>
- *   e.g. pnpm locale diff en zh-Hans
+ *   bun run locale diff <base_locale> <target_locales>
+ *   e.g. bun run locale diff en zh-Hans
  *
  * Parameters:
  *   base_locale (optional) : str, defaults to zh-Hans, the base language

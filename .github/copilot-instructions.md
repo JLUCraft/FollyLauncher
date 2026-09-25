@@ -20,7 +20,7 @@ SJMCL is a cross-platform Minecraft launcher built with **Tauri v2** architectur
 ### Prerequisites
 - **Node.js**: Version 22 or higher (required by Tauri v2)
 - **Rust**: Latest stable version with Cargo
-- **pnpm**: For frontend package management
+- **bun**: For frontend package management
 - **Platform-specific dependencies**:
   - **Linux**: `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf`
   - **Windows**: No additional dependencies required
@@ -44,7 +44,7 @@ Without the `.env` file, the build will fail or produce a non-functional applica
 ### Initial Setup
 ```bash
 # Clone and install dependencies (required first step)
-pnpm install
+bun install
 
 # Install system dependencies on Linux before building
 # Ubuntu/Debian:
@@ -60,14 +60,14 @@ sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev 
 ### Development
 ```bash
 # Start development server (frontend + backend)
-pnpm tauri dev
+bun run tauri dev
 ```
 This starts the Next.js dev server at `http://localhost:3000` and launches the Tauri application.
 
 ### Production Build
 ```bash
 # Build for production
-pnpm tauri build
+bun run tauri build
 ```
 
 ## Linting and Code Quality
@@ -75,10 +75,10 @@ pnpm tauri build
 ### Frontend Linting
 ```bash
 # Lint TypeScript/JavaScript files
-pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
+bunx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
 ```
 
-The project uses ESLint v9 with flat config (`eslint.config.mjs`). Prefer `pnpm lint` for a full local check, or the `pnpm eslint ...` command above when matching CI exactly.
+The project uses ESLint v9 with flat config (`eslint.config.mjs`). Prefer `bun run lint` for a full local check, or the `bunx eslint ...` command above when matching CI exactly.
 
 ### Rust Formatting
 ```bash
@@ -92,7 +92,7 @@ Configuration: `src-tauri/rustfmt.toml` (max_width: 100, 2-space tabs)
 The project uses Husky for pre-commit hooks:
 ```bash
 # Runs automatically on commit
-pnpm lint-staged
+bun run lint-staged
 ```
 
 This validates:
@@ -105,10 +105,10 @@ This validates:
 ### Manual Testing
 ```bash
 # Test development build
-pnpm tauri dev
+bun run tauri dev
 
 # Test production build
-pnpm tauri build
+bun run tauri build
 ```
 
 ### CI Pipeline Validation
@@ -122,13 +122,13 @@ The GitHub Actions pipeline validates:
 To replicate CI locally:
 ```bash
 # Frontend linting (matches CI)
-pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
+bunx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
 
 # Rust formatting (matches CI) 
 find src-tauri/src -name '*.rs' | xargs rustfmt --check
 
 # Test build (matches CI - requires env vars)
-pnpm tauri build
+bun run tauri build
 ```
 
 ## Project Architecture and Layout
@@ -209,21 +209,21 @@ pnpm tauri build
 4. **nightly.yml**: Automated nightly builds
 
 ### Release Process
-- Version management via `pnpm run version bump <version>`
+- Version management via `bun run version bump <version>`
 - Updates `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml`
 - Automated changelog generation in `scripts/release/`
 
 ### Common Issues and Workarounds
 
 1. **Environment Variables**: Always ensure `.env` exists and contains required values
-2. **ESLint config**: The project uses ESLint v9 flat config; run `pnpm install` before linting so `pnpm eslint` resolves the local version
+2. **ESLint config**: The project uses ESLint v9 flat config; run `bun install` before linting so `bunx eslint` resolves the local version
 3. **Rust Compilation**: First build can take 5-10 minutes - this is normal
 4. **Platform Dependencies**: 
    - Linux requires webkit2gtk and other system libraries (`sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf`)
    - Missing system libs cause `pkg-config` errors during Rust compilation
 5. **Node.js Version**: Tauri v2 requires Node.js >=22, older versions will fail
-6. **pnpm install issues**: If pnpm install fails or hangs, try `pnpm install --frozen-lockfile` after clearing stale local state
-7. **Script dependencies**: Some maintenance scripts (like locale tools) may require all pnpm dependencies to be installed
+6. **bun install issues**: If bun install fails or hangs, try `bun install --frozen-lockfile` after clearing stale local state
+7. **Script dependencies**: Some maintenance scripts (like locale tools) may require all bun dependencies to be installed
 
 ## Commit Message and PR Title Conventions
 
@@ -266,31 +266,31 @@ This unified format applies to:
 
 ## Developer Productivity Tips
 
-1. **Use existing scripts**: `pnpm run version check/bump`, `pnpm locale` for common tasks
+1. **Use existing scripts**: `bun run version check/bump`, `bun run locale` for common tasks
 2. **Test incrementally**: Use `cargo check` in `src-tauri/` for faster Rust validation without full compilation
-3. **Leverage hot reload**: `pnpm tauri dev` provides fast iteration for frontend changes
+3. **Leverage hot reload**: `bun run tauri dev` provides fast iteration for frontend changes
 4. **Check CI locally**: Run the same linting commands as CI before committing
-5. **Environment setup**: Always start with `cp .env.template .env && pnpm install`
-6. **Dependency order**: Install system dependencies (Linux) before pnpm install to avoid build issues
-7. **Troubleshoot builds**: Check `cargo check` output for Rust issues, `pnpm lint` for frontend issues
+5. **Environment setup**: Always start with `cp .env.template .env && bun install`
+6. **Dependency order**: Install system dependencies (Linux) before bun install to avoid build issues
+7. **Troubleshoot builds**: Check `cargo check` output for Rust issues, `bun run lint` for frontend issues
 
 ### Quick Start Checklist
 ```bash
 # 1. Setup environment
 cp .env.template .env
-pnpm install
+bun install
 
 # 2. Verify setup
 cargo --version  # Should show Rust toolchain
 node --version   # Should be 22+
-pnpm run version check  # Should show matching versions
+bun run version check  # Should show matching versions
 
 # 3. Test build components
 cd src-tauri && cargo check  # Test Rust compilation
-cd .. && pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0  # Test linting
+cd .. && bunx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0  # Test linting
 
 # 4. Development
-pnpm tauri dev  # Start development server
+bun run tauri dev  # Start development server
 ```
 
 ---

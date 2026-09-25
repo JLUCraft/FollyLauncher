@@ -79,7 +79,7 @@ SJMCL/
 本 fork 由多个社团共享 union-core 基础设施，每个社团使用自己的品牌分发。品牌身份是数据驱动的：
 
 - 品牌定义位于 `brands/<id>/brand.json`（productName、shortName、identifier、deeplinkScheme、copyright、federation 默认值、可选 icons/）。
-- `pnpm brand <id>`（`scripts/brand/apply.js`）将品牌写入 `src-tauri/tauri.conf.json`（原生身份）并重新生成 `src/brand.gen.json`；前端通过 `src/brand.ts` 在运行时读取品牌。
+- `bun run brand <id>`（`scripts/brand/apply.js`）将品牌写入 `src-tauri/tauri.conf.json`（原生身份）并重新生成 `src/brand.gen.json`；前端通过 `src/brand.ts` 在运行时读取品牌。
 - `src/brand.gen.json` 是生成文件，不要手改；其提交默认值保持上游 SJMCL 身份，仅在构建社团分发时运行品牌脚本。
 - 不要在页面组件中硬编码产品名或深链 scheme，一律取自 `brand`。
 
@@ -155,3 +155,13 @@ SJMCL 的扩展系统允许开发者在不修改核心代码的情况下添加�
 2. [步骤] → 验证：[检查方式]
 3. [步骤] → 验证：[检查方式]
 ```
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

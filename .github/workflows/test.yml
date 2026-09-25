@@ -7,12 +7,14 @@ on:
     paths:
       - src/**
       - src-tauri/**
+      - scripts/game/check_minecraft_boundary.py
   pull_request:
     branches:
       - main
     paths:
       - src/**
       - src-tauri/**
+      - scripts/game/check_minecraft_boundary.py
 
 # Cancel prev CI if new commit come (learned from ant-design repo)
 concurrency:
@@ -29,10 +31,10 @@ jobs:
       should_run_lint: ${{ steps.compute.outputs.should_run_lint }}
       should_run_build: ${{ steps.compute.outputs.should_run_build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             src:
@@ -42,6 +44,7 @@ jobs:
               - '!src/locales/**'
             tauri:
               - 'src-tauri/**'
+              - 'scripts/game/check_minecraft_boundary.py'
 
       - id: compute
         shell: bash
@@ -66,23 +69,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          version: 10.26.1
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
       
       - name: Lint JavaScript/TypeScript Frontend
-        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
+        run: bunx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
       
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
+
+      - name: Check Minecraft library boundary
+        run: python3 scripts/game/check_minecraft_boundary.py
 
       - name: Lint Rust Backend
         run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
@@ -101,7 +106,7 @@ jobs:
           - platform: 'windows-latest'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
@@ -109,14 +114,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          version: 10.26.1
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -126,10 +130,10 @@ jobs:
           key: ${{ matrix.platform }}
 
       - name: Bump version for test build
-        run: pnpm run version bump 0.0.1
+        run: bun run version bump 0.0.1
 
       - name: Test Build
-        run: pnpm tauri build --features devtools --no-bundle -- --profile test-build
+        run: bun run tauri build --features devtools --no-bundle -- --profile test-build
         env:
           SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
           # Exposed to Rust as compile-time constants by build.rs (all SJMCL_* env vars).

@@ -73,7 +73,7 @@ release bump 后，必须检查以下五个文件：
 - `src-tauri/Cargo.toml`
 - `src-tauri/Cargo.lock`
 - `src-tauri/tauri.conf.json`
-- `pnpm-lock.yaml`
+- `bun.lock`
 
 如果其中任何一个没有按预期更新，必须明确指出，不要假装已经一致。
 
@@ -161,7 +161,7 @@ git log --oneline <last_tag>..HEAD
 确认目标版本号后，按顺序执行：
 
 ```bash
-pnpm run version bump <version>
+bun run version bump <version>
 git add .
 git commit -m "chore(release): bump version to <version>"
 git tag v<version>
@@ -181,7 +181,7 @@ git tag v<version>
 - `src-tauri/Cargo.toml`
 - `src-tauri/Cargo.lock`
 - `src-tauri/tauri.conf.json`
-- `pnpm-lock.yaml`
+- `bun.lock`
 
 形成一份紧凑核对清单，至少包含：
 

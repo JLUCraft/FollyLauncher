@@ -66,7 +66,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch || github.ref || 'main' }} 
 
@@ -76,15 +76,14 @@ jobs:
         run: echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 10.26.1
-          run_install: false
+          bun-version: 1.4.2
 
       # See https://github.com/tauri-apps/tauri-action
       - name: Install Rust stable
@@ -104,7 +103,7 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          pnpm install --frozen-lockfile
+          bun install --frozen-lockfile
 
       - name: Remove Font files (MacOS)
         if: matrix.platform == 'macos'
@@ -119,7 +118,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.target }}
 
       - name: Build the app
-        run: pnpm tauri build --target ${{ matrix.target }}
+        run: bun run tauri build --target ${{ matrix.target }}
         env:
           SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
           SJMCL_BUILD_TYPE: ${{ inputs.build_type }}
@@ -186,7 +185,7 @@ jobs:
 
       - name: Upload artifact
         if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: "artifacts/*"

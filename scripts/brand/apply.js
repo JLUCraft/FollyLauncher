@@ -4,7 +4,7 @@ const path = require("path");
 const brandId = process.argv[2];
 
 if (!brandId) {
-  console.error("Usage: pnpm brand <brand-id>");
+  console.error("Usage: bun run brand <brand-id>");
   process.exit(1);
 }
 

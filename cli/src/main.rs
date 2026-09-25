@@ -231,7 +231,7 @@ fn print_help(tools: Option<&[Tool]>, hint: Option<&str>) {
 
 fn print_tool_list(tools: &[Tool]) {
   let mut table = Table::new();
-  table.load_preset(UTF8_FULL_CONDENSED);
+  table.load_style(UTF8_FULL_CONDENSED);
   table.set_content_arrangement(ContentArrangement::DynamicFullWidth);
   table.set_header(vec!["Tool", "Args", "Description"]);
 
