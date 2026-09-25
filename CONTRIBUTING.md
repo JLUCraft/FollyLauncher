@@ -30,7 +30,7 @@ The core team monitors pull requests regularly. We will review your pull request
 * Test your changes locally to ensure they work as expected.
 * Update documentation if necessary.
 * Ensure code style and commit messages align with the project’s conventions. (PRs with non-conventional commit messages may be closed or squashed.)
-* Ensure your code passes linting (`pnpm lint-staged`). Tip: Linting runs automatically when you `git commit`.
+* Ensure your code passes linting (`bun run lint-staged`). Tip: Linting runs automatically when you `git commit`.
 * Finally, please make sure that all GitHub CI checks pass.
 
 ## Development Workflow
@@ -39,10 +39,10 @@ The core team monitors pull requests regularly. We will review your pull request
 
 This project uses **[Tauri v2](https://v2.tauri.app/)**. Please make sure you have installed [node >=22](https://nodejs.org/) and [Rust >=1.98.1](https://www.rust-lang.org/learn/get-started).
 
-We use `pnpm` as the preferred package manager for the frontend. After cloning the repository, use the following command to install the dependencies:
+We use `bun` as the preferred package manager for the frontend. After cloning the repository, use the following command to install the dependencies:
 
 ```bash
-pnpm install
+bun install
 ```
 
 ### Configure environment variables
@@ -56,7 +56,7 @@ These values will be embedded into the Rust backend as compile-time constants.
 Run the project in development mode.
 
 ```bash
-pnpm tauri dev
+bun run tauri dev
 ```
 
 ### Check the code style
@@ -64,15 +64,15 @@ pnpm tauri dev
 We use `ESLint` and `Prettier` for frontend code and `rustfmt` for backend code to ensure consistent formatting. 
 
 ```bash
-pnpm lint-staged
+bun run lint-staged
 ```
 
 Alternatively, to manually check and fix formatting issues, run the following commands:
 
 ```bash
 # For frontend part
-pnpm eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix    # check
-pnpm eslint "src/**/*.{js,jsx,ts,tsx}" --fix       # fix
+bunx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix    # check
+bunx eslint "src/**/*.{js,jsx,ts,tsx}" --fix       # fix
 
 # For backend part (For Linux, macOS or Git Bash on Windows)
 rustfmt --check src-tauri/src/**/*.rs              # check
@@ -91,7 +91,7 @@ If you use VS Code for developing this project, we recommend setting `rust-analy
 Build the project into an executable.
 
 ```bash
-pnpm tauri build
+bun run tauri build
 ```
 
 For cross-platform compilation, packaging in a specific format, or more details, please refer to the official [Tauri distribution guide](https://tauri.app/distribute/).

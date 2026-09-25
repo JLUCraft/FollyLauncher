@@ -130,13 +130,13 @@ To get started, clone the repository and install the required dependencies:
 
 ```bash
 git clone git@github.com:UNIkeEN/SJMCL.git
-pnpm install
+bun install
 ```
 
 To run the project in development mode:
 
 ```bash
-pnpm tauri dev
+bun run tauri dev
 ```
 
 We warmly invite contributions from everyone. 
