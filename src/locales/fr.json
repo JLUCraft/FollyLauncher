@@ -1193,7 +1193,7 @@
       "DUPLICATE_MOD_INSTALLED": "Cette instance ne peut pas continuer à s'exécuter en raison de l'installation en double de mods. Vérifiez la liste des mods et supprimez les mods en double.",
       "MOD_ZIP_CORRUPTED": "Cette instance ne peut pas continuer à s'exécuter car l'archive du mod est corrompue. Essayez de retélécharger le mod.",
       "MOD_INTERNET_ERROR": "Cette instance ne peut pas continuer à s'exécuter en raison d'un échec de téléchargement du mod. Vérifiez votre connexion Internet ou utilisez un proxy.",
-      "VICS_MODERN_WARFARE_ERROR": "当前实例由于 Vics Modern Warfare Cette instance ne peut pas continuer à s'exécuter en raison d'une erreur avec le mod Vics Modern Warfare. Essayez de mettre à jour ou de supprimer ce mod.",
+      "VICS_MODERN_WARFARE_ERROR": "Cette instance ne peut pas continuer à s'exécuter en raison d'une erreur avec le mod Vics Modern Warfare. Essayez de mettre à jour ou de supprimer ce mod.",
       "FORGE_LITELOADER_CONFLICT": "Cette instance ne peut pas continuer à s'exécuter en raison d'un conflit entre Forge et LiteLoader. Essayez de supprimer LiteLoader ou de changer la version de Forge.",
       "UNKNOWN": "Impossible d'analyser cette erreur pour le moment. Veuillez consulter les journaux du jeu ou exporter un rapport de plantage."
     }
@@ -3267,7 +3267,7 @@
       "switchAnimation": "Changer d'animation"
     },
     "error": {
-      "loadSkin": "加载皮肤失败"
+      "loadSkin": "Échec du chargement de la skin"
     },
     "toast": {
       "error": "Échec de l’enregistrement local du skin",
