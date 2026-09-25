@@ -297,7 +297,7 @@ const ExtensionSettingsPage = () => {
     <>
       <Section
         title={t("SettingsLayout.settingsDomainList.extension")}
-        titleExtra={<Badge colorScheme="purple">Beta</Badge>}
+        titleExtra={<Badge colorScheme="purple">{t("General.beta")}</Badge>}
         isAccordion
       >
         <OptionItemGroup items={extensionDocItems} />

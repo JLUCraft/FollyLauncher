@@ -574,8 +574,8 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
-            {optionGroups.map((group, index) => (
-              <OptionItemGroup {...group} key={index} />
+            {optionGroups.map((group) => (
+              <OptionItemGroup {...group} key={group.title} />
             ))}
           </VStack>
         </ModalBody>

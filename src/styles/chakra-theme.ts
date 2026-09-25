@@ -175,6 +175,10 @@ const chakraExtendTheme = extendTheme({
       },
     },
   },
+  colors: {
+    overlay: "rgba(0, 0, 0, 0.45)",
+    overlayStrong: "rgba(0, 0, 0, 0.6)",
+  },
   fontSizes: {
     "xs-sm": "0.8rem",
   },

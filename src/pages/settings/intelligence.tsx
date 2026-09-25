@@ -164,8 +164,8 @@ const IntelligenceSettingsPage = () => {
 
   return (
     <>
-      {settingsGroups.map((group, index) => (
-        <OptionItemGroup key={index} {...group} />
+      {settingsGroups.map((group) => (
+        <OptionItemGroup key={group.title} {...group} />
       ))}
     </>
   );

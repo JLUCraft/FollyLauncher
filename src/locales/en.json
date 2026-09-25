@@ -1281,7 +1281,10 @@
       "test-build": "test build"
     },
     "versionNumberingHelp": "Version Numbering Help",
-    "viewOnWiki": "View on Minecraft Wiki"
+    "viewOnWiki": "View on Minecraft Wiki",
+    "beta": "Beta",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -3235,7 +3238,8 @@
           "title": "Failed to delete file"
         }
       }
-    }
+    },
+    "unknownError": "An unknown error occurred"
   },
   "SettingsLayout": {
     "settingsDomainList": {

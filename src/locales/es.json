@@ -1281,7 +1281,10 @@
       "test-build": "compilación de prueba"
     },
     "versionNumberingHelp": "Ayuda sobre la numeración de versiones",
-    "viewOnWiki": "Ver en Minecraft Wiki"
+    "viewOnWiki": "Ver en Minecraft Wiki",
+    "beta": "Beta",
+    "collapse": "Contraer",
+    "expand": "Expandir"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -3235,7 +3238,8 @@
           "title": "Error al eliminar el archivo"
         }
       }
-    }
+    },
+    "unknownError": "Se ha producido un error desconocido"
   },
   "SettingsLayout": {
     "settingsDomainList": {

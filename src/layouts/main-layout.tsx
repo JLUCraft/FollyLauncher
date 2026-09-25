@@ -319,7 +319,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
-      bgColor={isDarkenBg ? "rgba(0,0,0,0.45)" : "transparent"}
+      bgColor={isDarkenBg ? "overlay" : "transparent"}
       bgBlendMode={isDarkenBg ? "darken" : "normal"}
       {...(config.basicInfo.osType === "linux" && linuxBorderStyle)}
       overflow="hidden"

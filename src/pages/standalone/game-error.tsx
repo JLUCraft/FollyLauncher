@@ -186,7 +186,7 @@ const GameErrorPage: React.FC = () => {
                   </Text>
                   <Tooltip label={t("General.openFolder")}>
                     <IconButton
-                      aria-label={"open"}
+                      aria-label={t("General.open")}
                       icon={<LuFolderOpen />}
                       variant="ghost"
                       size="sm"
@@ -210,7 +210,7 @@ const GameErrorPage: React.FC = () => {
                   </Text>
                   <Tooltip label={t("General.openFolder")}>
                     <IconButton
-                      aria-label={"open"}
+                      aria-label={t("General.open")}
                       icon={<LuFolderOpen />}
                       variant="ghost"
                       size="sm"

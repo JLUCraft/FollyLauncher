@@ -17,7 +17,7 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ avatar, ...props }) => {
           left={0}
           width="100%"
           height="100%"
-          filter="drop-shadow(0 0 1px rgba(0, 0, 0, 0.3))"
+          filter="drop-shadow(0 0 1px var(--chakra-colors-blackAlpha-500))"
         />
       )}
       {!!avatar[1] && (
@@ -29,7 +29,7 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ avatar, ...props }) => {
           left={0}
           width="100%"
           height="100%"
-          filter="drop-shadow(0 0 2px rgba(0, 0, 0, 0.3))"
+          filter="drop-shadow(0 0 2px var(--chakra-colors-blackAlpha-500))"
         />
       )}
     </Box>

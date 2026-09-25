@@ -1281,7 +1281,10 @@
       "test-build": "测试构建版本"
     },
     "versionNumberingHelp": "版本号规则说明",
-    "viewOnWiki": "在 Minecraft Wiki 中查看"
+    "viewOnWiki": "在 Minecraft Wiki 中查看",
+    "beta": "公测版",
+    "collapse": "折叠",
+    "expand": "展开"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -3235,7 +3238,8 @@
           "title": "删除文件失败"
         }
       }
-    }
+    },
+    "unknownError": "发生未知错误"
   },
   "SettingsLayout": {
     "settingsDomainList": {

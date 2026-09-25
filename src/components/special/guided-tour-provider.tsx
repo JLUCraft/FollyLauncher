@@ -432,9 +432,11 @@ type MaskedOverlayProps = {
 const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
   holeRect,
   cornerRadius = 2,
-  overlayColor = "rgba(0,0,0,0.6)",
+  overlayColor = "overlayStrong",
   transitionMs = 160,
 }) => {
+  // resolves a chakra color token to a raw color; raw values pass through
+  const [resolvedOverlayColor] = useToken("colors", [overlayColor]);
   const radius = holeRect
     ? Math.min(cornerRadius, holeRect.width / 2, holeRect.height / 2)
     : cornerRadius;
@@ -480,7 +482,7 @@ const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
           y="0"
           width="100%"
           height="100%"
-          fill={overlayColor}
+          fill={resolvedOverlayColor}
           mask="url(#tour-hole-mask)"
         />
       </Box>

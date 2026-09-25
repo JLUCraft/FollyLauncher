@@ -267,9 +267,9 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
           </Text>
         </HStack>
         <HStack spacing={2}>
-          {secMenu.map((btn, index) => (
+          {secMenu.map((btn) => (
             <CommonIconButton
-              key={index}
+              key={btn.icon}
               icon={btn.icon}
               onClick={btn.onClick}
               isDisabled={btn.isDisabled}
@@ -318,9 +318,9 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
                 transition="transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
                 gap={0}
               >
-                {slides.map((group, index) => (
+                {slides.map((group) => (
                   <Grid
-                    key={index}
+                    key={group.find((item) => item !== null)?.link ?? "slide"}
                     templateColumns={`repeat(${itemsPerPage}, minmax(0, 1fr))`}
                     gap={2}
                     w={`${pageWidth}%`}
@@ -328,7 +328,7 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
                   >
                     {group.map((item, idx) => (
                       <Box
-                        key={`${index}-${idx}`}
+                        key={item?.link ?? `placeholder-${idx}`}
                         cursor={item?.link ? "pointer" : "default"}
                         p={0.5}
                       >

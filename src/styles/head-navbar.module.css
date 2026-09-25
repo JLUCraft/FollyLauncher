@@ -64,10 +64,6 @@
   background: transparent;
 }
 
-[data-theme="dark"] .tabList {
-  --head-nav-hover-bg: rgba(255, 255, 255, 0.08);
-}
-
 [data-theme="dark"] .tabButton[aria-selected="true"] {
   text-shadow: 0 0 0.35px currentColor;
 }

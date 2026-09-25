@@ -29,7 +29,7 @@ export function responseHandler(serviceDomain: string): MethodDecorator {
           ? t(
               `Services.${serviceDomain}.${String(propertyKey)}.error.description.${String(error)}`,
               {
-                defaultValue: String(error),
+                defaultValue: t("Services.unknownError"),
               }
             )
           : "";

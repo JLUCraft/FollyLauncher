@@ -1,5 +1,6 @@
 import { Box, HStack, IconButton, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronRight } from "react-icons/lu";
 
 export interface TreeNode<T = unknown> {
@@ -72,6 +73,7 @@ const TreeView = <T,>({
   spacing = 1,
   defaultExpandedDepth = 0,
 }: TreeViewProps<T>) => {
+  const { t } = useTranslation();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -106,7 +108,9 @@ const TreeView = <T,>({
         >
           {!isLeaf ? (
             <IconButton
-              aria-label={isExpanded ? "collapse" : "expand"}
+              aria-label={
+                isExpanded ? t("General.collapse") : t("General.expand")
+              }
               icon={isExpanded ? <LuChevronDown /> : <LuChevronRight />}
               size="xs"
               variant="ghost"

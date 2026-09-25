@@ -1281,7 +1281,10 @@
       "test-build": "テストビルド版"
     },
     "versionNumberingHelp": "バージョン番号の説明",
-    "viewOnWiki": "Minecraft Wiki へ"
+    "viewOnWiki": "Minecraft Wiki へ",
+    "beta": "ベータ版",
+    "collapse": "折りたたむ",
+    "expand": "展開する"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -3235,7 +3238,8 @@
           "title": "ファイルの削除に失敗"
         }
       }
-    }
+    },
+    "unknownError": "不明なエラーが発生しました"
   },
   "SettingsLayout": {
     "settingsDomainList": {

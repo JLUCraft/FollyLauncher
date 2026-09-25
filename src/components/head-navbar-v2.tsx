@@ -79,7 +79,7 @@ const HeadNavBar = () => {
   );
   const hoverBg = useColorModeValue(
     `var(--chakra-colors-${primaryColor}-50)`,
-    "rgba(255, 255, 255, 0.08)"
+    "var(--chakra-colors-whiteAlpha-200)"
   );
 
   const navList = useMemo<

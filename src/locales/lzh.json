@@ -1281,7 +1281,10 @@
       "test-build": "測試構建版"
     },
     "versionNumberingHelp": "版本號規則說明",
-    "viewOnWiki": "在 礦藝大典 中覽"
+    "viewOnWiki": "在 礦藝大典 中覽",
+    "beta": "公試版",
+    "collapse": "摺斂",
+    "expand": "展開"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -3235,7 +3238,8 @@
           "title": "刪案未成"
         }
       }
-    }
+    },
+    "unknownError": "遇未知之誤"
   },
   "SettingsLayout": {
     "settingsDomainList": {
