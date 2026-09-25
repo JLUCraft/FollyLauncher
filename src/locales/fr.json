@@ -250,12 +250,8 @@
     "teamDeltas": "Ajustements des scores équipes",
     "deltasPlaceholder": "Une entrée par ligne : nom +/-points",
     "resolve": "Soumettre la révision",
-    "feedback": "Répondre aux demandes",
-    "feedbackSelect": "Demande de membre",
-    "feedbackPlaceholder": "Sélectionnez une demande en attente",
-    "feedbackResponse": "Réponse",
-    "respond": "Envoyer la réponse",
-    "empty": "Rien à traiter pour le moment."
+    "empty": "Rien à traiter pour le moment.",
+    "invalidDeltas": "Certaines lignes sont invalides ou dupliquées. Indiquez un identifiant de membre ou d’équipe suivi d’un entier par ligne."
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "Cette page n'est pas encore disponible, restez à l'écoute."
+  },
+  "ConnectionFlow": {
+    "connecting": "Connexion…",
+    "setup": "Ouvrir les paramètres de connexion",
+    "connectOffice": "Connecter / actualiser l’espace de travail",
+    "officeConnected": "Espace de travail synchronisé",
+    "origin": {
+      "match": "Match",
+      "room": "Salon"
+    },
+    "domains": "La ligue et l’espace de travail ont des historiques signés distincts. Vérifiez chaque empreinte de genèse pour éviter une mauvaise chaîne.",
+    "currentGame": "Connexion de jeu actuelle",
+    "service": "Service : {{service}} · Nœud : {{peer}}",
+    "disconnectFirst": "Déconnectez ce service avant de rejoindre un autre salon ou match.",
+    "defaultSeed": "Utiliser le nœud connecté",
+    "briefFile": "Choisir un document déjà importé"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Java {{param}} fonctionne"
     }
   },
-  "Editable": {
-    "edit": "Éditer",
-    "save": "Enregistrer",
-    "cancel": "Annuler"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "Le chemin d'accès du répertoire n'est pas valide."
       }
     }
+  },
+  "Editable": {
+    "edit": "Éditer",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
   },
   "Empty": {
     "noData": " donnée"
@@ -907,6 +919,21 @@
     "title": "Mettre à jour l'extension",
     "body": "L'extension {{identifier}} a téléchargé la nouvelle version {{version}} depuis {{src}}. Confirmer l'installation ?"
   },
+  "FederationNav": {
+    "title": "Fédération",
+    "overview": "Vue d’ensemble",
+    "league": "Ligue",
+    "rooms": "Salons et serveurs",
+    "identity": "Mon identité",
+    "events": "Événements",
+    "approvals": "Approbations",
+    "files": "Fichiers",
+    "manage": "Gestion des saisons",
+    "connected": "Ligue synchronisée",
+    "restricted": "Connectez-vous en tant qu’administrateur de saison.",
+    "advanced": "Paramètres avancés",
+    "disconnected": "Non connecté"
+  },
   "FederationPage": {
     "title": "Fédération",
     "subtitle": "Connectez-vous à l'union pour parcourir les ligues, créer des équipes, inviter des coéquipiers et vous inscrire.",
@@ -923,13 +950,16 @@
       "title": "Paramètres de connexion",
       "description": "L'adresse de l'union et l'identité d'union sont fournies par l'organisateur",
       "addressLabel": "Adresse de l'union",
-      "peerLabel": "Identité d'union",
+      "peerLabel": "Peer ID du nœud",
+      "genesisLabel": "Empreinte de genèse de la ligue (à confirmer)",
       "connect": "Connecter / Actualiser",
       "myDevice": "Mon appareil : {{id}}",
       "myMember": "Mon numéro de membre : {{id}}",
       "myClub": "({{club}})"
     },
     "error": "Échec de l'opération ; vérifiez la connexion et l'inscription, puis réessayez",
+    "identityRequired": "La connexion exige une identité unifiée. Configurez-la d’abord sur la page d’identité.",
+    "openIdentity": "Ouvrir les paramètres d’identité",
     "empty": {
       "notConnected": "Une fois connecté, les ligues, équipes et classements s'afficheront ici.",
       "noLeagues": "Cette union n'a pas encore de ligue."
@@ -962,6 +992,23 @@
       "start": "Verrouiller & lancer",
       "pause": "Suspendre",
       "resume": "Reprendre"
+    },
+    "identity": {
+      "title": "Identité unifiée des membres",
+      "description": "L’identifiant reste le même après un changement d’appareil. L’adhésion, la présidence et les droits de service sont indépendants.",
+      "configuration": "Configuration de la genèse et de la source d’identité confirmée séparément",
+      "save": "Enregistrer la configuration",
+      "sync": "Synchroniser l’historique",
+      "automatic": "Vérifier via le site de skins",
+      "host": "Préparer la liaison de l’appareil hôte",
+      "loading": "Vérification de l’historique…",
+      "unavailable": "Impossible de confirmer les droits actuels. Vérifiez la configuration et la connexion, puis synchronisez. L’adhésion n’a pas expiré.",
+      "empty": "Aucun historique d’identité vérifié n’est chargé.",
+      "review": "Avant de signer, vérifiez la fédération, l’empreinte précédente, le membre, l’appareil et l’action complète. Réunissez les signatures pour la succession. Ne fusionnez pas les identités par nom.",
+      "proposal": "JSON de l’action ou du document à cosigner",
+      "draft": "Préparer",
+      "sign": "Signer",
+      "submit": "Envoyer"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "Retour",
+    "beta": "Bêta",
     "browse": "Parcourir",
     "cancel": "Annuler",
     "close": "Fermer",
+    "collapse": "Réduire",
     "color": "Couleur",
     "confirm": "Confirmer",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "Éditer",
     "enable": "Activer",
     "exit": "Quitter",
+    "expand": "Développer",
     "finish": "Terminer",
     "import": "Importer",
     "launch": "Démarrer",
@@ -1281,10 +1331,7 @@
       "test-build": "Version de construction de test"
     },
     "versionNumberingHelp": "Aide sur la numérotation des versions",
-    "viewOnWiki": "Voir sur Minecraft Wiki",
-    "beta": "Bêta",
-    "collapse": "Réduire",
-    "expand": "Développer"
+    "viewOnWiki": "Voir sur Minecraft Wiki"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1559,6 +1606,50 @@
       "extensionInfo": "Infos sur l'extension",
       "settings": "Ouvrir les paramètres de l'extension"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "Copier l’identifiant",
+    "copied": "Copié"
+  },
+  "IdentityFlow": {
+    "intro": "Vérifiez votre adhésion et gérez vos appareils associés.",
+    "setup": "Importez la configuration de confiance dans les paramètres avancés.",
+    "sync": "Actualiser l’identité",
+    "automatic": "Vérifier via le site de skins",
+    "host": "Associer l’appareil hôte",
+    "binding": "Associer un appareil ou profil de jeu",
+    "member": "Identifiant du membre",
+    "device": "Identifiant de l’appareil",
+    "club": "Club",
+    "profile": "UUID du profil Minecraft",
+    "unbound": "Non associé",
+    "position": "Vérifié jusqu’à l’enregistrement {{sequence}}",
+    "review": "Vérifier les modifications",
+    "reviewHint": "La signature confirme ces modifications. L’association peut nécessiter les deux appareils ; partagez l’enregistrement dans les paramètres avancés.",
+    "sign": "Confirmer et signer",
+    "submit": "Appliquer les modifications signées",
+    "import": "Importer un enregistrement à cosigner (JSON)",
+    "export": "Exporter l’enregistrement signé (JSON)",
+    "fields": {
+      "federation": "Fédération",
+      "genesis": "Racine de confiance",
+      "sequence": "Numéro du registre",
+      "previous": "Empreinte précédente",
+      "action": "Modification",
+      "signatures": "Signatures",
+      "public_key": "Clé publique",
+      "signature": "Signature",
+      "member": "Membre",
+      "device": "Appareil",
+      "club": "Club",
+      "profile": "Profil de jeu",
+      "evidence": "Preuve de vérification",
+      "verifier": "Vérificateur",
+      "type": "Action"
+    },
+    "before": "Avant",
+    "after": "Après",
+    "unknown": "Actualisez l’identité pour voir l’association actuelle"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "Incompatible avec {{item}}",
     "noVersionSelected": "Version non sélectionnée"
   },
+  "MCVersionNumberHelper": {
+    "content": "À partir de 2026, Minecraft adopte un nouveau système de numérotation des versions. Les numéros de version commenceront par l'année de publication (ex: 26.1), remplaçant l'ancien système de version 1.x.",
+    "linkText": "Lisez l'article officiel.",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "Importer un modpack",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "Veuillez saisir ou sélectionner le chemin du fichier exécutable Java"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "À partir de 2026, Minecraft adopte un nouveau système de numérotation des versions. Les numéros de version commenceront par l'année de publication (ex: 26.1), remplaçant l'ancien système de version 1.x.",
-    "linkText": "Lisez l'article officiel.",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "Gouvernance des membres",
-    "description": "Consultez les propositions, votez et soumettez des demandes",
-    "proposal": "Proposition {{id}} · {{approvals}} clubs ont approuvé · {{status}}",
-    "proposalStatus": {
-      "executed": "Exécutée",
-      "cancelled": "Retirée",
-      "pending": "En attente",
-      "expired": "Expirée"
-    },
-    "votes": "{{count}} votes",
-    "closesAt": "Clôture {{time}}",
-    "noBallots": "Aucun vote de membre",
-    "defaultCategory": "Ligue",
-    "categoryLabel": "Catégorie de la demande",
-    "bodyLabel": "Demande ou suggestion",
-    "submit": "Soumettre",
-    "feedbackEntry": "{{category}} : {{text}}",
-    "awaitingResponse": "En attente de réponse",
-    "proposalId": "Proposition {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} clubs ont approuvé",
-    "approve": "Approuver",
-    "execute": "Exécuter",
-    "cancel": "Retirer",
-    "feedbackReplied": "Répondu",
-    "feedbackPending": "En attente de réponse",
-    "feedbackResponse": "Réponse : {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "État de la mémoire",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "Nouvelle version détectée"
+  },
+  "Office": {
+    "connection": "Connexion à l’espace de travail",
+    "genesis": "Empreinte de genèse du travail",
+    "connectionHint": "Utilise le nœud ci-dessus, avec une empreinte de genèse propre à cette chaîne.",
+    "setup": "Configurez la connexion dans la vue d’ensemble.",
+    "refresh": "Actualiser",
+    "error": "Échec de lecture ou d’exécution. Vérifiez la connexion et vos droits.",
+    "uncertain": "Résultat non confirmé. Actualisez avant de réessayer pour éviter un doublon.",
+    "initial": "Actualisez pour charger la chaîne.",
+    "empty": "Aucun enregistrement.",
+    "create": "Créer un événement",
+    "title": "Titre de l’événement",
+    "brief": "CID ou SHA-256 du document",
+    "opens": "Ouverture des inscriptions",
+    "closes": "Clôture des inscriptions",
+    "starts": "Début de l’événement",
+    "submit": "Soumettre à révision",
+    "publish": "Publier",
+    "finish": "Terminer l’événement",
+    "signup": "S’inscrire",
+    "cancelSignup": "Annuler l’inscription",
+    "cancelEvent": "Annuler l’événement",
+    "template": "Circuit d’approbation",
+    "requestApproval": "Lancer l’approbation",
+    "signups": "Inscriptions : {{count}}",
+    "tasks": "Tâches",
+    "assignee": "Membre responsable",
+    "assign": "Attribuer",
+    "complete": "Marquer terminée",
+    "taskTitle": "Titre de la tâche",
+    "addTask": "Ajouter une tâche",
+    "pending": "En attente uniquement",
+    "proposer": "Demandeur",
+    "event": "Identifiant de l’événement",
+    "aiResult": "Résultat de l’étape IA",
+    "comment": "Commentaire / motif de refus",
+    "commentHint": "Seule l’empreinte SHA-256 est enregistrée. Conservez le texte original.",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "poke": "Vérifier l’échéance et avancer",
+    "delegate": "Déléguer",
+    "execute": "Exécuter l’action approuvée",
+    "fileLimits": "{{bytes}} octets par fichier, {{paths}} chemins par commit de répertoire.",
+    "branch": "Branche du répertoire",
+    "chooseBranch": "Choisir une branche existante",
+    "message": "Description de la modification",
+    "path": "Chemin du fichier",
+    "upload": "Importer un fichier",
+    "tooLarge": "Le fichier dépasse la limite.",
+    "history": "Historique des versions",
+    "searchFiles": "Rechercher un chemin",
+    "download": "Télécharger",
+    "restore": "Restaurer en nouvelle version",
+    "status": {
+      "draft": "Brouillon",
+      "review": "En révision",
+      "approved": "Approuvé",
+      "open": "Ouvert",
+      "done": "Terminé",
+      "cancelled": "Annulé",
+      "active": "En cours",
+      "executed": "Exécuté",
+      "rejected": "Refusé"
+    },
+    "checkin": "Pointer sa présence",
+    "checkedIn": "Présence confirmée",
+    "aiNeedsFile": "Un circuit IA nécessite un document importé. Utilisez son CID comme document de l’événement."
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "Veuillez éditer le fichier de configuration original du lanceur avec précaution. Un format incorrect peut entraîner la perte des paramètres existants ou un dysfonctionnement du lanceur"
+  },
+  "RoomSearch": {
+    "search": "Rechercher un salon, club ou une version",
+    "school": "Établissement / club",
+    "all": "Tous les établissements / clubs",
+    "selected": "Sélectionné",
+    "noMatches": "Aucun salon correspondant."
+  },
+  "Rooms": {
+    "manualHint": "Configurez d’abord l’identité unifiée. La présidence peut confirmer les membres et leur profil de jeu par signature même si tous les sites de skins sont hors ligne. L’adhésion reste valide jusqu’à sa révocation explicite.",
+    "showIdentities": "Afficher les identifiants à signer",
+    "hostIdentity": "Identifiant de l’appareil hôte",
+    "playerIdentity": "Identifiant de l’appareil participant",
+    "title": "Salons et serveurs",
+    "description": "Hébergez une salle ou rejoignez d’autres clubs avec votre identité de membre vérifiée.",
+    "seeds": "Nœuds de découverte (une adresse par ligne)",
+    "refresh": "Actualiser les salons et leur état",
+    "partial": "Certains nœuds ou salons sont indisponibles. Cette liste peut être incomplète.",
+    "seedsChanged": "Les nœuds de découverte ont changé depuis la dernière recherche. Actualisez pour découvrir les salons sur les nouveaux nœuds.",
+    "empty": "Aucun salon accessible trouvé.",
+    "initial": "Actualisez pour découvrir les salons.",
+    "choose": "Choisir un salon",
+    "option": "{{name}} · {{school}} · {{version}} · {{max}} joueurs maximum",
+    "join": "Rejoindre",
+    "disconnect": "Déconnecter",
+    "connected": "Connecté à {{address}}. Lancez Minecraft avec le profil de jeu lié à votre identité de membre.",
+    "host": "Créer votre salon",
+    "configuration": "Configuration du serveur local",
+    "pick": "Choisir un fichier de configuration",
+    "relays": "Nœuds relais (une adresse par ligne)",
+    "hostHint": "Utilise la configuration et les ressources locales de minecraftd. Le serveur doit écouter sur la boucle locale. Ajoutez un relais si l’accès direct est impossible.",
+    "start": "Ouvrir le salon",
+    "stop": "Fermer le salon",
+    "hosting": "Hébergement de {{name}}",
+    "error": "L’opération a échoué. Vérifiez l’identité unifiée, la configuration du serveur et les routes réseau."
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "Une erreur inconnue s'est produite",
     "utils": {
       "deleteFile": {
         "success": "Fichier supprimé avec succès",
@@ -3238,8 +3405,7 @@
           "title": "Échec de la suppression du fichier"
         }
       }
-    },
-    "unknownError": "Une erreur inconnue s'est produite"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {

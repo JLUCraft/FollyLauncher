@@ -250,12 +250,8 @@
     "teamDeltas": "チームスコア調整",
     "deltasPlaceholder": "1行につき1件：名前 増減点",
     "resolve": "再審査を送信",
-    "feedback": "申請への返答",
-    "feedbackSelect": "メンバーの申請",
-    "feedbackPlaceholder": "未返答の申請を選択",
-    "feedbackResponse": "返答内容",
-    "respond": "返答を送信",
-    "empty": "現在対応すべき事項はありません。"
+    "empty": "現在対応すべき事項はありません。",
+    "invalidDeltas": "スコア行が無効、または重複しています。各行にメンバーまたはチームIDと整数を入力してください。"
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "このページは今準備中で、しばらくお待ちしてください。"
+  },
+  "ConnectionFlow": {
+    "connecting": "接続中…",
+    "setup": "接続設定を開く",
+    "connectOffice": "オフィスに接続・更新",
+    "officeConnected": "オフィス同期済み",
+    "origin": {
+      "match": "試合",
+      "room": "ルーム"
+    },
+    "domains": "リーグとオフィスは署名履歴が別です。誤ったチェーンへの接続を防ぐため、それぞれの初期ハッシュを確認してください。",
+    "currentGame": "現在のゲーム接続",
+    "service": "サービス：{{service}} · ノード：{{peer}}",
+    "disconnectFirst": "別のルームや試合に参加する前に、現在の接続を切断してください。",
+    "defaultSeed": "接続済みノードを使用",
+    "briefFile": "アップロード済みの企画ファイルを選択"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Java {{param}} ランタイム"
     }
   },
-  "Editable": {
-    "edit": "編集",
-    "save": "保存",
-    "cancel": "キャンセル"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "ディレクトリパスが無効"
       }
     }
+  },
+  "Editable": {
+    "edit": "編集",
+    "save": "保存",
+    "cancel": "キャンセル"
   },
   "Empty": {
     "noData": "データなし"
@@ -907,8 +919,23 @@
     "title": "拡張機能を更新",
     "body": "拡張機能 {{identifier}} は {{src}} から新しいバージョン {{version}} をダウンロードしました。インストールを確認しますか？"
   },
+  "FederationNav": {
+    "title": "連盟",
+    "overview": "概要",
+    "league": "リーグ",
+    "rooms": "ルームとサーバー",
+    "identity": "自分の身元",
+    "events": "イベント",
+    "approvals": "承認",
+    "files": "ファイル",
+    "manage": "シーズン管理",
+    "connected": "リーグ同期済み",
+    "restricted": "管理者として接続するとシーズンを管理できます。",
+    "advanced": "詳細設定",
+    "disconnected": "未接続"
+  },
   "FederationPage": {
-    "title": "リーグ",
+    "title": "連盟",
     "subtitle": "ユニオンに接続してリーグを確認し、チームを作成、仲間を招待してエントリーしましょう。",
     "gameConnection": {
       "title": "マッチ接続",
@@ -923,13 +950,16 @@
       "title": "接続設定",
       "description": "ユニオン接続アドレスとユニオンIDは主催者から提供されます",
       "addressLabel": "ユニオン接続アドレス",
-      "peerLabel": "ユニオンID",
+      "peerLabel": "ノード Peer ID",
+      "genesisLabel": "リーグ初期ハッシュ（主催者に確認）",
       "connect": "接続 / 更新",
       "myDevice": "自分のデバイス：{{id}}",
       "myMember": "自分のメンバー番号：{{id}}",
       "myClub": "（{{club}}）"
     },
     "error": "操作が完了しませんでした。接続とエントリーの状態を確認して再試行してください",
+    "identityRequired": "接続には統一メンバーIDが必要です。先にIDページで設定してください。",
+    "openIdentity": "ID設定を開く",
     "empty": {
       "notConnected": "接続設定を完了すると、リーグ一覧、チーム、スコアボードが表示されます。",
       "noLeagues": "このユニオンにはまだリーグがありません。"
@@ -962,6 +992,23 @@
       "start": "エントリーを締めて開始",
       "pause": "一時停止",
       "resume": "再開"
+    },
+    "identity": {
+      "title": "統一メンバーID",
+      "description": "メンバーIDは端末が変わっても維持されます。所属、代表職、サービス権限はそれぞれ独立しています。",
+      "configuration": "別経路で確認済みの創世リストとID同期元の設定",
+      "save": "設定を保存",
+      "sync": "ID履歴を同期",
+      "automatic": "スキンサイトで確認",
+      "host": "ホスト端末の登録を準備",
+      "loading": "ID履歴を検証中…",
+      "unavailable": "現在の権限を確認できません。設定と接続を確認して同期してください。メンバー資格が失効したわけではありません。",
+      "empty": "検証済みのID履歴は未読込です。",
+      "review": "署名前に連合、直前のダイジェスト、メンバー、端末、操作全体を確認してください。代表交代には署名を集めます。名前だけでIDを統合しないでください。",
+      "proposal": "操作または共同署名レコードのJSON",
+      "draft": "下書き",
+      "sign": "署名",
+      "submit": "送信"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "戻る",
+    "beta": "ベータ版",
     "browse": "参照",
     "cancel": "キャンセル",
     "close": "閉じる",
+    "collapse": "折りたたむ",
     "color": "色",
     "confirm": "OK",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "編集",
     "enable": "有効化",
     "exit": "終了",
+    "expand": "展開する",
     "finish": "完了",
     "import": "インポート",
     "launch": "起動",
@@ -1281,10 +1331,7 @@
       "test-build": "テストビルド版"
     },
     "versionNumberingHelp": "バージョン番号の説明",
-    "viewOnWiki": "Minecraft Wiki へ",
-    "beta": "ベータ版",
-    "collapse": "折りたたむ",
-    "expand": "展開する"
+    "viewOnWiki": "Minecraft Wiki へ"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1495,7 +1542,7 @@
       "launch": "起動",
       "instances": "ゲーム",
       "accounts": "アカウント",
-      "federation": "リーグ",
+      "federation": "連盟",
       "discover": "ディスカバー",
       "search": "メタサーチ",
       "settings": "設定"
@@ -1559,6 +1606,50 @@
       "extensionInfo": "拡張機能情報",
       "settings": "拡張機能の設定を開く"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "識別子をコピー",
+    "copied": "コピー済み"
+  },
+  "IdentityFlow": {
+    "intro": "メンバー資格と紐付けられた端末を管理します。",
+    "setup": "詳細設定で連盟の信頼設定を読み込んでください。",
+    "sync": "身元を更新",
+    "automatic": "スキンサイトで認証",
+    "host": "ホスト端末を紐付け",
+    "binding": "端末・ゲームプロフィールの紐付け",
+    "member": "メンバー ID",
+    "device": "端末 ID",
+    "club": "クラブ",
+    "profile": "Minecraft プロフィール UUID",
+    "unbound": "未連携",
+    "position": "記録 {{sequence}} まで検証済み",
+    "review": "変更を確認",
+    "reviewHint": "署名は以下の変更を確認します。端末の紐付けには両端末の署名が必要な場合があります。詳細設定で記録を共有できます。",
+    "sign": "確認して署名",
+    "submit": "署名済み変更を適用",
+    "import": "共同署名用の記録を読み込む（JSON）",
+    "export": "署名済み記録の書き出し（JSON）",
+    "fields": {
+      "federation": "連盟",
+      "genesis": "信頼の起点",
+      "sequence": "記録番号",
+      "previous": "直前のハッシュ",
+      "action": "変更",
+      "signatures": "署名",
+      "public_key": "公開鍵",
+      "signature": "署名",
+      "member": "メンバー",
+      "device": "端末",
+      "club": "クラブ",
+      "profile": "ゲームプロフィール",
+      "evidence": "検証の根拠",
+      "verifier": "検証者",
+      "type": "操作"
+    },
+    "before": "変更前",
+    "after": "変更後",
+    "unknown": "身元を更新すると現在の紐付けを確認できます"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "{{item}} に非互換",
     "noVersionSelected": "バージョンを選択していない"
   },
+  "MCVersionNumberHelper": {
+    "content": "2026年より、Minecraftのバージョン番号は新しい命名規則を採用します。従来の1.x形式に代わり、西暦の下2桁をバージョン番号の先頭に配置します（例: 26.1）。",
+    "linkText": "公式ドキュメントを読む",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "モッドパックをインポート",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "Java 実行ファイルのパスを入力または選択してください"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "2026年より、Minecraftのバージョン番号は新しい命名規則を採用します。従来の1.x形式に代わり、西暦の下2桁をバージョン番号の先頭に配置します（例: 26.1）。",
-    "linkText": "公式ドキュメントを読む",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "メンバー議決",
-    "description": "提案の確認、投票、申請の提出ができます",
-    "proposal": "提案 {{id}} ・ {{approvals}} クラブが同意 ・ {{status}}",
-    "proposalStatus": {
-      "executed": "実行済み",
-      "cancelled": "撤回",
-      "pending": "保留",
-      "expired": "期限切れ"
-    },
-    "votes": "{{count}} 票",
-    "closesAt": "締切 {{time}}",
-    "noBallots": "メンバー投票はありません",
-    "defaultCategory": "リーグ",
-    "categoryLabel": "申請カテゴリ",
-    "bodyLabel": "申請または提案",
-    "submit": "送信",
-    "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "返答待ち",
-    "proposalId": "提案 {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} クラブが同意",
-    "approve": "同意",
-    "execute": "実行",
-    "cancel": "撤回",
-    "feedbackReplied": "返答済み",
-    "feedbackPending": "返答待ち",
-    "feedbackResponse": "返答：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "メモリ状況",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "新しいバージョンが利用可能"
+  },
+  "Office": {
+    "connection": "オフィス接続",
+    "genesis": "オフィスチェーンの初期ハッシュ",
+    "connectionHint": "上記のノードを使用します。オフィスチェーンには専用の初期ハッシュが必要です。",
+    "setup": "概要でオフィス接続を設定してください。",
+    "refresh": "更新",
+    "error": "取得または実行できません。接続と権限をご確認ください。",
+    "uncertain": "結果を確認できません。重複送信を避けるため、再試行の前に更新してください。",
+    "initial": "更新してオフィスチェーンを読み込みます。",
+    "empty": "記録はありません。",
+    "create": "イベントを作成",
+    "title": "イベント名",
+    "brief": "企画ファイルの CID または SHA-256",
+    "opens": "受付開始",
+    "closes": "受付終了",
+    "starts": "開催日時",
+    "submit": "審査に提出",
+    "publish": "公開",
+    "finish": "イベントを終了",
+    "signup": "参加登録",
+    "cancelSignup": "登録を取り消す",
+    "cancelEvent": "イベントを中止",
+    "template": "承認フロー",
+    "requestApproval": "承認を開始",
+    "signups": "登録者：{{count}}",
+    "tasks": "タスク",
+    "assignee": "担当メンバー",
+    "assign": "割り当て",
+    "complete": "完了にする",
+    "taskTitle": "タスク名",
+    "addTask": "タスクを追加",
+    "pending": "未処理のみ",
+    "proposer": "申請者",
+    "event": "イベント ID",
+    "aiResult": "AI ステージの結果",
+    "comment": "承認コメント・却下理由",
+    "commentHint": "記録されるのは SHA-256 のみです。原文は保管してください。",
+    "approve": "承認",
+    "reject": "却下",
+    "poke": "期限を確認して進行",
+    "delegate": "委任",
+    "execute": "承認済み操作を実行",
+    "fileLimits": "ファイルは {{bytes}} バイトまで、ディレクトリは {{paths}} パスまでです。",
+    "branch": "ディレクトリブランチ",
+    "chooseBranch": "既存ブランチを選択",
+    "message": "変更の説明",
+    "path": "ファイルパス",
+    "upload": "ファイルをアップロード",
+    "tooLarge": "サイズ制限を超えています。",
+    "history": "変更履歴",
+    "searchFiles": "ファイルパスを検索",
+    "download": "ダウンロード",
+    "restore": "新しい版として復元",
+    "status": {
+      "draft": "下書き",
+      "review": "審査中",
+      "approved": "承認済み",
+      "open": "公開中",
+      "done": "完了",
+      "cancelled": "中止",
+      "active": "進行中",
+      "executed": "実行済み",
+      "rejected": "却下済み"
+    },
+    "checkin": "チェックイン",
+    "checkedIn": "チェックイン済み",
+    "aiNeedsFile": "AI 承認にはアップロード済みの企画ファイルが必要です。ファイルの CID を企画に指定してください。"
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "原始設定ファイルの編集には注意してください。誤った形式は既存の設定が失われたり、ランチャーが正常に動作しなくなる可能性があります"
+  },
+  "RoomSearch": {
+    "search": "ルーム・クラブ・バージョンを検索",
+    "school": "学校・クラブ",
+    "all": "すべての学校・クラブ",
+    "selected": "選択済み",
+    "noMatches": "一致するルームはありません。"
+  },
+  "Rooms": {
+    "manualHint": "先に統一IDを設定してください。すべてのスキンサイトが停止しても、代表者は手動署名でメンバーとゲームIDを確認できます。資格は明示的に取り消されるまで有効です。",
+    "showIdentities": "署名用のデバイス ID を表示",
+    "hostIdentity": "ホスト用デバイス ID",
+    "playerIdentity": "参加用デバイス ID",
+    "title": "ルームとサーバー",
+    "description": "確認済みのメンバーIDで部屋を開いたり、他団体の部屋に参加できます。",
+    "seeds": "探索ノード（1 行に 1 アドレス）",
+    "refresh": "ルームと状態を更新",
+    "partial": "一部のノードやルームに接続できません。一覧が不完全な場合があります。",
+    "seedsChanged": "検索ノードが前回の検索から変更されました。新しいノードでルームを検索するには更新してください。",
+    "empty": "接続可能なルームがありません。",
+    "initial": "更新してルームを探索してください。",
+    "choose": "ルームを選択",
+    "option": "{{name}} · {{school}} · {{version}} · 最大 {{max}} 人",
+    "join": "参加",
+    "disconnect": "切断",
+    "connected": "{{address}} に接続しました。メンバーIDに登録したゲームプロフィールで Minecraft を起動してください。",
+    "host": "自分のルームを作成",
+    "configuration": "ローカルサーバー設定",
+    "pick": "設定ファイルを選択",
+    "relays": "リレーノード（1 行に 1 アドレス）",
+    "hostHint": "ローカルの minecraftd 設定とリソースを使用します。サーバーはループバックで待ち受ける必要があります。直接接続できない場合はリレーを設定してください。",
+    "start": "ルームを開始",
+    "stop": "ルームを閉じる",
+    "hosting": "{{name}} をホスト中",
+    "error": "部屋の操作に失敗しました。統一ID、サーバー設定、接続経路を確認してください。"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "不明なエラーが発生しました",
     "utils": {
       "deleteFile": {
         "success": "ファイルの削除に成功",
@@ -3238,8 +3405,7 @@
           "title": "ファイルの削除に失敗"
         }
       }
-    },
-    "unknownError": "不明なエラーが発生しました"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {

@@ -16,21 +16,11 @@ import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { UnionState } from "@/services/union";
+import { parseDeltas } from "@/utils/federation/score-deltas";
 
-// Parse per-line "name delta" entries (whitespace separated, delta last)
-// into a score delta map, skipping blank and invalid lines.
-function parseDeltas(input: string): Record<string, number> {
-  const deltas: Record<string, number> = {};
-  for (const line of input.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const parts = trimmed.split(/\s+/);
-    const delta = Number(parts[parts.length - 1]);
-    const name = parts.slice(0, -1).join(" ");
-    if (name && Number.isFinite(delta)) deltas[name] = delta;
-  }
-  return deltas;
-}
+const MAX_IDENTIFIER_LENGTH = 128;
+const MAX_TITLE_LENGTH = 256;
+const MAX_REVIEW_LENGTH = 4096;
 
 export function AdminConsole({
   state,
@@ -54,18 +44,15 @@ export function AdminConsole({
     [reviewId, setReviewId] = useState(""),
     [reviewResponse, setReviewResponse] = useState(""),
     [playerDeltas, setPlayerDeltas] = useState(""),
-    [teamDeltas, setTeamDeltas] = useState(""),
-    [feedbackId, setFeedbackId] = useState(""),
-    [feedbackResponse, setFeedbackResponse] = useState("");
+    [teamDeltas, setTeamDeltas] = useState("");
 
+  const invalidDeltas =
+    parseDeltas(playerDeltas) === null || parseDeltas(teamDeltas) === null;
   const seasonLeagues = scheduleSeason
     ? (state.seasons?.[scheduleSeason]?.leagues ?? [])
     : [];
   const pendingDisputes = Object.entries(state.disputes ?? {}).filter(
     ([, d]) => !d.resolution
-  );
-  const pendingFeedback = Object.entries(state.feedback ?? {}).filter(
-    ([, f]) => !f.response
   );
 
   const toMs = (value: string) =>
@@ -92,7 +79,7 @@ export function AdminConsole({
                 <Input
                   id="season-id"
                   value={seasonId}
-                  maxLength={128}
+                  maxLength={MAX_IDENTIFIER_LENGTH}
                   onChange={(e) => setSeasonId(e.target.value)}
                 />
               </FormControl>
@@ -103,7 +90,7 @@ export function AdminConsole({
                 <Input
                   id="season-title"
                   value={seasonTitle}
-                  maxLength={256}
+                  maxLength={MAX_TITLE_LENGTH}
                   onChange={(e) => setSeasonTitle(e.target.value)}
                 />
               </FormControl>
@@ -255,7 +242,7 @@ export function AdminConsole({
                     <Textarea
                       id="review-response"
                       value={reviewResponse}
-                      maxLength={4096}
+                      maxLength={MAX_REVIEW_LENGTH}
                       onChange={(e) => setReviewResponse(e.target.value)}
                     />
                   </FormControl>
@@ -281,13 +268,17 @@ export function AdminConsole({
                       onChange={(e) => setTeamDeltas(e.target.value)}
                     />
                   </FormControl>
+                  {invalidDeltas && (
+                    <Text role="alert">{t("AdminConsole.invalidDeltas")}</Text>
+                  )}
                   <Button
                     alignSelf="flex-start"
                     colorScheme={primaryColor}
-                    isDisabled={busy || !reviewResponse.trim()}
+                    isDisabled={busy || !reviewResponse.trim() || invalidDeltas}
                     onClick={() => {
                       const players = parseDeltas(playerDeltas);
                       const teams = parseDeltas(teamDeltas);
+                      if (!players || !teams) return;
                       void request({
                         type: "resolve_dispute",
                         id: reviewId,
@@ -311,73 +302,8 @@ export function AdminConsole({
           </Box>
         )}
 
-        {!!pendingFeedback.length && (
-          <Box borderWidth="1px" borderRadius="md" p={3}>
-            <VStack align="stretch" spacing={3}>
-              <Text fontWeight="semibold" fontSize="sm">
-                {t("AdminConsole.feedback")}
-              </Text>
-              <FormControl>
-                <FormLabel htmlFor="feedback-select">
-                  {t("AdminConsole.feedbackSelect")}
-                </FormLabel>
-                <Select
-                  id="feedback-select"
-                  value={feedbackId}
-                  onChange={(e) => setFeedbackId(e.target.value)}
-                  placeholder={t("AdminConsole.feedbackPlaceholder")}
-                >
-                  {pendingFeedback.map(([id, f]) => (
-                    <option key={id} value={id}>
-                      {f.member} · {f.category}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-              {feedbackId && (
-                <>
-                  <Text fontSize="sm" className="secondary-text">
-                    {
-                      pendingFeedback.find(([id]) => id === feedbackId)?.[1]
-                        .text
-                    }
-                  </Text>
-                  <FormControl>
-                    <FormLabel htmlFor="feedback-response">
-                      {t("AdminConsole.feedbackResponse")}
-                    </FormLabel>
-                    <Textarea
-                      id="feedback-response"
-                      value={feedbackResponse}
-                      maxLength={4096}
-                      onChange={(e) => setFeedbackResponse(e.target.value)}
-                    />
-                  </FormControl>
-                  <Button
-                    alignSelf="flex-start"
-                    colorScheme={primaryColor}
-                    isDisabled={busy || !feedbackResponse.trim()}
-                    onClick={() => {
-                      void request({
-                        type: "respond_feedback",
-                        id: feedbackId,
-                        text: feedbackResponse.trim(),
-                      });
-                      setFeedbackId("");
-                      setFeedbackResponse("");
-                    }}
-                  >
-                    {t("AdminConsole.respond")}
-                  </Button>
-                </>
-              )}
-            </VStack>
-          </Box>
-        )}
-
         {!Object.keys(state.seasons ?? {}).length &&
-          !pendingDisputes.length &&
-          !pendingFeedback.length && (
+          !pendingDisputes.length && (
             <>
               <Divider />
               <Text fontSize="sm" className="secondary-text">

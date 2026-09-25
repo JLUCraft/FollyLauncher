@@ -88,13 +88,28 @@ pub async fn run() {
     let builder = builder.plugin(tauri_plugin_decorum::init());
 
     builder
+      .manage(minecraftd::process::client::ClientProcesses::default())
       .manage(union::ProxyState::default())
+      .manage(union::rooms::RoomState::default())
       .invoke_handler(tauri::generate_handler![
+        union::rooms::union_rooms,
+        union::rooms::union_room_host,
+        union::rooms::union_room_identity,
+        union::rooms::union_room_stop,
+        union::rooms::union_room_status,
         union::union_identity,
+        union::trust::union_identity_configuration,
+        union::trust::union_identity_action,
+        union::trust::union_bind_host_device,
+        union::trust::union_automated_identity,
         union::union_proxy_start,
         union::union_proxy_stop,
         union::union_proxy_status,
         union::union_governance,
+        union::office::union_office_snapshot,
+        union::office::union_office_action,
+        union::office::union_office_upload,
+        union::office::union_office_fetch,
         launcher_config::commands::retrieve_launcher_config,
         launcher_config::commands::update_launcher_config,
         launcher_config::commands::reset_launcher_config,
@@ -406,6 +421,25 @@ pub async fn run() {
               {
                 open_modpack_deeplink(app_handle, path_str);
               }
+            }
+          }
+          tauri::RunEvent::ExitRequested { api, .. } => {
+            if !app_handle
+              .state::<union::rooms::RoomState>()
+              .1
+              .swap(true, std::sync::atomic::Ordering::SeqCst)
+            {
+              api.prevent_exit();
+              let app = app_handle.clone();
+              tauri::async_runtime::spawn(async move {
+                let room = app.state::<union::rooms::RoomState>().0.lock().await.take();
+                if let Some(room) = room
+                  && let Err(error) = room.stop().await
+                {
+                  log::error!("Room cleanup failed: {error}");
+                }
+                app.exit(0);
+              });
             }
           }
           // set normal exit flag.

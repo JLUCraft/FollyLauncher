@@ -14,7 +14,8 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
-import { useLauncherConfig } from "@/contexts/config";
+import { leaguePhaseLabel } from "@/components/federation/league-phase";
+import { Scoreboard } from "@/components/federation/scoreboard";
 import { UnionState } from "@/services/union";
 
 export function SeasonPanel({
@@ -29,24 +30,8 @@ export function SeasonPanel({
   request: (action: Record<string, unknown>) => Promise<void>;
 }) {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
   const [league, setLeague] = useState(""),
     [reason, setReason] = useState("");
-  // Mirrors union_core::season::season_rankings: only finished leagues count.
-  const rankings = (ids: string[], kind: "team_scores" | "player_scores") => {
-    const sums = new Map<string, number>();
-    ids.forEach((id) => {
-      const match = state.leagues[id];
-      if (match?.phase === "Finished")
-        Object.entries(match[kind]).forEach(([name, score]) =>
-          sums.set(name, (sums.get(name) ?? 0) + score)
-        );
-    });
-    return Array.from(sums).sort(
-      (a, b) => b[1] - a[1] || a[0].localeCompare(b[0])
-    );
-  };
   const eligible = Object.entries(state.leagues).filter(
     ([, l]) =>
       l.phase === "Finished" &&
@@ -85,47 +70,33 @@ export function SeasonPanel({
                       ? new Date(l.schedule.starts_ms).toLocaleString()
                       : t("SeasonPanel.pendingSchedule")}{" "}
                     ·{" "}
-                    {l?.phase === "Finished"
-                      ? t("FederationPage.phase.Finished")
-                      : l?.phase === "Playing"
-                        ? l.manual_pause
-                          ? t("SeasonPanel.paused")
-                          : t("FederationPage.phase.Playing")
-                        : t("FederationPage.phase.Registration")}
+                    {leaguePhaseLabel(
+                      t,
+                      l?.phase ?? "Registration",
+                      l?.manual_pause
+                    )}
                   </Text>
                 );
               })}
             </VStack>
             {(["team_scores", "player_scores"] as const).map((kind) => (
-              <VStack key={kind} align="stretch" mt={3} spacing={1}>
-                <Text fontSize="sm" fontWeight="semibold">
-                  {kind === "team_scores"
-                    ? t("FederationPage.league.teamScoreboard")
-                    : t("FederationPage.league.playerScoreboard")}
-                </Text>
-                {rankings(s.leagues, kind).map(([name, score], index) => (
-                  <HStack key={name} fontSize="sm" spacing={2}>
-                    {index < 3 ? (
-                      <Badge colorScheme={index === 0 ? primaryColor : "gray"}>
-                        {index + 1}
-                      </Badge>
-                    ) : (
-                      <Text w="2em" className="secondary-text">
-                        {index + 1}
-                      </Text>
-                    )}
-                    <Text>{name}</Text>
-                    <Text ml="auto" className="secondary-text">
-                      {score}
-                    </Text>
-                  </HStack>
-                ))}
-                {!rankings(s.leagues, kind).length && (
-                  <Text fontSize="xs" className="secondary-text">
-                    {t("SeasonPanel.noRecords")}
-                  </Text>
-                )}
-              </VStack>
+              <Box key={kind} mt={3}>
+                <Scoreboard
+                  title={t(
+                    kind === "team_scores"
+                      ? "FederationPage.league.teamScoreboard"
+                      : "FederationPage.league.playerScoreboard"
+                  )}
+                  entries={
+                    state.season_rankings?.[id]?.[
+                      kind === "team_scores" ? "teams" : "players"
+                    ] ?? []
+                  }
+                  emptyText={t("SeasonPanel.noRecords")}
+                  rankVariant="badge"
+                  compact
+                />
+              </Box>
             ))}
           </Box>
         ))}

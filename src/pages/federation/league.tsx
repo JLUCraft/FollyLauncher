@@ -11,167 +11,55 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { brand } from "@/brand";
 import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
-import { AdminConsole } from "@/components/federation/admin-console";
-import { MemberGovernance } from "@/components/federation/member-governance";
+import { ConnectionRequired } from "@/components/federation/connection-required";
+import { CurrentGameConnection } from "@/components/federation/current-game-connection";
+import {
+  LEAGUE_PHASE_COLOR_SCHEME,
+  leaguePhaseLabel,
+} from "@/components/federation/league-phase";
+import { Scoreboard } from "@/components/federation/scoreboard";
 import { SeasonPanel } from "@/components/federation/season-panel";
 import { useLauncherConfig } from "@/contexts/config";
-import { useDeepLink } from "@/hooks/deep-link";
-import { UnionService, UnionState } from "@/services/union";
+import { useFederation, useLeagueRequest } from "@/contexts/federation";
+import { useGameConnection } from "@/contexts/game-connection";
+import { UnionService } from "@/services/union";
 
-const Scoreboard = ({
-  title,
-  scores,
-  emptyText,
-}: {
-  title: string;
-  scores: Record<string, number>;
-  emptyText: string;
-}) => {
+export default function LeaguePage() {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  return (
-    <Box>
-      <Text fontWeight="bold" fontSize="sm" mb={2}>
-        {title}
-      </Text>
-      {Object.keys(scores).length === 0 ? (
-        <Text fontSize="sm" className="secondary-text">
-          {emptyText}
-        </Text>
-      ) : (
-        <VStack spacing={1} align="stretch">
-          {Object.entries(scores)
-            .sort((a, b) => b[1] - a[1])
-            .map(([id, score], index) => (
-              <Flex key={id} fontSize="sm" align="center">
-                <Text
-                  w={8}
-                  flexShrink={0}
-                  fontWeight={index < 3 ? "bold" : "normal"}
-                  color={index < 3 ? `${primaryColor}.500` : "gray.500"}
-                >
-                  {index + 1}
-                </Text>
-                <Text flex="1" overflowWrap="anywhere">
-                  {id}
-                </Text>
-                <Text fontWeight="medium" flexShrink={0}>
-                  {t("FederationPage.league.points", { score })}
-                </Text>
-              </Flex>
-            ))}
-        </VStack>
-      )}
-    </Box>
-  );
-};
-
-export default function FederationPage() {
-  const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
-  const [gameLink, setGameLink] = useState("");
-  const [gameAddress, setGameAddress] = useState<string | null>(null);
-  const [gameBusy, setGameBusy] = useState(false);
-  useDeepLink({
-    trigger: (subpath) => subpath.startsWith("connect"),
-    onCall: (url) => setGameLink(url),
-  });
-  useEffect(() => {
-    let active = true;
-    const refresh = () => {
-      void UnionService.gameConnection()
-        .then((value) => {
-          if (active) setGameAddress(value);
-        })
-        .catch(() => {});
-    };
-    refresh();
-    const timer = setInterval(refresh, 3000);
-    return () => {
-      active = false;
-      clearInterval(timer);
-    };
-  }, []);
+  const {
+    gameLink,
+    setGameLink,
+    connection,
+    busy: gameBusy,
+    connect,
+  } = useGameConnection();
+  const [gameError, setGameError] = useState(false);
+  const { state, identity, member } = useFederation();
+  const { busy, error, handleRequest } = useLeagueRequest();
   const handleGameConnection = async () => {
-    setGameBusy(true);
-    setError("");
+    setGameError(false);
     try {
-      if (gameAddress) {
-        await UnionService.disconnectGame();
-        setGameAddress(null);
-      } else {
-        setGameAddress(await UnionService.connectGame(gameLink));
-      }
-    } catch {
-      setError(t("FederationPage.gameConnection.error"));
-    } finally {
-      setGameBusy(false);
-    }
-  };
-  const [address, setAddress] = useState(brand.federation.defaultAddress);
-  const [peer, setPeer] = useState(brand.federation.defaultPeer);
-  const [identity, setIdentity] = useState("");
-  const [state, setState] = useState<UnionState>();
-  const [teamName, setTeamName] = useState("");
-  const [invitee, setInvitee] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const handleRequest = async (action?: Record<string, unknown>) => {
-    setBusy(true);
-    setError("");
-    try {
-      setIdentity(await UnionService.identity());
-      setState(
-        await UnionService.request(address, peer, state?.revision, action)
+      await connect(
+        () => UnionService.connectGame(gameLink),
+        t("FederationPage.gameConnection.title")
       );
     } catch {
-      setError(t("FederationPage.error"));
-    } finally {
-      setBusy(false);
+      setGameError(true);
     }
   };
-  const member = Object.entries(state?.members || {}).find(
-    ([, m]) => m.device === identity || m.additional_devices?.includes(identity)
-  )?.[0];
+  const [teamName, setTeamName] = useState("");
+  const [invitee, setInvitee] = useState("");
   const leagues = Object.entries(state?.leagues || {});
   return (
-    <Section
-      className="content-full-y"
-      title={t("FederationPage.title")}
-      description={t("FederationPage.subtitle")}
-    >
+    <Section title={t("FederationNav.league")}>
       <VStack spacing={6} align="stretch">
-        {state && (
-          <MemberGovernance
-            state={state}
-            member={member}
-            identity={identity}
-            busy={busy}
-            request={handleRequest}
-          />
-        )}
-
-        {state && (
-          <SeasonPanel
-            state={state}
-            member={member}
-            busy={busy}
-            request={handleRequest}
-          />
-        )}
-
-        {state && identity && state.admins?.includes(identity) && (
-          <AdminConsole state={state} busy={busy} request={handleRequest} />
-        )}
-
         <Section
           title={t("FederationPage.gameConnection.title")}
           description={t("FederationPage.gameConnection.description")}
@@ -184,96 +72,33 @@ export default function FederationPage() {
               <Input
                 id="game-link"
                 value={gameLink}
-                isDisabled={gameBusy || !!gameAddress}
+                isDisabled={gameBusy || !!connection}
                 onChange={(e) => setGameLink(e.target.value)}
               />
             </FormControl>
-            {gameAddress && (
-              <Text fontSize="sm">
-                {t("FederationPage.gameConnection.connected", {
-                  address: gameAddress,
-                })}
-              </Text>
-            )}
             <Button
               colorScheme={primaryColor}
               isLoading={gameBusy}
-              isDisabled={!gameAddress && !gameLink}
+              isDisabled={!!connection || !gameLink}
               onClick={() => void handleGameConnection()}
             >
-              {gameAddress
-                ? t("FederationPage.gameConnection.disconnect")
-                : t("FederationPage.gameConnection.connect")}
+              {t("FederationPage.gameConnection.connect")}
             </Button>
           </VStack>
         </Section>
 
-        <Section
-          title={t("FederationPage.settings.title")}
-          description={t("FederationPage.settings.description")}
-          isAccordion
-          initialIsOpen={!state}
-        >
-          <VStack spacing={3} align="stretch">
-            <FormControl>
-              <FormLabel htmlFor="federation-address">
-                {t("FederationPage.settings.addressLabel")}
-              </FormLabel>
-              <Input
-                id="federation-address"
-                isDisabled={busy}
-                value={address}
-                onChange={(e) => {
-                  setAddress(e.target.value);
-                  setState(undefined);
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="federation-peer">
-                {t("FederationPage.settings.peerLabel")}
-              </FormLabel>
-              <Input
-                id="federation-peer"
-                isDisabled={busy}
-                value={peer}
-                onChange={(e) => {
-                  setPeer(e.target.value);
-                  setState(undefined);
-                }}
-              />
-            </FormControl>
-            <HStack justify="flex-end">
-              <Button
-                colorScheme={primaryColor}
-                isLoading={busy}
-                isDisabled={!address || !peer}
-                onClick={() => void handleRequest()}
-              >
-                {t("FederationPage.settings.connect")}
-              </Button>
-            </HStack>
-            {identity && (
-              <VStack spacing={1} align="start" fontSize="sm">
-                <Text overflowWrap="anywhere">
-                  {t("FederationPage.settings.myDevice", { id: identity })}
-                </Text>
-                {member && (
-                  <Text>
-                    {t("FederationPage.settings.myMember", { id: member })}
-                    {state?.members[member]?.club && (
-                      <Text as="span" className="secondary-text">
-                        {t("FederationPage.settings.myClub", {
-                          club: state.members[member].club,
-                        })}
-                      </Text>
-                    )}
-                  </Text>
-                )}
-              </VStack>
-            )}
-          </VStack>
-        </Section>
+        <CurrentGameConnection />
+        {gameError && (
+          <Text role="alert">{t("FederationPage.gameConnection.error")}</Text>
+        )}
+        {state && (
+          <SeasonPanel
+            state={state}
+            member={member}
+            busy={busy}
+            request={handleRequest}
+          />
+        )}
 
         {error && (
           <Text role="alert" color="red.500" fontSize="sm">
@@ -282,10 +107,7 @@ export default function FederationPage() {
         )}
 
         {!state ? (
-          <Empty
-            size="md"
-            description={t("FederationPage.empty.notConnected")}
-          />
+          <ConnectionRequired />
         ) : leagues.length === 0 ? (
           <Empty size="md" description={t("FederationPage.empty.noLeagues")} />
         ) : (
@@ -300,18 +122,8 @@ export default function FederationPage() {
                 >
                   <Heading size="md">{league}</Heading>
                   <HStack spacing={2}>
-                    <Tag
-                      colorScheme={
-                        value.phase === "Registration"
-                          ? "blue"
-                          : value.phase === "Playing"
-                            ? "green"
-                            : "gray"
-                      }
-                    >
-                      {t(`FederationPage.phase.${value.phase}`, {
-                        defaultValue: value.phase,
-                      })}
+                    <Tag colorScheme={LEAGUE_PHASE_COLOR_SCHEME[value.phase]}>
+                      {leaguePhaseLabel(t, value.phase)}
                     </Tag>
                     <Tag colorScheme="gray">
                       {t("FederationPage.league.seatsPerTeam", {
@@ -473,12 +285,18 @@ export default function FederationPage() {
                                 placeholder={t(
                                   "FederationPage.league.inviteePlaceholder"
                                 )}
+                                list={`invite-${league}-${team}`}
                                 value={invitee}
                                 onChange={(e) => setInvitee(e.target.value)}
                               />
+                              <datalist id={`invite-${league}-${team}`}>
+                                {Object.keys(state.members).map((id) => (
+                                  <option key={id} value={id} />
+                                ))}
+                              </datalist>
                               <Button
                                 flexShrink={0}
-                                isDisabled={busy || !invitee}
+                                isDisabled={busy || !state.members[invitee]}
                                 onClick={() =>
                                   void handleRequest({
                                     type: "invite",
@@ -505,17 +323,27 @@ export default function FederationPage() {
                   <Box flex="1" minW={0}>
                     <Scoreboard
                       title={t("FederationPage.league.teamScoreboard")}
-                      scores={value.team_scores}
+                      entries={Object.entries(value.team_scores).sort(
+                        (a, b) => b[1] - a[1]
+                      )}
                       emptyText={t("FederationPage.league.teamScoreboardEmpty")}
+                      formatScore={(score) =>
+                        t("FederationPage.league.points", { score })
+                      }
                     />
                   </Box>
                   <Box flex="1" minW={0}>
                     <Scoreboard
                       title={t("FederationPage.league.playerScoreboard")}
-                      scores={value.player_scores}
+                      entries={Object.entries(value.player_scores).sort(
+                        (a, b) => b[1] - a[1]
+                      )}
                       emptyText={t(
                         "FederationPage.league.playerScoreboardEmpty"
                       )}
+                      formatScore={(score) =>
+                        t("FederationPage.league.points", { score })
+                      }
                     />
                   </Box>
                 </Flex>

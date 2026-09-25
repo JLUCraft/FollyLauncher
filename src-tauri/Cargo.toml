@@ -162,14 +162,20 @@ expat-sys = { git = "https://github.com/SJMC-dev/libexpat.git" }
 keyring = { version = "=3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
 zeroize = "1"
 
-union-core = { path = "../../union-core" }
+events = { path = "../../union-core/crates/events" }
+flows = { path = "../../union-core/crates/flows" }
+client = { path = "../../union-core/crates/client", features = ["league", "office"] }
+league = { path = "../../union-core/crates/league" }
+node = { path = "../../union-core/crates/node" }
+identity = { path = "../../union-core/crates/identity" }
+wire = { path = "../../union-core/crates/wire" }
 terminal-runtime = { path = "../../union-core/crates/terminal-runtime" }
 minecraftd = { path = "../../minecraftd" }
+federated-server = { path = "../../federated-server", default-features = false }
 async-speed-limit.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 base64.workspace = true
-cafebabe.workspace = true
 chacha20poly1305.workspace = true
 chrono.workspace = true
 config.workspace = true

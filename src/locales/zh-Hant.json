@@ -250,12 +250,8 @@
     "teamDeltas": "隊伍積分調整",
     "deltasPlaceholder": "每行一條：名稱 增減分",
     "resolve": "提交複核",
-    "feedback": "回覆申請",
-    "feedbackSelect": "成員申請",
-    "feedbackPlaceholder": "選擇待回覆的申請",
-    "feedbackResponse": "回覆內容",
-    "respond": "發送回覆",
-    "empty": "目前沒有待處理事項。"
+    "empty": "目前沒有待處理事項。",
+    "invalidDeltas": "積分行格式無效或編號重複。每行填寫成員或隊伍編號及一個整數。"
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "該頁面暫未開放，敬請期待"
+  },
+  "ConnectionFlow": {
+    "connecting": "正在連線…",
+    "setup": "前往連線設定",
+    "connectOffice": "連線 / 重新整理辦公",
+    "officeConnected": "已同步辦公",
+    "origin": {
+      "match": "比賽",
+      "room": "房間"
+    },
+    "domains": "聯賽和辦公各自儲存獨立的簽章歷史，因此需要分別核實創世雜湊，避免連到錯誤的鏈。",
+    "currentGame": "目前遊戲連線",
+    "service": "服務：{{service}} · 節點：{{peer}}",
+    "disconnectFirst": "要加入其他房間或比賽，請先中斷目前服務。",
+    "defaultSeed": "使用已連線的節點",
+    "briefFile": "選擇已上傳的方案檔案"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Java {{param}} 執行時"
     }
   },
-  "Editable": {
-    "edit": "編輯",
-    "save": "儲存",
-    "cancel": "取消"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "目錄路徑不合法"
       }
     }
+  },
+  "Editable": {
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消"
   },
   "Empty": {
     "noData": "無資料"
@@ -907,8 +919,23 @@
     "title": "更新擴充套件",
     "body": "擴充套件 {{identifier}} 已從 {{src}} 下載新版本 {{version}}，是否確認安裝？"
   },
+  "FederationNav": {
+    "title": "聯盟",
+    "overview": "總覽",
+    "league": "聯賽",
+    "rooms": "房間與伺服器",
+    "identity": "我的身分",
+    "events": "活動",
+    "approvals": "審批",
+    "files": "檔案",
+    "manage": "賽季營運",
+    "connected": "已同步聯賽",
+    "restricted": "請使用賽季管理員身分連線後管理賽季。",
+    "advanced": "進階設定",
+    "disconnected": "尚未連線"
+  },
   "FederationPage": {
-    "title": "高校聯賽",
+    "title": "聯盟",
     "subtitle": "連接聯盟後檢視聯賽、建立隊伍、邀請隊友並提交報名。",
     "gameConnection": {
       "title": "比賽連線",
@@ -923,13 +950,16 @@
       "title": "連線設定",
       "description": "聯盟連線位址與聯盟身分由主辦方提供",
       "addressLabel": "聯盟連線位址",
-      "peerLabel": "聯盟身分",
+      "peerLabel": "節點 Peer ID",
+      "genesisLabel": "聯賽鏈創世雜湊（向組織者核實）",
       "connect": "連線 / 重新整理",
       "myDevice": "我的裝置：{{id}}",
       "myMember": "我的編號：{{id}}",
       "myClub": "（{{club}}）"
     },
     "error": "操作未完成，請檢查連線與報名狀態後重試",
+    "identityRequired": "連線前需要先設定統一成員身分，請先到身分頁面完成設定。",
+    "openIdentity": "開啟身分設定",
     "empty": {
       "notConnected": "完成連線設定後，這裡會顯示聯賽列表、隊伍與積分榜。",
       "noLeagues": "目前聯盟暫無聯賽。"
@@ -962,6 +992,23 @@
       "start": "鎖定報名並開賽",
       "pause": "暫停",
       "resume": "恢復"
+    },
+    "identity": {
+      "title": "統一成員身份",
+      "description": "成員 ID 不隨設備改變；社團資格、社長職務與服務權限各自獨立。",
+      "configuration": "已獨立確認的創世清單與身份來源設定",
+      "save": "儲存設定",
+      "sync": "同步身份歷史",
+      "automatic": "透過皮膚站驗證",
+      "host": "準備房主設備綁定",
+      "loading": "正在驗證身份歷史…",
+      "unavailable": "暫時無法確認目前權限。請檢查設定與連線後同步；成員資格並未到期。",
+      "empty": "尚未載入已驗證的身份歷史。",
+      "review": "簽名前請核對聯盟、前項摘要、成員、設備及完整動作。換屆須收集簽名；不可按姓名合併身份。",
+      "proposal": "動作或共同簽署記錄 JSON",
+      "draft": "起草",
+      "sign": "簽署",
+      "submit": "提交"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "返回",
+    "beta": "Beta",
     "browse": "瀏覽",
     "cancel": "取消",
     "close": "關閉",
+    "collapse": "摺疊",
     "color": "顏色",
     "confirm": "確定",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "編輯",
     "enable": "啟用",
     "exit": "退出",
+    "expand": "展開",
     "finish": "完成",
     "import": "匯入",
     "launch": "啟動",
@@ -1281,10 +1331,7 @@
       "test-build": "測試構建版本"
     },
     "versionNumberingHelp": "版本號規則說明",
-    "viewOnWiki": "在 Minecraft Wiki 中檢視",
-    "beta": "Beta",
-    "collapse": "摺疊",
-    "expand": "展開"
+    "viewOnWiki": "在 Minecraft Wiki 中檢視"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1495,7 +1542,7 @@
       "launch": "啟動",
       "instances": "實例",
       "accounts": "帳戶",
-      "federation": "高校联赛",
+      "federation": "聯盟",
       "discover": "發現",
       "search": "搜尋",
       "settings": "設定"
@@ -1559,6 +1606,50 @@
       "extensionInfo": "檢視擴充套件資訊",
       "settings": "設定此擴充套件"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "複製完整識別碼",
+    "copied": "已複製"
+  },
+  "IdentityFlow": {
+    "intro": "驗證成員身分，管理綁定至你的裝置。",
+    "setup": "請先在進階設定中匯入聯盟信任設定。",
+    "sync": "重新整理身分",
+    "automatic": "透過皮膚站驗證",
+    "host": "綁定開房裝置",
+    "binding": "綁定裝置或遊戲檔案",
+    "member": "成員編號",
+    "device": "裝置編號",
+    "club": "社團",
+    "profile": "Minecraft 檔案 UUID",
+    "unbound": "尚未綁定",
+    "position": "已驗證至第 {{sequence}} 筆紀錄",
+    "review": "核對變更",
+    "reviewHint": "簽章表示你確認以下變更。裝置綁定可能需要新舊裝置共同簽章；可在進階設定中匯入或匯出紀錄。",
+    "sign": "確認並簽章",
+    "submit": "提交已簽章變更",
+    "import": "匯入待合簽紀錄（JSON）",
+    "export": "匯出已簽章紀錄（JSON）",
+    "fields": {
+      "federation": "聯盟",
+      "genesis": "信任起點",
+      "sequence": "紀錄編號",
+      "previous": "前項摘要",
+      "action": "變更",
+      "signatures": "簽章",
+      "public_key": "公鑰",
+      "signature": "簽章",
+      "member": "成員",
+      "device": "裝置",
+      "club": "社團",
+      "profile": "遊戲檔案",
+      "evidence": "驗證依據",
+      "verifier": "驗證方",
+      "type": "操作"
+    },
+    "before": "變更前",
+    "after": "變更後",
+    "unknown": "重新整理身分後可查看目前綁定"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "與 {{item}} 不相容",
     "noVersionSelected": "未選擇版本"
   },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
+    "linkText": "閱讀官方文件",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "匯入模組包",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "請輸入或選擇 Java 可執行檔案路徑"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
-    "linkText": "閱讀官方文件",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "成員議事",
-    "description": "檢視提案、參與投票與提交申請",
-    "proposal": "提案 {{id}} · {{approvals}} 個社團同意 · {{status}}",
-    "proposalStatus": {
-      "executed": "已執行",
-      "cancelled": "已撤回",
-      "pending": "待處理",
-      "expired": "已過期"
-    },
-    "votes": "{{count}} 票",
-    "closesAt": "截止 {{time}}",
-    "noBallots": "暫無成員投票",
-    "defaultCategory": "聯賽",
-    "categoryLabel": "申請類別",
-    "bodyLabel": "申請或建議",
-    "submit": "提交",
-    "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "等待回覆",
-    "proposalId": "提案 {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} 個社團同意",
-    "approve": "同意",
-    "execute": "執行",
-    "cancel": "撤回",
-    "feedbackReplied": "已回覆",
-    "feedbackPending": "等待回覆",
-    "feedbackResponse": "回覆：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "發現新版本"
+  },
+  "Office": {
+    "connection": "辦公連線",
+    "genesis": "辦公鏈創世雜湊",
+    "connectionHint": "使用上方節點位址和對等方；辦公鏈有獨立的創世雜湊。",
+    "setup": "請在總覽中設定辦公連線。",
+    "refresh": "重新整理",
+    "error": "無法讀取或執行請求，請檢查連線和操作權限。",
+    "uncertain": "尚無法確認執行結果。請先重新整理再重試，以免重複提交。",
+    "initial": "重新整理以載入辦公鏈。",
+    "empty": "暫無紀錄。",
+    "create": "建立活動",
+    "title": "活動名稱",
+    "brief": "方案檔案 CID 或 SHA-256",
+    "opens": "報名開始",
+    "closes": "報名截止",
+    "starts": "活動開始",
+    "submit": "提交審核",
+    "publish": "發布",
+    "finish": "結束活動",
+    "signup": "報名",
+    "cancelSignup": "取消報名",
+    "cancelEvent": "取消活動",
+    "template": "審批流程",
+    "requestApproval": "發起審批",
+    "signups": "已報名：{{count}}",
+    "tasks": "任務",
+    "assignee": "負責成員",
+    "assign": "指派",
+    "complete": "標記完成",
+    "taskTitle": "任務名稱",
+    "addTask": "新增任務",
+    "pending": "僅看待處理",
+    "proposer": "發起人",
+    "event": "活動編號",
+    "aiResult": "AI 階段產物",
+    "comment": "審批意見 / 駁回原因",
+    "commentHint": "鏈上僅記錄意見的 SHA-256 摘要，請自行儲存原文。",
+    "approve": "同意",
+    "reject": "駁回",
+    "poke": "檢查截止時間並推進",
+    "delegate": "轉交",
+    "execute": "執行已核准操作",
+    "fileLimits": "每個檔案最多 {{bytes}} 位元組，每次目錄提交最多 {{paths}} 個路徑。",
+    "branch": "目錄分支",
+    "chooseBranch": "選擇現有分支",
+    "message": "變更說明",
+    "path": "檔案路徑",
+    "upload": "上傳檔案",
+    "tooLarge": "檔案超過大小限制。",
+    "history": "版本歷史",
+    "searchFiles": "搜尋檔案路徑",
+    "download": "下載",
+    "restore": "還原為新版本",
+    "status": {
+      "draft": "草稿",
+      "review": "審核中",
+      "approved": "已核准",
+      "open": "已發布",
+      "done": "已完成",
+      "cancelled": "已取消",
+      "active": "進行中",
+      "executed": "已執行",
+      "rejected": "已駁回"
+    },
+    "checkin": "簽到",
+    "checkedIn": "已簽到",
+    "aiNeedsFile": "含 AI 階段的審批需要已上傳的方案檔案。請在檔案頁上傳，並將檔案 CID 用作活動方案。"
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎編輯啟動器原始設定檔案，錯誤的格式可能導致原有設定遺失或啟動器無法正常工作"
+  },
+  "RoomSearch": {
+    "search": "搜尋房間、社團或版本",
+    "school": "學校 / 社團",
+    "all": "全部學校 / 社團",
+    "selected": "已選取",
+    "noMatches": "沒有符合的房間。"
+  },
+  "Rooms": {
+    "manualHint": "請先設定統一身份。即使所有皮膚站離線，社長仍可手工簽名確認成員並綁定遊戲身份；資格持續有效，直到明確吊銷。",
+    "showIdentities": "顯示簽名所需裝置 ID",
+    "hostIdentity": "開房裝置 ID",
+    "playerIdentity": "加入裝置 ID",
+    "title": "房間與伺服器",
+    "description": "使用已驗證的成員身份開房或加入其他社團。",
+    "seeds": "探索節點（每行一個位址）",
+    "refresh": "重新整理房間與狀態",
+    "partial": "部分探索節點或房間暫時無法連線，清單可能不完整。",
+    "seedsChanged": "探索節點自上回搜尋後已變更，請重新整理以在新節點上探索房間。",
+    "empty": "未找到可連線的房間。",
+    "initial": "重新整理以探索房間。",
+    "choose": "選擇房間",
+    "option": "{{name}} · {{school}} · {{version}} · 最多 {{max}} 人",
+    "join": "加入房間",
+    "disconnect": "中斷連線",
+    "connected": "已連線至 {{address}}。請使用綁定到成員身份的遊戲檔案啟動 Minecraft。",
+    "host": "建立自己的房間",
+    "configuration": "本機伺服器設定",
+    "pick": "選擇設定檔",
+    "relays": "中繼節點（每行一個位址）",
+    "hostHint": "使用本機 minecraftd 設定與資源，伺服器必須綁定回環位址。無法直連時請設定中繼。",
+    "start": "啟動房間",
+    "stop": "關閉房間",
+    "hosting": "正在託管 {{name}}",
+    "error": "房間操作失敗。請檢查統一身份、伺服器設定和網路路由。"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "發生未知錯誤",
     "utils": {
       "deleteFile": {
         "success": "刪除檔案成功",
@@ -3238,8 +3405,7 @@
           "title": "刪除檔案失敗"
         }
       }
-    },
-    "unknownError": "發生未知錯誤"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {

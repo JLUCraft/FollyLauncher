@@ -1,6 +1,30 @@
 import { invoke } from "@tauri-apps/api/core";
 import { brand } from "@/brand";
 
+export function isIdentityNotConfigured(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "identity_not_configured"
+  );
+}
+
+export type GameConnectionOrigin = "room" | "match";
+export interface GameConnection {
+  address: string;
+  peer: string;
+  service: string;
+  origin?: GameConnectionOrigin;
+}
+export interface IdentityFacts {
+  federation: string;
+  checkpoint: { sequence: number; head: string };
+  devices: Record<string, string>;
+  revoked_devices: string[];
+  memberships: [string, string][];
+  profiles: Record<string, string>;
+}
 export interface UnionTeam {
   captain: string;
   members: string[];
@@ -19,6 +43,10 @@ export interface UnionLeague {
   team_scores: Record<string, number>;
 }
 export interface UnionState {
+  season_rankings?: Record<
+    string,
+    { teams: [string, string][]; players: [string, string][] }
+  >;
   revision: number;
   clock_ms: number;
   admins?: string[];
@@ -32,40 +60,6 @@ export interface UnionState {
       resolution: { response: string } | null;
     }
   >;
-  ballots?: Record<
-    string,
-    {
-      title: string;
-      options: string[];
-      closes_ms: number;
-      electorate: string[];
-      votes: Record<string, number>;
-    }
-  >;
-  council?: {
-    epoch: number;
-    schools: Record<string, string[]>;
-    quorum: number;
-    change_quorum: number;
-    cooldown_ms: number;
-  };
-  feedback?: Record<
-    string,
-    { member: string; category: string; text: string; response: string | null }
-  >;
-  proposals?: Record<
-    string,
-    {
-      proposer: string;
-      action: { type: string };
-      epoch: number;
-      created_ms: number;
-      expires_ms: number;
-      approvals: Record<string, string>;
-      executed: boolean;
-      cancelled: boolean;
-    }
-  >;
   members: Record<
     string,
     { club: string; device: string; additional_devices?: string[] }
@@ -73,33 +67,45 @@ export interface UnionState {
   leagues: Record<string, UnionLeague>;
 }
 export class UnionService {
-  static async connectGame(link: string): Promise<string> {
+  static identityConfiguration(config?: unknown): Promise<unknown> {
+    return invoke("union_identity_configuration", { config: config ?? null });
+  }
+  static identityAction(operation: Record<string, unknown>): Promise<unknown> {
+    return invoke("union_identity_action", { operation });
+  }
+  static bindHostDevice(): Promise<unknown> {
+    return invoke("union_bind_host_device");
+  }
+  static automatedIdentity(): Promise<unknown> {
+    return invoke("union_automated_identity");
+  }
+
+  static async connectGame(link: string): Promise<GameConnection> {
     const url = new URL(link);
     if (
       url.protocol !== `${brand.deeplinkScheme}:` ||
       url.hostname !== "connect"
     ) {
-      throw new Error("连接链接无效");
+      throw new Error("INVALID_CONNECT_LINK");
     }
     const peer = url.searchParams.get("peer");
     const service = url.searchParams.get("service");
     const addresses = url.searchParams.getAll("address");
     if (!peer || !service || !addresses.length)
-      throw new Error("连接链接不完整");
+      throw new Error("INCOMPLETE_CONNECT_LINK");
     return invoke("union_proxy_start", {
       input: {
         peer,
         service,
         addresses,
-        student: null,
-        request_student: url.searchParams.get("school") === "1",
+        origin: "match",
       },
     });
   }
   static disconnectGame(): Promise<void> {
     return invoke("union_proxy_stop");
   }
-  static gameConnection(): Promise<string | null> {
+  static gameConnection(): Promise<GameConnection | null> {
     return invoke("union_proxy_status");
   }
 
@@ -109,15 +115,28 @@ export class UnionService {
   static async request(
     address: string,
     peer: string,
+    genesisHash: string,
     revision?: number,
     action?: Record<string, unknown>
   ): Promise<UnionState> {
     const result = await invoke<{
       state: UnionState | null;
+      season_rankings: UnionState["season_rankings"];
       error: string | null;
-    }>("union_governance", { input: { address, peer, revision, action } });
-    if (result.error || !result.state)
-      throw new Error(result.error || "No league state returned");
-    return result.state;
+      error_code: string | null;
+      identity_view?: { members: UnionState["members"]; admins: string[] };
+    }>("union_governance", {
+      input: { address, peer, genesis_hash: genesisHash, revision, action },
+    });
+    if (result.error || !result.state || !result.identity_view)
+      throw {
+        code: result.error_code ?? "invalid_response",
+        message: result.error || "NO_LEAGUE_STATE",
+      };
+    return {
+      ...result.state,
+      ...result.identity_view,
+      season_rankings: result.season_rankings,
+    };
   }
 }

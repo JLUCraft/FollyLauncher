@@ -23,66 +23,51 @@ export const emitDeepLink = (urls: string[]) => {
 };
 
 export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
-  const didInit = useRef(false);
-  const unlistenRef = useRef<() => void>();
-
+  const options = useRef({ trigger, onCall });
+  options.current = { trigger, onCall };
   useEffect(() => {
-    function matchSubpath(path: string, rule: TriggerRule): boolean {
-      if (rule instanceof RegExp) {
-        return rule.test(path);
-      } else if (typeof rule === "function") {
-        return rule(path);
-      }
-      return false;
-    }
-
+    let active = true;
+    let unlisten: (() => void) | undefined;
     const handleUrls = (urls: string[]) => {
+      if (!active) return;
       urls.forEach((url) => {
-        if (url.startsWith(BRAND_LINK_PREFIX)) {
-          const subpath = url.slice(BRAND_LINK_PREFIX.length);
-          if (matchSubpath(subpath, trigger)) {
-            onCall(url, subpath);
-          }
-        }
+        if (!url.startsWith(BRAND_LINK_PREFIX)) return;
+        const subpath = url.slice(BRAND_LINK_PREFIX.length);
+        const { trigger, onCall } = options.current;
+        if (
+          typeof trigger === "function"
+            ? trigger(subpath)
+            : trigger.test(subpath)
+        )
+          onCall(url, subpath);
       });
     };
-
-    const handleDevUrls = (event: Event) => {
-      const customEvent = event as CustomEvent<string[]>;
-      handleUrls(customEvent.detail || []);
-    };
-
-    const setup = async () => {
-      if (!didInit.current) {
-        didInit.current = true;
-
-        try {
-          const currentUrls = await getCurrent(); // check deeplink if app is launched through deeplink
-          if (currentUrls) {
-            handleUrls(currentUrls);
-          }
-        } catch (err) {
-          logger.error("getCurrent failed:", err);
-        }
-      }
-
+    const handleDevUrls = (event: Event) =>
+      handleUrls((event as CustomEvent<string[]>).detail || []);
+    window.addEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);
+    void (async () => {
       try {
-        unlistenRef.current = await onOpenUrl(handleUrls); // listen for deeplink when app is running
+        const cleanup = await onOpenUrl(handleUrls);
+        if (!active) {
+          cleanup();
+          return;
+        }
+        unlisten = cleanup;
       } catch (err) {
         logger.error("Failed to listen to deep links:", err);
       }
-    };
-
-    window.addEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);
-    setup();
-
-    return () => {
-      window.removeEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);
-      if (unlistenRef.current) {
-        unlistenRef.current();
+      try {
+        const urls = await getCurrent();
+        if (urls) handleUrls(urls);
+      } catch (err) {
+        logger.error("getCurrent failed:", err);
       }
+    })();
+    return () => {
+      active = false;
+      window.removeEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);
+      unlisten?.();
     };
-  }, [trigger, onCall]);
+  }, []);
 };
-
 export default useDeepLink;

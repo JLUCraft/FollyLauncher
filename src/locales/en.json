@@ -250,12 +250,8 @@
     "teamDeltas": "Team score adjustments",
     "deltasPlaceholder": "One per line: name +/-points",
     "resolve": "Submit Review",
-    "feedback": "Answer Requests",
-    "feedbackSelect": "Request",
-    "feedbackPlaceholder": "Select a pending request",
-    "feedbackResponse": "Response",
-    "respond": "Send Response",
-    "empty": "Nothing to operate right now."
+    "empty": "Nothing to operate right now.",
+    "invalidDeltas": "Some score lines are invalid or duplicated. Use one member or team ID followed by an integer per line."
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "This page is not available yet, coming soon!"
+  },
+  "ConnectionFlow": {
+    "connecting": "Connecting…",
+    "setup": "Open connection settings",
+    "connectOffice": "Connect / refresh office",
+    "officeConnected": "Office synchronized",
+    "origin": {
+      "match": "Match",
+      "room": "Room"
+    },
+    "domains": "League and office keep separate signed histories. Each needs its own verified genesis hash; this prevents connecting to the wrong chain.",
+    "currentGame": "Current game connection",
+    "service": "Service: {{service}} · Node: {{peer}}",
+    "disconnectFirst": "To join another room or match, disconnect this service first.",
+    "defaultSeed": "Use the connected node",
+    "briefFile": "Choose an uploaded brief file"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Java {{param}} Runtime"
     }
   },
-  "Editable": {
-    "edit": "Edit",
-    "save": "Save",
-    "cancel": "Cancel"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "Directory path is invalid"
       }
     }
+  },
+  "Editable": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "Empty": {
     "noData": "No Data"
@@ -907,6 +919,21 @@
     "title": "Update Extension",
     "body": "Extension {{identifier}} downloaded the new version {{version}} from {{src}}. Do you want to confirm installation?"
   },
+  "FederationNav": {
+    "title": "Federation",
+    "overview": "Overview",
+    "league": "League",
+    "rooms": "Rooms & servers",
+    "identity": "My identity",
+    "events": "Events",
+    "approvals": "Approvals",
+    "files": "Files",
+    "manage": "Season management",
+    "connected": "League synchronized",
+    "restricted": "Connect with a season administrator account to manage seasons.",
+    "advanced": "Advanced settings",
+    "disconnected": "Not connected"
+  },
   "FederationPage": {
     "title": "Federation",
     "subtitle": "Connect to the union to browse leagues, create teams, invite teammates and register.",
@@ -923,13 +950,16 @@
       "title": "Connection Settings",
       "description": "The union address and union identity are provided by the organizer",
       "addressLabel": "Union address",
-      "peerLabel": "Union identity",
+      "peerLabel": "Node peer ID",
+      "genesisLabel": "League genesis hash (confirm with your organizer)",
       "connect": "Connect / Refresh",
       "myDevice": "My device: {{id}}",
       "myMember": "My member no.: {{id}}",
       "myClub": "({{club}})"
     },
     "error": "Operation failed; check the connection and registration status, then retry",
+    "identityRequired": "Connecting requires a unified identity. Set one up on the identity page first.",
+    "openIdentity": "Open identity settings",
     "empty": {
       "notConnected": "Once connected, leagues, teams and scoreboards will show up here.",
       "noLeagues": "This union has no leagues yet."
@@ -962,6 +992,23 @@
       "start": "Lock rosters & Start",
       "pause": "Pause",
       "resume": "Resume"
+    },
+    "identity": {
+      "title": "Unified member identity",
+      "description": "Your member ID stays the same across devices. Membership, chair office and service permissions change independently.",
+      "configuration": "Independently confirmed genesis and identity source configuration",
+      "save": "Save configuration",
+      "sync": "Sync identity history",
+      "automatic": "Verify through skin site",
+      "host": "Prepare host device binding",
+      "loading": "Verifying identity history…",
+      "unavailable": "Current authority could not be confirmed. Check the configuration and connection, then synchronize. Membership has not expired.",
+      "empty": "No verified identity history loaded.",
+      "review": "Review the federation, parent digest, member, device and complete action before signing. Collect signatures on the same record for succession. Never merge identities by name.",
+      "proposal": "Action or co-signing record JSON",
+      "draft": "Draft",
+      "sign": "Sign",
+      "submit": "Submit"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "Back",
+    "beta": "Beta",
     "browse": "Browse",
     "cancel": "Cancel",
     "close": "Close",
+    "collapse": "Collapse",
     "color": "Color",
     "confirm": "OK",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "Edit",
     "enable": "Enable",
     "exit": "Exit",
+    "expand": "Expand",
     "finish": "Finish",
     "import": "Import",
     "launch": "Launch",
@@ -1281,10 +1331,7 @@
       "test-build": "test build"
     },
     "versionNumberingHelp": "Version Numbering Help",
-    "viewOnWiki": "View on Minecraft Wiki",
-    "beta": "Beta",
-    "collapse": "Collapse",
-    "expand": "Expand"
+    "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1559,6 +1606,50 @@
       "extensionInfo": "View Extension Info",
       "settings": "Open Extension Settings"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "Copy identifier",
+    "copied": "Copied"
+  },
+  "IdentityFlow": {
+    "intro": "Verify your membership and manage the devices linked to it.",
+    "setup": "Import the federation trust configuration in advanced settings first.",
+    "sync": "Refresh identity",
+    "automatic": "Verify with skin site",
+    "host": "Link hosting device",
+    "binding": "Link a device or game profile",
+    "member": "Member ID",
+    "device": "Device ID",
+    "club": "Club",
+    "profile": "Minecraft profile UUID",
+    "unbound": "Not linked",
+    "position": "Verified through record {{sequence}}",
+    "review": "Review changes",
+    "reviewHint": "Signing confirms the changes below. Device bindings may need signatures from both devices; import or export the record in advanced settings.",
+    "sign": "Confirm and sign",
+    "submit": "Apply signed changes",
+    "import": "Import a record for co-signing (JSON)",
+    "export": "Export signed record (JSON)",
+    "fields": {
+      "federation": "Federation",
+      "genesis": "Trust root",
+      "sequence": "Record number",
+      "previous": "Previous digest",
+      "action": "Change",
+      "signatures": "Signatures",
+      "public_key": "Public key",
+      "signature": "Signature",
+      "member": "Member",
+      "device": "Device",
+      "club": "Club",
+      "profile": "Game profile",
+      "evidence": "Verification evidence",
+      "verifier": "Verifier",
+      "type": "Action"
+    },
+    "before": "Before",
+    "after": "After",
+    "unknown": "Refresh identity to see the current binding"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "Not compatible with {{item}}",
     "noVersionSelected": "No version selected"
   },
+  "MCVersionNumberHelper": {
+    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
+    "linkText": "Read the official article",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "Import Modpack",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "Please enter or select the Java executable file path"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
-    "linkText": "Read the official article",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "Member Governance",
-    "description": "Review proposals, vote in ballots and submit requests",
-    "proposal": "Proposal {{id}} · {{approvals}} clubs approved · {{status}}",
-    "proposalStatus": {
-      "executed": "Executed",
-      "cancelled": "Cancelled",
-      "pending": "Pending",
-      "expired": "Expired"
-    },
-    "votes": "{{count}} votes",
-    "closesAt": "Closes {{time}}",
-    "noBallots": "No ballots yet",
-    "defaultCategory": "League",
-    "categoryLabel": "Request category",
-    "bodyLabel": "Request or suggestion",
-    "submit": "Submit",
-    "feedbackEntry": "{{category}}: {{text}}",
-    "awaitingResponse": "Awaiting response",
-    "proposalId": "Proposal {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} clubs approved",
-    "approve": "Approve",
-    "execute": "Execute",
-    "cancel": "Cancel",
-    "feedbackReplied": "Answered",
-    "feedbackPending": "Awaiting answer",
-    "feedbackResponse": "Response: {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "Memory Status",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "New Version Available"
+  },
+  "Office": {
+    "connection": "Office connection",
+    "genesis": "Office genesis hash",
+    "connectionHint": "Uses the node address and peer above. The office chain has its own genesis hash.",
+    "setup": "Configure the office connection in Overview.",
+    "refresh": "Refresh",
+    "error": "Unable to load or apply this request. Check the connection and your permissions.",
+    "uncertain": "The result could not be confirmed. Refresh before retrying to avoid submitting twice.",
+    "initial": "Refresh to load the office chain.",
+    "empty": "Nothing here yet.",
+    "create": "Create event",
+    "title": "Event title",
+    "brief": "Brief file CID or SHA-256",
+    "opens": "Registration opens",
+    "closes": "Registration closes",
+    "starts": "Event starts",
+    "submit": "Submit for review",
+    "publish": "Publish",
+    "finish": "Finish event",
+    "signup": "Register",
+    "cancelSignup": "Cancel registration",
+    "cancelEvent": "Cancel event",
+    "template": "Approval process",
+    "requestApproval": "Start approval",
+    "signups": "Registrations: {{count}}",
+    "tasks": "Tasks",
+    "assignee": "Member",
+    "assign": "Assign",
+    "complete": "Mark complete",
+    "taskTitle": "Task title",
+    "addTask": "Add task",
+    "pending": "Pending only",
+    "proposer": "Submitted by",
+    "event": "Event ID",
+    "aiResult": "AI stage output",
+    "comment": "Approval comment / rejection reason",
+    "commentHint": "Only the SHA-256 digest of this comment is recorded. Keep the original text for your records.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "poke": "Check deadline and advance",
+    "delegate": "Delegate",
+    "execute": "Execute approved action",
+    "fileLimits": "Up to {{bytes}} bytes per file and {{paths}} paths per directory commit.",
+    "branch": "Directory branch",
+    "chooseBranch": "Choose an existing branch",
+    "message": "Change description",
+    "path": "File path",
+    "upload": "Upload file",
+    "tooLarge": "This file exceeds the size limit.",
+    "history": "Version history",
+    "searchFiles": "Search file paths",
+    "download": "Download",
+    "restore": "Restore as a new version",
+    "status": {
+      "draft": "Draft",
+      "review": "In review",
+      "approved": "Approved",
+      "open": "Open",
+      "done": "Completed",
+      "cancelled": "Cancelled",
+      "active": "In progress",
+      "executed": "Executed",
+      "rejected": "Rejected"
+    },
+    "checkin": "Check in",
+    "checkedIn": "Checked in",
+    "aiNeedsFile": "An AI approval process needs the brief uploaded in Files. Use its file CID as the event brief."
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "Please be cautious when editing the raw launcher settings file. Incorrect formatting may lead to the loss of original settings or prevent the launcher from working properly."
+  },
+  "RoomSearch": {
+    "search": "Search rooms, clubs or versions",
+    "school": "School / club",
+    "all": "All schools / clubs",
+    "selected": "Selected",
+    "noMatches": "No matching rooms."
+  },
+  "Rooms": {
+    "manualHint": "Configure unified identity above. A chair can confirm membership and bind your game profile manually even if every skin site is offline. Once recorded, qualification lasts until explicitly revoked.",
+    "showIdentities": "Show device IDs for signing",
+    "hostIdentity": "Hosting device ID",
+    "playerIdentity": "Joining device ID",
+    "title": "Rooms & servers",
+    "description": "Host a room or join other clubs with your verified member identity.",
+    "seeds": "Discovery nodes (one address per line)",
+    "refresh": "Refresh rooms and status",
+    "partial": "Some discovery nodes or rooms are unavailable. This list may be incomplete.",
+    "seedsChanged": "Discovery nodes changed since the last search. Refresh to discover rooms on the new nodes.",
+    "empty": "No reachable rooms found.",
+    "initial": "Refresh to discover rooms.",
+    "choose": "Choose a room",
+    "option": "{{name}} · {{school}} · {{version}} · up to {{max}} players",
+    "join": "Join room",
+    "disconnect": "Disconnect",
+    "connected": "Connected at {{address}}. Launch Minecraft using the game profile bound to your member identity.",
+    "host": "Host your own room",
+    "configuration": "Local server configuration",
+    "pick": "Choose configuration file",
+    "relays": "Relay nodes (one address per line)",
+    "hostHint": "Uses your local minecraftd server configuration and resources. The server must bind to loopback. Add a relay when direct access is unavailable.",
+    "start": "Start room",
+    "stop": "Close room",
+    "hosting": "Hosting {{name}}",
+    "error": "Room operation failed. Check unified identity, the server configuration and network routes."
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "An unknown error occurred",
     "utils": {
       "deleteFile": {
         "success": "File deleted successfully",
@@ -3238,8 +3405,7 @@
           "title": "Failed to delete file"
         }
       }
-    },
-    "unknownError": "An unknown error occurred"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {

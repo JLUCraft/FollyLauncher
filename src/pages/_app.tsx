@@ -10,11 +10,16 @@ import { GuidedTourProvider } from "@/components/special/guided-tour-provider";
 import SharedModalsProvider from "@/components/special/shared-modals-provider";
 import { LauncherConfigContextProvider } from "@/contexts/config";
 import { ExtensionHostContextProvider } from "@/contexts/extension/host";
+import { FederationProvider } from "@/contexts/federation";
+import { GameConnectionProvider } from "@/contexts/game-connection";
 import { GlobalDataContextProvider } from "@/contexts/global-data";
+import { OfficeProvider } from "@/contexts/office";
+import { RoomsProvider } from "@/contexts/rooms";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { TaskContextProvider } from "@/contexts/task";
 import { ToastContextProvider } from "@/contexts/toast";
 import DiscoverLayout from "@/layouts/discover-layout";
+import FederationLayout from "@/layouts/federation-layout";
 import InstanceDetailsLayout from "@/layouts/instance-details-layout";
 import InstancesLayout from "@/layouts/instances-layout";
 import MainLayout from "@/layouts/main-layout";
@@ -66,6 +71,7 @@ export default function App({ Component, pageProps }: AppProps) {
     key: string;
   }[] = useMemo(
     () => [
+      { prefix: "/federation", key: "federation" },
       { prefix: "/discover", key: "discover" },
       { prefix: "/settings", key: "settings" },
       {
@@ -82,6 +88,7 @@ export default function App({ Component, pageProps }: AppProps) {
     React.ComponentType<{ children: React.ReactNode }>[]
   > = useMemo(
     () => ({
+      federation: [FederationLayout],
       discover: [DiscoverLayout],
       settings: [SettingsLayout],
       "instances-details": [InstancesLayout, InstanceDetailsLayout],
@@ -127,13 +134,24 @@ export default function App({ Component, pageProps }: AppProps) {
                   <TaskContextProvider>
                     <ExtensionHostContextProvider>
                       <GlobalEventHandler>
-                        <MainLayout>
-                          <Fade key={router.pathname.split("/")[1] || ""} in>
-                            <SpecLayout>
-                              <Component {...pageProps} />
-                            </SpecLayout>
-                          </Fade>
-                        </MainLayout>
+                        <GameConnectionProvider>
+                          <FederationProvider>
+                            <OfficeProvider>
+                              <RoomsProvider>
+                                <MainLayout>
+                                  <Fade
+                                    key={router.pathname.split("/")[1] || ""}
+                                    in
+                                  >
+                                    <SpecLayout>
+                                      <Component {...pageProps} />
+                                    </SpecLayout>
+                                  </Fade>
+                                </MainLayout>
+                              </RoomsProvider>
+                            </OfficeProvider>
+                          </FederationProvider>
+                        </GameConnectionProvider>
                       </GlobalEventHandler>
                     </ExtensionHostContextProvider>
                   </TaskContextProvider>

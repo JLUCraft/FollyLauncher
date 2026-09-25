@@ -250,12 +250,8 @@
     "teamDeltas": "队伍积分调整",
     "deltasPlaceholder": "每行一条：名称 增减分",
     "resolve": "提交复核",
-    "feedback": "回复申请",
-    "feedbackSelect": "成员申请",
-    "feedbackPlaceholder": "选择待回复的申请",
-    "feedbackResponse": "回复内容",
-    "respond": "发送回复",
-    "empty": "当前没有待处理事项。"
+    "empty": "当前没有待处理事项。",
+    "invalidDeltas": "积分行格式无效或编号重复。每行填写成员或队伍编号和一个整数。"
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
+  },
+  "ConnectionFlow": {
+    "connecting": "正在连接…",
+    "setup": "前往连接设置",
+    "connectOffice": "连接 / 刷新办公",
+    "officeConnected": "已同步办公",
+    "origin": {
+      "match": "比赛",
+      "room": "房间"
+    },
+    "domains": "联赛和办公各自保存独立的签名历史，因此需要分别核实创世哈希，避免连到错误的链。",
+    "currentGame": "当前游戏连接",
+    "service": "服务：{{service}} · 节点：{{peer}}",
+    "disconnectFirst": "要加入其他房间或比赛，请先断开当前服务。",
+    "defaultSeed": "使用已连接的节点",
+    "briefFile": "选择已上传的方案文件"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Java {{param}} 运行时"
     }
   },
-  "Editable": {
-    "edit": "编辑",
-    "save": "保存",
-    "cancel": "取消"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "目录路径不合法"
       }
     }
+  },
+  "Editable": {
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消"
   },
   "Empty": {
     "noData": "无数据"
@@ -907,8 +919,23 @@
     "title": "更新扩展",
     "body": "扩展 {{identifier}} 已从 {{src}} 下载新版本 {{version}}，是否确认安装？"
   },
+  "FederationNav": {
+    "title": "联盟",
+    "overview": "总览",
+    "league": "联赛",
+    "rooms": "房间与服务器",
+    "identity": "我的身份",
+    "events": "活动",
+    "approvals": "审批",
+    "files": "文件",
+    "manage": "赛季运营",
+    "connected": "已同步联赛",
+    "restricted": "请使用赛季管理员身份连接后管理赛季。",
+    "advanced": "高级设置",
+    "disconnected": "尚未连接"
+  },
   "FederationPage": {
-    "title": "高校联赛",
+    "title": "联盟",
     "subtitle": "连接联盟后查看联赛、创建队伍、邀请队友并提交报名。",
     "gameConnection": {
       "title": "比赛连接",
@@ -923,13 +950,16 @@
       "title": "连接设置",
       "description": "联盟连接地址与联盟身份由组织者提供",
       "addressLabel": "联盟连接地址",
-      "peerLabel": "联盟身份",
+      "peerLabel": "节点 Peer ID",
+      "genesisLabel": "联赛链创世哈希（向组织者核实）",
       "connect": "连接 / 刷新",
       "myDevice": "我的设备：{{id}}",
       "myMember": "我的编号：{{id}}",
       "myClub": "（{{club}}）"
     },
     "error": "操作未完成，请检查连接与报名状态后重试",
+    "identityRequired": "连接前需要先设置统一成员身份，请先到身份页面完成设置。",
+    "openIdentity": "打开身份设置",
     "empty": {
       "notConnected": "完成连接设置后，这里会显示联赛列表、队伍与积分榜。",
       "noLeagues": "当前联盟暂无联赛。"
@@ -962,6 +992,23 @@
       "start": "锁定报名并开赛",
       "pause": "暂停",
       "resume": "恢复"
+    },
+    "identity": {
+      "title": "统一成员身份",
+      "description": "换设备不改变成员 ID。社团资格、社长席位与服务权限分别变更。",
+      "configuration": "已独立确认的创世清单与身份同步源配置",
+      "save": "保存配置",
+      "sync": "同步身份历史",
+      "automatic": "通过皮肤站验证",
+      "host": "拟定房主设备绑定",
+      "loading": "正在验证身份历史…",
+      "unavailable": "暂时无法确认当前权限。请检查配置和连接并重新同步，这不表示成员资格到期。",
+      "empty": "尚未加载已验证的身份历史。",
+      "review": "签名前核对联盟、前项摘要、成员、设备和完整动作。换届收集各方对同一记录的签名；不要按姓名合并身份。",
+      "proposal": "身份动作或待合签记录 JSON",
+      "draft": "拟定",
+      "sign": "签名",
+      "submit": "提交"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "返回",
+    "beta": "公测版",
     "browse": "浏览",
     "cancel": "取消",
     "close": "关闭",
+    "collapse": "折叠",
     "color": "颜色",
     "confirm": "确定",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "编辑",
     "enable": "启用",
     "exit": "退出",
+    "expand": "展开",
     "finish": "完成",
     "import": "导入",
     "launch": "启动",
@@ -1281,10 +1331,7 @@
       "test-build": "测试构建版本"
     },
     "versionNumberingHelp": "版本号规则说明",
-    "viewOnWiki": "在 Minecraft Wiki 中查看",
-    "beta": "公测版",
-    "collapse": "折叠",
-    "expand": "展开"
+    "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1495,7 +1542,7 @@
       "launch": "启动",
       "instances": "实例",
       "accounts": "账户",
-      "federation": "高校联赛",
+      "federation": "联盟",
       "discover": "发现",
       "search": "搜索",
       "settings": "设置"
@@ -1559,6 +1606,50 @@
       "extensionInfo": "查看扩展信息",
       "settings": "设置此扩展"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "复制完整标识符",
+    "copied": "已复制"
+  },
+  "IdentityFlow": {
+    "intro": "验证成员身份，管理绑定到你的设备。",
+    "setup": "请先在高级设置中导入联盟信任配置。",
+    "sync": "刷新身份",
+    "automatic": "通过皮肤站验证",
+    "host": "绑定开房设备",
+    "binding": "绑定设备或游戏档案",
+    "member": "成员编号",
+    "device": "设备编号",
+    "club": "社团",
+    "profile": "Minecraft 档案 UUID",
+    "unbound": "尚未绑定",
+    "position": "已验证至第 {{sequence}} 条记录",
+    "review": "核对变更",
+    "reviewHint": "签名表示你确认以下变更。设备绑定可能需要新旧设备共同签名；可在高级设置中导入或导出记录。",
+    "sign": "确认并签名",
+    "submit": "提交已签名变更",
+    "import": "导入待合签记录（JSON）",
+    "export": "导出已签名记录（JSON）",
+    "fields": {
+      "federation": "联盟",
+      "genesis": "信任起点",
+      "sequence": "记录编号",
+      "previous": "前项摘要",
+      "action": "变更",
+      "signatures": "签名",
+      "public_key": "公钥",
+      "signature": "签名",
+      "member": "成员",
+      "device": "设备",
+      "club": "社团",
+      "profile": "游戏档案",
+      "evidence": "验证依据",
+      "verifier": "验证方",
+      "type": "操作"
+    },
+    "before": "变更前",
+    "after": "变更后",
+    "unknown": "刷新身份后可查看当前绑定"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "与 {{item}} 不兼容",
     "noVersionSelected": "未选择版本"
   },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，Minecraft 版本号采取新的命名规则，以年份作为版本号首位（如 26.1）以取代原有的 1.x 版本号规则。",
+    "linkText": "阅读官方文档",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "导入整合包",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "请输入或选择 Java 可执行文件路径"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，Minecraft 版本号采取新的命名规则，以年份作为版本号首位（如 26.1）以取代原有的 1.x 版本号规则。",
-    "linkText": "阅读官方文档",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "成员议事",
-    "description": "查看提案、参与投票与提交申请",
-    "proposal": "提案 {{id}} · {{approvals}} 个社团同意 · {{status}}",
-    "proposalStatus": {
-      "executed": "已执行",
-      "cancelled": "已撤回",
-      "pending": "待处理",
-      "expired": "已过期"
-    },
-    "votes": "{{count}} 票",
-    "closesAt": "截止 {{time}}",
-    "noBallots": "暂无成员投票",
-    "defaultCategory": "联赛",
-    "categoryLabel": "申请类别",
-    "bodyLabel": "申请或建议",
-    "submit": "提交",
-    "feedbackEntry": "{{category}}：{{text}}",
-    "awaitingResponse": "等待回复",
-    "proposalId": "提案 {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} 个社团同意",
-    "approve": "同意",
-    "execute": "执行",
-    "cancel": "撤回",
-    "feedbackReplied": "已回复",
-    "feedbackPending": "等待回复",
-    "feedbackResponse": "回复：{{response}}"
   },
   "MemoryStatusProgress": {
     "title": "内存状态",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "发现新版本"
+  },
+  "Office": {
+    "connection": "办公连接",
+    "genesis": "办公链创世哈希",
+    "connectionHint": "使用上方节点地址和对等方；办公链有独立的创世哈希。",
+    "setup": "请在总览中配置办公连接。",
+    "refresh": "刷新",
+    "error": "无法读取或执行请求，请检查连接和操作权限。",
+    "uncertain": "尚无法确认执行结果。请先刷新，确认后再重试，以免重复提交。",
+    "initial": "刷新以载入办公链。",
+    "empty": "暂无记录。",
+    "create": "创建活动",
+    "title": "活动名称",
+    "brief": "方案文件 CID 或 SHA-256",
+    "opens": "报名开始",
+    "closes": "报名截止",
+    "starts": "活动开始",
+    "submit": "提交审核",
+    "publish": "发布",
+    "finish": "结束活动",
+    "signup": "报名",
+    "cancelSignup": "取消报名",
+    "cancelEvent": "取消活动",
+    "template": "审批流程",
+    "requestApproval": "发起审批",
+    "signups": "已报名：{{count}}",
+    "tasks": "任务",
+    "assignee": "负责成员",
+    "assign": "分派",
+    "complete": "标记完成",
+    "taskTitle": "任务名称",
+    "addTask": "添加任务",
+    "pending": "只看待处理",
+    "proposer": "发起人",
+    "event": "活动编号",
+    "aiResult": "AI 环节产物",
+    "comment": "审批意见 / 驳回原因",
+    "commentHint": "链上仅记录意见的 SHA-256 摘要，请自行保存原文。",
+    "approve": "同意",
+    "reject": "驳回",
+    "poke": "检查截止时间并推进",
+    "delegate": "转交",
+    "execute": "执行已批准操作",
+    "fileLimits": "每个文件最多 {{bytes}} 字节，每次目录提交最多 {{paths}} 个路径。",
+    "branch": "目录分支",
+    "chooseBranch": "选择已有分支",
+    "message": "变更说明",
+    "path": "文件路径",
+    "upload": "上传文件",
+    "tooLarge": "文件超过大小限制。",
+    "history": "版本历史",
+    "searchFiles": "搜索文件路径",
+    "download": "下载",
+    "restore": "恢复为新版本",
+    "status": {
+      "draft": "草稿",
+      "review": "审核中",
+      "approved": "已批准",
+      "open": "已发布",
+      "done": "已完成",
+      "cancelled": "已取消",
+      "active": "进行中",
+      "executed": "已执行",
+      "rejected": "已驳回"
+    },
+    "checkin": "签到",
+    "checkedIn": "已签到",
+    "aiNeedsFile": "含 AI 环节的审批需要已上传的方案文件。请在文件页上传，并将文件 CID 用作活动方案。"
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "请谨慎编辑启动器原始设置文件，错误的格式可能导致原有设置丢失或启动器无法正常工作"
+  },
+  "RoomSearch": {
+    "search": "搜索房间、社团或版本",
+    "school": "学校 / 社团",
+    "all": "全部学校 / 社团",
+    "selected": "已选择",
+    "noMatches": "没有匹配的房间。"
+  },
+  "Rooms": {
+    "manualHint": "请先配置统一身份。即使所有皮肤站离线，社长仍可手工签名确认成员并绑定游戏身份；记录生效后资格持续有效，直到明确吊销。",
+    "showIdentities": "显示签名所需设备 ID",
+    "hostIdentity": "开房设备 ID",
+    "playerIdentity": "加入设备 ID",
+    "title": "房间与服务器",
+    "description": "使用已验证的成员身份开房或加入其他社团。",
+    "seeds": "发现节点（每行一个地址）",
+    "refresh": "刷新房间与状态",
+    "partial": "部分发现节点或房间暂时不可达，列表可能不完整。",
+    "seedsChanged": "发现节点自上次搜索后已更改，请刷新以在新节点上发现房间。",
+    "empty": "未找到可达的房间。",
+    "initial": "刷新以发现房间。",
+    "choose": "选择房间",
+    "option": "{{name}} · {{school}} · {{version}} · 最多 {{max}} 人",
+    "join": "加入房间",
+    "disconnect": "断开连接",
+    "connected": "已连接至 {{address}}。请使用绑定到成员身份的游戏档案启动 Minecraft。",
+    "host": "创建自己的房间",
+    "configuration": "本地服务端配置",
+    "pick": "选择配置文件",
+    "relays": "中继节点（每行一个地址）",
+    "hostHint": "使用本机 minecraftd 配置与资源，服务端必须绑定回环地址。无法直连时请配置中继。",
+    "start": "启动房间",
+    "stop": "关闭房间",
+    "hosting": "正在托管 {{name}}",
+    "error": "房间操作失败。请检查统一身份、服务器配置和网络路由。"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "发生未知错误",
     "utils": {
       "deleteFile": {
         "success": "删除文件成功",
@@ -3238,8 +3405,7 @@
           "title": "删除文件失败"
         }
       }
-    },
-    "unknownError": "发生未知错误"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {

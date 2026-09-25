@@ -250,12 +250,8 @@
     "teamDeltas": "Ajustes de puntuación de equipos",
     "deltasPlaceholder": "Una entrada por línea: nombre +/-puntos",
     "resolve": "Enviar revisión",
-    "feedback": "Responder solicitudes",
-    "feedbackSelect": "Solicitud de miembro",
-    "feedbackPlaceholder": "Selecciona una solicitud pendiente",
-    "feedbackResponse": "Respuesta",
-    "respond": "Enviar respuesta",
-    "empty": "Nada que procesar por ahora."
+    "empty": "Nada que procesar por ahora.",
+    "invalidDeltas": "Hay líneas inválidas o duplicadas. Escribe un ID de miembro o equipo seguido de un entero por línea."
   },
   "AlertResourceDependencyModal": {
     "header": {
@@ -436,6 +432,22 @@
   },
   "ComingSoonSign": {
     "text": "Esta página no está disponible aún, ¡próximamente!"
+  },
+  "ConnectionFlow": {
+    "connecting": "Conectando…",
+    "setup": "Abrir ajustes de conexión",
+    "connectOffice": "Conectar / actualizar oficina",
+    "officeConnected": "Oficina sincronizada",
+    "origin": {
+      "match": "Partido",
+      "room": "Sala"
+    },
+    "domains": "La liga y la oficina tienen historiales firmados separados. Verifica cada hash génesis para no conectar a la cadena equivocada.",
+    "currentGame": "Conexión de juego actual",
+    "service": "Servicio: {{service}} · Nodo: {{peer}}",
+    "disconnectFirst": "Desconecta este servicio antes de entrar en otra sala o partida.",
+    "defaultSeed": "Usar el nodo conectado",
+    "briefFile": "Elegir un documento ya subido"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -702,11 +714,6 @@
       "mojang-java": "Tiempo de Ejecución de Java {{param}}"
     }
   },
-  "Editable": {
-    "edit": "Editar",
-    "save": "Guardar",
-    "cancel": "Cancelar"
-  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -750,6 +757,11 @@
         "invalid": "La ruta del directorio es inválida"
       }
     }
+  },
+  "Editable": {
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar"
   },
   "Empty": {
     "noData": "Sin Datos"
@@ -907,6 +919,21 @@
     "title": "Actualizar Extensión",
     "body": "La extensión {{identifier}} descargó la nueva versión {{version}} de {{src}}. ¿Deseas confirmar la instalación?"
   },
+  "FederationNav": {
+    "title": "Federación",
+    "overview": "Resumen",
+    "league": "Liga",
+    "rooms": "Salas y servidores",
+    "identity": "Mi identidad",
+    "events": "Eventos",
+    "approvals": "Aprobaciones",
+    "files": "Archivos",
+    "manage": "Gestión de temporadas",
+    "connected": "Liga sincronizada",
+    "restricted": "Conéctate como administrador de temporada.",
+    "advanced": "Ajustes avanzados",
+    "disconnected": "Sin conexión"
+  },
   "FederationPage": {
     "title": "Federación",
     "subtitle": "Conéctate a la unión para ver ligas, crear equipos, invitar compañeros e inscribirte.",
@@ -923,13 +950,16 @@
       "title": "Ajustes de conexión",
       "description": "La dirección de la unión y la identidad de unión las proporciona el organizador",
       "addressLabel": "Dirección de la unión",
-      "peerLabel": "Identidad de unión",
+      "peerLabel": "Peer ID del nodo",
+      "genesisLabel": "Hash génesis de la liga (confirmar con organizador)",
       "connect": "Conectar / Actualizar",
       "myDevice": "Mi dispositivo: {{id}}",
       "myMember": "Mi número de miembro: {{id}}",
       "myClub": "({{club}})"
     },
     "error": "Operación incompleta; revisa la conexión y el estado de inscripción e inténtalo de nuevo",
+    "identityRequired": "Conectar requiere una identidad unificada. Configúrala primero en la página de identidad.",
+    "openIdentity": "Abrir ajustes de identidad",
     "empty": {
       "notConnected": "Una vez conectado, aquí aparecerán las ligas, equipos y clasificaciones.",
       "noLeagues": "Esta unión aún no tiene ligas."
@@ -962,6 +992,23 @@
       "start": "Cerrar inscripciones y comenzar",
       "pause": "Pausar",
       "resume": "Reanudar"
+    },
+    "identity": {
+      "title": "Identidad unificada de miembros",
+      "description": "El ID se conserva al cambiar de dispositivo. La afiliación, la presidencia y los permisos de servicio son independientes.",
+      "configuration": "Configuración del génesis y del origen de identidad confirmada por otra vía",
+      "save": "Guardar configuración",
+      "sync": "Sincronizar historial",
+      "automatic": "Verificar mediante el sitio de skins",
+      "host": "Preparar vinculación del anfitrión",
+      "loading": "Verificando el historial…",
+      "unavailable": "No se pudo confirmar la autorización actual. Comprueba la configuración y la conexión y sincroniza. La afiliación no ha caducado.",
+      "empty": "No se ha cargado un historial de identidad verificado.",
+      "review": "Antes de firmar, revisa la federación, el resumen anterior, el miembro, el dispositivo y la acción completa. Reúne firmas para el relevo. No unas identidades por nombre.",
+      "proposal": "JSON de la acción o del registro para firma conjunta",
+      "draft": "Crear borrador",
+      "sign": "Firmar",
+      "submit": "Enviar"
     }
   },
   "FileDnDProvider": {
@@ -1220,9 +1267,11 @@
       }
     },
     "back": "Atrás",
+    "beta": "Beta",
     "browse": "Examinar",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "collapse": "Contraer",
     "color": "Color",
     "confirm": "Aceptar",
     "copy": {
@@ -1250,6 +1299,7 @@
     "edit": "Editar",
     "enable": "Habilitar",
     "exit": "Salir",
+    "expand": "Expandir",
     "finish": "Finalizar",
     "import": "Importar",
     "launch": "Iniciar",
@@ -1281,10 +1331,7 @@
       "test-build": "compilación de prueba"
     },
     "versionNumberingHelp": "Ayuda sobre la numeración de versiones",
-    "viewOnWiki": "Ver en Minecraft Wiki",
-    "beta": "Beta",
-    "collapse": "Contraer",
-    "expand": "Expandir"
+    "viewOnWiki": "Ver en Minecraft Wiki"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1559,6 +1606,50 @@
       "extensionInfo": "Ver Información de la Extensión",
       "settings": "Abrir Configuración de la Extensión"
     }
+  },
+  "IdentifierDisplay": {
+    "copy": "Copiar identificador",
+    "copied": "Copiado"
+  },
+  "IdentityFlow": {
+    "intro": "Verifica tu afiliación y gestiona tus dispositivos vinculados.",
+    "setup": "Importa la configuración de confianza en ajustes avanzados.",
+    "sync": "Actualizar identidad",
+    "automatic": "Verificar con el sitio de skins",
+    "host": "Vincular dispositivo anfitrión",
+    "binding": "Vincular dispositivo o perfil de juego",
+    "member": "ID de miembro",
+    "device": "ID de dispositivo",
+    "club": "Club",
+    "profile": "UUID del perfil Minecraft",
+    "unbound": "Sin vincular",
+    "position": "Verificado hasta el registro {{sequence}}",
+    "review": "Revisar cambios",
+    "reviewHint": "La firma confirma estos cambios. La vinculación puede requerir ambos dispositivos; comparte el registro en ajustes avanzados.",
+    "sign": "Confirmar y firmar",
+    "submit": "Aplicar cambios firmados",
+    "import": "Importar registro para cofirma (JSON)",
+    "export": "Exportar registro firmado (JSON)",
+    "fields": {
+      "federation": "Federación",
+      "genesis": "Raíz de confianza",
+      "sequence": "Número de registro",
+      "previous": "Hash anterior",
+      "action": "Cambio",
+      "signatures": "Firmas",
+      "public_key": "Clave pública",
+      "signature": "Firma",
+      "member": "Miembro",
+      "device": "Dispositivo",
+      "club": "Club",
+      "profile": "Perfil de juego",
+      "evidence": "Evidencia de verificación",
+      "verifier": "Verificador",
+      "type": "Acción"
+    },
+    "before": "Antes",
+    "after": "Después",
+    "unknown": "Actualiza la identidad para ver el vínculo actual"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -1875,6 +1966,11 @@
     "notCompatibleWith": "No compatible con {{item}}",
     "noVersionSelected": "Ninguna versión seleccionada"
   },
+  "MCVersionNumberHelper": {
+    "content": "A partir de 2026, Minecraft adopta un nuevo sistema de numeración de versiones. Los números de versión comenzarán con el año de lanzamiento (por ejemplo, 26.1), reemplazando el anterior esquema de versionado 1.x.",
+    "linkText": "Leer el artículo oficial",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "Importar Modpack",
@@ -1905,39 +2001,6 @@
     "placeholder": {
       "javaPath": "Por favor, ingresa o selecciona la ruta del archivo ejecutable de Java"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "A partir de 2026, Minecraft adopta un nuevo sistema de numeración de versiones. Los números de versión comenzarán con el año de lanzamiento (por ejemplo, 26.1), reemplazando el anterior esquema de versionado 1.x.",
-    "linkText": "Leer el artículo oficial",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
-  },
-  "MemberGovernance": {
-    "title": "Gobernanza de miembros",
-    "description": "Revisa propuestas, participa en votaciones y envía solicitudes",
-    "proposal": "Propuesta {{id}} · {{approvals}} clubes aprobaron · {{status}}",
-    "proposalStatus": {
-      "executed": "Ejecutada",
-      "cancelled": "Retirada",
-      "pending": "Pendiente",
-      "expired": "Caducada"
-    },
-    "votes": "{{count}} votos",
-    "closesAt": "Cierra {{time}}",
-    "noBallots": "Aún no hay votaciones de miembros",
-    "defaultCategory": "Liga",
-    "categoryLabel": "Categoría de solicitud",
-    "bodyLabel": "Solicitud o sugerencia",
-    "submit": "Enviar",
-    "feedbackEntry": "{{category}}: {{text}}",
-    "awaitingResponse": "Esperando respuesta",
-    "proposalId": "Propuesta {{id}}",
-    "approvalsProgress": "{{count}}/{{needed}} clubes aprobaron",
-    "approve": "Aprobar",
-    "execute": "Ejecutar",
-    "cancel": "Retirar",
-    "feedbackReplied": "Respondido",
-    "feedbackPending": "Esperando respuesta",
-    "feedbackResponse": "Respuesta: {{response}}"
   },
   "MemoryStatusProgress": {
     "title": "Estado de la memoria",
@@ -1994,6 +2057,74 @@
   },
   "NotifyNewVersionModal": {
     "title": "Nueva versión disponible"
+  },
+  "Office": {
+    "connection": "Conexión al espacio de trabajo",
+    "genesis": "Hash génesis de la cadena de trabajo",
+    "connectionHint": "Usa el nodo anterior con un hash génesis independiente.",
+    "setup": "Configura la conexión en Resumen.",
+    "refresh": "Actualizar",
+    "error": "No se pudo leer o ejecutar. Revisa la conexión y tus permisos.",
+    "uncertain": "Resultado sin confirmar. Actualiza antes de reintentar para evitar duplicados.",
+    "initial": "Actualiza para cargar la cadena.",
+    "empty": "No hay registros.",
+    "create": "Crear evento",
+    "title": "Título del evento",
+    "brief": "CID o SHA-256 del documento",
+    "opens": "Inicio de inscripción",
+    "closes": "Fin de inscripción",
+    "starts": "Inicio del evento",
+    "submit": "Enviar a revisión",
+    "publish": "Publicar",
+    "finish": "Finalizar evento",
+    "signup": "Inscribirse",
+    "cancelSignup": "Cancelar inscripción",
+    "cancelEvent": "Cancelar evento",
+    "template": "Proceso de aprobación",
+    "requestApproval": "Iniciar aprobación",
+    "signups": "Inscripciones: {{count}}",
+    "tasks": "Tareas",
+    "assignee": "Miembro responsable",
+    "assign": "Asignar",
+    "complete": "Marcar completada",
+    "taskTitle": "Título de la tarea",
+    "addTask": "Añadir tarea",
+    "pending": "Solo pendientes",
+    "proposer": "Solicitante",
+    "event": "ID de evento",
+    "aiResult": "Resultado de la etapa IA",
+    "comment": "Comentario / motivo de rechazo",
+    "commentHint": "Solo se registra el hash SHA-256. Conserva el texto original.",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "poke": "Revisar plazo y avanzar",
+    "delegate": "Delegar",
+    "execute": "Ejecutar acción aprobada",
+    "fileLimits": "Hasta {{bytes}} bytes por archivo y {{paths}} rutas por commit.",
+    "branch": "Rama del directorio",
+    "chooseBranch": "Elegir rama existente",
+    "message": "Descripción del cambio",
+    "path": "Ruta del archivo",
+    "upload": "Subir archivo",
+    "tooLarge": "El archivo supera el límite.",
+    "history": "Historial de versiones",
+    "searchFiles": "Buscar rutas",
+    "download": "Descargar",
+    "restore": "Restaurar como nueva versión",
+    "status": {
+      "draft": "Borrador",
+      "review": "En revisión",
+      "approved": "Aprobado",
+      "open": "Abierto",
+      "done": "Completado",
+      "cancelled": "Cancelado",
+      "active": "En curso",
+      "executed": "Ejecutado",
+      "rejected": "Rechazado"
+    },
+    "checkin": "Registrar asistencia",
+    "checkedIn": "Asistencia registrada",
+    "aiNeedsFile": "Un proceso IA necesita el documento subido. Usa su CID como documento del evento."
   },
   "OptionItemGroup": {
     "button": {
@@ -2372,6 +2503,41 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "Ten cuidado al editar el archivo de configuración sin procesar del lanzador. Un formato incorrecto puede provocar la pérdida de la configuración original o impedir que el lanzador funcione correctamente."
+  },
+  "RoomSearch": {
+    "search": "Buscar salas, clubes o versiones",
+    "school": "Universidad / club",
+    "all": "Todas las universidades / clubes",
+    "selected": "Seleccionado",
+    "noMatches": "No hay salas coincidentes."
+  },
+  "Rooms": {
+    "manualHint": "Configura primero la identidad unificada. La presidencia puede confirmar miembros y vincular perfiles de juego con su firma aunque no funcione ningún sitio de skins. La afiliación dura hasta su revocación explícita.",
+    "showIdentities": "Mostrar identificadores para firmar",
+    "hostIdentity": "Identificador del dispositivo anfitrión",
+    "playerIdentity": "Identificador del dispositivo participante",
+    "title": "Salas y servidores",
+    "description": "Crea una sala o únete a otros clubes con tu identidad de miembro verificada.",
+    "seeds": "Nodos de descubrimiento (una dirección por línea)",
+    "refresh": "Actualizar salas y estado",
+    "partial": "Algunos nodos o salas no están disponibles. La lista puede estar incompleta.",
+    "seedsChanged": "Los nodos de descubrimiento cambiaron desde la última búsqueda. Actualiza para descubrir salas en los nuevos nodos.",
+    "empty": "No se encontraron salas accesibles.",
+    "initial": "Actualiza para descubrir salas.",
+    "choose": "Elige una sala",
+    "option": "{{name}} · {{school}} · {{version}} · hasta {{max}} jugadores",
+    "join": "Unirse",
+    "disconnect": "Desconectar",
+    "connected": "Conectado a {{address}}. Inicia Minecraft con el perfil vinculado a tu identidad de miembro.",
+    "host": "Crea tu propia sala",
+    "configuration": "Configuración del servidor local",
+    "pick": "Elegir archivo de configuración",
+    "relays": "Nodos de retransmisión (una dirección por línea)",
+    "hostHint": "Usa la configuración y los recursos locales de minecraftd. El servidor debe escuchar en loopback. Añade un nodo de retransmisión si no hay acceso directo.",
+    "start": "Iniciar sala",
+    "stop": "Cerrar sala",
+    "hosting": "Alojando {{name}}",
+    "error": "La operación falló. Comprueba la identidad unificada, la configuración del servidor y las rutas de red."
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3231,6 +3397,7 @@
         }
       }
     },
+    "unknownError": "Se ha producido un error desconocido",
     "utils": {
       "deleteFile": {
         "success": "Archivo eliminado exitosamente",
@@ -3238,8 +3405,7 @@
           "title": "Error al eliminar el archivo"
         }
       }
-    },
-    "unknownError": "Se ha producido un error desconocido"
+    }
   },
   "SettingsLayout": {
     "settingsDomainList": {
