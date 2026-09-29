@@ -919,7 +919,7 @@
   },
   "FederationNav": {
     "title": "Federación",
-    "overview": "Resumen",
+    "overview": "Conexión",
     "league": "Liga",
     "rooms": "Salas y servidores",
     "identity": "Mi identidad",
@@ -1609,7 +1609,7 @@
   },
   "IdentityFlow": {
     "intro": "Verifica tu afiliación y gestiona tus dispositivos vinculados.",
-    "setup": "Importa la configuración de confianza en ajustes avanzados.",
+    "setup": "Pega abajo la configuración de confianza de la federación y guárdala para empezar.",
     "sync": "Actualizar identidad",
     "automatic": "Verificar con el sitio de skins",
     "host": "Vincular dispositivo anfitrión",
@@ -2445,7 +2445,6 @@
     "seedsChanged": "Los nodos de descubrimiento cambiaron desde la última búsqueda. Actualiza para descubrir salas en los nuevos nodos.",
     "empty": "No se encontraron salas accesibles.",
     "initial": "Actualiza para descubrir salas.",
-    "choose": "Elige una sala",
     "option": "{{name}} · {{school}} · {{version}} · hasta {{max}} jugadores",
     "join": "Unirse",
     "disconnect": "Desconectar",
@@ -2464,7 +2463,6 @@
     "search": "Buscar salas, clubes o versiones",
     "school": "Universidad / club",
     "all": "Todas las universidades / clubes",
-    "selected": "Seleccionado",
     "noMatches": "No hay salas coincidentes."
   },
   "ScreenshotPreviewModal": {

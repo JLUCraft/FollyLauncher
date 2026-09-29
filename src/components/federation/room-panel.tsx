@@ -9,6 +9,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
@@ -34,9 +35,6 @@ export function RoomPanel() {
     identities,
     rooms,
     seedsChanged,
-    selected,
-    setSelected,
-    selectedRoom,
     host,
     address,
     busy,
@@ -50,62 +48,22 @@ export function RoomPanel() {
     handleStop,
     handleIdentities,
   } = useRooms();
+  const discoverOnEntry = useRef(handleRefresh);
+  discoverOnEntry.current = handleRefresh;
+  useEffect(() => {
+    if (!loaded) void discoverOnEntry.current();
+    // Discover once when the page opens; later visits keep the cached list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Section title={t("Rooms.title")} description={t("Rooms.description")}>
       <VStack align="stretch" spacing={3}>
-        <Section
-          title={t("FederationNav.advanced")}
-          isAccordion
-          initialIsOpen={false}
-        >
-          <Text fontSize="sm">{t("Rooms.manualHint")}</Text>
-          <Button isDisabled={busy} onClick={() => void handleIdentities()}>
-            {t("Rooms.showIdentities")}
-          </Button>
-          {identities && (
-            <>
-              <FormControl>
-                <FormLabel htmlFor="room-host-identity">
-                  {t("Rooms.hostIdentity")}
-                </FormLabel>
-                <Input
-                  id="room-host-identity"
-                  value={identities.host}
-                  isReadOnly
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel htmlFor="room-player-identity">
-                  {t("Rooms.playerIdentity")}
-                </FormLabel>
-                <Input
-                  id="room-player-identity"
-                  value={identities.player}
-                  isReadOnly
-                />
-              </FormControl>
-            </>
-          )}
-          <FormControl>
-            <FormLabel htmlFor="room-seeds">{t("Rooms.seeds")}</FormLabel>
-            <Textarea
-              id="room-seeds"
-              value={seeds}
-              onChange={(e) => setSeeds(e.target.value)}
-              isDisabled={busy}
-            />
-          </FormControl>
-          <Button onClick={resetSeeds} isDisabled={busy}>
-            {t("ConnectionFlow.defaultSeed")}
-          </Button>
-        </Section>
         <Input
           aria-label={t("RoomSearch.search")}
           placeholder={t("RoomSearch.search")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
-            setSelected("");
           }}
         />
         <Select
@@ -114,7 +72,6 @@ export function RoomPanel() {
           value={school}
           onChange={(e) => {
             setSchool(e.target.value);
-            setSelected("");
           }}
         >
           {Array.from(new Set(rooms.map((r) => r.metadata.school)))
@@ -162,15 +119,12 @@ export function RoomPanel() {
                   })}
                 </Text>
                 <Button
-                  aria-pressed={selected === `${room.peer}/${room.service}`}
+                  alignSelf="flex-start"
+                  colorScheme={config.appearance.theme.primaryColor}
                   isDisabled={busy || !!address}
-                  onClick={() => setSelected(`${room.peer}/${room.service}`)}
+                  onClick={() => void handleJoin(room)}
                 >
-                  {t(
-                    selected === `${room.peer}/${room.service}`
-                      ? "RoomSearch.selected"
-                      : "Rooms.choose"
-                  )}
+                  {t("Rooms.join")}
                 </Button>
               </VStack>
             </AdvancedCard>
@@ -189,15 +143,6 @@ export function RoomPanel() {
               description={t("RoomSearch.noMatches")}
             />
           )}
-        <HStack>
-          <Button
-            colorScheme={config.appearance.theme.primaryColor}
-            isDisabled={busy || !selectedRoom || !!address}
-            onClick={() => void handleJoin()}
-          >
-            {t("Rooms.join")}
-          </Button>
-        </HStack>
         <CurrentGameConnection />
         <Section title={t("Rooms.host")} isAccordion initialIsOpen={false}>
           <FormControl>
@@ -246,6 +191,52 @@ export function RoomPanel() {
             {t("Rooms.error")}
           </Text>
         )}
+        <Section
+          title={t("FederationNav.advanced")}
+          isAccordion
+          initialIsOpen={false}
+        >
+          <Text fontSize="sm">{t("Rooms.manualHint")}</Text>
+          <Button isDisabled={busy} onClick={() => void handleIdentities()}>
+            {t("Rooms.showIdentities")}
+          </Button>
+          {identities && (
+            <>
+              <FormControl>
+                <FormLabel htmlFor="room-host-identity">
+                  {t("Rooms.hostIdentity")}
+                </FormLabel>
+                <Input
+                  id="room-host-identity"
+                  value={identities.host}
+                  isReadOnly
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel htmlFor="room-player-identity">
+                  {t("Rooms.playerIdentity")}
+                </FormLabel>
+                <Input
+                  id="room-player-identity"
+                  value={identities.player}
+                  isReadOnly
+                />
+              </FormControl>
+            </>
+          )}
+          <FormControl>
+            <FormLabel htmlFor="room-seeds">{t("Rooms.seeds")}</FormLabel>
+            <Textarea
+              id="room-seeds"
+              value={seeds}
+              onChange={(e) => setSeeds(e.target.value)}
+              isDisabled={busy}
+            />
+          </FormControl>
+          <Button onClick={resetSeeds} isDisabled={busy}>
+            {t("ConnectionFlow.defaultSeed")}
+          </Button>
+        </Section>
       </VStack>
     </Section>
   );

@@ -38,13 +38,11 @@ function useRoomsState() {
   const rooms = resultSource === seeds ? discovered : [];
   const seedsChanged =
     resultSource !== null && resultSource !== seeds && discovered.length > 0;
-  const [selected, setSelected] = useState("");
   const [host, setHost] = useState<Room | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [partial, setPartial] = useState(false);
   const loaded = resultSource === seeds;
-  const selectedRoom = rooms.find((r) => `${r.peer}/${r.service}` === selected);
   useEffect(() => {
     let mounted = true;
     RoomService.status()
@@ -76,18 +74,12 @@ function useRoomsState() {
       const result = await RoomService.discover(routes(seeds));
       setRooms(result.rooms);
       setPartial(result.unavailable.length > 0);
-      setSelected((value) =>
-        result.rooms.some((r) => `${r.peer}/${r.service}` === value)
-          ? value
-          : ""
-      );
       setHost(await RoomService.status());
       setResultSource(seeds);
     });
-  const handleJoin = () =>
+  const handleJoin = (room: Room) =>
     handle(async () => {
-      if (!selectedRoom) return;
-      await connect(() => RoomService.join(selectedRoom), selectedRoom.name);
+      await connect(() => RoomService.join(room), room.name);
     });
   const handleChoose = () =>
     handle(async () => {
@@ -131,9 +123,6 @@ function useRoomsState() {
     identities,
     rooms,
     seedsChanged,
-    selected,
-    setSelected,
-    selectedRoom,
     host,
     address: gameAddress,
     busy: busy || gameBusy,

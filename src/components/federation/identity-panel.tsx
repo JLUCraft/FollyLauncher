@@ -51,6 +51,7 @@ export function IdentityPanel() {
   } = useFederation();
   const [configuration, setConfiguration] = useState("");
   const [configured, setConfigured] = useState(false);
+  const [configurationLoaded, setConfigurationLoaded] = useState(false);
   const [proposal, setProposal] = useState<unknown>(null);
   const [imported, setImported] = useState("");
   const [busy, setBusy] = useState(false);
@@ -71,11 +72,15 @@ export function IdentityPanel() {
       })
       .catch(() => {
         if (active) setFailed(true);
+      })
+      .finally(() => {
+        if (active) setConfigurationLoaded(true);
       });
     return () => {
       active = false;
     };
   }, []);
+  const needsSetup = configurationLoaded && !configured;
   const run = async (operation: string) => {
     setBusy(true);
     setFailed(false);
@@ -147,7 +152,7 @@ export function IdentityPanel() {
     <Section title={t("FederationNav.identity")}>
       <VStack align="stretch" spacing={4}>
         <Text>{t("IdentityFlow.intro")}</Text>
-        {!configured && <Text role="status">{t("IdentityFlow.setup")}</Text>}
+        {needsSetup && <Text role="status">{t("IdentityFlow.setup")}</Text>}
         <HStack flexWrap="wrap">
           {["sync", "automatic", "host"].map((op) => (
             <Button
@@ -338,9 +343,10 @@ export function IdentityPanel() {
           </Section>
         )}
         <Section
+          key={needsSetup ? "setup" : "ready"}
           title={t("FederationNav.advanced")}
           isAccordion
-          initialIsOpen={false}
+          initialIsOpen={needsSetup}
         >
           <VStack align="stretch" spacing={3}>
             <Text overflowWrap="anywhere">

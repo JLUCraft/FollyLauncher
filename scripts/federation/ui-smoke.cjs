@@ -38,7 +38,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     const nav = async (name) => {
       await page.getByRole("button", { name, exact: true }).first().click();
       const paths = {
-        总览: "overview",
+        连接: "overview",
         联赛: "league",
         房间与服务器: "rooms",
         我的身份: "identity",
@@ -51,8 +51,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     };
     await page.goto(`${base}/federation`);
     await page.waitForURL("**/federation/rooms");
-    await nav("总览");
-    await page.getByRole("button", { name: "连接设置", exact: true }).click();
+    await nav("连接");
     await page
       .locator("#federation-address")
       .fill("/ip4/127.0.0.1/tcp/4001/p2p/test");
@@ -81,7 +80,6 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       1
     );
     await page.screenshot({ path: "/tmp/federation-rooms.png" });
-    await page.getByRole("button", { name: "选择房间", exact: true }).click();
     await page.getByRole("button", { name: "加入房间", exact: true }).click();
     await page.getByText(/已连接至 127\.0\.0\.1:12345/).waitFor();
     const discoveries = await page.evaluate(
@@ -125,7 +123,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       ),
       pollCount
     );
-    await nav("总览");
+    await nav("连接");
     await page.getByRole("button", { name: "连接设置", exact: true }).click();
     assert.equal(await page.locator("#federation-peer").inputValue(), "test");
     await page.evaluate(() => (window.admin = true));
@@ -185,7 +183,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await page
       .getByText("游戏连接未完成，请检查链接或联系组织者", { exact: true })
       .waitFor();
-    await nav("总览");
+    await nav("连接");
     await page
       .getByText("游戏连接未完成，请检查链接或联系组织者", { exact: true })
       .waitFor({ state: "hidden" });

@@ -5,13 +5,11 @@ import {
   FormLabel,
   HStack,
   Input,
-  SimpleGrid,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import AdvancedCard from "@/components/common/advanced-card";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
@@ -53,21 +51,16 @@ export default function OverviewPage() {
                 : "FederationNav.disconnected"
           )}
         </Text>
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          {["rooms", "league"].map((destination) => (
-            <AdvancedCard key={destination} p={4}>
-              <Button
-                as={Link}
-                href={`/federation/${destination}`}
-                colorScheme={primaryColor}
-                variant="ghost"
-                w="100%"
-              >
-                {t(`FederationNav.${destination}`)}
-              </Button>
-            </AdvancedCard>
-          ))}
-        </SimpleGrid>
+        {state && (
+          <Button
+            as={Link}
+            href="/federation/league"
+            colorScheme={primaryColor}
+            alignSelf="flex-start"
+          >
+            {t("FederationNav.league")}
+          </Button>
+        )}
         <Section
           title={t("FederationPage.settings.title")}
           isAccordion

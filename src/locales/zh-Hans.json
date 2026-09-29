@@ -919,7 +919,7 @@
   },
   "FederationNav": {
     "title": "联盟",
-    "overview": "总览",
+    "overview": "连接",
     "league": "联赛",
     "rooms": "房间与服务器",
     "identity": "我的身份",
@@ -1609,7 +1609,7 @@
   },
   "IdentityFlow": {
     "intro": "验证成员身份，管理绑定到你的设备。",
-    "setup": "请先在高级设置中导入联盟信任配置。",
+    "setup": "请在下方粘贴联盟信任配置并保存后开始使用。",
     "sync": "刷新身份",
     "automatic": "通过皮肤站验证",
     "host": "绑定开房设备",
@@ -2445,7 +2445,6 @@
     "seedsChanged": "发现节点自上次搜索后已更改，请刷新以在新节点上发现房间。",
     "empty": "未找到可达的房间。",
     "initial": "刷新以发现房间。",
-    "choose": "选择房间",
     "option": "{{name}} · {{school}} · {{version}} · 最多 {{max}} 人",
     "join": "加入房间",
     "disconnect": "断开连接",
@@ -2464,7 +2463,6 @@
     "search": "搜索房间、社团或版本",
     "school": "学校 / 社团",
     "all": "全部学校 / 社团",
-    "selected": "已选择",
     "noMatches": "没有匹配的房间。"
   },
   "ScreenshotPreviewModal": {

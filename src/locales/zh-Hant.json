@@ -919,7 +919,7 @@
   },
   "FederationNav": {
     "title": "聯盟",
-    "overview": "總覽",
+    "overview": "連線",
     "league": "聯賽",
     "rooms": "房間與伺服器",
     "identity": "我的身分",
@@ -1609,7 +1609,7 @@
   },
   "IdentityFlow": {
     "intro": "驗證成員身分，管理綁定至你的裝置。",
-    "setup": "請先在進階設定中匯入聯盟信任設定。",
+    "setup": "請在下方貼上聯盟信任設定並儲存後開始使用。",
     "sync": "重新整理身分",
     "automatic": "透過皮膚站驗證",
     "host": "綁定開房裝置",
@@ -2445,7 +2445,6 @@
     "seedsChanged": "探索節點自上回搜尋後已變更，請重新整理以在新節點上探索房間。",
     "empty": "未找到可連線的房間。",
     "initial": "重新整理以探索房間。",
-    "choose": "選擇房間",
     "option": "{{name}} · {{school}} · {{version}} · 最多 {{max}} 人",
     "join": "加入房間",
     "disconnect": "中斷連線",
@@ -2464,7 +2463,6 @@
     "search": "搜尋房間、社團或版本",
     "school": "學校 / 社團",
     "all": "全部學校 / 社團",
-    "selected": "已選取",
     "noMatches": "沒有符合的房間。"
   },
   "ScreenshotPreviewModal": {

@@ -919,7 +919,7 @@
   },
   "FederationNav": {
     "title": "Fédération",
-    "overview": "Vue d’ensemble",
+    "overview": "Connexion",
     "league": "Ligue",
     "rooms": "Salons et serveurs",
     "identity": "Mon identité",
@@ -1609,7 +1609,7 @@
   },
   "IdentityFlow": {
     "intro": "Vérifiez votre adhésion et gérez vos appareils associés.",
-    "setup": "Importez la configuration de confiance dans les paramètres avancés.",
+    "setup": "Collez ci-dessous la configuration de confiance de la fédération et enregistrez-la pour commencer.",
     "sync": "Actualiser l’identité",
     "automatic": "Vérifier via le site de skins",
     "host": "Associer l’appareil hôte",
@@ -2445,7 +2445,6 @@
     "seedsChanged": "Les nœuds de découverte ont changé depuis la dernière recherche. Actualisez pour découvrir les salons sur les nouveaux nœuds.",
     "empty": "Aucun salon accessible trouvé.",
     "initial": "Actualisez pour découvrir les salons.",
-    "choose": "Choisir un salon",
     "option": "{{name}} · {{school}} · {{version}} · {{max}} joueurs maximum",
     "join": "Rejoindre",
     "disconnect": "Déconnecter",
@@ -2464,7 +2463,6 @@
     "search": "Rechercher un salon, club ou une version",
     "school": "Établissement / club",
     "all": "Tous les établissements / clubs",
-    "selected": "Sélectionné",
     "noMatches": "Aucun salon correspondant."
   },
   "ScreenshotPreviewModal": {
