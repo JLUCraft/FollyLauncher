@@ -14,7 +14,7 @@ export default function ManagePage() {
   return (
     <>
       {error && (
-        <Text role="alert" color="red.500">
+        <Text role="alert" color="red.600">
           {error}
         </Text>
       )}

@@ -1,5 +1,4 @@
 {
-  "identifier": "SJMCL",
   "bundle": {
     "resources": {
       "infoplist": ""
@@ -19,7 +18,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "Folly Launcher",
         "url": "/",
         "width": 800,
         "height": 550,

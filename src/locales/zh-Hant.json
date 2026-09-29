@@ -14,13 +14,14 @@
           }
         },
         "basedOn": {
-          "title": "基於開源啟動器 SJMCL"
+          "title": "基於開源啟動器 SJMCL",
+          "description": "{{productName}} 是基於 SJMCL 的衍生版本，加入聯盟與房間功能。以下貢獻者、原始碼、協議和說明連結指向上游 SJMCL；上游文件不涵蓋本版本新增功能。目前更新來源也仍指向上游 SJMCL。"
         },
         "contributors": {
-          "title": "開發者名單"
+          "title": "上游 SJMCL 貢獻者"
         },
         "sourceCode": {
-          "title": "在 GitHub 檢視原始碼"
+          "title": "查看上游 SJMCL 原始碼"
         },
         "aboutSJMC": {
           "title": "關於上海交通大學 Minecraft 社（SJMC）"
@@ -68,7 +69,7 @@
           "description": "版權所有 © 2024-2026 SJMCL 開發團隊."
         },
         "userAgreement": {
-          "title": "使用者協議",
+          "title": "上游 SJMCL 使用者協議",
           "url": "https://mc.sjtu.cn/sjmcl/docs/tos"
         },
         "openSourceLicense": {
@@ -179,7 +180,7 @@
         "title": "高階選項",
         "uuid": {
           "label": "UUID",
-          "placeholder": "（由 SJMCL 自動生成）",
+          "placeholder": "（由 {{productName}} 自動生成）",
           "errorMessage": "UUID 格式不正確"
         }
       }
@@ -208,7 +209,7 @@
       "description": {
         "start": {
           "3rdparty": "此認證源支援 Yggdrasil Connect 規範提案",
-          "microsoft": "SJMCL 支援微軟 OAuth 2.0 裝置許可權授予流"
+          "microsoft": "{{productName}} 支援微軟 OAuth 2.0 裝置許可權授予流"
         },
         "next": "請點選繼續登入按鈕跳轉登入頁面，輸入以上程式碼（已自動複製）"
       },
@@ -436,13 +437,10 @@
   "ConnectionFlow": {
     "connecting": "正在連線…",
     "setup": "前往連線設定",
-    "connectOffice": "連線 / 重新整理辦公",
-    "officeConnected": "已同步辦公",
     "origin": {
       "match": "比賽",
       "room": "房間"
     },
-    "domains": "聯賽和辦公各自儲存獨立的簽章歷史，因此需要分別核實創世雜湊，避免連到錯誤的鏈。",
     "currentGame": "目前遊戲連線",
     "service": "服務：{{service}} · 節點：{{peer}}",
     "disconnectFirst": "要加入其他房間或比賽，請先中斷目前服務。",
@@ -578,7 +576,7 @@
       "type": "類型"
     },
     "warning": {
-      "mojang": "由 Mojang 分發的 Java 執行時將由 SJMCL 安裝到特定目錄",
+      "mojang": "由 Mojang 分發的 Java 執行時將由 {{productName}} 安裝到特定目錄",
       "oracle": "從 Oracle 源下載可能需要登入"
     }
   },
@@ -891,10 +889,10 @@
     "title": "{{name}} 設定"
   },
   "ExtensionSettingsPage": {
-    "alert": "SJMCL 無法控制第三方擴充套件的行為，包括它們如何處理你的個人資料。請僅安裝並啟用來自可信來源的擴充套件。",
+    "alert": "{{productName}} 無法控制第三方擴充套件的行為，包括它們如何處理你的個人資料。請僅安裝並啟用來自可信來源的擴充套件。",
     "fileDnD": {
       "title": "安裝 SJMCL 擴充套件",
-      "desc": "將擴充套件檔案 {{fileName}} 安裝到 SJMCL"
+      "desc": "將擴充套件檔案 {{fileName}} 安裝到 {{productName}}"
     },
     "installed": "已安裝擴充套件",
     "menu": {
@@ -925,9 +923,6 @@
     "league": "聯賽",
     "rooms": "房間與伺服器",
     "identity": "我的身分",
-    "events": "活動",
-    "approvals": "審批",
-    "files": "檔案",
     "manage": "賽季營運",
     "connected": "已同步聯賽",
     "restricted": "請使用賽季管理員身分連線後管理賽季。",
@@ -952,6 +947,7 @@
       "addressLabel": "聯盟連線位址",
       "peerLabel": "節點 Peer ID",
       "genesisLabel": "聯賽鏈創世雜湊（向組織者核實）",
+      "genesisInvalid": "請輸入組織者提供的 64 位小寫十六進位雜湊。",
       "connect": "連線 / 重新整理",
       "myDevice": "我的裝置：{{id}}",
       "myMember": "我的編號：{{id}}",
@@ -1422,14 +1418,14 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "目前目錄",
-            "APP_DATA_SUBDIR": "SJMCL 資料目錄",
+            "APP_DATA_SUBDIR": "{{productName}} 資料目錄",
             "OFFICIAL_DIR": "官方啟動器目錄"
           }
         }
       },
       "deleteDialog": {
         "title": "刪除遊戲目錄",
-        "content": "確定要刪除遊戲目錄 {{dirName}} 嗎？（SJMCL 將不會掃描此目錄，但不會刪除硬碟上的檔案）"
+        "content": "確定要刪除遊戲目錄 {{dirName}} 嗎？（{{productName}} 將不會掃描此目錄，但不會刪除硬碟上的檔案）"
       },
       "directoryNotExist": "該目錄不存在，請刪除並重新新增"
     },
@@ -1588,11 +1584,11 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "SJMC Launcher 文件",
+          "title": "上游 SJMCL 文件",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
         "UserGroup": {
-          "title": "使用者社群",
+          "title": "上游 SJMCL 使用者社群",
           "description": "歡迎加入 QQ 群或 GitHub Discussions，回報問題、請求功能或取得協助",
           "url": "https://mc.sjtu.cn/sjmcl/docs/user-group"
         }
@@ -1863,7 +1859,7 @@
     }
   },
   "IntelligenceSettingsPage": {
-    "title": "SJMCL 智慧",
+    "title": "{{productName}} 智慧",
     "description": "將 AI 模型整合到你的啟動器與 Minecraft 遊玩體驗中。",
     "mcpServer": {
       "title": "MCP 服務",
@@ -1905,7 +1901,7 @@
     },
     "confirmDelete": {
       "title": "移除 Java",
-      "description": "確認要移除此版本 Java 嗎？（SJMCL 將無法使用此 Java 啟動遊戲，但不會刪除硬碟上的檔案）"
+      "description": "確認要移除此版本 Java 嗎？（{{productName}} 將無法使用此 Java 啟動遊戲，但不會刪除硬碟上的檔案）"
     }
   },
   "LanguageMenu": {
@@ -1922,7 +1918,7 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "上次執行異常退出",
-      "content": "SJMCL 上次執行時異常退出。您可以將日誌發送到<community>使用者社群</community>，或在 <github>GitHub</github> 發起 Issue 以尋求協助",
+      "content": "{{productName}} 上次執行時異常結束。可先查看日誌。以下<community>使用者社群</community>和 <github>GitHub</github> 入口屬於上游 SJMCL；回報時請註明衍生版本，聯盟問題應交由本版本維護者處理。",
       "viewLog": "檢視日誌"
     }
   },
@@ -1974,7 +1970,7 @@
   "MainLayout": {
     "fileDnD": {
       "title": "匯入模組包",
-      "desc": "將模組包檔案 {{fileName}} 匯入到 SJMCL"
+      "desc": "將模組包檔案 {{fileName}} 匯入到 {{productName}}"
     }
   },
   "ManageSkinModal": {
@@ -2057,74 +2053,6 @@
   },
   "NotifyNewVersionModal": {
     "title": "發現新版本"
-  },
-  "Office": {
-    "connection": "辦公連線",
-    "genesis": "辦公鏈創世雜湊",
-    "connectionHint": "使用上方節點位址和對等方；辦公鏈有獨立的創世雜湊。",
-    "setup": "請在總覽中設定辦公連線。",
-    "refresh": "重新整理",
-    "error": "無法讀取或執行請求，請檢查連線和操作權限。",
-    "uncertain": "尚無法確認執行結果。請先重新整理再重試，以免重複提交。",
-    "initial": "重新整理以載入辦公鏈。",
-    "empty": "暫無紀錄。",
-    "create": "建立活動",
-    "title": "活動名稱",
-    "brief": "方案檔案 CID 或 SHA-256",
-    "opens": "報名開始",
-    "closes": "報名截止",
-    "starts": "活動開始",
-    "submit": "提交審核",
-    "publish": "發布",
-    "finish": "結束活動",
-    "signup": "報名",
-    "cancelSignup": "取消報名",
-    "cancelEvent": "取消活動",
-    "template": "審批流程",
-    "requestApproval": "發起審批",
-    "signups": "已報名：{{count}}",
-    "tasks": "任務",
-    "assignee": "負責成員",
-    "assign": "指派",
-    "complete": "標記完成",
-    "taskTitle": "任務名稱",
-    "addTask": "新增任務",
-    "pending": "僅看待處理",
-    "proposer": "發起人",
-    "event": "活動編號",
-    "aiResult": "AI 階段產物",
-    "comment": "審批意見 / 駁回原因",
-    "commentHint": "鏈上僅記錄意見的 SHA-256 摘要，請自行儲存原文。",
-    "approve": "同意",
-    "reject": "駁回",
-    "poke": "檢查截止時間並推進",
-    "delegate": "轉交",
-    "execute": "執行已核准操作",
-    "fileLimits": "每個檔案最多 {{bytes}} 位元組，每次目錄提交最多 {{paths}} 個路徑。",
-    "branch": "目錄分支",
-    "chooseBranch": "選擇現有分支",
-    "message": "變更說明",
-    "path": "檔案路徑",
-    "upload": "上傳檔案",
-    "tooLarge": "檔案超過大小限制。",
-    "history": "版本歷史",
-    "searchFiles": "搜尋檔案路徑",
-    "download": "下載",
-    "restore": "還原為新版本",
-    "status": {
-      "draft": "草稿",
-      "review": "審核中",
-      "approved": "已核准",
-      "open": "已發布",
-      "done": "已完成",
-      "cancelled": "已取消",
-      "active": "進行中",
-      "executed": "已執行",
-      "rejected": "已駁回"
-    },
-    "checkin": "簽到",
-    "checkedIn": "已簽到",
-    "aiNeedsFile": "含 AI 階段的審批需要已上傳的方案檔案。請在檔案頁上傳，並將檔案 CID 用作活動方案。"
   },
   "OptionItemGroup": {
     "button": {
@@ -2493,8 +2421,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "啟動器更新",
-    "body": "新版本已完成下載，重新開啟 SJMCL 以完成更新",
-    "bodyWinInstaller": "新版本已完成下載，點選安裝將關閉 SJMCL 並執行安裝程式",
+    "body": "已下載上游 SJMCL 更新包。重新啟動將以該更新包取代目前程式，可能不包含 {{productName}} 的聯盟功能。",
+    "bodyWinInstaller": "已下載上游 SJMCL 安裝包。安裝將關閉 {{productName}} 並執行上游安裝程式；它可能不包含本版本的聯盟功能。",
     "button": {
       "restart": "重新啟動",
       "install": "安裝",
@@ -2503,13 +2431,6 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎編輯啟動器原始設定檔案，錯誤的格式可能導致原有設定遺失或啟動器無法正常工作"
-  },
-  "RoomSearch": {
-    "search": "搜尋房間、社團或版本",
-    "school": "學校 / 社團",
-    "all": "全部學校 / 社團",
-    "selected": "已選取",
-    "noMatches": "沒有符合的房間。"
   },
   "Rooms": {
     "manualHint": "請先設定統一身份。即使所有皮膚站離線，社長仍可手工簽名確認成員並綁定遊戲身份；資格持續有效，直到明確吊銷。",
@@ -2538,6 +2459,13 @@
     "stop": "關閉房間",
     "hosting": "正在託管 {{name}}",
     "error": "房間操作失敗。請檢查統一身份、伺服器設定和網路路由。"
+  },
+  "RoomSearch": {
+    "search": "搜尋房間、社團或版本",
+    "school": "學校 / 社團",
+    "all": "全部學校 / 社團",
+    "selected": "已選取",
+    "noMatches": "沒有符合的房間。"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3507,7 +3435,7 @@
   "UnavailableExePathAlertDialog": {
     "dialog": {
       "title": "無效的執行路徑",
-      "content": "您正在暫存或非法目錄下執行 SJMCL，您的設定和遊戲資料可能遺失。請將 SJMCL 移動到其他位置後再次執行。",
+      "content": "您正在暫存或非法目錄下執行 {{productName}}，您的設定和遊戲資料可能遺失。請將 {{productName}} 移動到其他位置後再次執行。",
       "btnContinue": "仍要執行"
     }
   },
@@ -3551,11 +3479,11 @@
       "title": "歡迎！"
     },
     "body": {
-      "text": "歡迎使用 SJMCL！在開始使用之前，請務必閱讀並同意我們的<terms>使用者協議</terms>。"
+      "text": "歡迎使用 {{productName}}！本版本基於 SJMCL 開發。繼續前，請閱讀並同意所連結的<terms>上游 SJMCL 使用者協議</terms>；該連結不是本版本新增聯盟服務的專門條款。"
     },
     "warning": {
-      "unstableVersion": "您正在使用{{versionLabel}}的 SJMCL，部分功能可能不穩定或未開發完成，歡迎報告使用問題與功能建議。",
-      "winArm64Notice": "SJMCL 現已支援 Windows on Arm 平臺。<br/>如您正在使用 <b>高通</b> 平臺，您可能需要安裝 <glpack>OpenGL 相容包</glpack> 後才能進行遊戲。"
+      "unstableVersion": "您正在使用{{versionLabel}}的 {{productName}}，部分功能可能不穩定或未開發完成，歡迎報告使用問題與功能建議。",
+      "winArm64Notice": "{{productName}} 現已支援 Windows on Arm 平臺。<br/>如您正在使用 <b>高通</b> 平臺，您可能需要安裝 <glpack>OpenGL 相容包</glpack> 後才能進行遊戲。"
     },
     "button": {
       "agree": "同意並繼續"

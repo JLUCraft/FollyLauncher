@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuMaximize2, LuMinimize2, LuMinus, LuX } from "react-icons/lu";
+import { brand } from "@/brand";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
@@ -238,7 +239,7 @@ const WindowTitlebar = () => {
         {(isWindows || isLinux) && (
           <Image
             src="/images/icons/Logo_32x32.png"
-            alt="SJMCL"
+            alt={brand.productName}
             boxSize="16px"
           />
         )}

@@ -1,10 +1,9 @@
 {
-  "identifier": "SJMCL",
   "app": {
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "Folly Launcher",
         "url": "/",
         "width": 800,
         "height": 550,

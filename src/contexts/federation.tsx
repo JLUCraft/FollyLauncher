@@ -9,7 +9,6 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
-import { OfficeTarget } from "@/services/office";
 import {
   IdentityFacts,
   UnionService,
@@ -17,10 +16,16 @@ import {
   isIdentityNotConfigured,
 } from "@/services/union";
 
+interface FederationTarget {
+  address: string;
+  peer: string;
+  genesis: string;
+}
+
 const CONNECTION_STORAGE_KEY = "federation-connections";
-export function validTarget(value: unknown): value is OfficeTarget {
+export function validTarget(value: unknown): value is FederationTarget {
   if (!value || typeof value !== "object") return false;
-  const target = value as OfficeTarget;
+  const target = value as FederationTarget;
   return (
     typeof target.address === "string" &&
     !!target.address &&
@@ -34,41 +39,33 @@ function useFederationState() {
   const [address, setAddress] = useState(brand.federation.defaultAddress);
   const [peer, setPeer] = useState(brand.federation.defaultPeer);
   const [genesisHash, setGenesisHash] = useState("");
-  const [officeGenesis, setOfficeGenesis] = useState("");
-  const [restored, setRestored] = useState<{
-    league?: OfficeTarget;
-    office?: OfficeTarget;
-  }>();
-  const saved = useRef<{ league?: OfficeTarget; office?: OfficeTarget }>({});
-  const remember = useCallback(
-    (domain: "league" | "office", target: OfficeTarget) => {
-      saved.current = { ...saved.current, [domain]: target };
-      try {
-        localStorage.setItem(
-          CONNECTION_STORAGE_KEY,
-          JSON.stringify(saved.current)
-        );
-      } catch {
-        /* Session settings remain usable without browser storage. */
-      }
-    },
-    []
-  );
+  const saved = useRef<{ league?: FederationTarget }>({});
+  const remember = useCallback((domain: "league", target: FederationTarget) => {
+    saved.current = { ...saved.current, [domain]: target };
+    try {
+      localStorage.setItem(
+        CONNECTION_STORAGE_KEY,
+        JSON.stringify(saved.current)
+      );
+    } catch {
+      /* Session settings remain usable without browser storage. */
+    }
+  }, []);
   const [identityFacts, setIdentityFacts] = useState<IdentityFacts | null>(
     null
   );
   const [identity, setIdentity] = useState("");
   const [state, setState] = useState<UnionState>();
   const stateRef = useRef<UnionState>();
-  const [activeTarget, setActiveTarget] = useState<OfficeTarget>();
-  const targetRef = useRef<OfficeTarget>();
+  const [activeTarget, setActiveTarget] = useState<FederationTarget>();
+  const targetRef = useRef<FederationTarget>();
   const [connecting, setConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [identityRequired, setIdentityRequired] = useState(false);
   const [identityError, setIdentityError] = useState(false);
   const generation = useRef(0);
   const connectTarget = useCallback(
-    async (target: OfficeTarget) => {
+    async (target: FederationTarget) => {
       const current = ++generation.current;
       if (JSON.stringify(targetRef.current) !== JSON.stringify(target)) {
         stateRef.current = undefined;
@@ -115,25 +112,22 @@ function useFederationState() {
     };
   }, []);
   useEffect(() => {
-    let config: { league?: OfficeTarget; office?: OfficeTarget } = {};
+    let config: { league?: FederationTarget } = {};
     try {
       const parsed = JSON.parse(
         localStorage.getItem(CONNECTION_STORAGE_KEY) || "null"
       );
       if (validTarget(parsed?.league)) config.league = parsed.league;
-      if (validTarget(parsed?.office)) config.office = parsed.office;
     } catch {
       /* No valid saved configuration. */
     }
     saved.current = config;
-    const target = config.league || config.office;
+    const target = config.league;
     if (target) {
       setAddress(target.address);
       setPeer(target.peer);
     }
     setGenesisHash(config.league?.genesis || "");
-    setOfficeGenesis(config.office?.genesis || "");
-    setRestored(config);
     if (config.league) void connectTarget(config.league);
   }, [connectTarget]);
   const request = useCallback(async (action?: Record<string, unknown>) => {
@@ -165,10 +159,6 @@ function useFederationState() {
     setPeer,
     genesisHash,
     setGenesisHash,
-    officeGenesis,
-    setOfficeGenesis,
-    restored,
-    remember,
     identityFacts,
     setIdentityFacts,
     identity,

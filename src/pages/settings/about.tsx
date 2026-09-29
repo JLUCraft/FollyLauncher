@@ -109,6 +109,9 @@ const AboutSettingsPage = () => {
         },
         {
           title: t("AboutSettingsPage.about.settings.basedOn.title"),
+          description: t(
+            "AboutSettingsPage.about.settings.basedOn.description"
+          ),
           children: (
             <CommonIconButton
               label="https://github.com/UNIkeEN/SJMCL"

@@ -69,6 +69,21 @@ if (fs.existsSync(iconDir)) {
 
 fs.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, 2) + "\n");
 
+// Platform overlays must not override the selected native brand.
+for (const platform of ["linux", "windows", "macos"]) {
+  const configPath = path.join(
+    repoRoot,
+    "src-tauri",
+    `tauri.${platform}.conf.json`
+  );
+  const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  delete config.identifier;
+  for (const window of config.app?.windows || []) {
+    if (window.label === "main") window.title = brand.productName;
+  }
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
+}
+
 // Expose the brand to the frontend at runtime.
 const genPath = path.join(repoRoot, "src/brand.gen.json");
 fs.writeFileSync(genPath, JSON.stringify(brand, null, 2) + "\n");

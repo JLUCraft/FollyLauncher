@@ -1,5 +1,4 @@
 {
-  "identifier": "SJMCL",
   "bundle": {
     "windows": {
       "nsis": {
@@ -21,7 +20,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "Folly Launcher",
         "url": "/",
         "width": 820,
         "height": 550,

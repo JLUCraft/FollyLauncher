@@ -6,7 +6,6 @@ const MAX_GAME_ADDRESS_BYTES: usize = 2048;
 use identity::Identity;
 use tauri::{AppHandle, Manager};
 
-pub mod office;
 pub mod rooms;
 mod session;
 pub mod trust;

@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import AdvancedCard from "@/components/common/advanced-card";
+import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { CurrentGameConnection } from "@/components/federation/current-game-connection";
 import { useLauncherConfig } from "@/contexts/config";
@@ -124,13 +125,21 @@ export function RoomPanel() {
               </option>
             ))}
         </Select>
-        <Button onClick={() => void handleRefresh()} isLoading={busy}>
+        <Button
+          alignSelf="flex-start"
+          onClick={() => void handleRefresh()}
+          isLoading={busy}
+        >
           {t("Rooms.refresh")}
         </Button>
         {partial && <Text role="status">{t("Rooms.partial")}</Text>}
         {seedsChanged && <Text role="status">{t("Rooms.seedsChanged")}</Text>}
         {!busy && rooms.length === 0 && (
-          <Text>{t(loaded ? "Rooms.empty" : "Rooms.initial")}</Text>
+          <Empty
+            size="sm"
+            withIcon={false}
+            description={t(loaded ? "Rooms.empty" : "Rooms.initial")}
+          />
         )}
         {rooms
           .filter(
@@ -173,7 +182,13 @@ export function RoomPanel() {
               [room.name, room.metadata.school, room.metadata.version].some(
                 (v) => v.toLocaleLowerCase().includes(query.toLocaleLowerCase())
               )
-          ) && <Text>{t("RoomSearch.noMatches")}</Text>}
+          ) && (
+            <Empty
+              size="sm"
+              withIcon={false}
+              description={t("RoomSearch.noMatches")}
+            />
+          )}
         <HStack>
           <Button
             colorScheme={config.appearance.theme.primaryColor}
@@ -227,7 +242,7 @@ export function RoomPanel() {
           )}
         </Section>
         {error && (
-          <Text role="alert" color="red.500">
+          <Text role="alert" color="red.600">
             {t("Rooms.error")}
           </Text>
         )}

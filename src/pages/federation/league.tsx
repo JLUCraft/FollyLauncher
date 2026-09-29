@@ -5,7 +5,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Heading,
   Input,
   Tag,
   Text,
@@ -54,8 +53,8 @@ export default function LeaguePage() {
       setGameError(true);
     }
   };
-  const [teamName, setTeamName] = useState("");
-  const [invitee, setInvitee] = useState("");
+  const [teamNames, setTeamNames] = useState<Record<string, string>>({});
+  const [invitees, setInvitees] = useState<Record<string, string>>({});
   const leagues = Object.entries(state?.leagues || {});
   return (
     <Section title={t("FederationNav.league")}>
@@ -78,6 +77,7 @@ export default function LeaguePage() {
             </FormControl>
             <Button
               colorScheme={primaryColor}
+              alignSelf="flex-start"
               isLoading={gameBusy}
               isDisabled={!!connection || !gameLink}
               onClick={() => void handleGameConnection()}
@@ -101,7 +101,7 @@ export default function LeaguePage() {
         )}
 
         {error && (
-          <Text role="alert" color="red.500" fontSize="sm">
+          <Text role="alert" color="red.600" fontSize="sm">
             {error}
           </Text>
         )}
@@ -120,7 +120,9 @@ export default function LeaguePage() {
                   align="center"
                   justify="space-between"
                 >
-                  <Heading size="md">{league}</Heading>
+                  <Text fontWeight="bold" fontSize="sm">
+                    {league}
+                  </Text>
                   <HStack spacing={2}>
                     <Tag colorScheme={LEAGUE_PHASE_COLOR_SCHEME[value.phase]}>
                       {leaguePhaseLabel(t, value.phase)}
@@ -186,18 +188,23 @@ export default function LeaguePage() {
                       placeholder={t(
                         "FederationPage.league.teamNamePlaceholder"
                       )}
-                      value={teamName}
-                      onChange={(e) => setTeamName(e.target.value)}
+                      value={teamNames[league] || ""}
+                      onChange={(e) =>
+                        setTeamNames((current) => ({
+                          ...current,
+                          [league]: e.target.value,
+                        }))
+                      }
                     />
                     <Button
                       colorScheme={primaryColor}
                       flexShrink={0}
-                      isDisabled={busy || !teamName}
+                      isDisabled={busy || !teamNames[league]?.trim()}
                       onClick={() =>
                         void handleRequest({
                           type: "create_team",
                           league,
-                          team: teamName,
+                          team: teamNames[league].trim(),
                         })
                       }
                     >
@@ -206,114 +213,120 @@ export default function LeaguePage() {
                   </HStack>
                 )}
 
-                <Box>
-                  <Text fontWeight="bold" fontSize="sm" mb={2}>
-                    {t("FederationPage.league.teamsTitle")}
-                  </Text>
+                <Section title={t("FederationPage.league.teamsTitle")}>
                   {Object.keys(value.teams).length === 0 ? (
                     <Text fontSize="sm" className="secondary-text">
                       {t("FederationPage.league.teamsEmpty")}
                     </Text>
                   ) : (
-                    Object.entries(value.teams).map(([team, roster]) => (
-                      <Box
-                        key={team}
-                        py={3}
-                        borderBottomWidth="1px"
-                        borderColor="var(--chakra-colors-chakra-border-color)"
-                        _last={{ borderBottomWidth: 0 }}
-                      >
-                        <Flex wrap="wrap" gap={2} align="center">
-                          <Text fontWeight="medium">{team}</Text>
-                          <Tag colorScheme="gray">
-                            {t("FederationPage.league.memberCount", {
-                              count: roster.members.length,
-                            })}
-                          </Tag>
-                          <Tag
-                            colorScheme={roster.registered ? "green" : "gray"}
-                          >
-                            {roster.registered
-                              ? t("FederationPage.league.registered")
-                              : t("FederationPage.league.notRegistered")}
-                          </Tag>
-                          <HStack spacing={2} ml="auto">
-                            {value.phase === "Registration" &&
-                              member &&
-                              roster.invited.includes(member) && (
-                                <Button
-                                  colorScheme={primaryColor}
-                                  isDisabled={busy}
-                                  onClick={() =>
-                                    void handleRequest({
-                                      type: "accept",
-                                      league,
-                                      team,
-                                    })
-                                  }
-                                >
-                                  {t("FederationPage.league.acceptInvite")}
-                                </Button>
-                              )}
-                            {value.phase === "Registration" &&
-                              roster.captain === member && (
-                                <>
+                    Object.entries(value.teams).map(([team, roster]) => {
+                      const invitationKey = JSON.stringify([league, team]);
+                      const invitee = invitees[invitationKey] || "";
+                      return (
+                        <Box
+                          key={team}
+                          py={3}
+                          borderBottomWidth="1px"
+                          borderColor="var(--chakra-colors-chakra-border-color)"
+                          _last={{ borderBottomWidth: 0 }}
+                        >
+                          <Flex wrap="wrap" gap={2} align="center">
+                            <Text fontWeight="medium">{team}</Text>
+                            <Tag colorScheme="gray">
+                              {t("FederationPage.league.memberCount", {
+                                count: roster.members.length,
+                              })}
+                            </Tag>
+                            <Tag
+                              colorScheme={roster.registered ? "green" : "gray"}
+                            >
+                              {roster.registered
+                                ? t("FederationPage.league.registered")
+                                : t("FederationPage.league.notRegistered")}
+                            </Tag>
+                            <HStack spacing={2} ml="auto">
+                              {value.phase === "Registration" &&
+                                member &&
+                                roster.invited.includes(member) && (
                                   <Button
                                     colorScheme={primaryColor}
                                     isDisabled={busy}
                                     onClick={() =>
                                       void handleRequest({
-                                        type: "register",
+                                        type: "accept",
                                         league,
                                         team,
                                       })
                                     }
                                   >
-                                    {t("FederationPage.league.register")}
+                                    {t("FederationPage.league.acceptInvite")}
                                   </Button>
-                                </>
-                              )}
-                          </HStack>
-                        </Flex>
-                        {value.phase === "Registration" &&
-                          roster.captain === member && (
-                            <HStack spacing={2} mt={2}>
-                              <Input
-                                aria-label={t(
-                                  "FederationPage.league.inviteePlaceholder"
                                 )}
-                                placeholder={t(
-                                  "FederationPage.league.inviteePlaceholder"
+                              {value.phase === "Registration" &&
+                                roster.captain === member && (
+                                  <>
+                                    <Button
+                                      colorScheme={primaryColor}
+                                      isDisabled={busy || roster.registered}
+                                      onClick={() =>
+                                        void handleRequest({
+                                          type: "register",
+                                          league,
+                                          team,
+                                        })
+                                      }
+                                    >
+                                      {t("FederationPage.league.register")}
+                                    </Button>
+                                  </>
                                 )}
-                                list={`invite-${league}-${team}`}
-                                value={invitee}
-                                onChange={(e) => setInvitee(e.target.value)}
-                              />
-                              <datalist id={`invite-${league}-${team}`}>
-                                {Object.keys(state.members).map((id) => (
-                                  <option key={id} value={id} />
-                                ))}
-                              </datalist>
-                              <Button
-                                flexShrink={0}
-                                isDisabled={busy || !state.members[invitee]}
-                                onClick={() =>
-                                  void handleRequest({
-                                    type: "invite",
-                                    league,
-                                    team,
-                                    member: invitee,
-                                  })
-                                }
-                              >
-                                {t("FederationPage.league.invite")}
-                              </Button>
                             </HStack>
-                          )}
-                      </Box>
-                    ))
+                          </Flex>
+                          {value.phase === "Registration" &&
+                            roster.captain === member && (
+                              <HStack spacing={2} mt={2}>
+                                <Input
+                                  aria-label={t(
+                                    "FederationPage.league.inviteePlaceholder"
+                                  )}
+                                  placeholder={t(
+                                    "FederationPage.league.inviteePlaceholder"
+                                  )}
+                                  list={`invite-${league}-${team}`}
+                                  value={invitee}
+                                  onChange={(e) =>
+                                    setInvitees((current) => ({
+                                      ...current,
+                                      [invitationKey]: e.target.value,
+                                    }))
+                                  }
+                                />
+                                <datalist id={`invite-${league}-${team}`}>
+                                  {Object.keys(state.members).map((id) => (
+                                    <option key={id} value={id} />
+                                  ))}
+                                </datalist>
+                                <Button
+                                  flexShrink={0}
+                                  isDisabled={busy || !state.members[invitee]}
+                                  onClick={() =>
+                                    void handleRequest({
+                                      type: "invite",
+                                      league,
+                                      team,
+                                      member: invitee,
+                                    })
+                                  }
+                                >
+                                  {t("FederationPage.league.invite")}
+                                </Button>
+                              </HStack>
+                            )}
+                        </Box>
+                      );
+                    })
                   )}
-                </Box>
+                </Section>
 
                 <Flex
                   gap={8}

@@ -37,7 +37,11 @@ export function CurrentGameConnection() {
         </Text>
         <Text>{t("Rooms.connected", { address: connection.address })}</Text>
         <Text fontSize="sm">{t("ConnectionFlow.disconnectFirst")}</Text>
-        <Button isLoading={busy} onClick={() => void handleDisconnect()}>
+        <Button
+          alignSelf="flex-start"
+          isLoading={busy}
+          onClick={() => void handleDisconnect()}
+        >
           {t("Rooms.disconnect")}
         </Button>
         {error && (

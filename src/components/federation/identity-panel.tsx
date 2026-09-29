@@ -12,7 +12,9 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AdvancedCard from "@/components/common/advanced-card";
+import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { IdentityFacts, UnionService } from "@/services/union";
 import { encodeHex } from "@/utils/federation/hex";
@@ -40,6 +42,8 @@ function RecordFields({ value }: { value: unknown }) {
 }
 export function IdentityPanel() {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const {
     identity,
     identityFacts: facts,
@@ -162,11 +166,8 @@ export function IdentityPanel() {
           <Text role="alert">{t("FederationPage.identity.unavailable")}</Text>
         )}
         {facts ? (
-          <AdvancedCard>
+          <AdvancedCard p={4}>
             <VStack align="stretch">
-              <Text>
-                {t("FederationPage.settings.myDevice", { id: identity })}
-              </Text>
               <Text>
                 {t("FederationPage.settings.myMember", {
                   id: ownMember || t("IdentityFlow.unbound"),
@@ -179,15 +180,12 @@ export function IdentityPanel() {
                     {t("FederationPage.settings.myClub", { club: c })}
                   </Text>
                 ))}
-              <Text>
-                {t("IdentityFlow.position", {
-                  sequence: facts.checkpoint.sequence,
-                })}
-              </Text>
             </VStack>
           </AdvancedCard>
         ) : (
-          !busy && <Text>{t("FederationPage.identity.empty")}</Text>
+          !busy && (
+            <Empty size="md" description={t("FederationPage.identity.empty")} />
+          )
         )}
         <Section
           title={t("IdentityFlow.binding")}
@@ -292,6 +290,7 @@ export function IdentityPanel() {
               </>
             )}
             <Button
+              colorScheme={primaryColor}
               isDisabled={
                 busy ||
                 !configured ||
@@ -321,12 +320,14 @@ export function IdentityPanel() {
               <RecordFields value={proposal} />
               <HStack>
                 <Button
+                  colorScheme={primaryColor}
                   isDisabled={busy || !configured}
                   onClick={() => void run("sign")}
                 >
                   {t("IdentityFlow.sign")}
                 </Button>
                 <Button
+                  colorScheme={primaryColor}
                   isDisabled={busy || !configured}
                   onClick={() => void run("submit")}
                 >
@@ -342,6 +343,16 @@ export function IdentityPanel() {
           initialIsOpen={false}
         >
           <VStack align="stretch" spacing={3}>
+            <Text overflowWrap="anywhere">
+              {t("FederationPage.settings.myDevice", { id: identity })}
+            </Text>
+            {facts && (
+              <Text>
+                {t("IdentityFlow.position", {
+                  sequence: facts.checkpoint.sequence,
+                })}
+              </Text>
+            )}
             <FormControl>
               <FormLabel htmlFor="identity-configuration">
                 {t("FederationPage.identity.configuration")}

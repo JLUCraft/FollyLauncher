@@ -1,24 +1,25 @@
 import {
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   HStack,
   Input,
+  SimpleGrid,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import AdvancedCard from "@/components/common/advanced-card";
 import { Section } from "@/components/common/section";
-import { HashChip } from "@/components/federation/hash-chip";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
-import { useOffice } from "@/contexts/office";
+
+const GENESIS_PATTERN = /^[a-f0-9]{64}$/;
 
 export default function OverviewPage() {
   const { t } = useTranslation();
-  const office = useOffice();
-  const { identityFacts } = useFederation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const {
@@ -29,30 +30,21 @@ export default function OverviewPage() {
     genesisHash,
     setGenesisHash,
     state,
-    identity,
-    member,
     connecting: busy,
     connectionError: error,
     identityRequired,
     connect: handleRequest,
-    activeTarget,
   } = useFederation();
-  const displayedMember = identityFacts
-    ? identityFacts.revoked_devices.includes(identity)
-      ? undefined
-      : identityFacts.devices[identity]
-    : member;
-  const displayedClubs = displayedMember
-    ? identityFacts
-      ? identityFacts.memberships
-          .filter(([id]) => id === displayedMember)
-          .map(([, club]) => club)
-      : [state?.members[displayedMember]?.club].filter(Boolean)
-    : [];
+  const genesisInvalid =
+    genesisHash !== "" && !GENESIS_PATTERN.test(genesisHash);
   return (
     <Section title={t("FederationNav.overview")}>
       <VStack align="stretch" spacing={4}>
-        <Text role="status">
+        <Text
+          role="status"
+          fontWeight="semibold"
+          color={busy ? "orange.500" : state ? "green.500" : "gray.500"}
+        >
           {t(
             busy
               ? "ConnectionFlow.connecting"
@@ -61,10 +53,23 @@ export default function OverviewPage() {
                 : "FederationNav.disconnected"
           )}
         </Text>
-        {state && activeTarget && <HashChip value={activeTarget.peer} />}
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+          {["rooms", "league"].map((destination) => (
+            <AdvancedCard key={destination} p={4}>
+              <Button
+                as={Link}
+                href={`/federation/${destination}`}
+                colorScheme={primaryColor}
+                variant="ghost"
+                w="100%"
+              >
+                {t(`FederationNav.${destination}`)}
+              </Button>
+            </AdvancedCard>
+          ))}
+        </SimpleGrid>
         <Section
           title={t("FederationPage.settings.title")}
-          description={t("FederationPage.settings.description")}
           isAccordion
           initialIsOpen={!state}
         >
@@ -95,7 +100,7 @@ export default function OverviewPage() {
                 }}
               />
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={genesisInvalid}>
               <FormLabel htmlFor="federation-genesis">
                 {t("FederationPage.settings.genesisLabel")}
               </FormLabel>
@@ -107,91 +112,33 @@ export default function OverviewPage() {
                   setGenesisHash(e.target.value.trim());
                 }}
               />
+              <FormErrorMessage>
+                {t("FederationPage.settings.genesisInvalid")}
+              </FormErrorMessage>
             </FormControl>
             <HStack justify="flex-end">
               <Button
                 colorScheme={primaryColor}
                 isLoading={busy}
                 isDisabled={
-                  !address || !peer || !/^[a-f0-9]{64}$/.test(genesisHash)
+                  !address || !peer || !GENESIS_PATTERN.test(genesisHash)
                 }
                 onClick={() => void handleRequest()}
               >
                 {t("FederationPage.settings.connect")}
               </Button>
             </HStack>
-            {identity && (
-              <VStack spacing={1} align="start" fontSize="sm">
-                {identityFacts && (
-                  <Text>
-                    {t("IdentityFlow.position", {
-                      sequence: identityFacts.checkpoint.sequence,
-                    })}
-                  </Text>
-                )}
-                <Text overflowWrap="anywhere">
-                  {t("FederationPage.settings.myDevice", { id: identity })}
-                </Text>
-                {displayedMember && (
-                  <Text>
-                    {t("FederationPage.settings.myMember", {
-                      id: displayedMember,
-                    })}
-                  </Text>
-                )}
-                {displayedClubs.map((club) => (
-                  <Text key={club}>
-                    {t("FederationPage.settings.myClub", { club })}
-                  </Text>
-                ))}
-              </VStack>
-            )}
           </VStack>
         </Section>
 
-        <Section title={t("Office.connection")}>
-          <FormControl>
-            <FormLabel htmlFor="office-genesis">
-              {t("Office.genesis")}
-            </FormLabel>
-            <Input
-              id="office-genesis"
-              value={office.genesis}
-              onChange={(e) => office.setGenesis(e.target.value.trim())}
-              isDisabled={office.connecting}
-            />
-          </FormControl>
-          <Text fontSize="sm">{t("ConnectionFlow.domains")}</Text>
-          <Button
-            isLoading={office.connecting}
-            isDisabled={!office.canConnect}
-            onClick={() => void office.connect()}
-          >
-            {t("ConnectionFlow.connectOffice")}
-          </Button>
-          <Text role="status">
-            {t(
-              office.connecting
-                ? "ConnectionFlow.connecting"
-                : office.data
-                  ? "ConnectionFlow.officeConnected"
-                  : "FederationNav.disconnected"
-            )}
-          </Text>
-          {office.connectionError && (
-            <Text role="alert">{t("Office.error")}</Text>
-          )}
-          {office.target && office.data && (
-            <HashChip value={office.target.peer} />
-          )}
-        </Section>
         {identityRequired ? (
           <>
-            <Text role="alert" color="red.500">
+            <Text role="alert" color="red.600">
               {t("FederationPage.identityRequired")}
             </Text>
             <Button
               colorScheme={primaryColor}
+              alignSelf="flex-start"
               as={Link}
               href="/federation/identity"
             >
@@ -200,7 +147,7 @@ export default function OverviewPage() {
           </>
         ) : (
           error && (
-            <Text role="alert" color="red.500">
+            <Text role="alert" color="red.600">
               {t("FederationPage.error")}
             </Text>
           )

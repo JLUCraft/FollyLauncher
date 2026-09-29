@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo } from "react";
 import { initReactI18next } from "react-i18next";
+import { brand } from "@/brand";
 import { Fade } from "@/components/common/transition";
 import GlobalEventHandler from "@/components/special/global-event-handler";
 import { GuidedTourProvider } from "@/components/special/guided-tour-provider";
@@ -13,7 +14,6 @@ import { ExtensionHostContextProvider } from "@/contexts/extension/host";
 import { FederationProvider } from "@/contexts/federation";
 import { GameConnectionProvider } from "@/contexts/game-connection";
 import { GlobalDataContextProvider } from "@/contexts/global-data";
-import { OfficeProvider } from "@/contexts/office";
 import { RoomsProvider } from "@/contexts/rooms";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { TaskContextProvider } from "@/contexts/task";
@@ -36,6 +36,7 @@ i18n.use(initReactI18next).init({
   lng: "zh-Hans",
   interpolation: {
     escapeValue: false,
+    defaultVariables: { productName: brand.productName },
   },
 });
 
@@ -136,20 +137,18 @@ export default function App({ Component, pageProps }: AppProps) {
                       <GlobalEventHandler>
                         <GameConnectionProvider>
                           <FederationProvider>
-                            <OfficeProvider>
-                              <RoomsProvider>
-                                <MainLayout>
-                                  <Fade
-                                    key={router.pathname.split("/")[1] || ""}
-                                    in
-                                  >
-                                    <SpecLayout>
-                                      <Component {...pageProps} />
-                                    </SpecLayout>
-                                  </Fade>
-                                </MainLayout>
-                              </RoomsProvider>
-                            </OfficeProvider>
+                            <RoomsProvider>
+                              <MainLayout>
+                                <Fade
+                                  key={router.pathname.split("/")[1] || ""}
+                                  in
+                                >
+                                  <SpecLayout>
+                                    <Component {...pageProps} />
+                                  </SpecLayout>
+                                </Fade>
+                              </MainLayout>
+                            </RoomsProvider>
                           </FederationProvider>
                         </GameConnectionProvider>
                       </GlobalEventHandler>

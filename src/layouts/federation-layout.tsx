@@ -3,9 +3,6 @@ import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  LuCalendar,
-  LuClipboardCheck,
-  LuFolder,
   LuGamepad2,
   LuHouse,
   LuSettings,
@@ -24,9 +21,6 @@ function Navigation({ children }: { children: ReactNode }) {
     { key: "league", icon: LuTrophy },
     { key: "rooms", icon: LuGamepad2 },
     { key: "identity", icon: LuUsers },
-    { key: "events", icon: LuCalendar },
-    { key: "approvals", icon: LuClipboardCheck },
-    { key: "files", icon: LuFolder },
     ...(isAdmin ? [{ key: "manage", icon: LuSettings }] : []),
   ];
   return (
@@ -38,16 +32,18 @@ function Navigation({ children }: { children: ReactNode }) {
           items={items.map((item) => ({
             value: `/federation/${item.key}`,
             label: (
-              <HStack spacing={2}>
+              <HStack spacing={2} overflow="hidden" w="100%">
                 <Icon as={item.icon} />
-                <Text fontSize="sm">{t(`FederationNav.${item.key}`)}</Text>
+                <Text fontSize="sm" className="ellipsis-text">
+                  {t(`FederationNav.${item.key}`)}
+                </Text>
               </HStack>
             ),
             tooltip: t(`FederationNav.${item.key}`),
           }))}
         />
       </GridItem>
-      <GridItem className="content-full-y" minW={0}>
+      <GridItem key={router.asPath} className="content-full-y" minW={0}>
         <VStack align="stretch" spacing={4}>
           {children}
         </VStack>

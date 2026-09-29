@@ -14,13 +14,14 @@
           }
         },
         "basedOn": {
-          "title": "Basado en SJMCL"
+          "title": "Basado en SJMCL",
+          "description": "{{productName}} deriva de SJMCL y añade federación y salas. Los enlaces de colaboradores, código, condiciones y ayuda corresponden al proyecto original SJMCL; su documentación no cubre estas funciones. Las actualizaciones también proceden de SJMCL original."
         },
         "contributors": {
-          "title": "Colaboradores"
+          "title": "Colaboradores de SJMCL original"
         },
         "sourceCode": {
-          "title": "Ver Código Fuente en GitHub"
+          "title": "Código fuente de SJMCL original"
         },
         "aboutSJMC": {
           "title": "Acerca de SJTU Minecraft Club (SJMC)"
@@ -68,7 +69,7 @@
           "description": "Derechos de Autor © 2024-2026 Equipo SJMCL."
         },
         "userAgreement": {
-          "title": "Acuerdo de Usuario",
+          "title": "Acuerdo de usuario de SJMCL original",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
         },
         "openSourceLicense": {
@@ -179,7 +180,7 @@
         "title": "Opciones Avanzadas",
         "uuid": {
           "label": "UUID",
-          "placeholder": "(Generado por SJMCL)",
+          "placeholder": "(Generado por {{productName}})",
           "errorMessage": "Forma de UUID inválida"
         }
       }
@@ -436,13 +437,10 @@
   "ConnectionFlow": {
     "connecting": "Conectando…",
     "setup": "Abrir ajustes de conexión",
-    "connectOffice": "Conectar / actualizar oficina",
-    "officeConnected": "Oficina sincronizada",
     "origin": {
       "match": "Partido",
       "room": "Sala"
     },
-    "domains": "La liga y la oficina tienen historiales firmados separados. Verifica cada hash génesis para no conectar a la cadena equivocada.",
     "currentGame": "Conexión de juego actual",
     "service": "Servicio: {{service}} · Nodo: {{peer}}",
     "disconnectFirst": "Desconecta este servicio antes de entrar en otra sala o partida.",
@@ -578,7 +576,7 @@
       "type": "Tipo"
     },
     "warning": {
-      "mojang": "El tiempo de ejecución de Java de Mojang será instalado por SJMCL en un directorio específico.",
+      "mojang": "El tiempo de ejecución de Java de Mojang será instalado por {{productName}} en un directorio específico.",
       "oracle": "Descargar desde Oracle puede requerir inicio de sesión."
     }
   },
@@ -891,10 +889,10 @@
     "title": "Configuración de {{name}}"
   },
   "ExtensionSettingsPage": {
-    "alert": "SJMCL no puede controlar el comportamiento de las extensiones de terceros, incluyendo cómo manejan tus datos personales. Solo instala y habilita extensiones de fuentes confiables.",
+    "alert": "{{productName}} no puede controlar el comportamiento de las extensiones de terceros, incluyendo cómo manejan tus datos personales. Solo instala y habilita extensiones de fuentes confiables.",
     "fileDnD": {
       "title": "Instalar Extensión de SJMCL",
-      "desc": "Instalar archivo de extensión {{fileName}} en SJMCL"
+      "desc": "Instalar archivo de extensión {{fileName}} en {{productName}}"
     },
     "installed": "Extensiones Instaladas",
     "menu": {
@@ -925,9 +923,6 @@
     "league": "Liga",
     "rooms": "Salas y servidores",
     "identity": "Mi identidad",
-    "events": "Eventos",
-    "approvals": "Aprobaciones",
-    "files": "Archivos",
     "manage": "Gestión de temporadas",
     "connected": "Liga sincronizada",
     "restricted": "Conéctate como administrador de temporada.",
@@ -952,6 +947,7 @@
       "addressLabel": "Dirección de la unión",
       "peerLabel": "Peer ID del nodo",
       "genesisLabel": "Hash génesis de la liga (confirmar con organizador)",
+      "genesisInvalid": "Introduce el hash hexadecimal de 64 caracteres en minúsculas que te dio el organizador.",
       "connect": "Conectar / Actualizar",
       "myDevice": "Mi dispositivo: {{id}}",
       "myMember": "Mi número de miembro: {{id}}",
@@ -1422,14 +1418,14 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "Actual",
-            "APP_DATA_SUBDIR": "Datos de SJMCL",
+            "APP_DATA_SUBDIR": "Datos de {{productName}}",
             "OFFICIAL_DIR": "Lanzador Oficial"
           }
         }
       },
       "deleteDialog": {
         "title": "Eliminar Directorio del Juego",
-        "content": "¿Confirmar la eliminación del directorio del juego {{dirName}}? (SJMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
+        "content": "¿Confirmar la eliminación del directorio del juego {{dirName}}? ({{productName}} ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
       },
       "directoryNotExist": "El directorio no existe, por favor agrega la ruta de nuevo."
     },
@@ -1588,11 +1584,11 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "Documentación del SJMC Launcher",
+          "title": "Documentación de SJMCL original",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs"
         },
         "UserGroup": {
-          "title": "Comunidad de Usuarios",
+          "title": "Comunidad de SJMCL original",
           "description": "Únete al grupo de QQ o a GitHub Discussions para reportar problemas, solicitar funciones u obtener ayuda",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
         }
@@ -1863,7 +1859,7 @@
     }
   },
   "IntelligenceSettingsPage": {
-    "title": "SJMCL Intelligence",
+    "title": "{{productName}} Intelligence",
     "description": "Integra modelos de IA en tu lanzador y experiencia de juego de Minecraft.",
     "mcpServer": {
       "title": "Servicio MCP",
@@ -1905,7 +1901,7 @@
     },
     "confirmDelete": {
       "title": "Eliminar Java",
-      "description": "¿Confirmar la eliminación de este Java? (SJMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
+      "description": "¿Confirmar la eliminación de este Java? ({{productName}} ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
     }
   },
   "LanguageMenu": {
@@ -1922,7 +1918,7 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "La ejecución anterior terminó anormalmente",
-      "content": "SJMCL terminó anormalmente durante la última ejecución. Puedes enviar los registros a la <community>comunidad</community>, o abrir un issue en <github>GitHub</github> para obtener ayuda.",
+      "content": "{{productName}} se cerró de forma inesperada. Revisa los registros. Los enlaces de <community>comunidad</community> y <github>GitHub</github> pertenecen a SJMCL original. Indica qué versión derivada usas; comunica los problemas de federación a los responsables de esta versión.",
       "viewLog": "Ver registros"
     }
   },
@@ -1974,7 +1970,7 @@
   "MainLayout": {
     "fileDnD": {
       "title": "Importar Modpack",
-      "desc": "Importar archivo de modpack {{fileName}} a SJMCL"
+      "desc": "Importar archivo de modpack {{fileName}} a {{productName}}"
     }
   },
   "ManageSkinModal": {
@@ -2057,74 +2053,6 @@
   },
   "NotifyNewVersionModal": {
     "title": "Nueva versión disponible"
-  },
-  "Office": {
-    "connection": "Conexión al espacio de trabajo",
-    "genesis": "Hash génesis de la cadena de trabajo",
-    "connectionHint": "Usa el nodo anterior con un hash génesis independiente.",
-    "setup": "Configura la conexión en Resumen.",
-    "refresh": "Actualizar",
-    "error": "No se pudo leer o ejecutar. Revisa la conexión y tus permisos.",
-    "uncertain": "Resultado sin confirmar. Actualiza antes de reintentar para evitar duplicados.",
-    "initial": "Actualiza para cargar la cadena.",
-    "empty": "No hay registros.",
-    "create": "Crear evento",
-    "title": "Título del evento",
-    "brief": "CID o SHA-256 del documento",
-    "opens": "Inicio de inscripción",
-    "closes": "Fin de inscripción",
-    "starts": "Inicio del evento",
-    "submit": "Enviar a revisión",
-    "publish": "Publicar",
-    "finish": "Finalizar evento",
-    "signup": "Inscribirse",
-    "cancelSignup": "Cancelar inscripción",
-    "cancelEvent": "Cancelar evento",
-    "template": "Proceso de aprobación",
-    "requestApproval": "Iniciar aprobación",
-    "signups": "Inscripciones: {{count}}",
-    "tasks": "Tareas",
-    "assignee": "Miembro responsable",
-    "assign": "Asignar",
-    "complete": "Marcar completada",
-    "taskTitle": "Título de la tarea",
-    "addTask": "Añadir tarea",
-    "pending": "Solo pendientes",
-    "proposer": "Solicitante",
-    "event": "ID de evento",
-    "aiResult": "Resultado de la etapa IA",
-    "comment": "Comentario / motivo de rechazo",
-    "commentHint": "Solo se registra el hash SHA-256. Conserva el texto original.",
-    "approve": "Aprobar",
-    "reject": "Rechazar",
-    "poke": "Revisar plazo y avanzar",
-    "delegate": "Delegar",
-    "execute": "Ejecutar acción aprobada",
-    "fileLimits": "Hasta {{bytes}} bytes por archivo y {{paths}} rutas por commit.",
-    "branch": "Rama del directorio",
-    "chooseBranch": "Elegir rama existente",
-    "message": "Descripción del cambio",
-    "path": "Ruta del archivo",
-    "upload": "Subir archivo",
-    "tooLarge": "El archivo supera el límite.",
-    "history": "Historial de versiones",
-    "searchFiles": "Buscar rutas",
-    "download": "Descargar",
-    "restore": "Restaurar como nueva versión",
-    "status": {
-      "draft": "Borrador",
-      "review": "En revisión",
-      "approved": "Aprobado",
-      "open": "Abierto",
-      "done": "Completado",
-      "cancelled": "Cancelado",
-      "active": "En curso",
-      "executed": "Ejecutado",
-      "rejected": "Rechazado"
-    },
-    "checkin": "Registrar asistencia",
-    "checkedIn": "Asistencia registrada",
-    "aiNeedsFile": "Un proceso IA necesita el documento subido. Usa su CID como documento del evento."
   },
   "OptionItemGroup": {
     "button": {
@@ -2493,8 +2421,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "Actualización del lanzador",
-    "body": "La nueva versión ha sido descargada. Reinicia SJMCL para completar la actualización.",
-    "bodyWinInstaller": "La nueva versión ha sido descargada. Al hacer clic en Instalar se cerrará SJMCL y se ejecutará el instalador.",
+    "body": "Se ha descargado una actualización de SJMCL original. Reiniciar sustituirá el programa actual; puede que no incluya las funciones de federación de {{productName}}.",
+    "bodyWinInstaller": "Se ha descargado un instalador de SJMCL original. Instalar cerrará {{productName}} y ejecutará ese instalador, que puede no incluir las funciones de federación de esta versión.",
     "button": {
       "restart": "Reiniciar",
       "install": "Instalar",
@@ -2503,13 +2431,6 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "Ten cuidado al editar el archivo de configuración sin procesar del lanzador. Un formato incorrecto puede provocar la pérdida de la configuración original o impedir que el lanzador funcione correctamente."
-  },
-  "RoomSearch": {
-    "search": "Buscar salas, clubes o versiones",
-    "school": "Universidad / club",
-    "all": "Todas las universidades / clubes",
-    "selected": "Seleccionado",
-    "noMatches": "No hay salas coincidentes."
   },
   "Rooms": {
     "manualHint": "Configura primero la identidad unificada. La presidencia puede confirmar miembros y vincular perfiles de juego con su firma aunque no funcione ningún sitio de skins. La afiliación dura hasta su revocación explícita.",
@@ -2538,6 +2459,13 @@
     "stop": "Cerrar sala",
     "hosting": "Alojando {{name}}",
     "error": "La operación falló. Comprueba la identidad unificada, la configuración del servidor y las rutas de red."
+  },
+  "RoomSearch": {
+    "search": "Buscar salas, clubes o versiones",
+    "school": "Universidad / club",
+    "all": "Todas las universidades / clubes",
+    "selected": "Seleccionado",
+    "noMatches": "No hay salas coincidentes."
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3507,7 +3435,7 @@
   "UnavailableExePathAlertDialog": {
     "dialog": {
       "title": "Ruta de Ejecución No Segura",
-      "content": "SJMCL se está ejecutando actualmente desde un directorio temporal o no válido. Tu configuración y datos del juego podrían perderse. Por favor, mueve SJMCL a otra ubicación y ejecútalo nuevamente.",
+      "content": "{{productName}} se está ejecutando actualmente desde un directorio temporal o no válido. Tu configuración y datos del juego podrían perderse. Por favor, mueve {{productName}} a otra ubicación y ejecútalo nuevamente.",
       "btnContinue": "Ejecutar de Todas Formas"
     }
   },
@@ -3551,11 +3479,11 @@
       "title": "¡Bienvenido!"
     },
     "body": {
-      "text": "¡Bienvenido a SJMCL! Antes de comenzar, por favor asegúrate de leer y aceptar nuestro <terms>Acuerdo de Usuario</terms>."
+      "text": "Bienvenido a {{productName}}, derivado de SJMCL. Antes de continuar, lee y acepta el <terms>acuerdo de usuario de SJMCL original</terms>. Este enlace no contiene condiciones específicas para los servicios añadidos de federación."
     },
     "warning": {
-      "unstableVersion": "Estás usando la versión {{versionLabel}} de SJMCL. Algunas funciones pueden ser inestables o incompletas. Los reportes de errores y solicitudes de funciones son bienvenidos.",
-      "winArm64Notice": "SJMCL ahora es compatible con Windows en Arm. Si estás usando una plataforma <b>QUALCOMM</b>, es posible que necesites instalar el <glpack>OpenGL Compatibility Pack</glpack> antes de iniciar el juego."
+      "unstableVersion": "Estás usando la versión {{versionLabel}} de {{productName}}. Algunas funciones pueden ser inestables o incompletas. Los reportes de errores y solicitudes de funciones son bienvenidos.",
+      "winArm64Notice": "{{productName}} ahora es compatible con Windows en Arm. Si estás usando una plataforma <b>QUALCOMM</b>, es posible que necesites instalar el <glpack>OpenGL Compatibility Pack</glpack> antes de iniciar el juego."
     },
     "button": {
       "agree": "Aceptar"

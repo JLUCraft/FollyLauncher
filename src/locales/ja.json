@@ -14,13 +14,14 @@
           }
         },
         "basedOn": {
-          "title": "SJMCL ベース"
+          "title": "SJMCL ベース",
+          "description": "{{productName}} は SJMCL を基に、連盟・ルーム機能を追加した派生版です。以下の貢献者・ソース・規約・ヘルプは上流 SJMCL のものです。上流の文書は追加機能を扱いません。現在の更新元も上流 SJMCL です。"
         },
         "contributors": {
-          "title": "開発チーム"
+          "title": "上流 SJMCL の貢献者"
         },
         "sourceCode": {
-          "title": "GitHub でソースコードを見る"
+          "title": "上流 SJMCL のソースを見る"
         },
         "aboutSJMC": {
           "title": "上海交通大学 Minecraft クラブ (SJMC) について"
@@ -68,7 +69,7 @@
           "description": "© 2024-2026 SJMCL 開発チーム"
         },
         "userAgreement": {
-          "title": "利用規約",
+          "title": "上流 SJMCL の利用規約",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
         },
         "openSourceLicense": {
@@ -208,7 +209,7 @@
       "description": {
         "start": {
           "3rdparty": "この認証ソースは Yggdrasil Connect 仕様提案をサポート",
-          "microsoft": " SJMCL は Microsoft OAuth 2.0 デバイス認証フローをサポート"
+          "microsoft": " {{productName}} は Microsoft OAuth 2.0 デバイス認証フローをサポート"
         },
         "next": "次へ進むボタンをクリックし、ログインウィンドウに上記のコードを入力してください。（自動コピー済）"
       },
@@ -436,13 +437,10 @@
   "ConnectionFlow": {
     "connecting": "接続中…",
     "setup": "接続設定を開く",
-    "connectOffice": "オフィスに接続・更新",
-    "officeConnected": "オフィス同期済み",
     "origin": {
       "match": "試合",
       "room": "ルーム"
     },
-    "domains": "リーグとオフィスは署名履歴が別です。誤ったチェーンへの接続を防ぐため、それぞれの初期ハッシュを確認してください。",
     "currentGame": "現在のゲーム接続",
     "service": "サービス：{{service}} · ノード：{{peer}}",
     "disconnectFirst": "別のルームや試合に参加する前に、現在の接続を切断してください。",
@@ -578,7 +576,7 @@
       "type": "タイプ"
     },
     "warning": {
-      "mojang": "Mojang によって配布される Java ランタイムは SJMCL によって特定のディレクトリにインストールされます",
+      "mojang": "Mojang によって配布される Java ランタイムは {{productName}} によって特定のディレクトリにインストールされます",
       "oracle": "Oracle ソースからのダウンロードにはログインの必要な場合があります"
     }
   },
@@ -891,10 +889,10 @@
     "title": "{{name}} の設定"
   },
   "ExtensionSettingsPage": {
-    "alert": "SJMCL はサードパーティー拡張機能の挙動や個人データの扱いを制御できません。信頼できる提供元の拡張機能のみをインストールして有効化してください。",
+    "alert": "{{productName}} はサードパーティー拡張機能の挙動や個人データの扱いを制御できません。信頼できる提供元の拡張機能のみをインストールして有効化してください。",
     "fileDnD": {
       "title": "SJMCL 拡張機能をインストール",
-      "desc": "拡張機能ファイル {{fileName}} を SJMCL にインストール"
+      "desc": "拡張機能ファイル {{fileName}} を {{productName}} にインストール"
     },
     "installed": "インストール済みの拡張機能",
     "menu": {
@@ -925,9 +923,6 @@
     "league": "リーグ",
     "rooms": "ルームとサーバー",
     "identity": "自分の身元",
-    "events": "イベント",
-    "approvals": "承認",
-    "files": "ファイル",
     "manage": "シーズン管理",
     "connected": "リーグ同期済み",
     "restricted": "管理者として接続するとシーズンを管理できます。",
@@ -952,6 +947,7 @@
       "addressLabel": "ユニオン接続アドレス",
       "peerLabel": "ノード Peer ID",
       "genesisLabel": "リーグ初期ハッシュ（主催者に確認）",
+      "genesisInvalid": "主催者から提供された 64 桁の小文字 16 進ハッシュを入力してください。",
       "connect": "接続 / 更新",
       "myDevice": "自分のデバイス：{{id}}",
       "myMember": "自分のメンバー番号：{{id}}",
@@ -1422,7 +1418,7 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "現在フォルダー",
-            "APP_DATA_SUBDIR": "SJMCL データフォルダー",
+            "APP_DATA_SUBDIR": "{{productName}} データフォルダー",
             "OFFICIAL_DIR": "公式ランチャーフォルダー"
           }
         }
@@ -1588,11 +1584,11 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "SJMC Launcher ドキュメント（中国語）",
+          "title": "上流 SJMCL のドキュメント",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
         "UserGroup": {
-          "title": "ユーザーコミュニティ",
+          "title": "上流 SJMCL のコミュニティ",
           "description": "QQ グループや GitHub Discussions に参加して、問題報告、機能要望、サポートの相談ができます",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
         }
@@ -1863,7 +1859,7 @@
     }
   },
   "IntelligenceSettingsPage": {
-    "title": "SJMCL AI",
+    "title": "{{productName}} AI",
     "description": "AI モデルをランチャーと Minecraft の体験に統合します。",
     "mcpServer": {
       "title": "MCP サービス",
@@ -1922,7 +1918,7 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "前回の実行は異常終了しました",
-      "content": "SJMCL は前回の実行時に異常終了しました。ログを<community>コミュニティ</community>に送るか、<github>GitHub</github> で Issue を作成してサポートを求めてください。",
+      "content": "{{productName}} が異常終了しました。まずログを確認してください。<community>コミュニティ</community>と <github>GitHub</github> は上流 SJMCL の窓口です。報告時は派生版名を明記し、連盟機能の問題は本版の保守担当者に連絡してください。",
       "viewLog": "ログを表示"
     }
   },
@@ -1974,7 +1970,7 @@
   "MainLayout": {
     "fileDnD": {
       "title": "モッドパックをインポート",
-      "desc": "モッドパックファイル {{fileName}} を SJMCL にインポート"
+      "desc": "モッドパックファイル {{fileName}} を {{productName}} にインポート"
     }
   },
   "ManageSkinModal": {
@@ -2057,74 +2053,6 @@
   },
   "NotifyNewVersionModal": {
     "title": "新しいバージョンが利用可能"
-  },
-  "Office": {
-    "connection": "オフィス接続",
-    "genesis": "オフィスチェーンの初期ハッシュ",
-    "connectionHint": "上記のノードを使用します。オフィスチェーンには専用の初期ハッシュが必要です。",
-    "setup": "概要でオフィス接続を設定してください。",
-    "refresh": "更新",
-    "error": "取得または実行できません。接続と権限をご確認ください。",
-    "uncertain": "結果を確認できません。重複送信を避けるため、再試行の前に更新してください。",
-    "initial": "更新してオフィスチェーンを読み込みます。",
-    "empty": "記録はありません。",
-    "create": "イベントを作成",
-    "title": "イベント名",
-    "brief": "企画ファイルの CID または SHA-256",
-    "opens": "受付開始",
-    "closes": "受付終了",
-    "starts": "開催日時",
-    "submit": "審査に提出",
-    "publish": "公開",
-    "finish": "イベントを終了",
-    "signup": "参加登録",
-    "cancelSignup": "登録を取り消す",
-    "cancelEvent": "イベントを中止",
-    "template": "承認フロー",
-    "requestApproval": "承認を開始",
-    "signups": "登録者：{{count}}",
-    "tasks": "タスク",
-    "assignee": "担当メンバー",
-    "assign": "割り当て",
-    "complete": "完了にする",
-    "taskTitle": "タスク名",
-    "addTask": "タスクを追加",
-    "pending": "未処理のみ",
-    "proposer": "申請者",
-    "event": "イベント ID",
-    "aiResult": "AI ステージの結果",
-    "comment": "承認コメント・却下理由",
-    "commentHint": "記録されるのは SHA-256 のみです。原文は保管してください。",
-    "approve": "承認",
-    "reject": "却下",
-    "poke": "期限を確認して進行",
-    "delegate": "委任",
-    "execute": "承認済み操作を実行",
-    "fileLimits": "ファイルは {{bytes}} バイトまで、ディレクトリは {{paths}} パスまでです。",
-    "branch": "ディレクトリブランチ",
-    "chooseBranch": "既存ブランチを選択",
-    "message": "変更の説明",
-    "path": "ファイルパス",
-    "upload": "ファイルをアップロード",
-    "tooLarge": "サイズ制限を超えています。",
-    "history": "変更履歴",
-    "searchFiles": "ファイルパスを検索",
-    "download": "ダウンロード",
-    "restore": "新しい版として復元",
-    "status": {
-      "draft": "下書き",
-      "review": "審査中",
-      "approved": "承認済み",
-      "open": "公開中",
-      "done": "完了",
-      "cancelled": "中止",
-      "active": "進行中",
-      "executed": "実行済み",
-      "rejected": "却下済み"
-    },
-    "checkin": "チェックイン",
-    "checkedIn": "チェックイン済み",
-    "aiNeedsFile": "AI 承認にはアップロード済みの企画ファイルが必要です。ファイルの CID を企画に指定してください。"
   },
   "OptionItemGroup": {
     "button": {
@@ -2493,8 +2421,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "ランチャー更新",
-    "body": "新しいバージョンのダウンロードが完了しました。SJMCL を再起動して更新を完了してください",
-    "bodyWinInstaller": "新しいバージョンのダウンロードが完了しました。インストールをクリックすると SJMCL が閉じ、インストーラーが実行されます",
+    "body": "上流 SJMCL の更新をダウンロードしました。再起動すると現在のプログラムが置き換わります。{{productName}} の連盟機能が含まれない可能性があります。",
+    "bodyWinInstaller": "上流 SJMCL のインストーラーをダウンロードしました。インストールすると {{productName}} が終了し、上流のインストーラーを起動します。本版の連盟機能が含まれない可能性があります。",
     "button": {
       "restart": "再起動",
       "install": "インストール",
@@ -2503,13 +2431,6 @@
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "原始設定ファイルの編集には注意してください。誤った形式は既存の設定が失われたり、ランチャーが正常に動作しなくなる可能性があります"
-  },
-  "RoomSearch": {
-    "search": "ルーム・クラブ・バージョンを検索",
-    "school": "学校・クラブ",
-    "all": "すべての学校・クラブ",
-    "selected": "選択済み",
-    "noMatches": "一致するルームはありません。"
   },
   "Rooms": {
     "manualHint": "先に統一IDを設定してください。すべてのスキンサイトが停止しても、代表者は手動署名でメンバーとゲームIDを確認できます。資格は明示的に取り消されるまで有効です。",
@@ -2538,6 +2459,13 @@
     "stop": "ルームを閉じる",
     "hosting": "{{name}} をホスト中",
     "error": "部屋の操作に失敗しました。統一ID、サーバー設定、接続経路を確認してください。"
+  },
+  "RoomSearch": {
+    "search": "ルーム・クラブ・バージョンを検索",
+    "school": "学校・クラブ",
+    "all": "すべての学校・クラブ",
+    "selected": "選択済み",
+    "noMatches": "一致するルームはありません。"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -3507,7 +3435,7 @@
   "UnavailableExePathAlertDialog": {
     "dialog": {
       "title": "安全でない実行パス",
-      "content": "SJMCL は一時ディレクトリまたは無効なディレクトリから実行されています。設定やゲームデータが失われる可能性があります。SJMCL を別の場所へ移動して再実行してください。",
+      "content": "{{productName}} は一時ディレクトリまたは無効なディレクトリから実行されています。設定やゲームデータが失われる可能性があります。{{productName}} を別の場所へ移動して再実行してください。",
       "btnContinue": "このまま実行"
     }
   },
@@ -3551,11 +3479,11 @@
       "title": "ようこそ！"
     },
     "body": {
-      "text": "SJMCL をご利用いただき、ありがとうございます。開始前に、必ず下記の<terms>利用規約</terms>をお読みいただき、同意をお願いいたします。"
+      "text": "{{productName}} へようこそ。本製品は SJMCL の派生版です。続行前にリンク先の<terms>上流 SJMCL の利用規約</terms>を読み、同意してください。このリンクは追加された連盟サービス専用の規約ではありません。"
     },
     "warning": {
-      "unstableVersion": "{{versionLabel}}の SJMCL を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",
-      "winArm64Notice": "SJMCL は Windows on Arm プラットフォームに対応しました。<br/> <b>Qualcomm</b> プラットフォームをご利用の場合、ゲームを起動する前に <glpack>OpenGL 互換パック</glpack> のインストールが必要な場合があります。"
+      "unstableVersion": "{{versionLabel}}の {{productName}} を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",
+      "winArm64Notice": "{{productName}} は Windows on Arm プラットフォームに対応しました。<br/> <b>Qualcomm</b> プラットフォームをご利用の場合、ゲームを起動する前に <glpack>OpenGL 互換パック</glpack> のインストールが必要な場合があります。"
     },
     "button": {
       "agree": "同意して続ける"

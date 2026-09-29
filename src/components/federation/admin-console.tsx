@@ -1,7 +1,5 @@
 import {
-  Box,
   Button,
-  Divider,
   FormControl,
   FormLabel,
   HStack,
@@ -13,10 +11,13 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import AdvancedCard from "@/components/common/advanced-card";
+import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { UnionState } from "@/services/union";
 import { parseDeltas } from "@/utils/federation/score-deltas";
+import { schedulableLeagues } from "@/utils/federation/season-schedule";
 
 const MAX_IDENTIFIER_LENGTH = 128;
 const MAX_TITLE_LENGTH = 256;
@@ -48,9 +49,7 @@ export function AdminConsole({
 
   const invalidDeltas =
     parseDeltas(playerDeltas) === null || parseDeltas(teamDeltas) === null;
-  const seasonLeagues = scheduleSeason
-    ? (state.seasons?.[scheduleSeason]?.leagues ?? [])
-    : [];
+  const seasonLeagues = schedulableLeagues(state, scheduleSeason);
   const pendingDisputes = Object.entries(state.disputes ?? {}).filter(
     ([, d]) => !d.resolution
   );
@@ -66,7 +65,7 @@ export function AdminConsole({
       initialIsOpen={false}
     >
       <VStack align="stretch" spacing={4}>
-        <Box borderWidth="1px" borderRadius="md" p={3}>
+        <AdvancedCard level="front" p={3}>
           <VStack align="stretch" spacing={3}>
             <Text fontWeight="semibold" fontSize="sm">
               {t("AdminConsole.createSeason")}
@@ -110,9 +109,9 @@ export function AdminConsole({
               </Button>
             </HStack>
           </VStack>
-        </Box>
+        </AdvancedCard>
 
-        <Box borderWidth="1px" borderRadius="md" p={3}>
+        <AdvancedCard level="front" p={3}>
           <VStack align="stretch" spacing={3}>
             <Text fontWeight="semibold" fontSize="sm">
               {t("AdminConsole.schedule")}
@@ -180,10 +179,9 @@ export function AdminConsole({
                 isDisabled={
                   busy ||
                   !scheduleSeason ||
-                  !scheduleLeague ||
-                  !opensAt ||
-                  !closesAt ||
-                  !startsAt
+                  !seasonLeagues.includes(scheduleLeague) ||
+                  !(toMs(opensAt) < toMs(closesAt)) ||
+                  !(toMs(closesAt) <= toMs(startsAt))
                 }
                 onClick={() =>
                   void request({
@@ -202,10 +200,10 @@ export function AdminConsole({
               </Button>
             </HStack>
           </VStack>
-        </Box>
+        </AdvancedCard>
 
         {!!pendingDisputes.length && (
-          <Box borderWidth="1px" borderRadius="md" p={3}>
+          <AdvancedCard level="front" p={3}>
             <VStack align="stretch" spacing={3}>
               <Text fontWeight="semibold" fontSize="sm">
                 {t("AdminConsole.review")}
@@ -299,17 +297,12 @@ export function AdminConsole({
                 </>
               )}
             </VStack>
-          </Box>
+          </AdvancedCard>
         )}
 
         {!Object.keys(state.seasons ?? {}).length &&
           !pendingDisputes.length && (
-            <>
-              <Divider />
-              <Text fontSize="sm" className="secondary-text">
-                {t("AdminConsole.empty")}
-              </Text>
-            </>
+            <Empty size="sm" description={t("AdminConsole.empty")} />
           )}
       </VStack>
     </Section>

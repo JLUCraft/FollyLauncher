@@ -13,10 +13,12 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import AdvancedCard from "@/components/common/advanced-card";
 import { Section } from "@/components/common/section";
 import { leaguePhaseLabel } from "@/components/federation/league-phase";
 import { Scoreboard } from "@/components/federation/scoreboard";
 import { UnionState } from "@/services/union";
+import { ISOToDatetime } from "@/utils/datetime";
 
 export function SeasonPanel({
   state,
@@ -58,7 +60,7 @@ export function SeasonPanel({
     >
       <VStack align="stretch" spacing={4}>
         {Object.entries(state.seasons ?? {}).map(([id, s]) => (
-          <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
+          <AdvancedCard key={id} level="front" p={3}>
             <Text fontWeight="bold">{s.title}</Text>
             <VStack align="stretch" mt={2} spacing={1}>
               {s.leagues.map((id) => {
@@ -67,7 +69,9 @@ export function SeasonPanel({
                   <Text key={id} fontSize="sm">
                     {id} ·{" "}
                     {l?.schedule
-                      ? new Date(l.schedule.starts_ms).toLocaleString()
+                      ? ISOToDatetime(
+                          new Date(l.schedule.starts_ms).toISOString()
+                        )
                       : t("SeasonPanel.pendingSchedule")}{" "}
                     ·{" "}
                     {leaguePhaseLabel(
@@ -98,7 +102,7 @@ export function SeasonPanel({
                 />
               </Box>
             ))}
-          </Box>
+          </AdvancedCard>
         ))}
         {!Object.keys(state.seasons ?? {}).length && (
           <Text>{t("SeasonPanel.empty")}</Text>
@@ -106,7 +110,7 @@ export function SeasonPanel({
         {!!eligible.length && (
           <>
             <Divider />
-            <Box borderWidth="1px" borderRadius="md" p={3}>
+            <AdvancedCard level="front" p={3}>
               <VStack align="stretch" spacing={3}>
                 <FormControl>
                   <FormLabel htmlFor="review-league">
@@ -144,13 +148,13 @@ export function SeasonPanel({
                   {t("SeasonPanel.review.submit")}
                 </Button>
               </VStack>
-            </Box>
+            </AdvancedCard>
           </>
         )}
         {Object.entries(state.disputes ?? {})
           .filter(([, d]) => d.member === member)
           .map(([id, d]) => (
-            <Box key={id} borderWidth="1px" borderRadius="md" p={3}>
+            <AdvancedCard key={id} level="front" p={3}>
               <HStack justify="space-between" align="center">
                 <Text fontSize="sm" fontWeight="semibold">
                   {d.league}
@@ -171,7 +175,7 @@ export function SeasonPanel({
                   })}
                 </Text>
               )}
-            </Box>
+            </AdvancedCard>
           ))}
       </VStack>
     </Section>
