@@ -52,14 +52,16 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await page.goto(`${base}/federation`);
     await page.waitForURL("**/federation/rooms");
     await nav("连接");
-    await page
-      .locator("#federation-address")
-      .fill("/ip4/127.0.0.1/tcp/4001/p2p/test");
-    await page.locator("#federation-peer").fill("test");
-    await page.locator("#federation-genesis").fill("a".repeat(64));
-    await page
-      .getByRole("button", { name: "连接 / 刷新", exact: true })
-      .click();
+    await page.locator("#federation-link").fill("not a link");
+    await page.locator("#federation-link").press("Enter");
+    await page.getByText("这不是有效的连接链接", { exact: false }).waitFor();
+    const connectionLink = `folly://federation?${new URLSearchParams({
+      address: "/ip4/127.0.0.1/tcp/4001/p2p/test",
+      peer: "test",
+      genesis: "a".repeat(64),
+    })}`;
+    await page.locator("#federation-link").fill(connectionLink);
+    await page.locator("#federation-link").press("Enter");
     await page.getByText("已同步联赛", { exact: true }).waitFor();
     assert.equal(
       await page.getByRole("button", { name: "赛季运营", exact: true }).count(),
@@ -124,7 +126,9 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       pollCount
     );
     await nav("连接");
-    await page.getByRole("button", { name: "连接设置", exact: true }).click();
+    await page
+      .getByRole("button", { name: "手动填写连接信息", exact: true })
+      .click();
     assert.equal(await page.locator("#federation-peer").inputValue(), "test");
     await page.evaluate(() => (window.admin = true));
     await page

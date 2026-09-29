@@ -52,3 +52,29 @@ assert.deepEqual(schedulableLeagues(scheduleState, "other"), [
   "assigned",
 ]);
 console.log("PASS: new-season scheduling and existing-season ownership.");
+
+const { buildConnectionLink, parseConnectionLink } =
+  await import("../../src/utils/federation/connection-link");
+const target = {
+  address: "/ip4/10.0.0.8/tcp/29637/p2p/12D3KooWtest?x=1&y=2",
+  peer: "peer-org",
+  genesis: "a".repeat(64),
+};
+assert.deepEqual(
+  parseConnectionLink(buildConnectionLink(target, "folly"), "folly"),
+  target
+);
+assert.deepEqual(
+  parseConnectionLink(`  ${buildConnectionLink(target, "folly")}\n`, "folly"),
+  target
+);
+for (const invalid of [
+  "",
+  "not a link",
+  "folly://connect?address=a&peer=b&genesis=" + "a".repeat(64),
+  "other://federation?address=a&peer=b&genesis=" + "a".repeat(64),
+  "folly://federation?address=a&peer=b",
+  "folly://federation?address=a&peer=b&genesis=" + "A".repeat(64),
+])
+  assert.equal(parseConnectionLink(invalid, "folly"), null);
+console.log("PASS: connection links.");

@@ -2,6 +2,7 @@ import {
   Button,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   HStack,
   Input,
@@ -9,15 +10,22 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { brand } from "@/brand";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
-
-const GENESIS_PATTERN = /^[a-f0-9]{64}$/;
+import { useToast } from "@/contexts/toast";
+import { copyText } from "@/utils/copy";
+import {
+  GENESIS_PATTERN,
+  buildConnectionLink,
+} from "@/utils/federation/connection-link";
 
 export default function OverviewPage() {
   const { t } = useTranslation();
+  const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const {
@@ -28,13 +36,21 @@ export default function OverviewPage() {
     genesisHash,
     setGenesisHash,
     state,
+    activeTarget,
     connecting: busy,
     connectionError: error,
     identityRequired,
     connect: handleRequest,
+    connectWithLink,
   } = useFederation();
+  const [link, setLink] = useState("");
+  const [linkInvalid, setLinkInvalid] = useState(false);
   const genesisInvalid =
     genesisHash !== "" && !GENESIS_PATTERN.test(genesisHash);
+  const shareLink =
+    state && activeTarget
+      ? buildConnectionLink(activeTarget, brand.deeplinkScheme)
+      : "";
   return (
     <Section title={t("FederationNav.overview")}>
       <VStack align="stretch" spacing={4}>
@@ -51,20 +67,76 @@ export default function OverviewPage() {
                 : "FederationNav.disconnected"
           )}
         </Text>
-        {state && (
-          <Button
-            as={Link}
-            href="/federation/league"
-            colorScheme={primaryColor}
-            alignSelf="flex-start"
+        {state ? (
+          <>
+            <Button
+              as={Link}
+              href="/federation/league"
+              colorScheme={primaryColor}
+              alignSelf="flex-start"
+            >
+              {t("FederationNav.league")}
+            </Button>
+            <FormControl>
+              <FormLabel htmlFor="federation-share">
+                {t("FederationPage.settings.shareLabel")}
+              </FormLabel>
+              <HStack>
+                <Input id="federation-share" value={shareLink} isReadOnly />
+                <Button
+                  onClick={() => void copyText(shareLink, { toast })}
+                  flexShrink={0}
+                >
+                  {t("FederationPage.settings.shareCopy")}
+                </Button>
+              </HStack>
+            </FormControl>
+          </>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setLinkInvalid(!connectWithLink(link));
+            }}
           >
-            {t("FederationNav.league")}
-          </Button>
+            <FormControl isInvalid={linkInvalid}>
+              <FormLabel htmlFor="federation-link">
+                {t("FederationPage.settings.linkLabel")}
+              </FormLabel>
+              <HStack>
+                <Input
+                  id="federation-link"
+                  isDisabled={busy}
+                  placeholder={`${brand.deeplinkScheme}://federation?…`}
+                  value={link}
+                  onChange={(e) => {
+                    setLink(e.target.value);
+                    setLinkInvalid(false);
+                  }}
+                />
+                <Button
+                  type="submit"
+                  colorScheme={primaryColor}
+                  isLoading={busy}
+                  isDisabled={!link.trim()}
+                  flexShrink={0}
+                >
+                  {t("FederationPage.settings.linkConnect")}
+                </Button>
+              </HStack>
+              <FormHelperText>
+                {t("FederationPage.settings.linkHelp")}
+              </FormHelperText>
+              <FormErrorMessage>
+                {t("FederationPage.settings.linkInvalid")}
+              </FormErrorMessage>
+            </FormControl>
+          </form>
         )}
         <Section
-          title={t("FederationPage.settings.title")}
+          title={t("FederationPage.settings.manualTitle")}
           isAccordion
-          initialIsOpen={!state}
+          initialIsOpen={false}
         >
           <VStack spacing={3} align="stretch">
             <FormControl>

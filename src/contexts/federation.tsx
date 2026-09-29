@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import {
   ReactNode,
   createContext,
@@ -9,18 +10,18 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
+import { useDeepLink } from "@/hooks/deep-link";
 import {
   IdentityFacts,
   UnionService,
   UnionState,
   isIdentityNotConfigured,
 } from "@/services/union";
-
-interface FederationTarget {
-  address: string;
-  peer: string;
-  genesis: string;
-}
+import {
+  FederationTarget,
+  GENESIS_PATTERN,
+  parseConnectionLink,
+} from "@/utils/federation/connection-link";
 
 const CONNECTION_STORAGE_KEY = "federation-connections";
 export function validTarget(value: unknown): value is FederationTarget {
@@ -32,7 +33,7 @@ export function validTarget(value: unknown): value is FederationTarget {
     typeof target.peer === "string" &&
     !!target.peer &&
     typeof target.genesis === "string" &&
-    /^[a-f0-9]{64}$/.test(target.genesis)
+    GENESIS_PATTERN.test(target.genesis)
   );
 }
 function useFederationState() {
@@ -130,6 +131,25 @@ function useFederationState() {
     setGenesisHash(config.league?.genesis || "");
     if (config.league) void connectTarget(config.league);
   }, [connectTarget]);
+  const connectWithLink = useCallback(
+    (link: string) => {
+      const target = parseConnectionLink(link, brand.deeplinkScheme);
+      if (!target) return false;
+      setAddress(target.address);
+      setPeer(target.peer);
+      setGenesisHash(target.genesis);
+      void connectTarget(target);
+      return true;
+    },
+    [connectTarget]
+  );
+  const router = useRouter();
+  useDeepLink({
+    trigger: (path) => path.startsWith("federation?"),
+    onCall: (url) => {
+      if (connectWithLink(url)) void router.push("/federation/overview");
+    },
+  });
   const request = useCallback(async (action?: Record<string, unknown>) => {
     const target = targetRef.current;
     const current = generation.current;
@@ -169,6 +189,7 @@ function useFederationState() {
     identityRequired,
     identityError,
     connect: () => connectTarget({ address, peer, genesis: genesisHash }),
+    connectWithLink,
     request,
     member,
     isAdmin: !!identity && !!state?.admins?.includes(identity),
