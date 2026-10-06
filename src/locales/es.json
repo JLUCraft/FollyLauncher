@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "Huellas de auditoría",
+    "description": "Exporta un informe de auditoría del servidor, revísalo y registra aquí su huella para que no pueda alterarse después. Solo administradores.",
+    "existing": "Huellas registradas",
+    "empty": "Aún no hay huellas registradas",
+    "id": "ID del informe",
+    "digest": "Huella del informe (64 caracteres, dígitos 0–9 y letras a–f)",
+    "invalid": "Revisa el ID y la huella del informe.",
+    "confirm": "Revisa el ID y la huella. Una vez registrados, no se pueden cambiar.",
+    "review": "Revisar antes de registrar",
+    "submit": "Registrar huella"
+  },
+  "BusinessAdmin": {
+    "title": "Roles y servidores de respaldo",
+    "description": "Los cambios solo se aplican a la comunidad conectada. La membresía, el acceso a servicios y los roles se gestionan por separado.",
+    "roles": "Roles, uno por línea",
+    "rolesHint": "Reemplaza todos los roles. Una lista vacía elimina todos los roles.",
+    "reviewRoles": "Revisar roles",
+    "replicas": "Servidores de respaldo",
+    "replicasHint": "Usa 1, 3, 5 o 7 servidores de respaldo, cada uno con un número positivo distinto. Los números retirados no se pueden reutilizar. Cada dirección debe pertenecer al ID de servidor correspondiente.",
+    "current": "Servidores de respaldo registrados",
+    "empty": "No hay servidores de respaldo registrados",
+    "load": "Cargar los servidores de respaldo actuales",
+    "nodeId": "Número del servidor de respaldo",
+    "addresses": "Direcciones, una por línea",
+    "remove": "Quitar este servidor de respaldo",
+    "add": "Añadir servidor de respaldo",
+    "reviewReplicas": "Revisar el cambio de servidores de respaldo",
+    "invalid": "Hay roles, números, ID o direcciones no válidos. Revísalos e inténtalo de nuevo.",
+    "confirm": "Revisa todo el cambio. Los roles se reemplazan y los números de servidores eliminados no se pueden reutilizar.",
+    "preview": "Cambio propuesto",
+    "submit": "Confirmar el cambio",
+    "currentRoles": "Roles actuales: {{roles}}",
+    "loadRoles": "Cargar roles actuales"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "Sala"
     },
     "currentGame": "Conexión de juego actual",
-    "service": "Servicio: {{service}} · Nodo: {{peer}}",
     "disconnectFirst": "Desconecta este servicio antes de entrar en otra sala o partida.",
-    "defaultSeed": "Usar el nodo conectado",
-    "briefFile": "Elegir un documento ya subido"
+    "defaultSeed": "Usar el nodo conectado"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "Sin conexión"
   },
   "FederationPage": {
-    "title": "Federación",
-    "subtitle": "Conéctate a la unión para ver ligas, crear equipos, invitar compañeros e inscribirte.",
     "gameConnection": {
       "title": "Conexión de partida",
       "description": "Pega el enlace de conexión proporcionado por el organizador",
       "linkLabel": "Enlace de conexión",
-      "connected": "Dirección del servidor de juego: {{address}}. Al iniciar Minecraft 26.3 desde el launcher te unirás automáticamente; mantén el launcher abierto.",
       "connect": "Conectar",
-      "disconnect": "Desconectar",
       "error": "No se pudo completar la conexión al juego; revisa el enlace o contacta al organizador"
     },
     "settings": {
-      "title": "Ajustes de conexión",
-      "description": "La dirección de la unión y la identidad de unión las proporciona el organizador",
       "addressLabel": "Dirección de la unión",
-      "peerLabel": "Peer ID del nodo",
-      "genesisLabel": "Hash génesis de la liga (confirmar con organizador)",
-      "genesisInvalid": "Introduce el hash hexadecimal de 64 caracteres en minúsculas que te dio el organizador.",
+      "peerLabel": "ID del servidor",
+      "genesisLabel": "Código de verificación de la liga (pídelo a tu organizador)",
+      "genesisInvalid": "Introduce el código de 64 caracteres que te dio tu organizador (dígitos 0–9 y letras a–f).",
       "linkLabel": "Enlace de conexión",
       "linkHelp": "Pega el enlace que te envió tu organizador. Abrirlo en este dispositivo también conecta automáticamente.",
       "linkConnect": "Conectar",
@@ -958,13 +985,13 @@
       "connect": "Conectar / Actualizar",
       "myDevice": "Mi dispositivo: {{id}}",
       "myMember": "Mi número de miembro: {{id}}",
-      "myClub": "({{club}})"
+      "myClub": "({{club}})",
+      "linkPlaceholder": "Pega el enlace de tu organizador"
     },
     "error": "Operación incompleta; revisa la conexión y el estado de inscripción e inténtalo de nuevo",
     "identityRequired": "Conectar requiere una identidad unificada. Configúrala primero en la página de identidad.",
     "openIdentity": "Abrir ajustes de identidad",
     "empty": {
-      "notConnected": "Una vez conectado, aquí aparecerán las ligas, equipos y clasificaciones.",
       "noLeagues": "Esta unión aún no tiene ligas."
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "No inscrito",
       "acceptInvite": "Aceptar invitación",
       "register": "Enviar inscripción",
-      "inviteePlaceholder": "Número de miembro a invitar",
+      "inviteePlaceholder": "Elige un miembro para invitar",
       "invite": "Invitar miembro",
       "teamScoreboard": "Clasificación de equipos",
       "playerScoreboard": "Clasificación de jugadores",
@@ -997,21 +1024,25 @@
       "resume": "Reanudar"
     },
     "identity": {
-      "title": "Identidad unificada de miembros",
-      "description": "El ID se conserva al cambiar de dispositivo. La afiliación, la presidencia y los permisos de servicio son independientes.",
-      "configuration": "Configuración del génesis y del origen de identidad confirmada por otra vía",
+      "configuration": "Configuración proporcionada por tu organizador",
       "save": "Guardar configuración",
-      "sync": "Sincronizar historial",
-      "automatic": "Verificar mediante el sitio de skins",
-      "host": "Preparar vinculación del anfitrión",
-      "loading": "Verificando el historial…",
-      "unavailable": "No se pudo confirmar la autorización actual. Comprueba la configuración y la conexión y sincroniza. La afiliación no ha caducado.",
-      "empty": "No se ha cargado un historial de identidad verificado.",
-      "review": "Antes de firmar, revisa la federación, el resumen anterior, el miembro, el dispositivo y la acción completa. Reúne firmas para el relevo. No unas identidades por nombre.",
-      "proposal": "JSON de la acción o del registro para firma conjunta",
-      "draft": "Crear borrador",
-      "sign": "Firmar",
-      "submit": "Enviar"
+      "loading": "Comprobando tu identidad…",
+      "unavailable": "No pudimos confirmar tu membresía ahora. Revisa tu conexión y actualiza. Tu membresía no ha caducado.",
+      "empty": "Aún no hay información de identidad. Actualiza para cargarla.",
+      "saveInvalid": "No se pudo leer esa configuración. Copia todo el texto de tu organizador e inténtalo de nuevo."
+    },
+    "errors": {
+      "network": "No se puede conectar con el servidor. Revisa tu conexión a internet y el enlace, e inténtalo de nuevo.",
+      "membership": "No pudimos confirmar tu membresía. Abre «Mi identidad», actualízalo e inténtalo de nuevo.",
+      "invalid": "Esta solicitud no es válida. Revisa el enlace y los datos de tu organizador."
+    },
+    "guide": {
+      "title": "Primeros pasos",
+      "setup": "Añadir la configuración de tu organizador",
+      "connect": "Conectarte a tu liga con el enlace",
+      "verify": "Verificar tu membresía",
+      "done": "Hecho",
+      "next": "Continuar"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "Verifica tu afiliación y gestiona tus dispositivos vinculados.",
-    "setup": "Pega abajo la configuración de confianza de la federación y guárdala para empezar.",
+    "setup": "Pega abajo la configuración que te dio tu organizador y guárdala para empezar.",
     "sync": "Actualizar identidad",
     "automatic": "Verificar con el sitio de skins",
     "host": "Vincular dispositivo anfitrión",
@@ -1624,20 +1655,20 @@
     "member": "ID de miembro",
     "device": "ID de dispositivo",
     "club": "Club",
-    "profile": "UUID del perfil Minecraft",
+    "profile": "ID de jugador de Minecraft",
     "unbound": "Sin vincular",
-    "position": "Verificado hasta el registro {{sequence}}",
+    "position": "Al día hasta la versión {{sequence}}",
     "review": "Revisar cambios",
-    "reviewHint": "La firma confirma estos cambios. La vinculación puede requerir ambos dispositivos; comparte el registro en ajustes avanzados.",
+    "reviewHint": "Firmar confirma los cambios de abajo. Vincular dos dispositivos puede requerir la firma de cada uno; pasa el cambio entre ellos en la configuración avanzada.",
     "sign": "Confirmar y firmar",
     "submit": "Aplicar cambios firmados",
-    "import": "Importar registro para cofirma (JSON)",
-    "export": "Exportar registro firmado (JSON)",
+    "import": "Importar un cambio para cofirmar",
+    "export": "Cambio firmado (envíalo a tu cofirmante)",
     "fields": {
       "federation": "Federación",
-      "genesis": "Raíz de confianza",
-      "sequence": "Número de registro",
-      "previous": "Hash anterior",
+      "genesis": "Configuración de la federación",
+      "sequence": "Número de versión",
+      "previous": "Versión anterior",
       "action": "Cambio",
       "signatures": "Firmas",
       "public_key": "Clave pública",
@@ -1652,7 +1683,59 @@
     },
     "before": "Antes",
     "after": "Después",
-    "unknown": "Actualiza la identidad para ver el vínculo actual"
+    "unknown": "Actualiza la identidad para ver el vínculo actual",
+    "inspect": "Ver información guardada (sin conexión)",
+    "hint": "La mayoría de las personas solo necesita el primer botón."
+  },
+  "IdentityManagement": {
+    "title": "Herramientas de organizador",
+    "action": "Acción",
+    "invalid": "Faltan datos o hay datos no válidos. Revisa cada campo e inténtalo de nuevo.",
+    "optional": "Opcional al confirmar a un miembro existente sin añadir un dispositivo.",
+    "addChair": "Añadir representante",
+    "removeChair": "Eliminar representante",
+    "actions": {
+      "confirm_member": "Confirmar afiliación",
+      "revoke_membership": "Revocar afiliación",
+      "bind_device": "Vincular dispositivo",
+      "bind_game_profile": "Vincular perfil de juego",
+      "revoke_device": "Revocar dispositivo",
+      "register_service": "Registrar servicio",
+      "grant_permission": "Conceder permiso",
+      "revoke_permission": "Revocar permiso",
+      "authorize_verifier": "Autorizar verificador",
+      "revoke_verifier": "Revocar verificador",
+      "propose_succession": "Proponer sucesión",
+      "approve_succession": "Aprobar sucesión",
+      "execute_succession": "Ejecutar sucesión",
+      "cancel_succession": "Cancelar sucesión",
+      "replace_chairs": "Reemplazar representantes con firmas conjuntas"
+    },
+    "fields": {
+      "member": "ID estable del miembro",
+      "club": "ID del club",
+      "device": "ID del dispositivo",
+      "profile": "ID de jugador de Minecraft (32 caracteres)",
+      "service": "ID del servicio",
+      "audience": "ID del servidor anfitrión",
+      "id": "ID de la solicitud",
+      "permission": "Permiso",
+      "quorum": "Firmas necesarias",
+      "chairs": "Nuevos representantes",
+      "evidence": "Ámbito de verificación"
+    },
+    "evidence": {
+      "institutional_email": "Correo institucional",
+      "game_profile": "Perfil de juego"
+    },
+    "signOffline": "Firmar sin conexión (se vuelve a comprobar al enviar)",
+    "publicTitle": "Identidad pública del dispositivo",
+    "publicHint": "Compártelo con un organizador para registrarte o vincular un dispositivo. No incluye ninguna clave privada.",
+    "copy": "Copiar",
+    "cached": "Se muestra información guardada. Actualiza para ver tu membresía más reciente.",
+    "generateId": "Generar nuevo ID",
+    "facts": "Detalles completos de identidad (técnico)",
+    "organizerHint": "Solo para organizadores y presidentes. Los miembros normales no lo necesitan."
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "Ten cuidado al editar el archivo de configuración sin procesar del lanzador. Un formato incorrecto puede provocar la pérdida de la configuración original o impedir que el lanzador funcione correctamente."
   },
+  "RoomSearch": {
+    "search": "Buscar salas, clubes o versiones",
+    "school": "Universidad / club",
+    "all": "Todas las universidades / clubes",
+    "noMatches": "No hay salas coincidentes."
+  },
   "Rooms": {
     "manualHint": "Configura primero la identidad unificada. La presidencia puede confirmar miembros y vincular perfiles de juego con su firma aunque no funcione ningún sitio de skins. La afiliación dura hasta su revocación explícita.",
     "showIdentities": "Mostrar identificadores para firmar",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "Identificador del dispositivo participante",
     "title": "Salas y servidores",
     "description": "Crea una sala o únete a otros clubes con tu identidad de miembro verificada.",
-    "seeds": "Nodos de descubrimiento (una dirección por línea)",
+    "seeds": "Direcciones para buscar salas (una por línea)",
     "refresh": "Actualizar salas y estado",
     "partial": "Algunos nodos o salas no están disponibles. La lista puede estar incompleta.",
     "seedsChanged": "Los nodos de descubrimiento cambiaron desde la última búsqueda. Actualiza para descubrir salas en los nuevos nodos.",
@@ -2459,18 +2548,12 @@
     "host": "Crea tu propia sala",
     "configuration": "Configuración del servidor local",
     "pick": "Elegir archivo de configuración",
-    "relays": "Nodos de retransmisión (una dirección por línea)",
-    "hostHint": "Usa la configuración y los recursos locales de minecraftd. El servidor debe escuchar en loopback. Añade un nodo de retransmisión si no hay acceso directo.",
+    "relays": "Direcciones de relé (una por línea)",
+    "hostHint": "Usa la configuración de servidor de este equipo. Si tus amigos no pueden conectarse directamente, añade una dirección de relé.",
     "start": "Iniciar sala",
     "stop": "Cerrar sala",
     "hosting": "Alojando {{name}}",
-    "error": "La operación falló. Comprueba la identidad unificada, la configuración del servidor y las rutas de red."
-  },
-  "RoomSearch": {
-    "search": "Buscar salas, clubes o versiones",
-    "school": "Universidad / club",
-    "all": "Todas las universidades / clubes",
-    "noMatches": "No hay salas coincidentes."
+    "error": "No se pudo completar. Revisa tu identidad, la configuración del servidor y tu red, e inténtalo de nuevo."
   },
   "ScreenshotPreviewModal": {
     "menu": {

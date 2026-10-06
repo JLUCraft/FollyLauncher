@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "Empreintes d’audit",
+    "description": "Exportez un rapport d’audit depuis le serveur, vérifiez-le, puis enregistrez ici son empreinte pour qu’il ne puisse plus être modifié. Réservé aux administrateurs.",
+    "existing": "Empreintes enregistrées",
+    "empty": "Aucune empreinte enregistrée",
+    "id": "ID du rapport",
+    "digest": "Empreinte du rapport (64 caractères, chiffres 0–9 et lettres a–f)",
+    "invalid": "Vérifiez l’ID et l’empreinte du rapport.",
+    "confirm": "Vérifiez l’ID et l’empreinte. Une fois enregistrés, ils ne peuvent plus être modifiés.",
+    "review": "À vérifier avant l’enregistrement",
+    "submit": "Enregistrer l’empreinte"
+  },
+  "BusinessAdmin": {
+    "title": "Rôles et serveurs de secours",
+    "description": "Les changements ne s’appliquent qu’à la communauté connectée. Adhésion, accès aux services et rôles sont gérés séparément.",
+    "roles": "Rôles, un par ligne",
+    "rolesHint": "Remplace tous les rôles. Une liste vide supprime tous les rôles.",
+    "reviewRoles": "Vérifier les rôles",
+    "replicas": "Serveurs de secours",
+    "replicasHint": "Utilisez 1, 3, 5 ou 7 serveurs de secours, chacun avec un numéro positif distinct. Les numéros retirés ne peuvent pas être réutilisés. Chaque adresse doit appartenir à l’ID de serveur associé.",
+    "current": "Serveurs de secours enregistrés",
+    "empty": "Aucun serveur de secours enregistré",
+    "load": "Charger les serveurs de secours actuels",
+    "nodeId": "Numéro du serveur de secours",
+    "addresses": "Adresses, une par ligne",
+    "remove": "Supprimer ce serveur de secours",
+    "add": "Ajouter un serveur de secours",
+    "reviewReplicas": "Vérifier le changement de serveurs de secours",
+    "invalid": "Certains rôles, numéros, ID ou adresses sont invalides. Vérifiez-les et réessayez.",
+    "confirm": "Vérifiez l’ensemble du changement. Les rôles sont remplacés et les numéros de serveurs supprimés ne peuvent pas être réutilisés.",
+    "preview": "Modification proposée",
+    "submit": "Confirmer la modification",
+    "currentRoles": "Rôles actuels : {{roles}}",
+    "loadRoles": "Charger les rôles actuels"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "Salon"
     },
     "currentGame": "Connexion de jeu actuelle",
-    "service": "Service : {{service}} · Nœud : {{peer}}",
     "disconnectFirst": "Déconnectez ce service avant de rejoindre un autre salon ou match.",
-    "defaultSeed": "Utiliser le nœud connecté",
-    "briefFile": "Choisir un document déjà importé"
+    "defaultSeed": "Utiliser le nœud connecté"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "Non connecté"
   },
   "FederationPage": {
-    "title": "Fédération",
-    "subtitle": "Connectez-vous à l'union pour parcourir les ligues, créer des équipes, inviter des coéquipiers et vous inscrire.",
     "gameConnection": {
       "title": "Connexion au match",
       "description": "Collez le lien de connexion fourni par l'organisateur",
       "linkLabel": "Lien de connexion",
-      "connected": "Adresse du serveur de jeu : {{address}}. Lancez Minecraft 26.3 depuis le launcher et vous rejoindrez automatiquement ; gardez le launcher ouvert.",
       "connect": "Connecter",
-      "disconnect": "Déconnecter",
       "error": "Connexion au jeu impossible ; vérifiez le lien ou contactez l'organisateur"
     },
     "settings": {
-      "title": "Paramètres de connexion",
-      "description": "L'adresse de l'union et l'identité d'union sont fournies par l'organisateur",
       "addressLabel": "Adresse de l'union",
-      "peerLabel": "Peer ID du nœud",
-      "genesisLabel": "Empreinte de genèse de la ligue (à confirmer)",
-      "genesisInvalid": "Saisissez l’empreinte hexadécimale de 64 caractères minuscules fournie par l’organisateur.",
+      "peerLabel": "Identifiant du serveur",
+      "genesisLabel": "Code de vérification de la ligue (demandez à votre organisateur)",
+      "genesisInvalid": "Saisissez le code de 64 caractères fourni par votre organisateur (chiffres 0–9 et lettres a–f).",
       "linkLabel": "Lien de connexion",
       "linkHelp": "Collez le lien envoyé par votre organisateur. L’ouvrir sur cet appareil connecte aussi automatiquement.",
       "linkConnect": "Se connecter",
@@ -958,13 +985,13 @@
       "connect": "Connecter / Actualiser",
       "myDevice": "Mon appareil : {{id}}",
       "myMember": "Mon numéro de membre : {{id}}",
-      "myClub": "({{club}})"
+      "myClub": "({{club}})",
+      "linkPlaceholder": "Collez le lien de votre organisateur"
     },
     "error": "Échec de l'opération ; vérifiez la connexion et l'inscription, puis réessayez",
     "identityRequired": "La connexion exige une identité unifiée. Configurez-la d’abord sur la page d’identité.",
     "openIdentity": "Ouvrir les paramètres d’identité",
     "empty": {
-      "notConnected": "Une fois connecté, les ligues, équipes et classements s'afficheront ici.",
       "noLeagues": "Cette union n'a pas encore de ligue."
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "Non inscrite",
       "acceptInvite": "Accepter l'invitation",
       "register": "Soumettre l'inscription",
-      "inviteePlaceholder": "Numéro de membre à inviter",
+      "inviteePlaceholder": "Choisissez un membre à inviter",
       "invite": "Inviter un membre",
       "teamScoreboard": "Classement des équipes",
       "playerScoreboard": "Classement des joueurs",
@@ -997,21 +1024,25 @@
       "resume": "Reprendre"
     },
     "identity": {
-      "title": "Identité unifiée des membres",
-      "description": "L’identifiant reste le même après un changement d’appareil. L’adhésion, la présidence et les droits de service sont indépendants.",
-      "configuration": "Configuration de la genèse et de la source d’identité confirmée séparément",
+      "configuration": "Configuration fournie par votre organisateur",
       "save": "Enregistrer la configuration",
-      "sync": "Synchroniser l’historique",
-      "automatic": "Vérifier via le site de skins",
-      "host": "Préparer la liaison de l’appareil hôte",
-      "loading": "Vérification de l’historique…",
-      "unavailable": "Impossible de confirmer les droits actuels. Vérifiez la configuration et la connexion, puis synchronisez. L’adhésion n’a pas expiré.",
-      "empty": "Aucun historique d’identité vérifié n’est chargé.",
-      "review": "Avant de signer, vérifiez la fédération, l’empreinte précédente, le membre, l’appareil et l’action complète. Réunissez les signatures pour la succession. Ne fusionnez pas les identités par nom.",
-      "proposal": "JSON de l’action ou du document à cosigner",
-      "draft": "Préparer",
-      "sign": "Signer",
-      "submit": "Envoyer"
+      "loading": "Vérification de votre identité…",
+      "unavailable": "Impossible de confirmer votre adhésion pour le moment. Vérifiez votre connexion, puis actualisez. Votre adhésion n’a pas expiré.",
+      "empty": "Aucune information d’identité pour l’instant. Actualisez pour la charger.",
+      "saveInvalid": "Cette configuration est illisible. Copiez tout le texte de votre organisateur et réessayez."
+    },
+    "errors": {
+      "network": "Impossible de joindre le serveur. Vérifiez votre connexion Internet et le lien, puis réessayez.",
+      "membership": "Impossible de confirmer votre adhésion. Ouvrez « Mon identité », actualisez-le, puis réessayez.",
+      "invalid": "Cette demande n’est pas valide. Vérifiez le lien et les informations de votre organisateur."
+    },
+    "guide": {
+      "title": "Pour commencer",
+      "setup": "Ajouter la configuration de votre organisateur",
+      "connect": "Vous connecter à votre ligue avec le lien",
+      "verify": "Vérifier votre adhésion",
+      "done": "Terminé",
+      "next": "Continuer"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "Vérifiez votre adhésion et gérez vos appareils associés.",
-    "setup": "Collez ci-dessous la configuration de confiance de la fédération et enregistrez-la pour commencer.",
+    "setup": "Collez ci-dessous la configuration fournie par votre organisateur et enregistrez-la pour commencer.",
     "sync": "Actualiser l’identité",
     "automatic": "Vérifier via le site de skins",
     "host": "Associer l’appareil hôte",
@@ -1624,20 +1655,20 @@
     "member": "Identifiant du membre",
     "device": "Identifiant de l’appareil",
     "club": "Club",
-    "profile": "UUID du profil Minecraft",
+    "profile": "Identifiant de joueur Minecraft",
     "unbound": "Non associé",
-    "position": "Vérifié jusqu’à l’enregistrement {{sequence}}",
+    "position": "À jour à la version {{sequence}}",
     "review": "Vérifier les modifications",
-    "reviewHint": "La signature confirme ces modifications. L’association peut nécessiter les deux appareils ; partagez l’enregistrement dans les paramètres avancés.",
+    "reviewHint": "Signer confirme les modifications ci-dessous. Lier deux appareils peut demander une signature de chacun ; échangez la modification dans les paramètres avancés.",
     "sign": "Confirmer et signer",
     "submit": "Appliquer les modifications signées",
-    "import": "Importer un enregistrement à cosigner (JSON)",
-    "export": "Exporter l’enregistrement signé (JSON)",
+    "import": "Importer une modification à cosigner",
+    "export": "Modification signée (à envoyer à votre cosignataire)",
     "fields": {
       "federation": "Fédération",
-      "genesis": "Racine de confiance",
-      "sequence": "Numéro du registre",
-      "previous": "Empreinte précédente",
+      "genesis": "Configuration de la fédération",
+      "sequence": "Numéro de version",
+      "previous": "Version précédente",
       "action": "Modification",
       "signatures": "Signatures",
       "public_key": "Clé publique",
@@ -1652,7 +1683,59 @@
     },
     "before": "Avant",
     "after": "Après",
-    "unknown": "Actualisez l’identité pour voir l’association actuelle"
+    "unknown": "Actualisez l’identité pour voir l’association actuelle",
+    "inspect": "Afficher les informations enregistrées (hors ligne)",
+    "hint": "La plupart des gens n’ont besoin que du premier bouton."
+  },
+  "IdentityManagement": {
+    "title": "Outils d’organisation",
+    "action": "Action",
+    "invalid": "Certains champs sont manquants ou invalides. Vérifiez-les et réessayez.",
+    "optional": "Facultatif pour confirmer un membre existant sans ajouter d’appareil.",
+    "addChair": "Ajouter un représentant",
+    "removeChair": "Retirer ce représentant",
+    "actions": {
+      "confirm_member": "Confirmer l’adhésion",
+      "revoke_membership": "Révoquer l’adhésion",
+      "bind_device": "Associer un appareil",
+      "bind_game_profile": "Associer un profil de jeu",
+      "revoke_device": "Révoquer un appareil",
+      "register_service": "Enregistrer un service",
+      "grant_permission": "Accorder une permission",
+      "revoke_permission": "Révoquer une permission",
+      "authorize_verifier": "Autoriser un vérificateur",
+      "revoke_verifier": "Révoquer un vérificateur",
+      "propose_succession": "Proposer une succession",
+      "approve_succession": "Approuver une succession",
+      "execute_succession": "Exécuter une succession",
+      "cancel_succession": "Annuler une succession",
+      "replace_chairs": "Remplacer les représentants par cosignature"
+    },
+    "fields": {
+      "member": "ID permanent du membre",
+      "club": "ID du club",
+      "device": "ID de l’appareil",
+      "profile": "Identifiant de joueur Minecraft (32 caractères)",
+      "service": "ID du service",
+      "audience": "ID du serveur hôte",
+      "id": "ID de la demande",
+      "permission": "Permission",
+      "quorum": "Signatures requises",
+      "chairs": "Nouveaux représentants",
+      "evidence": "Portée de vérification"
+    },
+    "evidence": {
+      "institutional_email": "Adresse institutionnelle",
+      "game_profile": "Profil de jeu"
+    },
+    "signOffline": "Signer hors ligne (revérifié à l’envoi)",
+    "publicTitle": "Identité publique de l’appareil",
+    "publicHint": "À transmettre à un organisateur pour vous inscrire ou lier un appareil. Aucune clé privée n’est incluse.",
+    "copy": "Copier",
+    "cached": "Informations enregistrées affichées. Actualisez pour voir votre adhésion à jour.",
+    "generateId": "Générer un nouvel ID",
+    "facts": "Détails complets de l’identité (technique)",
+    "organizerHint": "Réservé aux organisateurs et aux présidents. Les membres n’en ont pas besoin."
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "Veuillez éditer le fichier de configuration original du lanceur avec précaution. Un format incorrect peut entraîner la perte des paramètres existants ou un dysfonctionnement du lanceur"
   },
+  "RoomSearch": {
+    "search": "Rechercher un salon, club ou une version",
+    "school": "Établissement / club",
+    "all": "Tous les établissements / clubs",
+    "noMatches": "Aucun salon correspondant."
+  },
   "Rooms": {
     "manualHint": "Configurez d’abord l’identité unifiée. La présidence peut confirmer les membres et leur profil de jeu par signature même si tous les sites de skins sont hors ligne. L’adhésion reste valide jusqu’à sa révocation explicite.",
     "showIdentities": "Afficher les identifiants à signer",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "Identifiant de l’appareil participant",
     "title": "Salons et serveurs",
     "description": "Hébergez une salle ou rejoignez d’autres clubs avec votre identité de membre vérifiée.",
-    "seeds": "Nœuds de découverte (une adresse par ligne)",
+    "seeds": "Adresses de recherche de salons (une par ligne)",
     "refresh": "Actualiser les salons et leur état",
     "partial": "Certains nœuds ou salons sont indisponibles. Cette liste peut être incomplète.",
     "seedsChanged": "Les nœuds de découverte ont changé depuis la dernière recherche. Actualisez pour découvrir les salons sur les nouveaux nœuds.",
@@ -2459,18 +2548,12 @@
     "host": "Créer votre salon",
     "configuration": "Configuration du serveur local",
     "pick": "Choisir un fichier de configuration",
-    "relays": "Nœuds relais (une adresse par ligne)",
-    "hostHint": "Utilise la configuration et les ressources locales de minecraftd. Le serveur doit écouter sur la boucle locale. Ajoutez un relais si l’accès direct est impossible.",
+    "relays": "Adresses de relais (une par ligne)",
+    "hostHint": "Utilise les paramètres de serveur de cet ordinateur. Si vos amis ne peuvent pas se connecter directement, ajoutez une adresse de relais.",
     "start": "Ouvrir le salon",
     "stop": "Fermer le salon",
     "hosting": "Hébergement de {{name}}",
-    "error": "L’opération a échoué. Vérifiez l’identité unifiée, la configuration du serveur et les routes réseau."
-  },
-  "RoomSearch": {
-    "search": "Rechercher un salon, club ou une version",
-    "school": "Établissement / club",
-    "all": "Tous les établissements / clubs",
-    "noMatches": "Aucun salon correspondant."
+    "error": "Opération impossible. Vérifiez votre identité, les paramètres du serveur et votre réseau, puis réessayez."
   },
   "ScreenshotPreviewModal": {
     "menu": {

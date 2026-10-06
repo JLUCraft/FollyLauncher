@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "稽核指紋",
+    "description": "先自伺服器匯出稽核報告，核之，乃記其指紋於此，後不可改。惟管理者可為。",
+    "existing": "已錄之指紋",
+    "empty": "尚無已錄之指紋",
+    "id": "報告編號",
+    "digest": "報告指紋（六十四位，限 0–9 與 a–f）",
+    "invalid": "請核報告編號與指紋。",
+    "confirm": "請核編號與指紋，一經記錄，不可更改。",
+    "review": "錄前審閱",
+    "submit": "錄指紋"
+  },
+  "BusinessAdmin": {
+    "title": "職分與備援伺服器",
+    "description": "惟施於今所連之社群。會籍、服務權限與職分各別而治。",
+    "roles": "角色之名，每行一名",
+    "rolesHint": "全替角色集合；留空則盡去其角色。",
+    "reviewRoles": "審角色之變",
+    "replicas": "備援伺服器",
+    "replicasHint": "備援伺服器須一、三、五或七臺，各有相異之正整數編號。已退之號不可復用，位址須屬相應之伺服器識別。",
+    "current": "已錄之備援伺服器",
+    "empty": "尚無已錄之備援伺服器",
+    "load": "載入現行備援伺服器",
+    "nodeId": "備援伺服器編號",
+    "addresses": "位址，每行一則",
+    "remove": "除此備援伺服器",
+    "add": "增備援伺服器",
+    "reviewReplicas": "審備援伺服器之更動",
+    "invalid": "職分、編號、識別或位址有誤，請核之再試。",
+    "confirm": "請核全部更動。職分將盡易之，已除之編號不可復用。",
+    "preview": "擬呈之更動",
+    "submit": "確認呈送",
+    "currentRoles": "現業務角色：{{roles}}",
+    "loadRoles": "載入現角色"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "房間"
     },
     "currentGame": "當前遊戲連線",
-    "service": "服務：{{service}} · 節點：{{peer}}",
     "disconnectFirst": "欲入別房或賽事，請先斷此服務。",
-    "defaultSeed": "用已連節點",
-    "briefFile": "選已上傳之方案文檔"
+    "defaultSeed": "用已連節點"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "尚未連線"
   },
   "FederationPage": {
-    "title": "聯盟",
-    "subtitle": "連盟而後，可覽聯賽、立隊伍、邀同儕、呈報名。",
     "gameConnection": {
       "title": "對局連接",
       "description": "請粘主辦者所授之比賽連接",
       "linkLabel": "連接之鏈",
-      "connected": "戲伺服之址：{{address}}。自啟器啟 Minecraft 26.3，當自入，毋輟啟器。",
       "connect": "立連接",
-      "disconnect": "斷連接",
       "error": "戲連接未成，請覈其鏈，或問主辦者"
     },
     "settings": {
-      "title": "連接之設",
-      "description": "連盟之址與連盟之身，主辦者授之",
       "addressLabel": "連盟之址",
-      "peerLabel": "節點 Peer ID",
-      "genesisLabel": "聯賽鏈創世摘要（請核於主辦）",
-      "genesisInvalid": "請填主辦所授六十四位小寫十六進位摘要。",
+      "peerLabel": "伺服器識別",
+      "genesisLabel": "聯盟驗證碼（詢於主辦者）",
+      "genesisInvalid": "請填主辦者所授六十四位驗證碼（限 0–9 與 a–f）。",
       "linkLabel": "連線之鏈",
       "linkHelp": "貼主辦所授之鏈；於本機啟之，亦自連焉。",
       "linkConnect": "連線",
@@ -958,13 +985,13 @@
       "connect": "連接 / 新",
       "myDevice": "吾之機：{{id}}",
       "myMember": "吾之號：{{id}}",
-      "myClub": "（{{club}}）"
+      "myClub": "（{{club}}）",
+      "linkPlaceholder": "貼主辦者所授之連結"
     },
     "error": "事未成，請覈連接與報名之況，而後復試",
     "identityRequired": "連線之前，須先正社員一籍，請赴身份頁置之。",
     "openIdentity": "往身份之設",
     "empty": {
-      "notConnected": "既設連接，聯賽、隊伍、積分榜將列於此。",
       "noLeagues": "今連盟無聯賽。"
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "未呈報",
       "acceptInvite": "受邀",
       "register": "呈報名",
-      "inviteePlaceholder": "所邀者之連盟號",
+      "inviteePlaceholder": "擇欲邀之成員",
       "invite": "邀員",
       "teamScoreboard": "隊積分榜",
       "playerScoreboard": "員積分榜",
@@ -997,21 +1024,25 @@
       "resume": "復行"
     },
     "identity": {
-      "title": "社員一籍",
-      "description": "易機不易籍；社籍、社長之職、治務之權，各自授撤。",
-      "configuration": "已別途核定之創世冊與身份源設定",
+      "configuration": "主辦者所授之設定",
       "save": "存設定",
-      "sync": "同步身份史",
-      "automatic": "由皮膚站驗明",
-      "host": "備房主機綁定",
-      "loading": "正驗身份史…",
-      "unavailable": "今權未能核定。請查設定與連線，再行同步；非社籍已期滿。",
-      "empty": "尚無已驗身份史。",
-      "review": "簽前須核聯盟、前項摘要、社員、設備及全事。換屆須集諸簽，不可以同名合籍。",
-      "proposal": "事或共簽紀錄 JSON",
-      "draft": "起草",
-      "sign": "簽署",
-      "submit": "提交"
+      "loading": "方核君之身分…",
+      "unavailable": "暫不能確認君之會籍。請察網路後重新整理，會籍未嘗逾期。",
+      "empty": "尚無身分之資，請重新整理以載入。",
+      "saveInvalid": "此設定不可讀。請盡錄主辦者所授之文再試。"
+    },
+    "errors": {
+      "network": "不能連伺服器。請察網路與連結，再試。",
+      "membership": "不能確認君之會籍。請開「吾之身分」重新整理，再試。",
+      "invalid": "請求無效。請核主辦者所授之連結與資料。"
+    },
+    "guide": {
+      "title": "始用",
+      "setup": "增主辦者所授之設定",
+      "connect": "以連結連君之聯盟",
+      "verify": "驗君之會籍",
+      "done": "已畢",
+      "next": "續行"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "驗明社員身分，管理所繫裝置。",
-    "setup": "請於下方貼聯盟信任設定並存之，方可使用。",
+    "setup": "請於下方貼主辦者所授之設定並存之，方可使用。",
     "sync": "更新身分",
     "automatic": "以皮膚站驗證",
     "host": "繫開房裝置",
@@ -1624,20 +1655,20 @@
     "member": "社員編號",
     "device": "裝置編號",
     "club": "社團",
-    "profile": "Minecraft 身分 UUID",
+    "profile": "Minecraft 玩家識別",
     "unbound": "尚未繫定",
-    "position": "已驗至第 {{sequence}} 筆",
+    "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
-    "reviewHint": "簽名即認以下變更。繫定或須兩端共簽，可於進階設定匯出入紀錄。",
+    "reviewHint": "署之即認下列更動。連二器或須各署，可於進階設定中相傳。",
     "sign": "確認簽署",
     "submit": "提交已署變更",
-    "import": "匯入待合簽紀錄（JSON）",
-    "export": "匯出已署紀錄（JSON）",
+    "import": "匯入待共署之更動",
+    "export": "已署之更動（送予共署者）",
     "fields": {
       "federation": "聯盟",
-      "genesis": "信任本源",
-      "sequence": "紀錄編號",
-      "previous": "前項摘要",
+      "genesis": "聯盟之設定",
+      "sequence": "版號",
+      "previous": "前一版",
       "action": "變更",
       "signatures": "簽署",
       "public_key": "公鑰",
@@ -1652,7 +1683,59 @@
     },
     "before": "變更前",
     "after": "變更後",
-    "unknown": "更新身分以見今所繫"
+    "unknown": "更新身分以見今所繫",
+    "inspect": "觀已存之資（離線）",
+    "hint": "多數人惟按首鍵可矣。"
+  },
+  "IdentityManagement": {
+    "title": "主辦者之具",
+    "action": "所行",
+    "invalid": "或有缺漏或誤，請逐項核之再試。",
+    "optional": "確認既有社員而不增設備者，可留空。",
+    "addChair": "增社長席",
+    "removeChair": "去此席",
+    "actions": {
+      "confirm_member": "定社員籍",
+      "revoke_membership": "除社員籍",
+      "bind_device": "繫設備",
+      "bind_game_profile": "繫遊戲籍",
+      "revoke_device": "撤設備",
+      "register_service": "錄服務",
+      "grant_permission": "授服務權",
+      "revoke_permission": "撤服務權",
+      "authorize_verifier": "授驗者權",
+      "revoke_verifier": "撤驗者權",
+      "propose_succession": "議易社長",
+      "approve_succession": "贊易社長",
+      "execute_succession": "行易社長",
+      "cancel_succession": "罷易社長",
+      "replace_chairs": "合署易社長"
+    },
+    "fields": {
+      "member": "社員恆定 ID",
+      "club": "社團 ID",
+      "device": "器識別",
+      "profile": "Minecraft 玩家識別（三十二位）",
+      "service": "服務 ID",
+      "audience": "主機識別",
+      "id": "請求編號",
+      "permission": "權名",
+      "quorum": "須署之數",
+      "chairs": "新任社長席",
+      "evidence": "驗證之域"
+    },
+    "evidence": {
+      "institutional_email": "學府郵箱",
+      "game_profile": "遊戲身份"
+    },
+    "signOffline": "離線而署（呈送時復核）",
+    "publicTitle": "本機公開身份",
+    "publicHint": "授予主辦者以登記或連器，不含私鑰。",
+    "copy": "複製",
+    "cached": "今示已存之資，重新整理可見最新會籍。",
+    "generateId": "生新 ID",
+    "facts": "身分全詳（技術之資）",
+    "organizerHint": "惟主辦者與社長用之，常會員無須為。"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎改啟者原始置設案，謬的格式或致原有置設丟失或啟者不能正常工作"
   },
+  "RoomSearch": {
+    "search": "尋房間、社團或版本",
+    "school": "學校／社團",
+    "all": "諸校諸社",
+    "noMatches": "未見相符房間。"
+  },
   "Rooms": {
     "manualHint": "先定統一身份。皮膚站皆停，社長猶可手簽認籍、綁遊戲身份；既錄則長效，明撤乃止。",
     "showIdentities": "示署名所需裝置之識",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "入室裝置之識",
     "title": "房間與伺服器",
     "description": "以已驗社員身份開房，或入他社之房。",
-    "seeds": "尋址節點（一行一址）",
+    "seeds": "尋房位址（每行一則）",
     "refresh": "重查居室及狀態",
     "partial": "有節點或居室未可達，所列或未全。",
     "seedsChanged": "覈索之節自前覓後已更，請復覈以於新節覓房。",
@@ -2459,18 +2548,12 @@
     "host": "自建居室",
     "configuration": "本機伺服之設",
     "pick": "選設定檔",
-    "relays": "中繼節點（一行一址）",
-    "hostHint": "用本機 minecraftd 之設與資源，伺服須繫回環位址。直連不通，請設中繼。",
+    "relays": "中繼位址（每行一則）",
+    "hostHint": "用此機之伺服器設定。若友人不能直連，請增中繼位址。",
     "start": "啟室",
     "stop": "閉室",
     "hosting": "正託管 {{name}}",
-    "error": "房務未成。請查統一身份、伺服器設定與連線路徑。"
-  },
-  "RoomSearch": {
-    "search": "尋房間、社團或版本",
-    "school": "學校／社團",
-    "all": "諸校諸社",
-    "noMatches": "未見相符房間。"
+    "error": "不能成事。請核身分、伺服器設定與網路，再試。"
   },
   "ScreenshotPreviewModal": {
     "menu": {

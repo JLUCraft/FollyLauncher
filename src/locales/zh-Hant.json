@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "審計指紋",
+    "description": "先從伺服器匯出審計報告，核對後在此記錄它的指紋，之後無法被竄改。僅限管理員。",
+    "existing": "已記錄的指紋",
+    "empty": "尚無已記錄的指紋",
+    "id": "報告編號",
+    "digest": "報告指紋（64 位，數字 0–9 與字母 a–f）",
+    "invalid": "請檢查報告編號和指紋。",
+    "confirm": "請核對編號和指紋，記錄後無法修改。",
+    "review": "記錄前請審閱",
+    "submit": "記錄指紋"
+  },
+  "BusinessAdmin": {
+    "title": "角色與備援伺服器",
+    "description": "僅作用於目前連線的社群。成員資格、服務權限與角色分別管理。",
+    "roles": "角色名稱，每行一個",
+    "rolesHint": "提交的是完整角色集合；留空會清除該成員全部角色。",
+    "reviewRoles": "審閱角色變更",
+    "replicas": "備援伺服器",
+    "replicasHint": "備援伺服器數量必須為 1、3、5 或 7，每台使用不同的正整數編號。已停用的編號不可重用，位址必須屬於對應的伺服器 ID。",
+    "current": "已登記的備援伺服器",
+    "empty": "尚未登記備援伺服器",
+    "load": "載入目前備援伺服器",
+    "nodeId": "備援伺服器編號",
+    "addresses": "位址，每行一個",
+    "remove": "移除此備援伺服器",
+    "add": "新增備援伺服器",
+    "reviewReplicas": "審閱備援伺服器變更",
+    "invalid": "角色、編號、ID 或位址有誤，請檢查後重試。",
+    "confirm": "請核對完整變更。角色會被整體取代，移除的備援伺服器編號不可重用。",
+    "preview": "待提交的變更",
+    "submit": "確認提交變更",
+    "currentRoles": "目前業務角色：{{roles}}",
+    "loadRoles": "載入目前角色"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "房間"
     },
     "currentGame": "目前遊戲連線",
-    "service": "服務：{{service}} · 節點：{{peer}}",
     "disconnectFirst": "要加入其他房間或比賽，請先中斷目前服務。",
-    "defaultSeed": "使用已連線的節點",
-    "briefFile": "選擇已上傳的方案檔案"
+    "defaultSeed": "使用已連線的節點"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "尚未連線"
   },
   "FederationPage": {
-    "title": "聯盟",
-    "subtitle": "連接聯盟後檢視聯賽、建立隊伍、邀請隊友並提交報名。",
     "gameConnection": {
       "title": "比賽連線",
       "description": "貼上主辦方提供的比賽連線連結",
       "linkLabel": "連線連結",
-      "connected": "遊戲伺服器位址：{{address}}。從啟動器啟動 Minecraft 26.3 後會自動加入，請保持啟動器運行。",
       "connect": "建立連線",
-      "disconnect": "斷開連線",
       "error": "遊戲連線未完成，請檢查連結或聯繫主辦方"
     },
     "settings": {
-      "title": "連線設定",
-      "description": "聯盟連線位址與聯盟身分由主辦方提供",
       "addressLabel": "聯盟連線位址",
-      "peerLabel": "節點 Peer ID",
-      "genesisLabel": "聯賽鏈創世雜湊（向組織者核實）",
-      "genesisInvalid": "請輸入組織者提供的 64 位小寫十六進位雜湊。",
+      "peerLabel": "伺服器 ID",
+      "genesisLabel": "聯盟校驗碼（向組織者核實）",
+      "genesisInvalid": "請輸入組織者提供的 64 位校驗碼（數字 0–9 與字母 a–f）。",
       "linkLabel": "連線連結",
       "linkHelp": "貼上組織者傳給你的連結。在本機開啟該連結也會自動連線。",
       "linkConnect": "連線",
@@ -958,13 +985,13 @@
       "connect": "連線 / 重新整理",
       "myDevice": "我的裝置：{{id}}",
       "myMember": "我的編號：{{id}}",
-      "myClub": "（{{club}}）"
+      "myClub": "（{{club}}）",
+      "linkPlaceholder": "貼上組織者傳來的連結"
     },
     "error": "操作未完成，請檢查連線與報名狀態後重試",
     "identityRequired": "連線前需要先設定統一成員身分，請先到身分頁面完成設定。",
     "openIdentity": "開啟身分設定",
     "empty": {
-      "notConnected": "完成連線設定後，這裡會顯示聯賽列表、隊伍與積分榜。",
       "noLeagues": "目前聯盟暫無聯賽。"
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "未提交報名",
       "acceptInvite": "接受邀請",
       "register": "提交報名",
-      "inviteePlaceholder": "邀請成員的聯盟編號",
+      "inviteePlaceholder": "選擇要邀請的成員",
       "invite": "邀請成員",
       "teamScoreboard": "隊伍積分榜",
       "playerScoreboard": "玩家積分榜",
@@ -997,21 +1024,25 @@
       "resume": "恢復"
     },
     "identity": {
-      "title": "統一成員身份",
-      "description": "成員 ID 不隨設備改變；社團資格、社長職務與服務權限各自獨立。",
-      "configuration": "已獨立確認的創世清單與身份來源設定",
+      "configuration": "組織者提供的設定內容",
       "save": "儲存設定",
-      "sync": "同步身份歷史",
-      "automatic": "透過皮膚站驗證",
-      "host": "準備房主設備綁定",
-      "loading": "正在驗證身份歷史…",
-      "unavailable": "暫時無法確認目前權限。請檢查設定與連線後同步；成員資格並未到期。",
-      "empty": "尚未載入已驗證的身份歷史。",
-      "review": "簽名前請核對聯盟、前項摘要、成員、設備及完整動作。換屆須收集簽名；不可按姓名合併身份。",
-      "proposal": "動作或共同簽署記錄 JSON",
-      "draft": "起草",
-      "sign": "簽署",
-      "submit": "提交"
+      "loading": "正在核對你的身分…",
+      "unavailable": "暫時無法確認你的成員資格。請檢查網路連線後重新整理，這不表示成員資格已到期。",
+      "empty": "尚無身分資訊，請按重新整理載入。",
+      "saveInvalid": "無法讀取這份設定。請完整複製組織者提供的內容後重試。"
+    },
+    "errors": {
+      "network": "無法連線到伺服器。請檢查網路連線和連結後重試。",
+      "membership": "無法確認你的成員資格。請開啟「我的身分」並重新整理後重試。",
+      "invalid": "請求無效。請核對組織者提供的連結和資訊。"
+    },
+    "guide": {
+      "title": "開始使用",
+      "setup": "新增組織者提供的設定",
+      "connect": "用連結連線你的聯盟",
+      "verify": "驗證你的成員資格",
+      "done": "已完成",
+      "next": "繼續"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "驗證成員身分，管理綁定至你的裝置。",
-    "setup": "請在下方貼上聯盟信任設定並儲存後開始使用。",
+    "setup": "請在下方貼上組織者提供的設定內容並儲存後開始使用。",
     "sync": "重新整理身分",
     "automatic": "透過皮膚站驗證",
     "host": "綁定開房裝置",
@@ -1624,20 +1655,20 @@
     "member": "成員編號",
     "device": "裝置編號",
     "club": "社團",
-    "profile": "Minecraft 檔案 UUID",
+    "profile": "Minecraft 玩家 ID",
     "unbound": "尚未綁定",
-    "position": "已驗證至第 {{sequence}} 筆紀錄",
+    "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
-    "reviewHint": "簽章表示你確認以下變更。裝置綁定可能需要新舊裝置共同簽章；可在進階設定中匯入或匯出紀錄。",
+    "reviewHint": "簽署即確認下列變更。關聯兩台裝置可能需要各自簽署，可在進階設定中於兩台裝置間傳遞變更。",
     "sign": "確認並簽章",
     "submit": "提交已簽章變更",
-    "import": "匯入待合簽紀錄（JSON）",
-    "export": "匯出已簽章紀錄（JSON）",
+    "import": "匯入待聯署的變更",
+    "export": "已簽署的變更（傳給聯署人）",
     "fields": {
       "federation": "聯盟",
-      "genesis": "信任起點",
-      "sequence": "紀錄編號",
-      "previous": "前項摘要",
+      "genesis": "聯盟設定",
+      "sequence": "版本號",
+      "previous": "上一版本",
       "action": "變更",
       "signatures": "簽章",
       "public_key": "公鑰",
@@ -1652,7 +1683,59 @@
     },
     "before": "變更前",
     "after": "變更後",
-    "unknown": "重新整理身分後可查看目前綁定"
+    "unknown": "重新整理身分後可查看目前綁定",
+    "inspect": "檢視已儲存的資訊（離線）",
+    "hint": "大多數人只需按第一個按鈕。"
+  },
+  "IdentityManagement": {
+    "title": "組織者工具",
+    "action": "操作",
+    "invalid": "部分內容缺漏或無效，請檢查各項後重試。",
+    "optional": "確認既有成員資格且不新增裝置時可留空。",
+    "addChair": "新增社長席位",
+    "removeChair": "移除此席位",
+    "actions": {
+      "confirm_member": "確認成員資格",
+      "revoke_membership": "撤銷成員資格",
+      "bind_device": "綁定裝置",
+      "bind_game_profile": "綁定遊戲身分",
+      "revoke_device": "撤銷裝置",
+      "register_service": "登記服務",
+      "grant_permission": "授予服務權限",
+      "revoke_permission": "撤銷服務權限",
+      "authorize_verifier": "授權自動驗證器",
+      "revoke_verifier": "撤銷自動驗證器",
+      "propose_succession": "提出換屆",
+      "approve_succession": "同意換屆",
+      "execute_succession": "執行換屆",
+      "cancel_succession": "取消換屆",
+      "replace_chairs": "多簽直接換屆"
+    },
+    "fields": {
+      "member": "穩定成員 ID",
+      "club": "社團 ID",
+      "device": "裝置 ID",
+      "profile": "Minecraft 玩家 ID（32 位）",
+      "service": "服務 ID",
+      "audience": "主機伺服器 ID",
+      "id": "請求編號",
+      "permission": "權限名稱",
+      "quorum": "所需簽署人數",
+      "chairs": "新一屆社長席位",
+      "evidence": "自動驗證範圍"
+    },
+    "evidence": {
+      "institutional_email": "學校信箱驗證",
+      "game_profile": "遊戲身分驗證"
+    },
+    "signOffline": "離線簽署（提交時會再次核對權限）",
+    "publicTitle": "本機公開身分",
+    "publicHint": "分享給組織者，用於登記或關聯裝置，不含私鑰。",
+    "copy": "複製",
+    "cached": "正在顯示已儲存的資訊，重新整理即可查看最新的成員資格。",
+    "generateId": "產生新 ID",
+    "facts": "完整身分詳情（技術資訊）",
+    "organizerHint": "僅限組織者和社長使用，一般成員無需操作。"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎編輯啟動器原始設定檔案，錯誤的格式可能導致原有設定遺失或啟動器無法正常工作"
   },
+  "RoomSearch": {
+    "search": "搜尋房間、社團或版本",
+    "school": "學校 / 社團",
+    "all": "全部學校 / 社團",
+    "noMatches": "沒有符合的房間。"
+  },
   "Rooms": {
     "manualHint": "請先設定統一身份。即使所有皮膚站離線，社長仍可手工簽名確認成員並綁定遊戲身份；資格持續有效，直到明確吊銷。",
     "showIdentities": "顯示簽名所需裝置 ID",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "加入裝置 ID",
     "title": "房間與伺服器",
     "description": "使用已驗證的成員身份開房或加入其他社團。",
-    "seeds": "探索節點（每行一個位址）",
+    "seeds": "房間探索位址（每行一個）",
     "refresh": "重新整理房間與狀態",
     "partial": "部分探索節點或房間暫時無法連線，清單可能不完整。",
     "seedsChanged": "探索節點自上回搜尋後已變更，請重新整理以在新節點上探索房間。",
@@ -2459,18 +2548,12 @@
     "host": "建立自己的房間",
     "configuration": "本機伺服器設定",
     "pick": "選擇設定檔",
-    "relays": "中繼節點（每行一個位址）",
-    "hostHint": "使用本機 minecraftd 設定與資源，伺服器必須綁定回環位址。無法直連時請設定中繼。",
+    "relays": "中繼位址（每行一個）",
+    "hostHint": "使用本機的伺服器設定。朋友無法直接連線時，請新增中繼位址。",
     "start": "啟動房間",
     "stop": "關閉房間",
     "hosting": "正在託管 {{name}}",
-    "error": "房間操作失敗。請檢查統一身份、伺服器設定和網路路由。"
-  },
-  "RoomSearch": {
-    "search": "搜尋房間、社團或版本",
-    "school": "學校 / 社團",
-    "all": "全部學校 / 社團",
-    "noMatches": "沒有符合的房間。"
+    "error": "操作未完成。請檢查身分、伺服器設定和網路後重試。"
   },
   "ScreenshotPreviewModal": {
     "menu": {

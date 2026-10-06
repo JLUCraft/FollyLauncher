@@ -243,6 +243,10 @@ d=x.XOpenDisplay(None);x.XRaiseWindow(d,${Number(windowId)});x.XFlush(d)
     0,
     "Tutorial pages must not be obscured by a modal"
   );
+  if (process.env.MANAGEMENT_CHECK === "1") {
+    const { managementScenario } = await import("./management-scenario.mjs");
+    await managementScenario({ evaluate, delay, shot, temp, out, repo });
+  }
   await evaluate(`window.next.router.push('/launch')`);
   await shot("desktop-02-launch", "启动页：当前没有配置账号和游戏实例");
   for (const [slug, path, title] of [

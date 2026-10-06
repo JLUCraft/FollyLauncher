@@ -53,7 +53,7 @@ assert.deepEqual(schedulableLeagues(scheduleState, "other"), [
 ]);
 console.log("PASS: new-season scheduling and existing-season ownership.");
 
-const { buildConnectionLink, parseConnectionLink } =
+const { CONNECTION_LINK_TRIGGER, buildConnectionLink, parseConnectionLink } =
   await import("../../src/utils/federation/connection-link");
 const target = {
   address: "/ip4/10.0.0.8/tcp/29637/p2p/12D3KooWtest?x=1&y=2",
@@ -68,6 +68,36 @@ assert.deepEqual(
   parseConnectionLink(`  ${buildConnectionLink(target, "folly")}\n`, "folly"),
   target
 );
+const query = new URL(buildConnectionLink(target, "folly")).search;
+for (const route of ["federation", "federation/"]) {
+  assert.equal(CONNECTION_LINK_TRIGGER.test(`${route}${query}`), true);
+  assert.deepEqual(
+    parseConnectionLink(`folly://${route}${query}`, "folly"),
+    target
+  );
+}
+assert.deepEqual(
+  parseConnectionLink(`folly://federation${query}&peer=ignored`, "folly"),
+  target
+);
+assert.deepEqual(
+  parseConnectionLink(
+    `folly://federation${query.replace("address=", "%61ddress=")}`,
+    "folly"
+  ),
+  target
+);
+for (const route of [
+  "connect",
+  "launch",
+  "add-auth-server",
+  "import-modpack",
+  "reload-extension",
+  "federation/extra",
+  "other/federation",
+]) {
+  assert.equal(CONNECTION_LINK_TRIGGER.test(`${route}${query}`), false);
+}
 for (const invalid of [
   "",
   "not a link",
@@ -75,6 +105,13 @@ for (const invalid of [
   "other://federation?address=a&peer=b&genesis=" + "a".repeat(64),
   "folly://federation?address=a&peer=b",
   "folly://federation?address=a&peer=b&genesis=" + "A".repeat(64),
+  `sjmcl://federation${query}`,
+  `folly:///federation${query}`,
+  `folly://federation/extra${query}`,
+  `folly://user@federation${query}`,
+  `folly://federation:1234${query}`,
+  `folly://federation?address&${query.slice(1)}`,
+  `folly://federation${query.replace(/address=[^&]*/, "address=++")}`,
 ])
   assert.equal(parseConnectionLink(invalid, "folly"), null);
 console.log("PASS: connection links.");

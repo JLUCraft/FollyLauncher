@@ -35,6 +35,13 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.addInitScript({ path: bootstrap });
+    // The match link box lives in a collapsed section until a student needs it.
+    const openGameLink = async () => {
+      const input = page.locator("#game-link");
+      if (!(await input.isVisible()))
+        await page.getByText("比赛连接", { exact: true }).first().click();
+      await input.waitFor();
+    };
     const nav = async (name) => {
       await page.getByRole("button", { name, exact: true }).first().click();
       const paths = {
@@ -45,7 +52,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
         赛季运营: "manage",
       };
       await page.waitForURL(`**/federation/${paths[name]}`);
-      if (paths[name] === "league") await page.locator("#game-link").waitFor();
+      if (paths[name] === "league") await openGameLink();
       if (paths[name] === "rooms")
         await page.getByPlaceholder("搜索房间、社团或版本").waitFor();
     };
@@ -88,9 +95,8 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       () => window.calls.filter((c) => c.cmd === "union_rooms").length
     );
     await nav("联赛");
-    await page.locator("#game-link").waitFor();
+    await openGameLink();
     await page.getByText("Study build", { exact: true }).waitFor();
-    await page.getByText(/服务：room-b/).waitFor();
     await nav("房间与服务器");
     assert.equal(
       await page.getByPlaceholder("搜索房间、社团或版本").inputValue(),
@@ -180,6 +186,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       false
     );
     await nav("联赛");
+    await openGameLink();
     await page.locator("#game-link").fill("invalid-link");
     await page
       .getByRole("button", { name: "建立游戏连接", exact: true })
@@ -201,11 +208,13 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       link
     );
     await page.waitForURL("**/federation/league");
+    await openGameLink();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     await page.goto(
       `${base}/launch?test-deep-link=${encodeURIComponent(link)}`
     );
     await page.waitForURL("**/federation/league");
+    await openGameLink();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     assert.deepEqual(errors, []);
     console.log(

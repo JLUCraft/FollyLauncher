@@ -6,6 +6,7 @@ export interface FederationTarget {
 
 export const GENESIS_PATTERN = /^[a-f0-9]{64}$/;
 const LINK_HOST = "federation";
+export const CONNECTION_LINK_TRIGGER = new RegExp(`^${LINK_HOST}/?\\?`);
 
 // `<scheme>://federation?address=…&peer=…&genesis=…` is what an organizer hands to students.
 export function buildConnectionLink(
@@ -28,11 +29,23 @@ export function parseConnectionLink(
   } catch {
     return null;
   }
-  if (url.protocol !== `${scheme}:` || url.hostname !== LINK_HOST) return null;
+  if (
+    url.protocol !== `${scheme}:` ||
+    url.host !== LINK_HOST ||
+    url.username ||
+    url.password ||
+    (url.pathname !== "" && url.pathname !== "/")
+  )
+    return null;
   const address = url.searchParams.get("address");
   const peer = url.searchParams.get("peer");
   const genesis = url.searchParams.get("genesis");
-  if (!address || !peer || !genesis || !GENESIS_PATTERN.test(genesis))
+  if (
+    !address?.trim() ||
+    !peer?.trim() ||
+    !genesis ||
+    !GENESIS_PATTERN.test(genesis)
+  )
     return null;
   return { address, peer, genesis };
 }

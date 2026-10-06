@@ -6,6 +6,7 @@ import {
   FormLabel,
   HStack,
   Input,
+  Select,
   Tag,
   Text,
   VStack,
@@ -62,6 +63,8 @@ export default function LeaguePage() {
         <Section
           title={t("FederationPage.gameConnection.title")}
           description={t("FederationPage.gameConnection.description")}
+          isAccordion
+          initialIsOpen={!!gameLink}
         >
           <VStack align="stretch" spacing={3}>
             <FormControl>
@@ -285,14 +288,13 @@ export default function LeaguePage() {
                           {value.phase === "Registration" &&
                             roster.captain === member && (
                               <HStack spacing={2} mt={2}>
-                                <Input
+                                <Select
                                   aria-label={t(
                                     "FederationPage.league.inviteePlaceholder"
                                   )}
                                   placeholder={t(
                                     "FederationPage.league.inviteePlaceholder"
                                   )}
-                                  list={`invite-${league}-${team}`}
                                   value={invitee}
                                   onChange={(e) =>
                                     setInvitees((current) => ({
@@ -300,15 +302,23 @@ export default function LeaguePage() {
                                       [invitationKey]: e.target.value,
                                     }))
                                   }
-                                />
-                                <datalist id={`invite-${league}-${team}`}>
-                                  {Object.keys(state.members).map((id) => (
-                                    <option key={id} value={id} />
-                                  ))}
-                                </datalist>
+                                >
+                                  {Object.entries(state.members)
+                                    .filter(
+                                      ([id]) =>
+                                        id !== member &&
+                                        !roster.members.includes(id) &&
+                                        !roster.invited.includes(id)
+                                    )
+                                    .map(([id, candidate]) => (
+                                      <option key={id} value={id}>
+                                        {`${id} · ${candidate.club}`}
+                                      </option>
+                                    ))}
+                                </Select>
                                 <Button
                                   flexShrink={0}
-                                  isDisabled={busy || !state.members[invitee]}
+                                  isDisabled={busy || !invitee}
                                   onClick={() =>
                                     void handleRequest({
                                       type: "invite",

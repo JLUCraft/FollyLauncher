@@ -215,3 +215,22 @@ pub async fn union_automated_identity(app: AppHandle) -> Result<serde_json::Valu
   .await
   .map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub fn union_management(request: client::management::Request) -> Result<serde_json::Value, String> {
+  client::management::execute(request).map_err(|e| e.to_string())
+}
+#[tauri::command]
+pub fn union_public_identity(app: AppHandle) -> Result<client::management::PublicIdentity, String> {
+  Ok(client::management::PublicIdentity::from_identity(
+    &identity(&app)?,
+  ))
+}
+#[tauri::command]
+pub fn union_sign_identity_offline(
+  app: AppHandle,
+  record: client::trust::TrustRecord,
+) -> Result<serde_json::Value, String> {
+  let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
+  client::management::sign_offline(&identity(&app)?, &config, record).map_err(|e| e.to_string())
+}

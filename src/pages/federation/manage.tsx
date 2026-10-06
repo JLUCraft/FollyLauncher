@@ -2,6 +2,8 @@ import { Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import Empty from "@/components/common/empty";
 import { AdminConsole } from "@/components/federation/admin-console";
+import { AuditAnchor } from "@/components/federation/audit-anchor";
+import { BusinessAdmin } from "@/components/federation/business-admin";
 import { ConnectionRequired } from "@/components/federation/connection-required";
 import { useFederation, useLeagueRequest } from "@/contexts/federation";
 
@@ -18,6 +20,22 @@ export default function ManagePage() {
           {error}
         </Text>
       )}
+      <AuditAnchor
+        anchors={state.digest_anchors || {}}
+        busy={busy}
+        request={handleRequest}
+      />
+      <BusinessAdmin
+        members={state.consensus_members || {}}
+        memberRoles={Object.fromEntries(
+          Object.entries(state.members).map(([id, member]) => [
+            id,
+            member.roles || [],
+          ])
+        )}
+        busy={busy}
+        request={handleRequest}
+      />
       <AdminConsole state={state} busy={busy} request={handleRequest} />
     </>
   );

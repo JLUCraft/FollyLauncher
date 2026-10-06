@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "Audit fingerprints",
+    "description": "Export an audit report from the server, check it, then record its fingerprint here so it can't be altered later. Admins only.",
+    "existing": "Recorded fingerprints",
+    "empty": "No fingerprints recorded yet",
+    "id": "Report ID",
+    "digest": "Report fingerprint (64 characters, digits 0–9 and letters a–f)",
+    "invalid": "Check the report ID and fingerprint.",
+    "confirm": "Check the ID and fingerprint. Once recorded, they cannot be changed.",
+    "review": "Review before recording",
+    "submit": "Record fingerprint"
+  },
+  "BusinessAdmin": {
+    "title": "Roles and backup servers",
+    "description": "Changes apply only to the connected community. Membership, service access and roles are managed separately.",
+    "roles": "Roles, one per line",
+    "rolesHint": "This replaces the complete role set. An empty list removes all roles.",
+    "reviewRoles": "Review role change",
+    "replicas": "Backup servers",
+    "replicasHint": "Use 1, 3, 5 or 7 backup servers, each with its own positive number. Retired numbers can't be reused. Each address must belong to the server ID next to it.",
+    "current": "Registered backup servers",
+    "empty": "No backup servers registered",
+    "load": "Load current backup servers",
+    "nodeId": "Backup server number",
+    "addresses": "Addresses, one per line",
+    "remove": "Remove this backup server",
+    "add": "Add backup server",
+    "reviewReplicas": "Review backup server change",
+    "invalid": "Some roles, numbers, IDs or addresses are invalid. Check them and try again.",
+    "confirm": "Review the whole change. Roles are replaced, and removed backup server numbers can't be reused.",
+    "preview": "Proposed change",
+    "submit": "Confirm change",
+    "currentRoles": "Current business roles: {{roles}}",
+    "loadRoles": "Load current roles"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "Room"
     },
     "currentGame": "Current game connection",
-    "service": "Service: {{service}} · Node: {{peer}}",
     "disconnectFirst": "To join another room or match, disconnect this service first.",
-    "defaultSeed": "Use the connected node",
-    "briefFile": "Choose an uploaded brief file"
+    "defaultSeed": "Use the connected node"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "Not connected"
   },
   "FederationPage": {
-    "title": "Federation",
-    "subtitle": "Connect to the union to browse leagues, create teams, invite teammates and register.",
     "gameConnection": {
       "title": "Match Connection",
       "description": "Paste the match connection link provided by the organizer",
       "linkLabel": "Connection link",
-      "connected": "Game server address: {{address}}. Launch Minecraft 26.3 from the launcher and you will join automatically; keep the launcher running.",
       "connect": "Connect",
-      "disconnect": "Disconnect",
       "error": "Game connection failed; check the link or contact the organizer"
     },
     "settings": {
-      "title": "Connection Settings",
-      "description": "The union address and union identity are provided by the organizer",
       "addressLabel": "Union address",
-      "peerLabel": "Node peer ID",
-      "genesisLabel": "League genesis hash (confirm with your organizer)",
-      "genesisInvalid": "Enter the 64-character lowercase hexadecimal hash provided by your organizer.",
+      "peerLabel": "Server ID",
+      "genesisLabel": "League verification code (ask your organizer)",
+      "genesisInvalid": "Enter the 64-character code from your organizer (digits 0–9 and letters a–f).",
       "linkLabel": "Connection link",
       "linkHelp": "Paste the link your organizer sent you. Opening the link on this device connects automatically.",
       "linkConnect": "Connect",
@@ -958,13 +985,13 @@
       "connect": "Connect / Refresh",
       "myDevice": "My device: {{id}}",
       "myMember": "My member no.: {{id}}",
-      "myClub": "({{club}})"
+      "myClub": "({{club}})",
+      "linkPlaceholder": "Paste the link from your organizer"
     },
     "error": "Operation failed; check the connection and registration status, then retry",
     "identityRequired": "Connecting requires a unified identity. Set one up on the identity page first.",
     "openIdentity": "Open identity settings",
     "empty": {
-      "notConnected": "Once connected, leagues, teams and scoreboards will show up here.",
       "noLeagues": "This union has no leagues yet."
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "Not registered",
       "acceptInvite": "Accept Invite",
       "register": "Submit Registration",
-      "inviteePlaceholder": "Member no. to invite",
+      "inviteePlaceholder": "Choose a member to invite",
       "invite": "Invite Member",
       "teamScoreboard": "Team Scoreboard",
       "playerScoreboard": "Player Scoreboard",
@@ -997,21 +1024,25 @@
       "resume": "Resume"
     },
     "identity": {
-      "title": "Unified member identity",
-      "description": "Your member ID stays the same across devices. Membership, chair office and service permissions change independently.",
-      "configuration": "Independently confirmed genesis and identity source configuration",
+      "configuration": "Setup provided by your organizer",
       "save": "Save configuration",
-      "sync": "Sync identity history",
-      "automatic": "Verify through skin site",
-      "host": "Prepare host device binding",
-      "loading": "Verifying identity history…",
-      "unavailable": "Current authority could not be confirmed. Check the configuration and connection, then synchronize. Membership has not expired.",
-      "empty": "No verified identity history loaded.",
-      "review": "Review the federation, parent digest, member, device and complete action before signing. Collect signatures on the same record for succession. Never merge identities by name.",
-      "proposal": "Action or co-signing record JSON",
-      "draft": "Draft",
-      "sign": "Sign",
-      "submit": "Submit"
+      "loading": "Checking your identity…",
+      "unavailable": "We couldn't confirm your membership right now. Check your connection, then refresh. Your membership has not expired.",
+      "empty": "No identity information yet. Refresh to load it.",
+      "saveInvalid": "That setup couldn't be read. Copy the whole text from your organizer and try again."
+    },
+    "errors": {
+      "network": "Can't reach the server. Check your internet connection and the link, then try again.",
+      "membership": "We couldn't confirm your membership. Open “My identity” and refresh it, then try again.",
+      "invalid": "That request isn't valid. Check the link and details from your organizer."
+    },
+    "guide": {
+      "title": "Get started",
+      "setup": "Add the setup from your organizer",
+      "connect": "Connect to your league with the link",
+      "verify": "Verify your membership",
+      "done": "Done",
+      "next": "Continue"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "Verify your membership and manage the devices linked to it.",
-    "setup": "Paste the federation trust configuration below and save it to get started.",
+    "setup": "Paste the setup provided by your organizer below and save it to get started.",
     "sync": "Refresh identity",
     "automatic": "Verify with skin site",
     "host": "Link hosting device",
@@ -1624,20 +1655,20 @@
     "member": "Member ID",
     "device": "Device ID",
     "club": "Club",
-    "profile": "Minecraft profile UUID",
+    "profile": "Minecraft player ID",
     "unbound": "Not linked",
-    "position": "Verified through record {{sequence}}",
+    "position": "Up to date as of version {{sequence}}",
     "review": "Review changes",
-    "reviewHint": "Signing confirms the changes below. Device bindings may need signatures from both devices; import or export the record in advanced settings.",
+    "reviewHint": "Signing confirms the changes below. Linking two devices may need a signature from each; pass the change between them in advanced settings.",
     "sign": "Confirm and sign",
     "submit": "Apply signed changes",
-    "import": "Import a record for co-signing (JSON)",
-    "export": "Export signed record (JSON)",
+    "import": "Import a change to co-sign",
+    "export": "Signed change (send it to your co-signer)",
     "fields": {
       "federation": "Federation",
-      "genesis": "Trust root",
-      "sequence": "Record number",
-      "previous": "Previous digest",
+      "genesis": "Federation setup",
+      "sequence": "Version number",
+      "previous": "Previous version",
       "action": "Change",
       "signatures": "Signatures",
       "public_key": "Public key",
@@ -1652,7 +1683,59 @@
     },
     "before": "Before",
     "after": "After",
-    "unknown": "Refresh identity to see the current binding"
+    "unknown": "Refresh identity to see the current binding",
+    "inspect": "View saved information (offline)",
+    "hint": "Most people only need the first button."
+  },
+  "IdentityManagement": {
+    "title": "Organizer tools",
+    "action": "Action",
+    "invalid": "Some details are missing or invalid. Check each field and try again.",
+    "optional": "Optional when confirming an existing member without adding a device.",
+    "addChair": "Add chair",
+    "removeChair": "Remove chair",
+    "actions": {
+      "confirm_member": "Confirm membership",
+      "revoke_membership": "Revoke membership",
+      "bind_device": "Bind device",
+      "bind_game_profile": "Bind game profile",
+      "revoke_device": "Revoke device",
+      "register_service": "Register service",
+      "grant_permission": "Grant service permission",
+      "revoke_permission": "Revoke service permission",
+      "authorize_verifier": "Authorize verifier",
+      "revoke_verifier": "Revoke verifier",
+      "propose_succession": "Propose succession",
+      "approve_succession": "Approve succession",
+      "execute_succession": "Execute succession",
+      "cancel_succession": "Cancel succession",
+      "replace_chairs": "Replace chairs by co-signing"
+    },
+    "fields": {
+      "member": "Stable member ID",
+      "club": "Club ID",
+      "device": "Device ID",
+      "profile": "Minecraft player ID (32 characters)",
+      "service": "Service ID",
+      "audience": "Host server ID",
+      "id": "Request ID",
+      "permission": "Permission",
+      "quorum": "Approvals required",
+      "chairs": "New chairs",
+      "evidence": "Verification scope"
+    },
+    "evidence": {
+      "institutional_email": "Institutional email",
+      "game_profile": "Game profile"
+    },
+    "signOffline": "Sign without connecting (rechecked when submitted)",
+    "publicTitle": "Device public identity",
+    "publicHint": "Share this so an organizer can register you or link a device. It never includes a private key.",
+    "copy": "Copy",
+    "cached": "Showing saved information. Refresh to see your latest membership.",
+    "generateId": "Generate new ID",
+    "facts": "Full identity details (technical)",
+    "organizerHint": "Only for organizers and chairs. Regular members don't need this."
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "Please be cautious when editing the raw launcher settings file. Incorrect formatting may lead to the loss of original settings or prevent the launcher from working properly."
   },
+  "RoomSearch": {
+    "search": "Search rooms, clubs or versions",
+    "school": "School / club",
+    "all": "All schools / clubs",
+    "noMatches": "No matching rooms."
+  },
   "Rooms": {
     "manualHint": "Configure unified identity above. A chair can confirm membership and bind your game profile manually even if every skin site is offline. Once recorded, qualification lasts until explicitly revoked.",
     "showIdentities": "Show device IDs for signing",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "Joining device ID",
     "title": "Rooms & servers",
     "description": "Host a room or join other clubs with your verified member identity.",
-    "seeds": "Discovery nodes (one address per line)",
+    "seeds": "Room finder addresses (one per line)",
     "refresh": "Refresh rooms and status",
     "partial": "Some discovery nodes or rooms are unavailable. This list may be incomplete.",
     "seedsChanged": "Discovery nodes changed since the last search. Refresh to discover rooms on the new nodes.",
@@ -2459,18 +2548,12 @@
     "host": "Host your own room",
     "configuration": "Local server configuration",
     "pick": "Choose configuration file",
-    "relays": "Relay nodes (one address per line)",
-    "hostHint": "Uses your local minecraftd server configuration and resources. The server must bind to loopback. Add a relay when direct access is unavailable.",
+    "relays": "Relay addresses (one per line)",
+    "hostHint": "Uses the server settings on this computer. If friends can't connect directly, add a relay address.",
     "start": "Start room",
     "stop": "Close room",
     "hosting": "Hosting {{name}}",
-    "error": "Room operation failed. Check unified identity, the server configuration and network routes."
-  },
-  "RoomSearch": {
-    "search": "Search rooms, clubs or versions",
-    "school": "School / club",
-    "all": "All schools / clubs",
-    "noMatches": "No matching rooms."
+    "error": "Couldn't complete that. Check your identity, the server settings and your network, then try again."
   },
   "ScreenshotPreviewModal": {
     "menu": {

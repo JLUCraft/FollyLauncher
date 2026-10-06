@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
+import { federationErrorKey } from "@/utils/federation/errors";
 
 export function ConnectionRequired() {
   const { t } = useTranslation();
@@ -16,7 +17,9 @@ export function ConnectionRequired() {
       {identityRequired ? (
         <Text role="alert">{t("FederationPage.identityRequired")}</Text>
       ) : (
-        connectionError && <Text role="alert">{t("FederationPage.error")}</Text>
+        connectionError && (
+          <Text role="alert">{t(federationErrorKey(connectionError))}</Text>
+        )
       )}
       <Empty
         size="lg"

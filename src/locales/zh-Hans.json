@@ -379,6 +379,41 @@
       }
     }
   },
+  "AuditAnchor": {
+    "title": "审计指纹",
+    "description": "先从服务器导出审计报告，核对后在此记录它的指纹，之后无法被篡改。仅限管理员。",
+    "existing": "已记录的指纹",
+    "empty": "尚无已记录的指纹",
+    "id": "报告编号",
+    "digest": "报告指纹（64 位，数字 0–9 与字母 a–f）",
+    "invalid": "请检查报告编号和指纹。",
+    "confirm": "请核对编号和指纹，记录后无法修改。",
+    "review": "记录前请审阅",
+    "submit": "记录指纹"
+  },
+  "BusinessAdmin": {
+    "title": "角色与备份服务器",
+    "description": "仅作用于当前连接的社区。成员资格、服务权限与角色分别管理。",
+    "roles": "角色名称，每行一个",
+    "rolesHint": "提交的是完整角色集合；留空会清除该成员全部角色。",
+    "reviewRoles": "审阅角色变更",
+    "replicas": "备份服务器",
+    "replicasHint": "备份服务器数量必须为 1、3、5 或 7，每台使用不同的正整数编号。已停用的编号不可重用，地址必须属于对应的服务器 ID。",
+    "current": "已登记的备份服务器",
+    "empty": "尚未登记备份服务器",
+    "load": "载入当前备份服务器",
+    "nodeId": "备份服务器编号",
+    "addresses": "地址，每行一个",
+    "remove": "移除此备份服务器",
+    "add": "添加备份服务器",
+    "reviewReplicas": "审阅备份服务器变更",
+    "invalid": "角色、编号、ID 或地址有误，请检查后重试。",
+    "confirm": "请核对完整变更。角色会被整体替换，移除的备份服务器编号不可重用。",
+    "preview": "待提交的变更",
+    "submit": "确认提交变更",
+    "currentRoles": "当前业务角色：{{roles}}",
+    "loadRoles": "载入当前角色"
+  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -442,10 +477,8 @@
       "room": "房间"
     },
     "currentGame": "当前游戏连接",
-    "service": "服务：{{service}} · 节点：{{peer}}",
     "disconnectFirst": "要加入其他房间或比赛，请先断开当前服务。",
-    "defaultSeed": "使用已连接的节点",
-    "briefFile": "选择已上传的方案文件"
+    "defaultSeed": "使用已连接的节点"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -930,24 +963,18 @@
     "disconnected": "尚未连接"
   },
   "FederationPage": {
-    "title": "联盟",
-    "subtitle": "连接联盟后查看联赛、创建队伍、邀请队友并提交报名。",
     "gameConnection": {
       "title": "比赛连接",
       "description": "粘贴组织者提供的比赛连接链接",
       "linkLabel": "连接链接",
-      "connected": "游戏服务器地址：{{address}}。从启动器启动 Minecraft 26.3 后会自动加入，请保持启动器运行。",
       "connect": "建立游戏连接",
-      "disconnect": "断开游戏连接",
       "error": "游戏连接未完成，请检查链接或联系组织者"
     },
     "settings": {
-      "title": "连接设置",
-      "description": "联盟连接地址与联盟身份由组织者提供",
       "addressLabel": "联盟连接地址",
-      "peerLabel": "节点 Peer ID",
-      "genesisLabel": "联赛链创世哈希（向组织者核实）",
-      "genesisInvalid": "请输入组织者提供的 64 位小写十六进制哈希。",
+      "peerLabel": "服务器 ID",
+      "genesisLabel": "联盟校验码（向组织者核实）",
+      "genesisInvalid": "请输入组织者提供的 64 位校验码（数字 0–9 与字母 a–f）。",
       "linkLabel": "连接链接",
       "linkHelp": "粘贴组织者发给你的链接。在本机打开该链接也会自动连接。",
       "linkConnect": "连接",
@@ -958,13 +985,13 @@
       "connect": "连接 / 刷新",
       "myDevice": "我的设备：{{id}}",
       "myMember": "我的编号：{{id}}",
-      "myClub": "（{{club}}）"
+      "myClub": "（{{club}}）",
+      "linkPlaceholder": "粘贴组织者发来的链接"
     },
     "error": "操作未完成，请检查连接与报名状态后重试",
     "identityRequired": "连接前需要先设置统一成员身份，请先到身份页面完成设置。",
     "openIdentity": "打开身份设置",
     "empty": {
-      "notConnected": "完成连接设置后，这里会显示联赛列表、队伍与积分榜。",
       "noLeagues": "当前联盟暂无联赛。"
     },
     "phase": {
@@ -985,7 +1012,7 @@
       "notRegistered": "未提交报名",
       "acceptInvite": "接受邀请",
       "register": "提交报名",
-      "inviteePlaceholder": "邀请成员的联盟编号",
+      "inviteePlaceholder": "选择要邀请的成员",
       "invite": "邀请成员",
       "teamScoreboard": "队伍积分榜",
       "playerScoreboard": "玩家积分榜",
@@ -997,21 +1024,25 @@
       "resume": "恢复"
     },
     "identity": {
-      "title": "统一成员身份",
-      "description": "换设备不改变成员 ID。社团资格、社长席位与服务权限分别变更。",
-      "configuration": "已独立确认的创世清单与身份同步源配置",
+      "configuration": "组织者提供的设置内容",
       "save": "保存配置",
-      "sync": "同步身份历史",
-      "automatic": "通过皮肤站验证",
-      "host": "拟定房主设备绑定",
-      "loading": "正在验证身份历史…",
-      "unavailable": "暂时无法确认当前权限。请检查配置和连接并重新同步，这不表示成员资格到期。",
-      "empty": "尚未加载已验证的身份历史。",
-      "review": "签名前核对联盟、前项摘要、成员、设备和完整动作。换届收集各方对同一记录的签名；不要按姓名合并身份。",
-      "proposal": "身份动作或待合签记录 JSON",
-      "draft": "拟定",
-      "sign": "签名",
-      "submit": "提交"
+      "loading": "正在核对你的身份…",
+      "unavailable": "暂时无法确认你的成员资格。请检查网络连接后刷新，这不表示成员资格已到期。",
+      "empty": "尚无身份信息，请点击刷新载入。",
+      "saveInvalid": "无法读取这份设置。请完整复制组织者提供的内容后重试。"
+    },
+    "errors": {
+      "network": "无法连接到服务器。请检查网络连接和链接后重试。",
+      "membership": "无法确认你的成员资格。请打开“我的身份”并刷新后重试。",
+      "invalid": "请求无效。请核对组织者提供的链接和信息。"
+    },
+    "guide": {
+      "title": "开始使用",
+      "setup": "添加组织者提供的设置",
+      "connect": "用链接连接你的联盟",
+      "verify": "验证你的成员资格",
+      "done": "已完成",
+      "next": "继续"
     }
   },
   "FileDnDProvider": {
@@ -1616,7 +1647,7 @@
   },
   "IdentityFlow": {
     "intro": "验证成员身份，管理绑定到你的设备。",
-    "setup": "请在下方粘贴联盟信任配置并保存后开始使用。",
+    "setup": "请在下方粘贴组织者提供的设置内容并保存后开始使用。",
     "sync": "刷新身份",
     "automatic": "通过皮肤站验证",
     "host": "绑定开房设备",
@@ -1624,20 +1655,20 @@
     "member": "成员编号",
     "device": "设备编号",
     "club": "社团",
-    "profile": "Minecraft 档案 UUID",
+    "profile": "Minecraft 玩家 ID",
     "unbound": "尚未绑定",
-    "position": "已验证至第 {{sequence}} 条记录",
+    "position": "已同步至第 {{sequence}} 版",
     "review": "核对变更",
-    "reviewHint": "签名表示你确认以下变更。设备绑定可能需要新旧设备共同签名；可在高级设置中导入或导出记录。",
+    "reviewHint": "签署即确认下列变更。关联两台设备可能需要各自签署，可在高级设置中在两台设备间传递变更。",
     "sign": "确认并签名",
     "submit": "提交已签名变更",
-    "import": "导入待合签记录（JSON）",
-    "export": "导出已签名记录（JSON）",
+    "import": "导入待联署的变更",
+    "export": "已签署的变更（发给联署人）",
     "fields": {
       "federation": "联盟",
-      "genesis": "信任起点",
-      "sequence": "记录编号",
-      "previous": "前项摘要",
+      "genesis": "联盟设置",
+      "sequence": "版本号",
+      "previous": "上一版本",
       "action": "变更",
       "signatures": "签名",
       "public_key": "公钥",
@@ -1652,7 +1683,59 @@
     },
     "before": "变更前",
     "after": "变更后",
-    "unknown": "刷新身份后可查看当前绑定"
+    "unknown": "刷新身份后可查看当前绑定",
+    "inspect": "查看已保存的信息（离线）",
+    "hint": "大多数人只需点击第一个按钮。"
+  },
+  "IdentityManagement": {
+    "title": "组织者工具",
+    "action": "操作",
+    "invalid": "部分内容缺失或无效，请检查各项后重试。",
+    "optional": "确认已有成员资格且不添加设备时可留空。",
+    "addChair": "添加社长席位",
+    "removeChair": "移除此席位",
+    "actions": {
+      "confirm_member": "确认成员资格",
+      "revoke_membership": "撤销成员资格",
+      "bind_device": "绑定设备",
+      "bind_game_profile": "绑定游戏身份",
+      "revoke_device": "撤销设备",
+      "register_service": "登记服务",
+      "grant_permission": "授予服务权限",
+      "revoke_permission": "撤销服务权限",
+      "authorize_verifier": "授权自动验证器",
+      "revoke_verifier": "撤销自动验证器",
+      "propose_succession": "提出换届",
+      "approve_succession": "同意换届",
+      "execute_succession": "执行换届",
+      "cancel_succession": "取消换届",
+      "replace_chairs": "多签直接换届"
+    },
+    "fields": {
+      "member": "稳定成员 ID",
+      "club": "社团 ID",
+      "device": "设备 ID",
+      "profile": "Minecraft 玩家 ID（32 位）",
+      "service": "服务 ID",
+      "audience": "主机服务器 ID",
+      "id": "请求编号",
+      "permission": "权限名称",
+      "quorum": "所需签署人数",
+      "chairs": "新一届社长席位",
+      "evidence": "自动验证范围"
+    },
+    "evidence": {
+      "institutional_email": "学校邮箱验证",
+      "game_profile": "游戏身份验证"
+    },
+    "signOffline": "离线签署（提交时会再次核对权限）",
+    "publicTitle": "本机公开身份",
+    "publicHint": "分享给组织者，用于登记或关联设备，不包含私钥。",
+    "copy": "复制",
+    "cached": "正在显示已保存的信息，刷新即可查看最新的成员资格。",
+    "generateId": "生成新 ID",
+    "facts": "完整身份详情（技术信息）",
+    "organizerHint": "仅限组织者和社长使用，普通成员无需操作。"
   },
   "ImportAccountInfoModal": {
     "header": {
@@ -2439,6 +2522,12 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "请谨慎编辑启动器原始设置文件，错误的格式可能导致原有设置丢失或启动器无法正常工作"
   },
+  "RoomSearch": {
+    "search": "搜索房间、社团或版本",
+    "school": "学校 / 社团",
+    "all": "全部学校 / 社团",
+    "noMatches": "没有匹配的房间。"
+  },
   "Rooms": {
     "manualHint": "请先配置统一身份。即使所有皮肤站离线，社长仍可手工签名确认成员并绑定游戏身份；记录生效后资格持续有效，直到明确吊销。",
     "showIdentities": "显示签名所需设备 ID",
@@ -2446,7 +2535,7 @@
     "playerIdentity": "加入设备 ID",
     "title": "房间与服务器",
     "description": "使用已验证的成员身份开房或加入其他社团。",
-    "seeds": "发现节点（每行一个地址）",
+    "seeds": "房间发现地址（每行一个）",
     "refresh": "刷新房间与状态",
     "partial": "部分发现节点或房间暂时不可达，列表可能不完整。",
     "seedsChanged": "发现节点自上次搜索后已更改，请刷新以在新节点上发现房间。",
@@ -2459,18 +2548,12 @@
     "host": "创建自己的房间",
     "configuration": "本地服务端配置",
     "pick": "选择配置文件",
-    "relays": "中继节点（每行一个地址）",
-    "hostHint": "使用本机 minecraftd 配置与资源，服务端必须绑定回环地址。无法直连时请配置中继。",
+    "relays": "中继地址（每行一个）",
+    "hostHint": "使用本机的服务器设置。朋友无法直连时，请添加中继地址。",
     "start": "启动房间",
     "stop": "关闭房间",
     "hosting": "正在托管 {{name}}",
-    "error": "房间操作失败。请检查统一身份、服务器配置和网络路由。"
-  },
-  "RoomSearch": {
-    "search": "搜索房间、社团或版本",
-    "school": "学校 / 社团",
-    "all": "全部学校 / 社团",
-    "noMatches": "没有匹配的房间。"
+    "error": "操作未完成。请检查身份、服务器设置和网络后重试。"
   },
   "ScreenshotPreviewModal": {
     "menu": {

@@ -10,10 +10,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
 import { Section } from "@/components/common/section";
+import { SetupGuide } from "@/components/federation/setup-guide";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { useToast } from "@/contexts/toast";
@@ -22,6 +24,7 @@ import {
   GENESIS_PATTERN,
   buildConnectionLink,
 } from "@/utils/federation/connection-link";
+import { federationErrorKey } from "@/utils/federation/errors";
 
 export default function OverviewPage() {
   const { t } = useTranslation();
@@ -43,6 +46,11 @@ export default function OverviewPage() {
     connect: handleRequest,
     connectWithLink,
   } = useFederation();
+  const router = useRouter();
+  // Connecting needs the organizer's setup first, so take the student straight to that step.
+  useEffect(() => {
+    if (identityRequired) void router.push("/federation/identity");
+  }, [identityRequired, router]);
   const [link, setLink] = useState("");
   const [linkInvalid, setLinkInvalid] = useState(false);
   const genesisInvalid =
@@ -54,6 +62,7 @@ export default function OverviewPage() {
   return (
     <Section title={t("FederationNav.overview")}>
       <VStack align="stretch" spacing={4}>
+        <SetupGuide />
         <Text
           role="status"
           fontWeight="semibold"
@@ -107,7 +116,7 @@ export default function OverviewPage() {
                 <Input
                   id="federation-link"
                   isDisabled={busy}
-                  placeholder={`${brand.deeplinkScheme}://federation?…`}
+                  placeholder={t("FederationPage.settings.linkPlaceholder")}
                   value={link}
                   onChange={(e) => {
                     setLink(e.target.value);
@@ -213,7 +222,7 @@ export default function OverviewPage() {
         ) : (
           error && (
             <Text role="alert" color="red.600">
-              {t("FederationPage.error")}
+              {t(federationErrorKey(error))}
             </Text>
           )
         )}

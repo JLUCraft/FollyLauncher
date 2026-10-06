@@ -18,10 +18,16 @@ import {
   isIdentityNotConfigured,
 } from "@/services/union";
 import {
+  CONNECTION_LINK_TRIGGER,
   FederationTarget,
   GENESIS_PATTERN,
   parseConnectionLink,
 } from "@/utils/federation/connection-link";
+import {
+  FederationErrorKind,
+  classifyFederationError,
+  federationErrorKey,
+} from "@/utils/federation/errors";
 
 const CONNECTION_STORAGE_KEY = "federation-connections";
 export function validTarget(value: unknown): value is FederationTarget {
@@ -61,7 +67,11 @@ function useFederationState() {
   const [activeTarget, setActiveTarget] = useState<FederationTarget>();
   const targetRef = useRef<FederationTarget>();
   const [connecting, setConnecting] = useState(false);
-  const [connectionError, setConnectionError] = useState(false);
+  const [connectionError, setConnectionError] =
+    useState<FederationErrorKind | null>(null);
+  const [identityConfigured, setIdentityConfigured] = useState<boolean | null>(
+    null
+  );
   const [identityRequired, setIdentityRequired] = useState(false);
   const [identityError, setIdentityError] = useState(false);
   const generation = useRef(0);
@@ -75,7 +85,7 @@ function useFederationState() {
       targetRef.current = target;
       setActiveTarget(target);
       setConnecting(true);
-      setConnectionError(false);
+      setConnectionError(null);
       setIdentityRequired(false);
       remember("league", target);
       try {
@@ -91,7 +101,7 @@ function useFederationState() {
       } catch (error) {
         if (current === generation.current) {
           if (isIdentityNotConfigured(error)) setIdentityRequired(true);
-          else setConnectionError(true);
+          else setConnectionError(classifyFederationError(error));
         }
       } finally {
         if (current === generation.current) setConnecting(false);
@@ -107,6 +117,19 @@ function useFederationState() {
       })
       .catch(() => {
         if (active) setIdentityError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    void UnionService.identityConfiguration()
+      .then((value) => {
+        if (active) setIdentityConfigured(!!value);
+      })
+      .catch(() => {
+        if (active) setIdentityConfigured(false);
       });
     return () => {
       active = false;
@@ -145,7 +168,7 @@ function useFederationState() {
   );
   const router = useRouter();
   useDeepLink({
-    trigger: (path) => path.startsWith("federation?"),
+    trigger: CONNECTION_LINK_TRIGGER,
     onCall: (url) => {
       if (connectWithLink(url)) void router.push("/federation/overview");
     },
@@ -186,6 +209,8 @@ function useFederationState() {
     activeTarget,
     connecting,
     connectionError,
+    identityConfigured,
+    setIdentityConfigured,
     identityRequired,
     identityError,
     connect: () => connectTarget({ address, peer, genesis: genesisHash }),
@@ -225,8 +250,8 @@ export function useLeagueRequest() {
     setError("");
     try {
       await request(action);
-    } catch {
-      setError(t("FederationPage.error"));
+    } catch (error) {
+      setError(t(federationErrorKey(classifyFederationError(error))));
     } finally {
       pending.current = false;
       setBusy(false);

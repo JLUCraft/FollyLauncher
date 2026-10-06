@@ -29,12 +29,6 @@ export function CurrentGameConnection() {
             {t(`ConnectionFlow.origin.${connection.origin}`)}
           </Tag>
         )}
-        <Text fontSize="xs" overflowWrap="anywhere">
-          {t("ConnectionFlow.service", {
-            peer: connection.peer,
-            service: connection.service,
-          })}
-        </Text>
         <Text>{t("Rooms.connected", { address: connection.address })}</Text>
         <Text fontSize="sm">{t("ConnectionFlow.disconnectFirst")}</Text>
         <Button

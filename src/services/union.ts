@@ -43,6 +43,11 @@ export interface UnionLeague {
   team_scores: Record<string, number>;
 }
 export interface UnionState {
+  consensus_members?: Record<string, { peer: string; addresses: string[] }>;
+  digest_anchors?: Record<
+    string,
+    { digest: string; actor: string; time_ms: number }
+  >;
   season_rankings?: Record<
     string,
     { teams: [string, string][]; players: [string, string][] }
@@ -62,11 +67,25 @@ export interface UnionState {
   >;
   members: Record<
     string,
-    { club: string; device: string; additional_devices?: string[] }
+    {
+      club: string;
+      device: string;
+      additional_devices?: string[];
+      roles?: string[];
+    }
   >;
   leagues: Record<string, UnionLeague>;
 }
 export class UnionService {
+  static management(request: Record<string, unknown>): Promise<unknown> {
+    return invoke("union_management", { request });
+  }
+  static publicIdentity(): Promise<{ peer: string; public_key: number[] }> {
+    return invoke("union_public_identity");
+  }
+  static signIdentityOffline(record: unknown): Promise<unknown> {
+    return invoke("union_sign_identity_offline", { record });
+  }
   static identityConfiguration(config?: unknown): Promise<unknown> {
     return invoke("union_identity_configuration", { config: config ?? null });
   }
