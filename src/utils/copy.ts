@@ -52,21 +52,3 @@ export const copyImage = async (
     return false;
   }
 };
-
-export const copyImageFromElement = async (
-  imgEl: HTMLImageElement,
-  { toast }: ToastOptions
-) => {
-  const { naturalWidth: width, naturalHeight: height } = imgEl;
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return false;
-
-  ctx.drawImage(imgEl, 0, 0);
-  const { data } = ctx.getImageData(0, 0, width, height);
-  const image = await Image.new(new Uint8Array(data.buffer), width, height);
-  return copyImage(image, { toast });
-};

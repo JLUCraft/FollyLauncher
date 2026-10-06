@@ -20,11 +20,6 @@ export const UNIXToDatetime = (unixTimestamp: number): string => {
   return ISOToDatetime(isoString);
 };
 
-export const UNIXToDate = (unixTimestamp: number): string => {
-  const isoString = new Date(unixTimestamp * 1000).toISOString();
-  return ISOToDate(isoString);
-};
-
 export const UNIXToISOString = (unixTimestamp: number): string => {
   const isoString = new Date(unixTimestamp * 1000).toISOString();
   return isoString;

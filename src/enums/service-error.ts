@@ -54,26 +54,6 @@ export enum InstanceError {
   LoaderInstallerNotFound = "LOADER_INSTALLER_NOT_FOUND",
 }
 
-export enum ConfigServiceError {
-  FetchError = "FETCH_ERROR",
-  InvalidCode = "INVALID_CODE",
-  CodeExpired = "CODE_EXPIRED",
-  VersionMismatch = "VERSION_MISMATCH",
-  GameDirAlreadyAdded = "GAME_DIR_ALREADY_ADDED",
-  GameDirNotExist = "GAME_DIR_NOT_EXIST",
-  JavaExecInvalid = "JAVA_EXEC_INVALID",
-  HasActiveDownloadTasks = "HAS_ACTIVE_DOWNLOAD_TASKS",
-  FileDeletionFailed = "FILE_DELETION_FAILED",
-}
-
-export enum ResourceServiceError {
-  ParseError = "PARSE_ERROR",
-  NoDownloadApi = "NO_DOWNLOAD_API",
-  NetworkError = "NETWORK_ERROR",
-  FileOperationError = "FILE_OPERATION_ERROR",
-  ClientVersionNotFound = "CLIENT_VERSION_NOT_FOUND",
-}
-
 export enum LaunchServiceError {
   ModLoaderNotInstalled = "MOD_LOADER_NOT_INSTALLED",
   NoSuitableJava = "NO_SUITABLE_JAVA",
