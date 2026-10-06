@@ -8,7 +8,6 @@ use strum_macros::{Display, EnumString};
 use tauri::{AppHandle, Emitter};
 
 use crate::launcher_config::constants::{CONFIG_PARTIAL_UPDATE_EVENT, LAUNCHER_CFG_FILE_NAME};
-use crate::launcher_config::migrations::{deserialize_background, deserialize_discover_sources};
 use crate::utils::string::snake_to_camel_case;
 use crate::utils::sys_info;
 use crate::{APP_DATA_DIR, EXE_DIR, IS_PORTABLE};
@@ -276,10 +275,7 @@ structstruck::strike! {
         #[default = 100]
         pub font_size: usize, // as percent
       },
-      #[serde(
-        default,
-        deserialize_with = "deserialize_background"
-      )]
+      #[serde(default)]
       pub background: struct AppearanceBackgroundConfig {
         #[default = "%built-in:Florwyn"]
         pub choice: String,
@@ -354,10 +350,7 @@ structstruck::strike! {
     },
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
-    #[serde(
-      default,
-      deserialize_with = "deserialize_discover_sources"
-    )]
+    #[serde(default)]
     #[default(_code="vec![(\"https://mc.sjtu.cn/api-sjmcl/article\".to_string(), true),
     (\"https://mc.sjtu.cn/api-sjmcl/article/mua\".to_string(), true)]")]
     pub discover_source_endpoints: Vec<(String, bool)>,
