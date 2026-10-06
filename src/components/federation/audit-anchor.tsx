@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
-import { JsonView } from "@/components/federation/json-view";
+import { RecordFields } from "@/components/federation/record-fields";
 import { useManagementPreview } from "@/hooks/management-preview";
 
 export function AuditAnchor({
@@ -40,7 +40,9 @@ export function AuditAnchor({
     >
       <VStack align="stretch" spacing={3}>
         {Object.keys(anchors).length ? (
-          <JsonView label={t("AuditAnchor.existing")} value={anchors} />
+          <Section title={t("AuditAnchor.existing")}>
+            <RecordFields value={anchors} />
+          </Section>
         ) : (
           <Text>{t("AuditAnchor.empty")}</Text>
         )}
@@ -86,7 +88,9 @@ export function AuditAnchor({
         {review && (
           <>
             <Text>{t("AuditAnchor.confirm")}</Text>
-            <JsonView label={t("AuditAnchor.review")} value={review} />
+            <Section title={t("AuditAnchor.review")}>
+              <RecordFields value={review} />
+            </Section>
             <Button
               isDisabled={
                 busy || building || Object.hasOwn(anchors, String(review.id))

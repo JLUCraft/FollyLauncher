@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
-import { JsonView } from "@/components/federation/json-view";
+import { RecordFields } from "@/components/federation/record-fields";
 import { useManagementPreview } from "@/hooks/management-preview";
 
 type Replica = { rowId: string; id: string; peer: string; addresses: string };
@@ -117,7 +117,9 @@ export function BusinessAdmin({
         >
           <VStack align="stretch" spacing={3}>
             {Object.keys(members).length ? (
-              <JsonView label={t("BusinessAdmin.current")} value={members} />
+              <Section title={t("BusinessAdmin.current")}>
+                <RecordFields value={members} />
+              </Section>
             ) : (
               <Text>{t("BusinessAdmin.empty")}</Text>
             )}
@@ -212,7 +214,9 @@ export function BusinessAdmin({
         {preview && (
           <>
             <Text>{t("BusinessAdmin.confirm")}</Text>
-            <JsonView label={t("BusinessAdmin.preview")} value={preview} />
+            <Section title={t("BusinessAdmin.preview")}>
+              <RecordFields value={preview} />
+            </Section>
             <Button isDisabled={locked} onClick={() => void request(preview)}>
               {t("BusinessAdmin.submit")}
             </Button>

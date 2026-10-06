@@ -13,7 +13,7 @@ import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { IdentityActionForm } from "@/components/federation/identity-action-form";
-import { JsonView } from "@/components/federation/json-view";
+import { RecordFields } from "@/components/federation/record-fields";
 import { SetupGuide } from "@/components/federation/setup-guide";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
@@ -21,29 +21,7 @@ import { useToast } from "@/contexts/toast";
 import { IdentityFacts, UnionService } from "@/services/union";
 import { copyText } from "@/utils/copy";
 import { GENESIS_PATTERN } from "@/utils/federation/connection-link";
-import { encodeHex } from "@/utils/federation/hex";
 
-// All fields remain visible during signature review, including unfamiliar future actions.
-function RecordFields({ value }: { value: unknown }) {
-  const { t } = useTranslation();
-  if (value === null || value === undefined) return <Text>—</Text>;
-  if (typeof value !== "object")
-    return <Text overflowWrap="anywhere">{String(value)}</Text>;
-  if (Array.isArray(value) && value.every((v) => typeof v === "number"))
-    return <Text overflowWrap="anywhere">{encodeHex(value)}</Text>;
-  return (
-    <VStack align="stretch" pl={3} borderLeftWidth="1px">
-      {Object.entries(value).map(([key, entry]) => (
-        <Section
-          key={key}
-          title={t(`IdentityFlow.fields.${key}`, { defaultValue: key })}
-        >
-          <RecordFields value={entry} />
-        </Section>
-      ))}
-    </VStack>
-  );
-}
 export function IdentityPanel() {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
@@ -295,7 +273,7 @@ export function IdentityPanel() {
                 isAccordion
                 initialIsOpen={false}
               >
-                <JsonView label={t("IdentityManagement.facts")} value={facts} />
+                <RecordFields value={facts} />
               </Section>
             )}
             <IdentityActionForm
@@ -400,10 +378,9 @@ export function IdentityPanel() {
                 </Button>
                 {proposal !== null && (
                   <>
-                    <JsonView
-                      label={t("IdentityFlow.export")}
-                      value={proposal}
-                    />
+                    <Section title={t("IdentityFlow.export")}>
+                      <RecordFields value={proposal} />
+                    </Section>
                     <Button
                       onClick={() =>
                         void copyText(JSON.stringify(proposal, null, 2), {
