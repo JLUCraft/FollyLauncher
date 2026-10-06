@@ -387,8 +387,9 @@ export const InstanceLastPlayedWidget = () => {
                 <Text className="secondary-text" fontSize="xs">
                   {formatRelativeTime(
                     UNIXToISOString(lastPlayedWorld.lastPlayedAt),
-                    t
-                  ).replace("on", "")}
+                    t,
+                    { withoutPrefix: true }
+                  )}
                 </Text>
                 <Text className="secondary-text" fontSize="xs">
                   {t(
