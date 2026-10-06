@@ -246,6 +246,7 @@ pub async fn validate_selected_player(
     && authlib_injector::jar::check_authlib_jar(&app).await.is_ok()
   {
     let local_ygg_server = local_ygg_server_state.lock()?;
+    local_ygg_server.set_skin_domains(authlib_injector::info::federation_skin_domains(&app)?);
     player.auth_server_url = Some(local_ygg_server.root_url.clone());
     local_ygg_server.apply_player(player.clone());
     Some(local_ygg_server.metadata().to_string())

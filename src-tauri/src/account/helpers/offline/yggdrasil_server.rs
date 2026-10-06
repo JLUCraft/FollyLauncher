@@ -126,6 +126,8 @@ pub struct YggdrasilServer {
   pub root_url: String,
   pub port: u16,
   pub players: Arc<Mutex<Vec<PlayerInfo>>>,
+  /// Hosts of federation skin sites whose texture URLs the game may load, next to loopback.
+  pub skin_domains: Arc<Mutex<Vec<String>>>,
 }
 
 impl YggdrasilServer {
@@ -136,13 +138,20 @@ impl YggdrasilServer {
       root_url: format!("http://127.0.0.1:{}", port),
       port,
       players: Arc::new(Mutex::new(vec![])),
+      skin_domains: Arc::new(Mutex::new(vec![])),
     }
   }
 
+  pub fn set_skin_domains(&self, domains: Vec<String>) {
+    *self.skin_domains.lock().unwrap() = domains;
+  }
+
   pub fn metadata(&self) -> Value {
+    let mut skin_domains = vec!["127.0.0.1".to_string(), "localhost".to_string()];
+    skin_domains.extend(self.skin_domains.lock().unwrap().iter().cloned());
     json!({
       "signaturePublickey": get_public_key(),
-      "skinDomains": ["127.0.0.1", "localhost"],
+      "skinDomains": skin_domains,
       "meta": {
         "serverName": "SJMCL",
         "implementationName": "SJMCL",
@@ -345,5 +354,31 @@ async fn handle_texture_route(
   } else {
     log::warn!("Texture not found: {}", hash);
     StatusCode::NOT_FOUND.into_response()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn metadata_whitelists_loopback_and_configured_skin_domains() {
+    let server = YggdrasilServer::new();
+    let domains = |server: &YggdrasilServer| -> Vec<String> {
+      server.metadata()["skinDomains"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| d.as_str().unwrap().to_string())
+        .collect()
+    };
+    assert_eq!(domains(&server), ["127.0.0.1", "localhost"]);
+    server.set_skin_domains(vec!["skin.jlucraft.com".into()]);
+    assert_eq!(
+      domains(&server),
+      ["127.0.0.1", "localhost", "skin.jlucraft.com"]
+    );
+    server.set_skin_domains(vec![]);
+    assert_eq!(domains(&server), ["127.0.0.1", "localhost"]);
   }
 }

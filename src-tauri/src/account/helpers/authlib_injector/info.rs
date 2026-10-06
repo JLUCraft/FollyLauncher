@@ -1,4 +1,5 @@
 use sjmcl_types::error::SJMCLResult;
+use std::collections::BTreeSet;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -115,4 +116,78 @@ pub fn get_auth_server_info_by_url(
     .find(|server| normalize_url(&server.auth_url) == target)
     .cloned()
     .ok_or(AccountError::NotFound.into())
+}
+
+fn is_skin_domain(domain: &str) -> bool {
+  !domain.is_empty()
+    && domain.len() <= 253
+    && domain
+      .chars()
+      .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-')
+}
+
+/// Hosts the game may fetch textures from: every known auth server and the skin domains its
+/// metadata advertises.
+fn skin_domains(servers: &[AuthServerInfo]) -> Vec<String> {
+  let mut domains = BTreeSet::new();
+  for server in servers {
+    if let Some(host) = Url::parse(&server.auth_url)
+      .ok()
+      .and_then(|url| url.domain().map(str::to_string))
+    {
+      domains.insert(host);
+    }
+    for domain in server.metadata["skinDomains"]
+      .as_array()
+      .into_iter()
+      .flatten()
+    {
+      if let Some(domain) = domain.as_str().filter(|d| is_skin_domain(d)) {
+        domains.insert(domain.to_string());
+      }
+    }
+  }
+  domains.into_iter().collect()
+}
+
+pub fn federation_skin_domains(app: &AppHandle) -> SJMCLResult<Vec<String>> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let account_state = account_binding.lock()?;
+  Ok(skin_domains(&account_state.auth_servers))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use serde_json::json;
+
+  fn server(auth_url: &str, metadata: serde_json::Value) -> AuthServerInfo {
+    AuthServerInfo {
+      auth_url: auth_url.into(),
+      metadata,
+      ..Default::default()
+    }
+  }
+
+  #[test]
+  fn skin_domains_merge_hosts_and_advertised_domains_and_drop_junk() {
+    let servers = [
+      server(
+        "https://skin.jlucraft.com",
+        json!({"skinDomains": ["skin.jlucraft.com", ".mualliance.ltd", "bad domain", "", "a/b", 7]}),
+      ),
+      server("https://skin.mualliance.ltd/api/yggdrasil", json!(null)),
+      server("not a url", json!({"skinDomains": ["x.example"]})),
+    ];
+    assert_eq!(
+      skin_domains(&servers),
+      [
+        ".mualliance.ltd",
+        "skin.jlucraft.com",
+        "skin.mualliance.ltd",
+        "x.example"
+      ]
+    );
+    assert!(skin_domains(&[]).is_empty());
+  }
 }
