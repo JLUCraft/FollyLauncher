@@ -13,14 +13,18 @@ export function RecordFields({ value }: { value: unknown }) {
     return <Text overflowWrap="anywhere">{encodeHex(value)}</Text>;
   return (
     <VStack align="stretch" pl={3} borderLeftWidth="1px">
-      {Object.entries(value).map(([key, entry]) => (
-        <Section
-          key={key}
-          title={t(`IdentityFlow.fields.${key}`, { defaultValue: key })}
-        >
-          <RecordFields value={entry} />
-        </Section>
-      ))}
+      {Object.entries(value).map(([key, entry]) => {
+        const labelKey = `IdentityFlow.fields.${key}`;
+        const label = t(labelKey);
+        return (
+          <Section
+            key={key}
+            title={label === labelKey ? t("IdentityFlow.unnamedField") : label}
+          >
+            <RecordFields value={entry} />
+          </Section>
+        );
+      })}
     </VStack>
   );
 }

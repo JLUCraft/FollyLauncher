@@ -286,9 +286,7 @@ export function IdentityPanel() {
                   <Text>{t("IdentityFlow.reviewHint")}</Text>
                   {typeof action?.type === "string" && (
                     <Text fontWeight="semibold">
-                      {t(`IdentityManagement.actions.${action.type}`, {
-                        defaultValue: action.type,
-                      })}
+                      {t(`IdentityManagement.actions.${action.type}`)}
                     </Text>
                   )}
                   {binding && (
