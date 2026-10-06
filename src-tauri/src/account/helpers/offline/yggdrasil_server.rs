@@ -153,8 +153,8 @@ impl YggdrasilServer {
       "signaturePublickey": get_public_key(),
       "skinDomains": skin_domains,
       "meta": {
-        "serverName": "SJMCL",
-        "implementationName": "SJMCL",
+        "serverName": crate::brand_meta::PRODUCT_NAME,
+        "implementationName": crate::brand_meta::PRODUCT_NAME,
         "implementationVersion": "1.0",
         "feature.non_email_login": true
       }
