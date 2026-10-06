@@ -7,6 +7,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AdvancedCard from "@/components/common/advanced-card";
@@ -19,8 +20,10 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { useToast } from "@/contexts/toast";
 import { IdentityFacts, UnionService } from "@/services/union";
+import { UtilsService } from "@/services/utils";
 import { copyText } from "@/utils/copy";
 import { GENESIS_PATTERN } from "@/utils/federation/connection-link";
+import { sanitizeFileName } from "@/utils/string";
 
 export function IdentityPanel() {
   const { t } = useTranslation();
@@ -129,6 +132,58 @@ export function IdentityPanel() {
       setBusy(false);
     }
   };
+  const exportProposal = async () => {
+    const type = typeof action?.type === "string" ? action.type : "record";
+    const date = new Date().toISOString().slice(0, 10);
+    try {
+      const path = await save({
+        defaultPath: `identity-record-${date}-${sanitizeFileName(type)}.json`,
+        filters: [
+          {
+            name: t("General.dialog.filterName.json"),
+            extensions: ["json"],
+          },
+        ],
+      });
+      if (!path) return;
+      const response = await UtilsService.writeFile(
+        path,
+        JSON.stringify(proposal, null, 2),
+        "string"
+      );
+      toast({
+        title: t(
+          response.status === "success"
+            ? "IdentityFlow.exportDone"
+            : "IdentityFlow.exportFailed"
+        ),
+        status: response.status,
+      });
+    } catch {
+      toast({ title: t("IdentityFlow.exportFailed"), status: "error" });
+    }
+  };
+  const importFromFile = async () => {
+    try {
+      const path = await open({
+        filters: [
+          {
+            name: t("General.dialog.filterName.json"),
+            extensions: ["json"],
+          },
+        ],
+      });
+      if (typeof path !== "string") return;
+      const response = await UtilsService.readFile(path, "string");
+      if (response.status === "success" && typeof response.data === "string") {
+        setImported(response.data);
+      } else {
+        toast({ title: t("IdentityFlow.importFailed"), status: "error" });
+      }
+    } catch {
+      toast({ title: t("IdentityFlow.importFailed"), status: "error" });
+    }
+  };
   const action =
     proposal &&
     typeof proposal === "object" &&
@@ -151,6 +206,11 @@ export function IdentityPanel() {
   const ownMember = facts?.revoked_devices.includes(identity)
     ? undefined
     : facts?.devices[identity];
+  const signatures =
+    proposal && typeof proposal === "object" && "signatures" in proposal
+      ? (proposal as { signatures?: unknown }).signatures
+      : undefined;
+  const signed = Array.isArray(signatures) && signatures.length > 0;
   return (
     <Section title={t("FederationNav.identity")}>
       <VStack align="stretch" spacing={4}>
@@ -321,6 +381,13 @@ export function IdentityPanel() {
                     >
                       {t("IdentityFlow.submit")}
                     </Button>
+                    <Button
+                      variant="outline"
+                      isDisabled={!signed}
+                      onClick={() => void exportProposal()}
+                    >
+                      {t("IdentityFlow.exportFile")}
+                    </Button>
                   </HStack>
                 </VStack>
               </Section>
@@ -368,12 +435,20 @@ export function IdentityPanel() {
                     onChange={(e) => setImported(e.target.value)}
                   />
                 </FormControl>
-                <Button
-                  isDisabled={busy || !imported}
-                  onClick={() => void run("import")}
-                >
-                  {t("IdentityFlow.review")}
-                </Button>
+                <HStack flexWrap="wrap">
+                  <Button
+                    isDisabled={busy || !imported}
+                    onClick={() => void run("import")}
+                  >
+                    {t("IdentityFlow.review")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => void importFromFile()}
+                  >
+                    {t("IdentityFlow.importFile")}
+                  </Button>
+                </HStack>
                 {proposal !== null && (
                   <>
                     <Section title={t("IdentityFlow.export")}>

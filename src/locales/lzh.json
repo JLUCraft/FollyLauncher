@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "圖像之案",
-        "modpack": "改囊集"
+        "modpack": "改囊集",
+        "json": "JSON 之案"
       }
     },
     "disable": "禁",
@@ -1663,7 +1664,12 @@
     "sign": "確認簽署",
     "submit": "提交已署變更",
     "import": "匯入待共署之更動",
+    "importFile": "自檔案導入",
+    "importFailed": "所選檔案讀取不成",
     "export": "已署之更動（送予共署者）",
+    "exportFile": "導出已署之錄",
+    "exportDone": "已導出此錄",
+    "exportFailed": "導出此錄不成",
     "fields": {
       "federation": "聯盟",
       "genesis": "聯盟之設定",

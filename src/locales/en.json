@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "Image",
-        "modpack": "Modpack"
+        "modpack": "Modpack",
+        "json": "JSON file"
       }
     },
     "disable": "Disable",
@@ -1663,7 +1664,12 @@
     "sign": "Confirm and sign",
     "submit": "Apply signed changes",
     "import": "Import a change to co-sign",
+    "importFile": "Import from file",
+    "importFailed": "Failed to read the selected file",
     "export": "Signed change (send it to your co-signer)",
+    "exportFile": "Export signed record",
+    "exportDone": "Record exported",
+    "exportFailed": "Failed to export the record",
     "fields": {
       "federation": "Federation",
       "genesis": "Federation setup",

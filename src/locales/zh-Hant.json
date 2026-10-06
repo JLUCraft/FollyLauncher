@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "圖片檔案",
-        "modpack": "模組包"
+        "modpack": "模組包",
+        "json": "JSON 檔案"
       }
     },
     "disable": "停用",
@@ -1663,7 +1664,12 @@
     "sign": "確認並簽章",
     "submit": "提交已簽章變更",
     "import": "匯入待聯署的變更",
+    "importFile": "從檔案匯入",
+    "importFailed": "讀取所選檔案失敗",
     "export": "已簽署的變更（傳給聯署人）",
+    "exportFile": "匯出已簽署的記錄",
+    "exportDone": "記錄已匯出",
+    "exportFailed": "匯出記錄失敗",
     "fields": {
       "federation": "聯盟",
       "genesis": "聯盟設定",

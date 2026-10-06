@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "図像ファイル",
-        "modpack": "モッドパック"
+        "modpack": "モッドパック",
+        "json": "JSON ファイル"
       }
     },
     "disable": "無効化",
@@ -1663,7 +1664,12 @@
     "sign": "確認して署名",
     "submit": "署名済み変更を適用",
     "import": "共同署名する変更を読み込む",
+    "importFile": "ファイルから読み込み",
+    "importFailed": "選択したファイルの読み込みに失敗しました",
     "export": "署名済みの変更（共同署名者に送ってください）",
+    "exportFile": "署名済みレコードを書き出し",
+    "exportDone": "レコードを書き出しました",
+    "exportFailed": "レコードの書き出しに失敗しました",
     "fields": {
       "federation": "連盟",
       "genesis": "連盟の設定",

@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "Fichier image",
-        "modpack": "Pack modifié"
+        "modpack": "Pack modifié",
+        "json": "Fichier JSON"
       }
     },
     "disable": "Désactiver",
@@ -1663,7 +1664,12 @@
     "sign": "Confirmer et signer",
     "submit": "Appliquer les modifications signées",
     "import": "Importer une modification à cosigner",
+    "importFile": "Importer depuis un fichier",
+    "importFailed": "Échec de la lecture du fichier sélectionné",
     "export": "Modification signée (à envoyer à votre cosignataire)",
+    "exportFile": "Exporter le registre signé",
+    "exportDone": "Registre exporté",
+    "exportFailed": "Échec de l’exportation du registre",
     "fields": {
       "federation": "Fédération",
       "genesis": "Configuration de la fédération",

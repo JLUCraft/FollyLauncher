@@ -1324,7 +1324,8 @@
     "dialog": {
       "filterName": {
         "image": "图片文件",
-        "modpack": "整合包"
+        "modpack": "整合包",
+        "json": "JSON 文件"
       }
     },
     "disable": "禁用",
@@ -1663,7 +1664,12 @@
     "sign": "确认并签名",
     "submit": "提交已签名变更",
     "import": "导入待联署的变更",
+    "importFile": "从文件导入",
+    "importFailed": "读取所选文件失败",
     "export": "已签署的变更（发给联署人）",
+    "exportFile": "导出已签署的记录",
+    "exportDone": "记录已导出",
+    "exportFailed": "导出记录失败",
     "fields": {
       "federation": "联盟",
       "genesis": "联盟设置",
