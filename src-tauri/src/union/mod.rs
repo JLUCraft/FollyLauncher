@@ -119,7 +119,7 @@ pub async fn union_proxy_start(
   let service = input
     .service
     .parse()
-    .map_err(|e: wire::Error| e.to_string())?;
+    .map_err(|e: protocol::Error| e.to_string())?;
   let device = identity(&app)?;
   trust::configuration(&app)?.ok_or("Configure unified identity before joining rooms")?;
   let node = node::Node::start(device, node::NodeConfig::default())

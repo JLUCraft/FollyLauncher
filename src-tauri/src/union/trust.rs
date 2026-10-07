@@ -17,7 +17,7 @@ pub fn configuration(app: &AppHandle) -> Result<Option<Config>, String> {
     return Ok(None);
   }
   let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
-  if bytes.len() > wire::protocol::MAX_FRAME {
+  if bytes.len() > protocol::MAX_FRAME {
     return Err("Identity configuration too large".into());
   }
   serde_json::from_slice(&bytes)
@@ -158,7 +158,7 @@ pub async fn union_automated_identity(app: AppHandle) -> Result<serde_json::Valu
       .await
       .map_err(|_| "Invalid identity response")?
     {
-      if bytes.len() + chunk.len() > wire::protocol::MAX_FRAME {
+      if bytes.len() + chunk.len() > protocol::MAX_FRAME {
         return Err("Identity response too large".into());
       }
       bytes.extend(chunk);

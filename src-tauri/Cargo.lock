@@ -34,6 +34,7 @@ dependencies = [
  "node",
  "pin-project",
  "plist",
+ "protocol",
  "rand 0.9.5",
  "regex",
  "reqwest-middleware",
@@ -81,7 +82,6 @@ dependencies = [
  "uuid",
  "walkdir",
  "winapi",
- "wire",
  "zeroize",
  "zip 2.4.2",
 ]
@@ -576,12 +576,12 @@ dependencies = [
  "identity",
  "journal",
  "node",
+ "protocol",
  "serde",
  "serde_json",
  "state",
  "tokio",
  "tracing",
- "wire",
 ]
 
 [[package]]
@@ -1170,11 +1170,11 @@ dependencies = [
  "identity",
  "league",
  "node",
+ "protocol",
  "serde",
  "serde_json",
  "state",
  "tokio",
- "wire",
 ]
 
 [[package]]
@@ -2447,11 +2447,11 @@ name = "events"
 version = "0.1.0"
 dependencies = [
  "node",
+ "protocol",
  "serde",
  "serde_json",
  "state",
  "tokio",
- "wire",
 ]
 
 [[package]]
@@ -2617,10 +2617,10 @@ dependencies = [
 name = "flows"
 version = "0.1.0"
 dependencies = [
+ "protocol",
  "serde",
  "serde_json",
  "state",
- "wire",
 ]
 
 [[package]]
@@ -3752,10 +3752,10 @@ name = "identity"
 version = "0.2.0"
 dependencies = [
  "libp2p-identity",
+ "protocol",
  "serde",
  "serde_json",
  "tempfile",
- "wire",
 ]
 
 [[package]]
@@ -4168,12 +4168,12 @@ name = "journal"
 version = "0.2.0"
 dependencies = [
  "identity",
+ "protocol",
  "serde",
  "serde_json",
  "state",
  "tempfile",
  "tokio",
- "wire",
 ]
 
 [[package]]
@@ -4332,11 +4332,11 @@ version = "0.2.0"
 dependencies = [
  "authority",
  "identity",
+ "protocol",
  "serde",
  "serde_json",
  "sha2 0.11.0",
  "state",
- "wire",
 ]
 
 [[package]]
@@ -4922,6 +4922,7 @@ dependencies = [
  "futures",
  "identity",
  "node",
+ "protocol",
  "reqwest 0.13.5",
  "serde",
  "serde_json",
@@ -4929,7 +4930,6 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.21",
  "tokio",
- "wire",
 ]
 
 [[package]]
@@ -5434,12 +5434,12 @@ dependencies = [
  "libp2p",
  "libp2p-stream",
  "prost",
+ "protocol",
  "serde",
  "serde_json",
  "tokio",
  "tracing",
  "uuid",
- "wire",
 ]
 
 [[package]]
@@ -6562,6 +6562,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
+]
+
+[[package]]
+name = "protocol"
+version = "0.2.0"
+dependencies = [
+ "futures",
+ "multibase",
+ "prost",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -8075,9 +8088,9 @@ version = "0.2.0"
 dependencies = [
  "identity",
  "multiaddr",
+ "protocol",
  "serde",
  "serde_json",
- "wire",
 ]
 
 [[package]]
@@ -10627,19 +10640,6 @@ name = "winsafe"
 version = "0.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d135d17ab770252ad95e9a872d365cf3090e3be864a34ab46f48555993efc904"
-
-[[package]]
-name = "wire"
-version = "0.2.0"
-dependencies = [
- "futures",
- "multibase",
- "prost",
- "serde",
- "serde_json",
- "sha2 0.11.0",
- "thiserror 2.0.21",
-]
 
 [[package]]
 name = "wit-bindgen"

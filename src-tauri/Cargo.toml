@@ -163,7 +163,7 @@ client = { path = "../../union-core/crates/client", features = ["league"] }
 league = { path = "../../union-core/crates/league" }
 node = { path = "../../union-core/crates/node" }
 identity = { path = "../../union-core/crates/identity" }
-wire = { path = "../../union-core/crates/wire" }
+protocol = { path = "../../union-core/crates/protocol" }
 terminal-runtime = { path = "../../union-core/crates/terminal-runtime" }
 minecraftd = { path = "../../minecraftd" }
 federated-server = { path = "../../federated-server", default-features = false }
