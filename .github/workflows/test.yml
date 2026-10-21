@@ -136,6 +136,55 @@ jobs:
       - name: Lint Rust Backend
         run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
 
+  Check:
+    name: Check (macOS)
+    needs: changes
+    if: needs.changes.outputs.should_run_lint == 'true'
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: workspace/FollyLauncher
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: workspace/FollyLauncher
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/union-core
+          path: workspace/union-core
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/minecraftd
+          path: workspace/minecraftd
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/game-server
+          path: workspace/federated-server
+
+      - name: Scaffold the founder manifest
+        shell: bash
+        working-directory: workspace/federated-server
+        run: |
+          if [ ! -f src/founders.json ]; then
+            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "workspace/FollyLauncher/src-tauri -> target"
+          key: macos-check
+
+      # macOS-only branches (menus, updater bundles) never compile on the
+      # linux lint job, so check them on a macos runner without packaging.
+      - name: Check Rust Backend
+        run: cargo check --manifest-path src-tauri/Cargo.toml --workspace --all-targets
+
   Build:
     needs: changes
     if: needs.changes.outputs.should_run_build == 'true'
