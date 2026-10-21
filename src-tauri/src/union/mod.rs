@@ -7,7 +7,6 @@ use identity::Identity;
 use tauri::{AppHandle, Manager};
 
 pub mod rooms;
-mod session;
 pub mod trust;
 mod vault;
 fn identity(app: &AppHandle) -> Result<Identity, String> {

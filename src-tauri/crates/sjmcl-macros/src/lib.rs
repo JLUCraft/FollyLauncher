@@ -16,10 +16,12 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```rust,ignore
 /// #[serialize_skip_none]
 /// #[derive(Serialize)]
-/// struct Foo { ... }
+/// struct Foo {
+///   name: Option<String>,
+/// }
 /// ```
 #[proc_macro_attribute]
 pub fn serialize_skip_none(_attr: TokenStream, item: TokenStream) -> TokenStream {

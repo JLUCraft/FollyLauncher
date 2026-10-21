@@ -1,6 +1,5 @@
 use sjmcl_types::error::SJMCLResult;
 use std::pin::Pin;
-use std::time::Duration;
 use tauri::{AppHandle, Manager};
 
 use crate::tasks::download::DownloadTask;
@@ -38,13 +37,7 @@ pub async fn schedule_progressive_task_group(
             true,
           ));
         }
-        let task = DownloadTask::new(
-          app.clone(),
-          task_id,
-          Some(task_group.clone()),
-          param,
-          Duration::from_secs(1),
-        );
+        let task = DownloadTask::new(app.clone(), task_id, Some(task_group.clone()), param);
         let (f, h) = task
           .future(app.clone(), monitor.download_rate_limiter.clone())
           .await?;
@@ -107,13 +100,6 @@ pub fn cancel_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> 
 pub fn resume_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   monitor.resume_progress(task_id);
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn restart_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
-  monitor.restart_progress(task_id).await;
   Ok(())
 }
 

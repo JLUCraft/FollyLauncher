@@ -503,7 +503,7 @@ pub fn create_zip_from_dirs(paths: Vec<PathBuf>, zip_file_path: PathBuf) -> SJMC
   for path in paths {
     if path.is_file() {
       let file_name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
-      zip.start_file(file_name, options.clone())?;
+      zip.start_file(file_name, options)?;
       let mut file = std::fs::File::open(&path)
         .map_err(|e| SJMCLError(format!("Failed to open file {}: {}", path.display(), e)))?;
       std::io::copy(&mut file, &mut zip)
@@ -518,41 +518,14 @@ pub fn create_zip_from_dirs(paths: Vec<PathBuf>, zip_file_path: PathBuf) -> SJMC
   Ok(zip_file_path.to_string_lossy().to_string())
 }
 
-/// Enum to define the permission operation
-#[derive(Debug)]
-pub enum PermissionOperation {
-  Upgrade,
-  Downgrade,
-  Exact,
-}
-
-/// Modify file permissions for UNIX-like systems (Linux/macOS).
-///
-/// # Parameters:
-/// - `path`: The path to the file whose permissions are being modified.
-/// - `perm_mask`: The permission mask (e.g., `0o111` for execute permissions).
-/// - `operation`: The operation to perform:
-///     - `PermissionOperation::Upgrade` adds permissions if missing,
-///     - `PermissionOperation::Downgrade` removes permissions if present,
-///     - `PermissionOperation::Exact` sets the permissions exactly to the specified mask.
-///
-/// # Examples
-/// ```rust,ignore
-/// manage_permissions_unix("/path/to/your/file", 0o111, PermissionOperation::Upgrade)?;
-/// manage_permissions_unix("/path/to/your/file", 0o111, PermissionOperation::Downgrade)?;
-/// manage_permissions_unix("/path/to/your/file", 0o755, PermissionOperation::Exact)?;
-/// ```
-pub fn manage_permissions_unix<P>(
-  path: P,
-  perm_mask: u32,
-  operation: PermissionOperation,
-) -> SJMCLResult<()>
+/// Grants the execute bits on Unix-like systems; a no-op elsewhere.
+pub fn grant_execute_permission<P>(path: P) -> SJMCLResult<()>
 where
   P: AsRef<Path>,
 {
   #[cfg(target_os = "windows")]
   {
-    // On Windows, simply return Ok(()) since no changes are made
+    let _ = path;
     return Ok(());
   }
 
@@ -560,39 +533,13 @@ where
   {
     use std::os::unix::fs::PermissionsExt;
 
-    let metadata = fs::metadata(&path)?;
-    let mut permissions = metadata.permissions();
-    let current_mode = permissions.mode();
-
-    match operation {
-      PermissionOperation::Upgrade => {
-        // "upgrade" operation: only add the permissions if they are missing
-        if current_mode & perm_mask != perm_mask {
-          let new_mode = current_mode | perm_mask;
-          permissions.set_mode(new_mode);
-          fs::set_permissions(&path, permissions)?;
-          log::info!("Upgraded permissions for {}", path.as_ref().display());
-        } else {
-          log::info!("No upgrade needed for {}", path.as_ref().display());
-        }
-      }
-      PermissionOperation::Downgrade => {
-        // "downgrade" operation: only remove the permissions if they are present
-        if current_mode & perm_mask != 0 {
-          let new_mode = current_mode & !perm_mask; // Clear the respective permission
-          permissions.set_mode(new_mode);
-          fs::set_permissions(&path, permissions)?;
-          log::info!("Downgraded permissions for {}", path.as_ref().display());
-        } else {
-          log::info!("No downgrade needed for {}", path.as_ref().display());
-        }
-      }
-      PermissionOperation::Exact => {
-        // "exact" operation: set the permissions exactly to the specified mask
-        permissions.set_mode(perm_mask);
-        fs::set_permissions(&path, permissions)?;
-        log::info!("Set exact permissions for {}", path.as_ref().display());
-      }
+    let path = path.as_ref();
+    let mut permissions = fs::metadata(path)?.permissions();
+    let mode = permissions.mode();
+    if mode & 0o111 != 0o111 {
+      permissions.set_mode(mode | 0o111);
+      fs::set_permissions(path, permissions)?;
+      log::info!("Granted execute permission for {}", path.display());
     }
   }
 

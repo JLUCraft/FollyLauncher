@@ -7,7 +7,7 @@ use tauri_plugin_http::reqwest;
 use crate::launcher_config::models::{JavaInfo, LauncherConfig};
 use crate::resource::helpers::misc::get_source_priority_list;
 use crate::tasks::PTaskParam;
-use crate::utils::fs::{PermissionOperation, manage_permissions_unix};
+use crate::utils::fs::grant_execute_permission;
 
 #[cfg(target_os = "windows")]
 use crate::utils::sys_info::get_all_drive_mount_points;
@@ -26,7 +26,7 @@ pub async fn refresh_and_update_javas(app: &AppHandle) {
 
   for java_exec_path in java_paths {
     // ensure execute permissions (for Linux and macOS)
-    let _ = manage_permissions_unix(&java_exec_path, 0o111, PermissionOperation::Upgrade);
+    let _ = grant_execute_permission(&java_exec_path);
 
     let Some(runtime) = minecraftd::minecraft::java::discovery::inspect(
       &java_exec_path,

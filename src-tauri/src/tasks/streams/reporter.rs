@@ -1,8 +1,4 @@
-use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tauri::AppHandle;
-
-use crate::tasks::streams::desc::PDesc;
 
 pub trait Sink {
   fn report_progress(
@@ -44,19 +40,6 @@ where
 
   pub fn set_total(&mut self, total: i64) {
     self.total = total;
-  }
-
-  pub fn from_desc_interval<T: Clone + Serialize + for<'de> Deserialize<'de>>(
-    desc: &PDesc<T>,
-    interval: &Duration,
-    sink: S,
-  ) -> Self {
-    Self {
-      total: desc.total,
-      last_reported: desc.current,
-      interval: *interval,
-      sink,
-    }
   }
 }
 
@@ -114,12 +97,4 @@ where
   pub fn report_failed(&self, task_id: u32, task_group: Option<&str>, reason: String) {
     self.sink.report_failed(task_id, task_group, reason);
   }
-}
-
-pub struct EventPayload {}
-
-pub struct EventReporter {
-  app: AppHandle,
-  task_id: u32,
-  total: i64,
 }

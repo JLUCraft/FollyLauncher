@@ -14,7 +14,6 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 use streams::{GDesc, PDesc, PHandle};
-use tokio::time::Duration;
 
 pub type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<()>> + Send>>;
 

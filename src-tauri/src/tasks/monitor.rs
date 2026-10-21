@@ -89,12 +89,7 @@ impl TaskMonitor {
             let task_group = desc.task_group.clone();
             match desc.payload {
               PTaskParam::Download(_) => {
-                let task = DownloadTask::from_descriptor(
-                  self.app_handle.clone(),
-                  desc,
-                  Duration::from_secs(1),
-                  false,
-                );
+                let task = DownloadTask::from_descriptor(self.app_handle.clone(), desc, false);
                 let (f, p_handle) = task
                   .future(self.app_handle.clone(), self.download_rate_limiter.clone())
                   .await
@@ -348,35 +343,6 @@ impl TaskMonitor {
       p_handle.write().unwrap().mark_cancelled();
       if let Some(j_handle) = self.tasks.lock().unwrap().remove(&id) {
         j_handle.abort();
-      }
-    }
-  }
-
-  pub async fn restart_progress(&self, id: u32) {
-    let handle = self.phs.write().unwrap().remove(&id);
-    if let Some(handle) = handle {
-      let desc = handle.read().unwrap().desc.clone();
-      let task_group = desc.task_group.clone();
-      let task_state = desc.status.clone();
-      let j_handle = self.tasks.lock().unwrap().remove(&id).unwrap();
-      if !task_state.is_completed() {
-        handle.write().unwrap().mark_cancelled();
-        j_handle.abort();
-      }
-      match desc.payload {
-        PTaskParam::Download(_) => {
-          let task = DownloadTask::from_descriptor(
-            self.app_handle.clone(),
-            desc,
-            Duration::from_secs(1),
-            true,
-          );
-          let (f, new_h) = task
-            .future(self.app_handle.clone(), self.download_rate_limiter.clone())
-            .await
-            .unwrap();
-          self.enqueue_task(id, task_group, f, new_h).await;
-        }
       }
     }
   }

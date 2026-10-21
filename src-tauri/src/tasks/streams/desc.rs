@@ -36,10 +36,6 @@ impl PStatus {
     *self == PStatus::Stopped
   }
 
-  pub fn is_completed(&self) -> bool {
-    *self == PStatus::Completed
-  }
-
   pub fn is_in_progress(&self) -> bool {
     *self == PStatus::InProgress
   }

@@ -31,7 +31,6 @@ pub struct DownloadTask {
   p_handle: PTaskHandle,
   param: DownloadParam,
   dest_path: PathBuf,
-  report_interval: Duration,
 }
 
 impl DownloadTask {
@@ -40,7 +39,6 @@ impl DownloadTask {
     task_id: u32,
     task_group: Option<String>,
     param: DownloadParam,
-    report_interval: Duration,
   ) -> Self {
     let cache_dir = retrieve_launcher_config(app_handle.clone())
       .unwrap()
@@ -66,16 +64,10 @@ impl DownloadTask {
       ),
       param: param.clone(),
       dest_path: cache_dir.clone().join(param.dest.clone()),
-      report_interval,
     }
   }
 
-  pub fn from_descriptor(
-    app_handle: AppHandle,
-    desc: PTaskDesc,
-    report_interval: Duration,
-    reset: bool,
-  ) -> Self {
+  pub fn from_descriptor(app_handle: AppHandle, desc: PTaskDesc, reset: bool) -> Self {
     let param = match &desc.payload {
       PTaskParam::Download(param) => param.clone(),
     };
@@ -111,7 +103,6 @@ impl DownloadTask {
       ),
       param: param.clone(),
       dest_path: cache_dir.clone().join(param.dest.clone()),
-      report_interval,
     }
   }
 
