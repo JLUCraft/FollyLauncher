@@ -118,7 +118,7 @@ winapi = { version = "0.3", features = [
   "winuser",
   "windef",
 ] }
-zip = { version = "2.3", default-features = false, features = [
+zip = { version = "9", default-features = false, features = [
   "deflate",
   "deflate64",
   "time",

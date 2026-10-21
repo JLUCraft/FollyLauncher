@@ -9,7 +9,7 @@ use std::{fs, io};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use walkdir::WalkDir;
-use zip::write::{ExtendedFileOptions, FileOptions};
+use zip::write::SimpleFileOptions;
 use zip::{CompressionMethod, ZipWriter};
 
 use crate::IS_PORTABLE;
@@ -496,7 +496,7 @@ pub fn create_zip_from_dirs(paths: Vec<PathBuf>, zip_file_path: PathBuf) -> SJMC
   let zip_file = std::fs::File::create(&zip_file_path)
     .map_err(|e| SJMCLError(format!("Failed to create zip file: {}", e)))?;
   let mut zip = ZipWriter::new(zip_file);
-  let options = FileOptions::<ExtendedFileOptions>::default()
+  let options = SimpleFileOptions::default()
     .compression_method(CompressionMethod::Deflated)
     .unix_permissions(0o755);
 

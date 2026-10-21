@@ -36,9 +36,12 @@ pub fn extract_assets(app: &AppHandle) -> Result<(), io::Error> {
   let mut zip = ZipArchive::new(cursor)?;
   for i in 0..zip.len() {
     let mut file_in_zip = zip.by_index(i)?;
+    let relative_path = file_in_zip
+      .enclosed_name()
+      .ok_or_else(|| io::Error::other("portable archive entry escapes the app data directory"))?;
     let out_path = app
       .path()
-      .resolve(file_in_zip.mangled_name(), BaseDirectory::AppData)
+      .resolve(relative_path, BaseDirectory::AppData)
       .map_err(io::Error::other)?;
 
     if file_in_zip.is_dir() {
