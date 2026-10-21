@@ -10,10 +10,10 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { exit } from "@tauri-apps/api/app";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir, appLogDir, join } from "@tauri-apps/api/path";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
-import { exit } from "@tauri-apps/plugin-process";
 import { t } from "i18next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
