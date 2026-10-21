@@ -17,9 +17,9 @@ use crate::launcher_config::helpers::java::{
   build_mojang_java_download_params, get_java_info_from_command, get_java_info_from_release_file,
   refresh_and_update_javas,
 };
-use crate::launcher_config::helpers::updater::{
-  self, download_target_version, fetch_latest_version,
-};
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+use crate::launcher_config::helpers::updater;
+use crate::launcher_config::helpers::updater::{download_target_version, fetch_latest_version};
 use crate::launcher_config::models::{
   BuildType, GameDirectory, GraphicsApi, JavaInfo, LauncherConfig, LauncherConfigError,
   VersionMetaInfo,
@@ -385,6 +385,10 @@ pub async fn download_launcher_update(app: AppHandle, version: VersionMetaInfo) 
 }
 
 #[tauri::command]
+#[cfg_attr(
+  not(any(target_os = "windows", target_os = "macos")),
+  allow(unused_variables)
+)]
 pub async fn install_launcher_update(
   app: AppHandle,
   downloaded_filename: String,

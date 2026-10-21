@@ -1,9 +1,15 @@
 use serde_json::Value;
-use sjmcl_types::error::{SJMCLError, SJMCLResult};
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+use sjmcl_types::error::SJMCLError;
+use sjmcl_types::error::SJMCLResult;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::fs;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::path::PathBuf;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 use std::sync::Mutex;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -50,6 +56,7 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
   format!("SJMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
+#[cfg(target_os = "windows")]
 // Generate the new filename on the local disk.
 // If old_name contains old_version, replace the first occurrence with new_version.
 // Otherwise, keep the old_name unchanged.
