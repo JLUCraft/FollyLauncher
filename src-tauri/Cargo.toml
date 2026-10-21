@@ -80,7 +80,9 @@ tauri = { version = "2.11.1", features = ["protocol-asset", "image-png"] }
 tauri-build = { version = "2.6.1", features = [] }
 tauri-plugin-clipboard-manager = "2.3.2"
 tauri-plugin-decorum = "1.1.1"
-tauri-plugin-deep-link = "2.4.9"
+# 2.6.2 fails to build against rust-ini 0.21.3; upstream fixed it in 2.6.3.
+# Bump to 2.6.3 once it is published.
+tauri-plugin-deep-link = "=2.6.1"
 tauri-plugin-dialog = "2.7.1"
 tauri-plugin-fs = "2.5.1"
 tauri-plugin-http = { version = "2.5.9", features = ["json", "stream"] }
