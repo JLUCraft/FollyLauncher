@@ -3,18 +3,22 @@ name: Test
 on:
   push:
     branches:
+      - folly
       - main
     paths:
       - src/**
       - src-tauri/**
       - scripts/game/check_minecraft_boundary.py
+      - .github/workflows/**
   pull_request:
     branches:
+      - folly
       - main
     paths:
       - src/**
       - src-tauri/**
       - scripts/game/check_minecraft_boundary.py
+      - .github/workflows/**
 
 # Cancel prev CI if new commit come (learned from ant-design repo)
 concurrency:
@@ -39,6 +43,7 @@ jobs:
           filters: |
             src:
               - 'src/**'
+              - '.github/workflows/**'
             src-non-locales:
               - 'src/**'
               - '!src/locales/**'
@@ -67,10 +72,42 @@ jobs:
     needs: changes
     if: needs.changes.outputs.should_run_lint == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workspace/FollyLauncher
 
     steps:
+      # The launcher links the shared library crates, the game daemon and the
+      # server through sibling paths, so CI reproduces the local workspace layout.
       - uses: actions/checkout@v7
-      
+        with:
+          path: workspace/FollyLauncher
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/union-core
+          path: workspace/union-core
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/minecraftd
+          path: workspace/minecraftd
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-server
+          path: workspace/federated-server
+
+      # federated-server embeds its founder manifest at compile time; the file
+      # stays untracked until the federation settles its founder list (docs/TODO.md),
+      # and an empty manifest is a supported build state.
+      - name: Scaffold the founder manifest
+        working-directory: workspace/federated-server
+        run: |
+          if [ ! -f src/founders.json ]; then
+            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
+          fi
+
       - uses: actions/setup-node@v7
         with:
           node-version: lts/*
@@ -78,10 +115,16 @@ jobs:
         with:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile
-      
+
       - name: Lint JavaScript/TypeScript Frontend
-        run: bunx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
-      
+        run: bunx eslint src --no-fix --max-warnings=0
+
+      - name: Type-check Frontend
+        run: bunx tsc --noEmit
+
+      - name: Check Locale Keys
+        run: node scripts/locale/index.js diff en
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
@@ -96,6 +139,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.should_run_build == 'true'
     runs-on: ${{ matrix.platform }}
+    defaults:
+      run:
+        working-directory: workspace/FollyLauncher
     strategy:
       fail-fast: false
       matrix:
@@ -107,6 +153,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: workspace/FollyLauncher
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/union-core
+          path: workspace/union-core
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/minecraftd
+          path: workspace/minecraftd
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-server
+          path: workspace/federated-server
+
+      - name: Scaffold the founder manifest
+        working-directory: workspace/federated-server
+        run: |
+          if [ ! -f src/founders.json ]; then
+            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
+          fi
 
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
@@ -126,7 +196,7 @@ jobs:
 
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: "workspace/FollyLauncher/src-tauri -> target"
           key: ${{ matrix.platform }}
 
       - name: Bump version for test build
@@ -161,6 +231,6 @@ jobs:
         if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-latest'
         uses: actions/upload-artifact@v7
         with:
-          path: artifacts/${{ steps.portable.outputs.output_name }}
+          path: workspace/FollyLauncher/artifacts/${{ steps.portable.outputs.output_name }}
           archive: false
           if-no-files-found: error

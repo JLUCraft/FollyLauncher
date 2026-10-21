@@ -64,11 +64,43 @@ jobs:
             arch: aarch64
 
     runs-on: ${{ matrix.os }}
-    
+    defaults:
+      run:
+        working-directory: workspace/FollyLauncher
+
     steps:
+      # The launcher links the shared library crates, the game daemon and the
+      # server through sibling paths, so CI reproduces the local workspace layout.
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.branch || github.ref || 'main' }} 
+          repository: JLUCraft/FollyLauncher
+          ref: ${{ inputs.branch || github.ref || 'folly' }}
+          path: workspace/FollyLauncher
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/union-core
+          path: workspace/union-core
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/minecraftd
+          path: workspace/minecraftd
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-server
+          path: workspace/federated-server
+
+      # federated-server embeds its founder manifest at compile time; the file
+      # stays untracked until the federation settles its founder list (docs/TODO.md),
+      # and an empty manifest is a supported build state.
+      - name: Scaffold the founder manifest
+        working-directory: workspace/federated-server
+        run: |
+          if [ ! -f src/founders.json ]; then
+            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
+          fi
 
       - name: Resolve build metadata
         id: build_metadata
@@ -114,7 +146,7 @@ jobs:
       
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: "workspace/FollyLauncher/src-tauri -> target"
           key: ${{ matrix.os }}-${{ matrix.target }}
 
       - name: Build the app
@@ -188,5 +220,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: "artifacts/*"
+          path: "workspace/FollyLauncher/artifacts/*"
           if-no-files-found: error 

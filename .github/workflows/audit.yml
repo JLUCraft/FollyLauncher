@@ -12,25 +12,30 @@ on:
       - '.cargo/audit.toml'
       - '.github/workflows/audit.yml'
 
+permissions:
+  contents: read
+
 jobs:
   audit:
     name: cargo audit
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write # create issue
-      checks: write # create check
-
     strategy:
       fail-fast: false
       matrix:
-        path:
-          - src-tauri
-          - cli
+        lockfile:
+          - src-tauri/Cargo.lock
+          - cli/Cargo.lock
 
     steps:
       - uses: actions/checkout@v7
-      - uses: rustsec/audit-check@v2.0.0
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: taiki-e/install-action@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: ${{ matrix.path }}
+          tool: cargo-audit
+
+      # Run from the repository root so the single .cargo/audit.toml applies to
+      # both lock files; cargo-audit only reads the config from the working directory.
+      - name: Audit ${{ matrix.lockfile }}
+        run: cargo audit --file ${{ matrix.lockfile }}
