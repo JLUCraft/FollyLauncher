@@ -70,6 +70,16 @@ pub enum LauncherVisiablity {
   Always,
 }
 
+// Auto-close delay policy for the game crash window.
+// Default is Disabled so the window stays open for inspection.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum AutoCloseGameCrashWindow {
+  TenSeconds,
+  ThirtySeconds,
+  Disabled,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum GarbageCollector {
@@ -185,9 +195,11 @@ structstruck::strike! {
         pub args: String,
       },
       pub workaround: struct GameWorkaroundConfig {
-        pub no_jvm_args: bool,
         #[default(FileValidatePolicy::Normal)]
         pub game_file_validate_policy: FileValidatePolicy,
+        #[default(AutoCloseGameCrashWindow::Disabled)]
+        pub auto_close_game_crash_window: AutoCloseGameCrashWindow,
+        pub no_jvm_args: bool,
         pub dont_check_jvm_validity: bool,
         pub dont_patch_natives: bool,
         #[default = true]
@@ -351,8 +363,8 @@ structstruck::strike! {
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
     #[serde(default)]
-    #[default(_code="vec![(\"https://mc.sjtu.cn/api-sjmcl/article\".to_string(), true),
-    (\"https://mc.sjtu.cn/api-sjmcl/article/mua\".to_string(), true)]")]
+    #[default(_code="vec![(\"https://www.mualliance.cn/news/api-sjmcl/article\".to_string(), true),
+    (\"https://api.jsumc.fun/sjmcl?type=tribee&src=535\".to_string(), true)]")]
     pub discover_source_endpoints: Vec<(String, bool)>,
     pub extra_java_paths: Vec<String>,
     pub suppressed_dialogs: Vec<String>,

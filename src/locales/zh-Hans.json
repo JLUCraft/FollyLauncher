@@ -1186,6 +1186,12 @@
         },
         "useNativeOpenal": {
           "title": "使用系统 OpenAL（仅 Linux）"
+        },
+        "autoCloseGameCrashWindow": {
+          "title": "自动关闭崩溃提示窗口",
+          "disabled": "不自动关闭",
+          "tenSeconds": "10 秒后自动关闭",
+          "thirtySeconds": "30 秒后自动关闭"
         }
       }
     }
@@ -1277,7 +1283,8 @@
       "VICS_MODERN_WARFARE_ERROR": "当前实例由于 Vics Modern Warfare 模组错误，无法继续运行。请尝试更新或删除该模组。",
       "FORGE_LITELOADER_CONFLICT": "当前实例由于 Forge 与 LiteLoader 冲突，无法继续运行。请尝试删除 LiteLoader 或更换 Forge 版本。",
       "UNKNOWN": "暂时无法分析该错误，请查看游戏日志或导出错误崩溃报告。"
-    }
+    },
+    "autoCloseCountdown": "窗口将在 {{seconds}} 秒后自动关闭（点击窗口任意位置可取消）"
   },
   "GameLogPage": {
     "placeholder": "输入关键词筛选",
@@ -1898,7 +1905,7 @@
       "error-3": "实例名称太长"
     },
     "tipsToGlobal": {
-      "content": "当前实例未启用特定游戏设置，<terms>前往全局游戏设置</terms>"
+      "content": "当前实例未启用特定游戏设置，<toGlobal>前往全局游戏设置</toGlobal>"
     }
   },
   "InstanceShaderPacksPage": {

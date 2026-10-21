@@ -1186,6 +1186,12 @@
         },
         "useNativeOpenal": {
           "title": "Usar OpenAL del Sistema (Solo Linux)"
+        },
+        "autoCloseGameCrashWindow": {
+          "title": "Cerrar automáticamente la ventana de aviso de fallo",
+          "disabled": "No cerrar automáticamente",
+          "tenSeconds": "Cerrar después de 10 segundos",
+          "thirtySeconds": "Cerrar después de 30 segundos"
         }
       }
     }
@@ -1277,7 +1283,8 @@
       "VICS_MODERN_WARFARE_ERROR": "La instancia no puede continuar debido a un error del mod Vic's Modern Warfare. Intenta actualizar o eliminar el mod.",
       "FORGE_LITELOADER_CONFLICT": "La instancia no puede continuar debido a un conflicto entre Forge y LiteLoader. Intenta eliminar LiteLoader o cambiar la versión de Forge.",
       "UNKNOWN": "No se puede determinar la causa del error. Por favor revisa los registros para más detalles o exporta el reporte de error."
-    }
+    },
+    "autoCloseCountdown": "Esta ventana se cerrará automáticamente en {{seconds}} segundos (haz clic en cualquier lugar de la ventana para cancelar)"
   },
   "GameLogPage": {
     "placeholder": "Filtrar por Texto",
@@ -1898,7 +1905,7 @@
       "error-3": "El nombre de la instancia es demasiado largo"
     },
     "tipsToGlobal": {
-      "content": "Esta instancia no está usando configuración específica. <terms>Ir a Configuración Global del Juego</terms>"
+      "content": "Esta instancia no está usando configuración específica. <toGlobal>Ir a Configuración Global del Juego</toGlobal>"
     }
   },
   "InstanceShaderPacksPage": {

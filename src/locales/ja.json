@@ -1186,6 +1186,12 @@
         },
         "useNativeOpenal": {
           "title": "システム OpenAL を利用（Linux のみ）"
+        },
+        "autoCloseGameCrashWindow": {
+          "title": "クラッシュ通知ウィンドウを自動で閉じる",
+          "disabled": "自動で閉じない",
+          "tenSeconds": "10秒後に自動で閉じる",
+          "thirtySeconds": "30秒後に自動で閉じる"
         }
       }
     }
@@ -1277,7 +1283,8 @@
       "VICS_MODERN_WARFARE_ERROR": "Vics Modern Warfare モッドのエラーにより実行できません。このモッドを更新または削除してみてください。",
       "FORGE_LITELOADER_CONFLICT": "Forge と LiteLoader が競合しているため実行できません。LiteLoader を削除するか、Forge バージョンを変更してみてください。",
       "UNKNOWN": "このエラーを一時的に分析できません。ゲームログを確認するか、エラークラッシュレポートをエクスポートしてください。"
-    }
+    },
+    "autoCloseCountdown": "このウィンドウは {{seconds}} 秒後に自動で閉じられます（ウィンドウ内の任意の場所をクリックするとキャンセル）"
   },
   "GameLogPage": {
     "placeholder": "キーワードを入力して検索",
@@ -1898,7 +1905,7 @@
       "error-3": "インスタンス名が長すぎる"
     },
     "tipsToGlobal": {
-      "content": "このインスタンスでは個別設定が有効になっていません。<terms>グローバルゲーム設定へ</terms>"
+      "content": "このインスタンスでは個別設定が有効になっていません。<toGlobal>グローバルゲーム設定へ</toGlobal>"
     }
   },
   "InstanceShaderPacksPage": {

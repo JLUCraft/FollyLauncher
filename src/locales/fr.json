@@ -1186,6 +1186,12 @@
         },
         "useNativeOpenal": {
           "title": "Utiliser OpenAL du système (Linux uniquement)"
+        },
+        "autoCloseGameCrashWindow": {
+          "title": "Fermer automatiquement la fenêtre signalant un plantage",
+          "disabled": "Ne pas fermer automatiquement",
+          "tenSeconds": "Fermer après 10 secondes",
+          "thirtySeconds": "Fermer après 30 secondes"
         }
       }
     }
@@ -1277,7 +1283,8 @@
       "VICS_MODERN_WARFARE_ERROR": "Cette instance ne peut pas continuer à s'exécuter en raison d'une erreur avec le mod Vics Modern Warfare. Essayez de mettre à jour ou de supprimer ce mod.",
       "FORGE_LITELOADER_CONFLICT": "Cette instance ne peut pas continuer à s'exécuter en raison d'un conflit entre Forge et LiteLoader. Essayez de supprimer LiteLoader ou de changer la version de Forge.",
       "UNKNOWN": "Impossible d'analyser cette erreur pour le moment. Veuillez consulter les journaux du jeu ou exporter un rapport de plantage."
-    }
+    },
+    "autoCloseCountdown": "Cette fenêtre se fermera automatiquement dans {{seconds}} secondes (cliquez n'importe où dans la fenêtre pour annuler)"
   },
   "GameLogPage": {
     "placeholder": "Filtrer par mot-clé",
@@ -1898,7 +1905,7 @@
       "error-3": "Le nom de l'instance est trop long"
     },
     "tipsToGlobal": {
-      "content": "Cette instance n'utilise pas de paramètres spécifiques. <terms>Aller aux paramètres globaux du jeu</terms>"
+      "content": "Cette instance n'utilise pas de paramètres spécifiques. <toGlobal>Aller aux paramètres globaux du jeu</toGlobal>"
     }
   },
   "InstanceShaderPacksPage": {
