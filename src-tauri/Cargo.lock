@@ -13,7 +13,6 @@ dependencies = [
  "chacha20poly1305",
  "chrono",
  "client",
- "config",
  "csv",
  "dotenvy",
  "federated-server",
@@ -27,13 +26,11 @@ dependencies = [
  "jsonwebtoken",
  "keyring",
  "lazy_static",
- "league",
  "log",
  "minecraftd",
  "native-dialog",
  "node",
  "pin-project",
- "plist",
  "protocol",
  "rand 0.9.5",
  "regex",
@@ -1257,18 +1254,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ca0197aee26d1ae37445ee532fefce43251d24cc7c166799f4d46817f1d3973"
 dependencies = [
  "crossbeam-utils",
-]
-
-[[package]]
-name = "config"
-version = "0.15.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38e9fbc53afcec54441422f1c596cd054655b32e70e1cbac956651b7b175a404"
-dependencies = [
- "pathdiff",
- "rust-ini 0.21.3",
- "serde_core",
- "winnow 1.0.4",
 ]
 
 [[package]]
@@ -6037,12 +6022,6 @@ name = "pastey"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
-
-[[package]]
-name = "pathdiff"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
 name = "pbkdf2"

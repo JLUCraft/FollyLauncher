@@ -8,6 +8,9 @@ repository = "https://github.com/UNIkeEN/SJMCL"
 edition.workspace = true
 rust-version.workspace = true
 
+[package.metadata.cargo-machete]
+ignored = ["tauri-build", "dotenvy"]
+
 [workspace]
 members = ["crates/sjmcl-macros", "crates/sjmcl-types"]
 resolver = "3"
@@ -24,7 +27,6 @@ axum = "0.8.6"
 base64 = "0.22.1"
 chacha20poly1305 = "0.10.1"
 chrono = { version = "0.4.40", features = ["serde"] }
-config = { version = "0.15.18", default-features = false, features = ["ini"] }
 csv = "1.3"
 dotenvy = "0.15.7"
 flume = { version = "0.11.1", features = ["async", "select"] }
@@ -47,7 +49,6 @@ lazy_static = "1.5"
 log = "0.4"
 native-dialog = "0.9.6"
 pin-project = "1.1.8"
-plist = "1"
 proc-macro2 = "1"
 quote = "1"
 rand = "0.9.3"
@@ -162,7 +163,6 @@ keyring = { version = "=3.6.3", features = ["apple-native", "windows-native", "s
 zeroize = "1"
 
 client = { path = "../../union-core/crates/client", features = ["league"] }
-league = { path = "../../union-core/crates/league" }
 node = { path = "../../union-core/crates/node" }
 identity = { path = "../../union-core/crates/identity" }
 protocol = { path = "../../union-core/crates/protocol" }
@@ -175,7 +175,6 @@ axum.workspace = true
 base64.workspace = true
 chacha20poly1305.workspace = true
 chrono.workspace = true
-config.workspace = true
 csv.workspace = true
 flume.workspace = true
 font-loader.workspace = true
@@ -235,7 +234,6 @@ tauri-plugin-decorum.workspace = true
 winapi.workspace = true
 
 [target."cfg(target_os = \"macos\")".dependencies]
-plist.workspace = true
 
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-single-instance.workspace = true
