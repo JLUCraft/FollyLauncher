@@ -56,7 +56,7 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
   format!("SJMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 // Generate the new filename on the local disk.
 // If old_name contains old_version, replace the first occurrence with new_version.
 // Otherwise, keep the old_name unchanged.

@@ -1,6 +1,8 @@
 name: Test
 
 on:
+  # Manual runs check macOS; other successful jobs can be reused.
+  workflow_dispatch:
   push:
     branches:
       - folly
@@ -34,10 +36,12 @@ jobs:
     outputs:
       should_run_lint: ${{ steps.compute.outputs.should_run_lint }}
       should_run_build: ${{ steps.compute.outputs.should_run_build }}
+      should_run_check: ${{ steps.compute.outputs.should_run_check }}
     steps:
       - uses: actions/checkout@v7
 
       - id: filter
+        if: github.event_name != 'workflow_dispatch'
         uses: dorny/paths-filter@v4
         with:
           filters: |
@@ -65,6 +69,12 @@ jobs:
             should_run_build=true
           fi
 
+          should_run_check=$should_run_lint
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            should_run_check=true
+          fi
+
+          echo "should_run_check=$should_run_check" >> "$GITHUB_OUTPUT"
           echo "should_run_lint=$should_run_lint" >> "$GITHUB_OUTPUT"
           echo "should_run_build=$should_run_build" >> "$GITHUB_OUTPUT"
 
@@ -139,7 +149,7 @@ jobs:
   Check:
     name: Check (macOS)
     needs: changes
-    if: needs.changes.outputs.should_run_lint == 'true'
+    if: needs.changes.outputs.should_run_check == 'true'
     runs-on: macos-latest
     defaults:
       run:
