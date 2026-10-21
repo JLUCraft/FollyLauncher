@@ -201,6 +201,12 @@ jobs:
           workspaces: "workspace/FollyLauncher/src-tauri -> target"
           key: ${{ matrix.platform }}
 
+      # Warnings depend on which cfg branches the host compiles, so the Rust
+      # lint gate runs on the platform job instead of the ubuntu-only Lint job.
+      - name: Clippy Rust Backend
+        if: matrix.platform == 'ubuntu-latest'
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --workspace --all-targets -- -D warnings
+
       - name: Bump version for test build
         run: bun run version bump 0.0.1
 
