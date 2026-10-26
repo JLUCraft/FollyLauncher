@@ -24,7 +24,7 @@ function useGameState() {
     trigger: (path) => path === "connect" || path.startsWith("connect?"),
     onCall: (url) => {
       setGameLink(url);
-      void router.push("/federation/league");
+      void router.push("/federation/activities");
     },
   });
   const connected = !!connection;

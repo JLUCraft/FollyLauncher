@@ -8,7 +8,8 @@
 
 .selected-user-card {
   height: 4.5rem !important;
-  width: 10.5rem !important;
+  /* wide enough for the skin avatar plus an untruncated player name */
+  width: 13rem !important;
   backdrop-filter: blur(7px);
   padding: var(--chakra-space-3);
 }

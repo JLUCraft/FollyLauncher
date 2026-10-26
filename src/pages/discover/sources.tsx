@@ -4,16 +4,20 @@ import {
   HStack,
   IconButton,
   Image,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Portal,
   Switch,
   Tag,
   TagLabel,
   Text,
-  Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuCheck, LuPlus, LuTrash } from "react-icons/lu";
+import { LuCheck, LuEllipsis, LuPlus } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
@@ -162,18 +166,28 @@ export const DiscoverSourcesPage = () => {
                     onChange={() =>
                       handleToggleSource(source.endpointUrl, !enabled)
                     }
-                    ml={1.5}
                   />
-                  <Tooltip label={t("DiscoverSourcesPage.button.deleteSource")}>
-                    <IconButton
+                  <Menu>
+                    <MenuButton
+                      as={IconButton}
                       size="sm"
-                      aria-label={t("DiscoverSourcesPage.button.deleteSource")}
-                      icon={<LuTrash />}
+                      aria-label={t("General.more")}
+                      icon={<LuEllipsis />}
                       variant="ghost"
-                      colorScheme="red"
-                      onClick={() => handleRemoveSource(source.endpointUrl)}
+                      colorScheme="gray"
                     />
-                  </Tooltip>
+                    <Portal>
+                      <MenuList minW={0}>
+                        <MenuItem
+                          fontSize="xs"
+                          color="red.500"
+                          onClick={() => handleRemoveSource(source.endpointUrl)}
+                        >
+                          {t("DiscoverSourcesPage.button.deleteSource")}
+                        </MenuItem>
+                      </MenuList>
+                    </Portal>
+                  </Menu>
                 </HStack>
               </OptionItem>
             );

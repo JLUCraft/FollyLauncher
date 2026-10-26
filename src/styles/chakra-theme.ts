@@ -1,5 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
+import { brandColors, brandSemantic } from "@/styles/brand-theme.gen";
 
 const subtleButtonVariant = (props: any) => ({
   bg: mode(`${props.colorScheme}.100`, `${props.colorScheme}.700`)(props),
@@ -35,7 +36,6 @@ const customGraySolidButtonTheme = {
   color: "white",
   _hover: { bg: "gray.700" },
   _active: { bg: "gray.800" },
-  _focus: { boxShadow: "none" },
   _disabled: {
     bg: "gray.500",
     color: "gray.300",
@@ -50,11 +50,30 @@ const customGraySolidButtonTheme = {
   },
 };
 
+/**
+ * 组件默认色：Chakra 自带默认是 blue，这里统一改到校徽取色得到的 brand 色阶，
+ * 这样不改上游组件也能让整个界面用上本社团的品牌色。语义色（red 危险、green
+ * 成功、orange 提醒）保持原样——它们表达状态，不该随学校变色。
+ */
+const brandDefault = { defaultProps: { colorScheme: "brand" } };
+
+/** 品牌语义令牌 → Chakra semanticTokens，按深浅模式自动切换。 */
+const brandSemanticTokens = Object.fromEntries(
+  Object.entries(brandSemantic.light).map(([name, value]) => [
+    `brand.${name}`,
+    {
+      default: value,
+      _dark: brandSemantic.dark[name as keyof typeof brandSemantic.dark],
+    },
+  ])
+);
+
 const chakraExtendTheme = extendTheme({
   initialColorMode: "dark",
   useSystemColorMode: false,
   components: {
     Alert: {
+      defaultProps: { colorScheme: "brand" },
       baseStyle: {
         container: {
           paddingY: 2,
@@ -71,9 +90,11 @@ const chakraExtendTheme = extendTheme({
         },
       },
     },
+    Badge: brandDefault,
     Button: {
       baseStyle: {
         fontWeight: "normal",
+        _focusVisible: { boxShadow: "outline" },
       },
       defaultProps: {
         size: "sm",
@@ -85,6 +106,7 @@ const chakraExtendTheme = extendTheme({
         },
       },
     },
+    Checkbox: brandDefault,
     Divider: {
       baseStyle: {
         borderColor: "var(--chakra-colors-chakra-border-color)", // prevent overwrite
@@ -98,6 +120,13 @@ const chakraExtendTheme = extendTheme({
     Input: {
       defaultProps: {
         size: "sm",
+        focusBorderColor: "brand.400",
+      },
+    },
+    Link: {
+      baseStyle: {
+        color: "brand.600",
+        _dark: { color: "brand.300" },
       },
     },
     Menu: {
@@ -112,6 +141,7 @@ const chakraExtendTheme = extendTheme({
       },
     },
     Modal: {
+      // Modal 本身不取色，这里只保留原有的尺寸微调。
       baseStyle: {
         dialog: {
           header: {
@@ -150,6 +180,8 @@ const chakraExtendTheme = extendTheme({
         isCentered: true,
       },
     },
+    Progress: brandDefault,
+    Radio: brandDefault,
     Popover: {
       baseStyle: {
         content: {
@@ -157,14 +189,19 @@ const chakraExtendTheme = extendTheme({
         },
       },
     },
+    Slider: brandDefault,
+    Spinner: brandDefault,
     Switch: {
       defaultProps: {
         size: "sm",
+        colorScheme: "brand",
       },
     },
+    Tabs: brandDefault,
     Tag: {
       defaultProps: {
         size: "sm",
+        colorScheme: "brand",
         whiteSpace: "nowrap",
       },
     },
@@ -176,11 +213,20 @@ const chakraExtendTheme = extendTheme({
     },
   },
   colors: {
+    // 校徽取色得到的色阶（生成文件，见 brand-palette 仓库）。新组件用
+    // colorScheme="brand"，或在需要按模式取值时写 mode("brand.700", "brand.300")。
+    brand: brandColors,
     overlay: "rgba(0, 0, 0, 0.45)",
     overlayStrong: "rgba(0, 0, 0, 0.6)",
   },
   fontSizes: {
     "xs-sm": "0.8rem",
+  },
+  shadows: {
+    outline: "0 0 0 3px var(--chakra-colors-brand-400)",
+  },
+  semanticTokens: {
+    colors: brandSemanticTokens,
   },
 });
 

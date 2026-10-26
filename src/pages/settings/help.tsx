@@ -8,8 +8,9 @@ import {
 
 const HelpSettingsPage = () => {
   const { t } = useTranslation();
-  const helpSettingGroups: OptionItemGroupProps[] = [
+  const helpSettingGroups: (OptionItemGroupProps & { id: string })[] = [
     {
+      id: "launcher",
       items: [
         {
           title: t("HelpSettingsPage.top.settings.LauncherDocs.title"),
@@ -47,6 +48,7 @@ const HelpSettingsPage = () => {
       ],
     },
     {
+      id: "minecraft",
       title: t("HelpSettingsPage.minecraft.title"),
       items: [
         {
@@ -118,8 +120,27 @@ const HelpSettingsPage = () => {
       ],
     },
     {
+      id: "community",
       title: t("HelpSettingsPage.community.title"),
       items: [
+        {
+          title: t("HelpSettingsPage.community.settings.JLUCraft.title"),
+          description: t(
+            "HelpSettingsPage.community.settings.JLUCraft.description"
+          ),
+          children: (
+            <CommonIconButton
+              label={t("HelpSettingsPage.community.settings.JLUCraft.url")}
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              onClick={() =>
+                openUrl(t("HelpSettingsPage.community.settings.JLUCraft.url"))
+              }
+            />
+          ),
+        },
         {
           title: t("HelpSettingsPage.community.settings.MUA.title"),
           description: t("HelpSettingsPage.community.settings.MUA.description"),
@@ -136,18 +157,42 @@ const HelpSettingsPage = () => {
             />
           ),
         },
+      ],
+    },
+    {
+      id: "upstream",
+      title: t("HelpSettingsPage.upstream.title"),
+      items: [
         {
-          title: t("HelpSettingsPage.community.settings.SJMC.title"),
+          title: t("HelpSettingsPage.upstream.settings.SJMC.title"),
           children: (
             <CommonIconButton
-              label={t("HelpSettingsPage.community.settings.SJMC.url")}
+              label={t("HelpSettingsPage.upstream.settings.SJMC.url")}
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() =>
-                openUrl(t("HelpSettingsPage.community.settings.SJMC.url"))
+                openUrl(t("HelpSettingsPage.upstream.settings.SJMC.url"))
+              }
+            />
+          ),
+        },
+        {
+          title: t("HelpSettingsPage.upstream.settings.LauncherDocs.title"),
+          children: (
+            <CommonIconButton
+              label={t("HelpSettingsPage.upstream.settings.LauncherDocs.url")}
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() =>
+                openUrl(
+                  t("HelpSettingsPage.upstream.settings.LauncherDocs.url")
+                )
               }
             />
           ),
@@ -158,12 +203,8 @@ const HelpSettingsPage = () => {
 
   return (
     <>
-      {helpSettingGroups.map((group) => (
-        <OptionItemGroup
-          title={group.title}
-          items={group.items}
-          key={group.title}
-        />
+      {helpSettingGroups.map(({ id, ...group }) => (
+        <OptionItemGroup key={id} {...group} />
       ))}
     </>
   );

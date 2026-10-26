@@ -3,6 +3,21 @@
     "about": {
       "title": "有涉",
       "settings": {
+        "community": {
+          "title": "戲者同好"
+        },
+        "docs": {
+          "title": "戲者指南"
+        },
+        "feedback": {
+          "title": "陳疏漏"
+        },
+        "homepage": {
+          "title": "項目主頁"
+        },
+        "repository": {
+          "title": "源碼之庫"
+        },
         "version": {
           "title": "版",
           "foundNew": "有新版",
@@ -12,19 +27,6 @@
             "up2date": "今已至新",
             "error": "驗迭更未成"
           }
-        },
-        "basedOn": {
-          "title": "基於 SJMCL",
-          "description": "{{productName}} 衍自 SJMCL，增聯盟及房間諸用。下列貢獻者、源碼、條款與指南皆屬上游 SJMCL，其文未及本版所增。今更新亦取自上游。"
-        },
-        "contributors": {
-          "title": "上游 SJMCL 貢獻者"
-        },
-        "sourceCode": {
-          "title": "覽上游 SJMCL 源碼"
-        },
-        "aboutSJMC": {
-          "title": "有涉上海交通大學礦藝社（SJMC）"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "律例之訊",
+      "title": "上游與許可",
       "settings": {
+        "basedOn": {
+          "title": "基於開源啟動器 SJMCL",
+          "description": "{{productName}} 乃基於 SJMCL 而作。原庫：https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "版權",
-          "description": "持權所有 © 2024-2026 SJMCL 開發諸君。"
+          "description": "版權所有 © 2026 Folly Launcher 團隊。基於 SJMCL © 2024-2026 SJMCL 開發諸君。"
         },
         "userAgreement": {
           "title": "上游 SJMCL 使用之約",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "格覽",
       "list": "列覽"
-    }
+    },
+    "empty": "此類尚無遊戲帳號。可增角色，或自他啟動器匯入。"
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "例名"
     },
     "sortBy": "次法",
-    "title": "諸例悉覽"
+    "title": "諸例悉覽",
+    "empty": "此類尚無遊戲實例。可增遊戲，或匯入既有安裝。"
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "當前遊戲連線",
     "disconnectFirst": "欲入別房或賽事，請先斷此服務。",
-    "defaultSeed": "用已連節點"
+    "defaultSeed": "用已連節點",
+    "returnRooms": "返伺服器與房間",
+    "returnActivities": "返活動與聯賽",
+    "linkStaged": "連線連結已收，備妥後於此確認連線。",
+    "searching": "方覓近旁聯盟之伺服器…",
+    "searchEmpty": "近旁未見聯盟伺服器。",
+    "searchRetry": "再覓",
+    "membershipTitle": "已見聯盟",
+    "membershipBody": "伺服器近在咫尺，然汝尚未入。驗其身分則自連。",
+    "membershipAction": "驗身而入",
+    "joinFailed": "驗身未過。請確認已登於皮膚站，或詢於主事者。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "迭更啟者",
       "extension-update": "迭更擴充套件 {{param1}} {{param2}}",
       "mojang-java": "爪哇 {{param}} 行時"
-    }
+    },
+    "empty": "未有下載之務，所啟者見於此。"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} 不能制第三方擴充之行，亦不能保其私據之處置。惟可信源之擴充，可置而啟之。",
     "fileDnD": {
-      "title": "置 SJMCL 擴充套件",
+      "title": "置擴充套件",
       "desc": "將擴充套件案 {{fileName}} 置於 {{productName}}"
     },
     "installed": "已裝擴充套件",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "未裝擴充。",
+    "install": "裝擴充"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "迭更擴充套件",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "聯盟",
-    "overview": "連線",
-    "league": "聯賽",
-    "rooms": "房間與伺服器",
-    "identity": "吾之身分",
-    "manage": "賽季管理",
-    "connected": "聯賽已同步",
-    "restricted": "請以賽季管理員之身分連線。",
+    "overview": "聯盟連線",
+    "activities": "活動與聯賽",
+    "rooms": "伺服器與房間",
+    "identity": "聯盟身分",
+    "manage": "管理",
+    "connected": "已連",
+    "restricted": "請以管理員之身分連線以管理應用。",
     "advanced": "進階設定",
     "disconnected": "尚未連線"
   },
   "FederationPage": {
+    "points": {
+      "title": "積分",
+      "balance": "積分餘額",
+      "account": "{{club}} · {{member}}",
+      "revision": "修訂 {{revision}}",
+      "available": "可用：{{available}} 分",
+      "frozen": "凍結中：{{frozen}} 分",
+      "today": "本計分日：{{earned}} / {{cap}} 分",
+      "todayProgress": "本計分日活躍之進",
+      "todayNoCap": "本計分日已得 {{earned}} 分；未設每日之限。",
+      "resetAt": "重置於 {{time}}",
+      "slices": "有效之片 {{active}}，休憩之片 {{afk}}",
+      "asOf": "對帳單止於 {{time}}",
+      "exportStatement": "出積分對帳單",
+      "exportDone": "積分對帳單已存",
+      "exportFailed": "積分對帳單出之不成",
+      "historyTitle": "近廿四時入帳與 AI 之流",
+      "activityTitle": "近廿四時入帳",
+      "activityEmpty": "近廿四時未有入帳。",
+      "activityRow": "有效 {{active}} · 休憩 {{afk}} · {{time}}",
+      "aiTitle": "AI 之扣與退",
+      "aiEmpty": "尚無 AI 之請。",
+      "aiRow": "預凍 {{frozen}} · 實扣 {{charged}} · 退還 {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} 分",
+      "requestTitle": "發 AI 之請",
+      "requestHelp": "文先上傳於組織；惟用已登記之算力節點與今之費率。",
+      "requestText": "付 AI 之文",
+      "requestSize": "{{size}} 位元組",
+      "next": "次",
+      "back": "返",
+      "noWorker": "今無在線且已登記之算力節點，請告伺服器主。",
+      "worker": "已登記算力節點",
+      "model": "模型",
+      "maxTokens": "最大輸出 Tokens",
+      "maxTokensHelp": "填一至四二九四九六七二九五之整數。",
+      "length": "出文長短",
+      "lengthShort": "簡",
+      "lengthStandard": "常",
+      "lengthDetailed": "詳",
+      "lengthTokens": "{{label}} · 至多 {{tokens}} Tokens",
+      "lengthUnavailable": "無合於伺服器出文之限者，請於進階設定填 Tokens。",
+      "maxTokensNativeHelp": "一至 {{max}} 之整數。",
+      "advancedShow": "進階設定",
+      "advancedHide": "收進階設定",
+      "reviewPayer": "納分者：{{payer}}",
+      "reviewMaxPoints": "本次至多凍 {{maxPoints}} 分",
+      "reviewWorker": "節點 {{worker}} · 模型 {{model}}",
+      "quote": "起步 {{base}} + 用量 {{variable}} = 凍結 {{total}} 分",
+      "maxPoints": "max_points：{{maxPoints}}",
+      "insufficient": "可用積分不足以覆此凍結。請先得活躍積分，或請主复核費率。",
+      "automaticBudget": "自動之流別用活動或報告之預算；此請直用爾可用之積分。",
+      "confirm": "確認其費",
+      "confirmTitle": "確認凍結積分",
+      "confirmBody": "此請至多凍結 {{maxPoints}} 分。推理不成則全退；成則依實用結算而退其差。",
+      "confirmAction": "確認凍結而發",
+      "requestAccepted": "AI 之請已受",
+      "budgetTitle": "自動流程之預算",
+      "budgetHelp": "預算由 {{club}} 之 {{member}} 出，惟用於所選活動或報告。今可用 {{available}} 分。",
+      "budgetEmpty": "今無可授權之活動或報告。",
+      "budgetScope": "活動或報告",
+      "budgetChoose": "擇真實活動或報告",
+      "budgetEvent": "活動：{{title}}（{{club}}）",
+      "budgetReport": "報告：{{title}}（{{club}}）",
+      "budgetAmount": "預算積分",
+      "budgetLimit": "不得逾今可用 {{available}} 分。",
+      "budgetSubmit": "授其預算",
+      "budgetAccepted": "已授作用域之預算",
+      "aiStagePurpose": "第 {{stage}} 步 · {{purpose}}",
+      "aiStatusQueued": "待中",
+      "aiStatusRunning": "行中",
+      "aiStatusCompleted": "已成",
+      "aiStatusFailed": "敗",
+      "aiStatusRefunded": "已退",
+      "aiStatusCancelled": "已止",
+      "aiStatusUnknown": "未知",
+      "purposeMemberAssist": "成員之助",
+      "purposeEventsDraft": "活動文稿",
+      "purposeEventsReview": "材料之審",
+      "purposeEventsSummary": "活動之結",
+      "purposeOther": "他用途",
+      "openResult": "觀其果",
+      "aiRetry": "復試敗階",
+      "aiCancel": "罷此請",
+      "aiRetryConfirmTitle": "確認復試",
+      "aiRetryConfirmBody": "第 {{stage}} 步初凍 {{quote}} 分；復試仍凍此數，非今模之價。付者：{{payer}}。今可用 {{available}} 分。",
+      "aiRetryConfirmAction": "依原價復試",
+      "resultTitle": "AI 之果 · {{model}} · 第 {{stage}} 步",
+      "resultLoading": "正讀其果…",
+      "resultFailed": "讀果不成，請再試。",
+      "resultRetry": "再讀",
+      "previousPage": "前頁",
+      "nextPage": "後頁",
+      "page": "第 {{page}} / {{pages}} 頁"
+    },
     "gameConnection": {
       "title": "對局連接",
       "description": "請粘主辦者所授之比賽連接",
@@ -976,28 +1091,54 @@
       "genesisLabel": "聯盟驗證碼（詢於主辦者）",
       "genesisInvalid": "請填主辦者所授六十四位驗證碼（限 0–9 與 a–f）。",
       "linkLabel": "連線之鏈",
-      "linkHelp": "貼主辦所授之鏈；於本機啟之，亦自連焉。",
+      "linkHelp": "貼主辦者所予連結，確認後連線。於本機開啟連結，將填於此候確認。",
       "linkConnect": "連線",
       "linkInvalid": "此非有效之連線鏈，請完整錄主辦所授。",
-      "shareLabel": "以此連線分享同窗",
-      "shareCopy": "複製鏈接",
       "manualTitle": "手填連線資訊",
       "connect": "連接 / 新",
       "myDevice": "吾之機：{{id}}",
       "myMember": "吾之號：{{id}}",
       "myClub": "（{{club}}）",
-      "linkPlaceholder": "貼主辦者所授之連結"
+      "linkPlaceholder": "貼主辦者所授之連結",
+      "shareAction": "複邀請之鏈",
+      "disconnect": "斷連",
+      "serverPeer": "伺服者 {{peer}}"
     },
     "error": "事未成，請覈連接與報名之況，而後復試",
-    "identityRequired": "連線之前，須先正社員一籍，請赴身份頁置之。",
-    "openIdentity": "往身份之設",
+    "identityRequired": "連線前，先於設定備妥聯盟身分。",
+    "openIdentity": "往聯盟身分設定",
     "empty": {
-      "noLeagues": "今連盟無聯賽。"
+      "noActivities": "今尚無活動或競賽。"
     },
     "phase": {
       "Registration": "報名中",
       "Playing": "行局中",
       "Finished": "已訖"
+    },
+    "activities": {
+      "description": "覽活動與聯賽，察報名及賽程。",
+      "linkedCompetitions": "競賽",
+      "competitionsEmpty": "此活動尚無所屬競賽。",
+      "standaloneTitle": "獨立競賽",
+      "competitionMissing": "此競賽不在當前應用之中。",
+      "eventMissing": "此活動不在當前應用之中。",
+      "organizer": "主辦社團",
+      "opens": "報名始",
+      "closes": "報名止",
+      "starts": "開賽",
+      "signupCount": "已報名 {{count}} 人",
+      "signup": "報名",
+      "cancelSignup": "取消報名",
+      "noBrief": "此活動尚無說明。",
+      "competitionTitle": "競賽"
+    },
+    "activityPhase": {
+      "draft": "草稿",
+      "review": "審閱中",
+      "approved": "已准",
+      "open": "報名中",
+      "done": "已畢",
+      "cancelled": "已罷"
     },
     "league": {
       "seatsPerTeam": "每隊 {{seats}} 人",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "始用",
       "setup": "增主辦者所授之設定",
-      "connect": "以連結連君之聯盟",
+      "connect": "自連汝之聯盟",
       "verify": "驗君之會籍",
       "done": "已畢",
       "next": "續行"
+    },
+    "organizer": {
+      "areaTitle": "主會之事",
+      "areaHint": "此諸事惟主會可行，且及於眾，故每事先請確認。",
+      "startConfirmTitle": "鎖其報名而始賽乎？",
+      "startConfirmBody": "報名永閉，賽程依已報之隊抽定，不可復也。"
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "助"
     },
     "bottomAlert": "如需尋求他人助，請錄出並傳送潰報告，而非這個匡的截影",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "潰資訊",
       "OPENJ9": "今例不能在 OpenJ9 JVM 上行，請用 HotSpot JVM。",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "今例以 Forge 與 LiteLoader 衝突，不能續行。請試刪 LiteLoader 或更換 Forge 版。",
       "UNKNOWN": "暫時不能分析該謬，請覽戲誌或錄出謬潰報告。"
     },
-    "autoCloseCountdown": "此匡將於 {{seconds}} 秒後自闔（擊匡中任意處可止）"
+    "autoCloseCountdown": "此匡將於 {{seconds}} 秒後自闔（擊匡中任意處可止）",
+    "placeholder": {
+      "unknown": "未知"
+    }
   },
   "GameLogPage": {
     "placeholder": "書關鍵字以篩",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "增",
-    "alert": {
-      "noFullLogin": {
-        "title": "是功暫不可用",
-        "description": "請先登微軟戶簿，而後用是功。"
-      }
-    },
     "back": "返回",
     "beta": "公試版",
     "browse": "覽",
@@ -1373,7 +1517,8 @@
       "test-build": "測試構建版"
     },
     "versionNumberingHelp": "版本號規則說明",
-    "viewOnWiki": "在 礦藝大典 中覽"
+    "viewOnWiki": "在 礦藝大典 中覽",
+    "retry": "復試"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "高校戲者社群",
       "settings": {
+        "JLUCraft": {
+          "title": "吉林大學礦藝同好會（JLUCraft）",
+          "description": "此啟動器所屬之同好會，服務吉林大學及四方戲者",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "礦藝 高校聯盟（MUA）",
           "description": "與天下諸學之戲者同遊。",
           "url": "https://www.mualliance.cn"
-        },
-        "SJMC": {
-          "title": "上海交通大學礦藝社（SJMC）",
-          "url": "https://mc.sjtu.cn"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
+          "title": "戲者指南",
+          "url": "https://www.jlucraft.com/docs/"
+        },
+        "UserGroup": {
+          "title": "戲者同好",
+          "description": "歡迎入群，擧陳疏漏，請益功用，以求襄助",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "上游項目",
+      "settings": {
+        "LauncherDocs": {
           "title": "上游 SJMCL 指南",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
-        "UserGroup": {
-          "title": "上游 SJMCL 同好",
-          "description": "歡迎加入 QQ 群或于群碼之匯清談，擧陳疏漏，請益功用，以求襄助",
-          "url": "https://mc.sjtu.cn/sjmcl/docs/user-group"
+        "SJMC": {
+          "title": "上海交通大學礦藝社（SJMC）",
+          "url": "https://mc.sjtu.cn"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
     "reviewHint": "署之即認下列更動。連二器或須各署，可於進階設定中相傳。",
+    "technicalDetails": "技術詳情",
+    "signatureCount": "已有 {{count}} 署",
+    "unknownAction": "未知之操作：{{type}}",
     "sign": "確認簽署",
     "submit": "提交已署變更",
     "import": "匯入待共署之更動",
@@ -1711,12 +1873,24 @@
       "memberships": "社籍",
       "profiles": "已繫遊戲身分"
     },
+    "permissions": {
+      "read": "閱",
+      "write": "書",
+      "admin": "掌理",
+      "use": "用",
+      "manage": "治"
+    },
+    "services": {
+      "application": "應用之服務"
+    },
     "unnamedField": "未名之欄",
     "before": "變更前",
     "after": "變更後",
     "unknown": "更新身分以見今所繫",
     "inspect": "觀已存之資（離線）",
-    "hint": "多數人惟按首鍵可矣。"
+    "hint": "多數人惟按首鍵可矣。",
+    "importSetup": "自檔載入主辦設定",
+    "setupLoaded": "設定已載。核其內容，存之以續。"
   },
   "IdentityManagement": {
     "title": "主辦者之具",
@@ -1860,7 +2034,9 @@
         "info": "覽資訊",
         "update": "驗迭更",
         "search": "尋",
-        "placeholder": "尋改囊……"
+        "placeholder": "尋改囊……",
+        "download": "下改囊",
+        "import": "入改囊"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "今例未啟特定戲置設，<toGlobal>前往全例戲置設</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "下列之設，獨施於本「{{name}}」。",
+      "enabled": "本例專設已啟",
+      "disabled": "本例專設未啟"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "司爪哇",
       "download": "引爪哇",
       "add": "增爪哇",
-      "remove": "卸此爪哇"
+      "remove": "卸此爪哇",
+      "empty": "未察 Java 行境。"
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "上次行異常退出",
-      "content": "{{productName}} 前次異常退出，請先閱誌。<community>同好</community>與 <github>GitHub</github> 皆為上游 SJMCL 之處；報錯須明示所用衍生版，聯盟之失請告本版維護者。",
+      "content": "{{productName}} 前次異常退出，請先閱誌。可於<community>同好</community>與 <github>GitHub Issues</github> 陳其所遇，並附誌與版次。",
       "viewLog": "察誌"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "啟戲",
-      "instanceSettings": "例置設"
+      "instanceSettings": "例置設",
+      "returnToLaunch": "返啟動頁"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "一覽無遺"
+    },
+    "listError": {
+      "description": "資源目錄載入不成：{{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "示署名所需裝置之識",
     "hostIdentity": "建室裝置之識",
     "playerIdentity": "入室裝置之識",
-    "title": "房間與伺服器",
-    "description": "以已驗社員身份開房，或入他社之房。",
+    "title": "伺服器與房間",
+    "description": "尋伺服器、入聯機房間，亦可自建房間。",
     "seeds": "尋房位址（每行一則）",
     "refresh": "重查居室及狀態",
     "partial": "有節點或居室未可達，所列或未全。",
@@ -2584,7 +2770,12 @@
     "start": "啟室",
     "stop": "閉室",
     "hosting": "正託管 {{name}}",
-    "error": "不能成事。請核身分、伺服器設定與網路，再試。"
+    "error": "不能成事。請核身分、伺服器設定與網路，再試。",
+    "networkSettings": "伺服器與房間網路設定",
+    "setupHint": "可先瀏覽；欲入或建房，先於設定備妥聯盟身分。",
+    "setupToJoin": "設定後加入",
+    "setupToHost": "設定後建房",
+    "optionDetails": "{{school}} · {{version}} · 至多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "離線戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "INVALID": "UUID 無效",
             "TEXTURE_ERROR": "戲者外觀獲取未成"
           }
@@ -2753,7 +2943,6 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "NOT_FOUND": "鑒權伺服器無",
@@ -2798,7 +2987,6 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "INVALID": "戶簿或符節謬",
@@ -2826,7 +3014,6 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "EXPIRED": "令牌已過期，請復登入"
@@ -3464,7 +3651,9 @@
       "intelligence": "智慧",
       "extension": "擴充套件",
       "help": "案文與助",
-      "about": "有涉"
+      "about": "有涉",
+      "federation": "聯盟",
+      "federation-management": "聯盟管理"
     }
   },
   "SkinPreview": {
@@ -3520,7 +3709,7 @@
     "header": {
       "title": "於群碼之匯爲我輩點星"
     },
-    "body": "若您喜愛 SJMCL，並希望支援我輩，可於群碼之匯爲我輩點一星乎？此小舉義甚重，足以勉我輩持續爲君增益其用。",
+    "body": "若您喜愛 {{productName}}，並希望支援我輩，可於群碼之匯爲我輩點一星乎？此小舉義甚重，足以勉我輩持續爲君增益其用。",
     "button": {
       "later": "稍後",
       "starUs": "點亮星標"
@@ -3598,7 +3787,7 @@
       "title": "歡迎！"
     },
     "body": {
-      "text": "歡迎用 {{productName}}，此版衍自 SJMCL。續行前，請閱而允<terms>上游 SJMCL 使用之約</terms>；此連結非本版聯盟新務之專約。"
+      "text": "歡迎用 {{productName}}，此版爲吉林大學礦藝同好會（JLUCraft）所維，衍自 SJMCL。續行前，請閱而允<terms>上游 SJMCL 使用之約</terms>；此連結指上游之約，非本啟動器之專約。"
     },
     "warning": {
       "unstableVersion": "您方使用{{versionLabel}}的 {{productName}}，部分功用或不穩定或未開發畢，歡迎報告使用問題與功用薦。",

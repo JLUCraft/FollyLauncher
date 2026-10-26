@@ -24,7 +24,7 @@ export function BusinessAdmin({
   members: Record<string, { peer: string; addresses: string[] }>;
   memberRoles: Record<string, string[]>;
   busy: boolean;
-  request: (action: Record<string, unknown>) => Promise<void>;
+  request: (action: Record<string, unknown>) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const [member, setMember] = useState("");

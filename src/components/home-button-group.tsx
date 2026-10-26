@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Center,
   Flex,
   HStack,
   IconButton,
@@ -13,7 +12,6 @@ import {
   Text,
   Tooltip,
   VStack,
-  useColorModeValue,
   useDisclosure,
   useToken,
 } from "@chakra-ui/react";
@@ -23,7 +21,6 @@ import { useTranslation } from "react-i18next";
 import { LuArrowLeftRight, LuPlus, LuSettings } from "react-icons/lu";
 import AdvancedCard from "@/components/common/advanced-card";
 import { CommonIconButton } from "@/components/common/common-icon-button";
-import { CompactButtonGroup } from "@/components/common/compact-button-group";
 import InstancesView from "@/components/instances-view";
 import PlayerAvatar from "@/components/player-avatar";
 import PlayersView from "@/components/players-view";
@@ -32,6 +29,10 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { PlayerType } from "@/enums/account";
 import styles from "@/styles/launch.module.css";
+import {
+  LAUNCH_ACCOUNT_SETUP_PATH,
+  LAUNCH_INSTANCE_SETUP_PATH,
+} from "@/utils/launch-flow";
 
 interface CustomButtonProps extends Omit<
   IconButtonProps,
@@ -129,10 +130,21 @@ const HomeButtonGroup = () => {
       .map((shadow) => `${shadow} ${toRgba(color, alpha)}`)
       .join(", ");
 
-  const playerList = getPlayerList() || [];
-  const instanceList = getInstanceList() || [];
+  const players = getPlayerList();
+  const instances = getInstanceList();
+  const playerList = players || [];
+  const instanceList = instances || [];
   const hasPlayers = playerList.length > 0;
   const hasInstances = instanceList.length > 0;
+  const launchLabel = !hasInstances
+    ? t("AllInstancesPage.button.addAndImport")
+    : !selectedInstance
+      ? t("SelectInstanceModal.header.title")
+      : !hasPlayers
+        ? t("AccountsPage.button.addPlayer")
+        : !selectedPlayer
+          ? t("SelectPlayerModal.header.title")
+          : t("LaunchPage.button.launch");
 
   return (
     <Flex wrap="wrap" justify="flex-end" align="flex-end" gap={4}>
@@ -143,6 +155,7 @@ const HomeButtonGroup = () => {
               `LaunchPage.SwitchButton.tooltip.${hasPlayers ? "switchPlayer" : "addPlayer"}`
             )}
             variant="subtle"
+            isDisabled={players === undefined}
             popoverContent={
               <PlayersView
                 players={playerList}
@@ -153,19 +166,23 @@ const HomeButtonGroup = () => {
             }
             onClick={() => router.push("/accounts")}
             showAdd={!hasPlayers}
-            onAddClick={() => router.push("/accounts?add=true")}
+            onAddClick={() => router.push(LAUNCH_ACCOUNT_SETUP_PATH)}
           />
         </Box>
 
         <HStack spacing={2.5} h="100%" w="100%">
           {selectedPlayer ? (
             <>
-              <PlayerAvatar
-                boxSize="32px"
-                objectFit="cover"
-                avatar={selectedPlayer.avatar}
-              />
-              <VStack spacing={0} align="left" mt={-2} minW={0}>
+              {/* Only reserve avatar space when a skin face is available;
+                  an empty avatar box would leave the left half of the card blank. */}
+              {!!selectedPlayer.avatar?.[0] && (
+                <PlayerAvatar
+                  boxSize="32px"
+                  objectFit="cover"
+                  avatar={selectedPlayer.avatar}
+                />
+              )}
+              <VStack spacing={0} align="left" mt={-2} minW={0} pr={6}>
                 <Text
                   fontSize="xs-sm"
                   fontWeight="bold"
@@ -187,34 +204,87 @@ const HomeButtonGroup = () => {
               </VStack>
             </>
           ) : (
-            <Center w="100%" h="100%">
-              <Text fontSize="sm" className="secondary-text">
-                {t("LaunchPage.Text.noSelectedPlayer")}
-              </Text>
-            </Center>
+            <Button
+              variant="ghost"
+              w="100%"
+              h="100%"
+              whiteSpace="normal"
+              isDisabled={players === undefined}
+              onClick={() =>
+                void router.push(
+                  hasPlayers ? "/accounts" : LAUNCH_ACCOUNT_SETUP_PATH
+                )
+              }
+            >
+              {t(
+                hasPlayers
+                  ? "SelectPlayerModal.header.title"
+                  : "AccountsPage.button.addPlayer"
+              )}
+            </Button>
           )}
         </HStack>
       </AdvancedCard>
 
-      <Box position="relative">
+      <HStack align="flex-end" spacing={2}>
+        {/* Auxiliary actions stand beside the launch button as normal buttons,
+            so they no longer sit inside the main launch hit area. */}
+        <VStack spacing={1.5} pb={1}>
+          {selectedInstance && hasInstances && (
+            <CommonIconButton
+              icon={LuSettings}
+              label={t("LaunchPage.button.instanceSettings")}
+              tooltipPlacement="left"
+              onClick={() =>
+                router.push({
+                  pathname: "/instances/details/[id]/settings",
+                  query: { id: selectedInstance.id },
+                })
+              }
+            />
+          )}
+
+          <ButtonWithPopover
+            isDisabled={instances === undefined}
+            tooltip={t(
+              `LaunchPage.SwitchButton.tooltip.${hasInstances ? "switchInstance" : "addInstance"}`
+            )}
+            popoverContent={
+              <InstancesView
+                instances={instanceList}
+                selectedInstance={selectedInstance}
+                viewType="list"
+                withMenu={false}
+              />
+            }
+            onClick={() => router.push("/instances/list")}
+            showAdd={!hasInstances}
+            onAddClick={() => router.push(LAUNCH_INSTANCE_SETUP_PATH)}
+          />
+        </VStack>
+
         <Button
           id="main-launch-button"
           colorScheme="blackAlpha"
           className={styles["launch-button"]}
+          isLoading={players === undefined || instances === undefined}
           boxShadow={glowShadow(glowBase, 0.3, 1)}
           _hover={{ boxShadow: glowShadow(glowHover, 0.5, 2) }}
           _active={{ boxShadow: glowShadow(glowActive, 0.7, 3) }}
           onClick={() => {
-            if (selectedInstance) {
-              openSharedModal("launch", {
-                instanceId: selectedInstance.id,
-              });
-            }
+            if (!hasInstances)
+              return void router.push(LAUNCH_INSTANCE_SETUP_PATH);
+            if (selectedInstance && !hasPlayers)
+              return void router.push(LAUNCH_ACCOUNT_SETUP_PATH);
+            openSharedModal("launch", {
+              instanceId: selectedInstance?.id ?? "tbd",
+              ...(!selectedPlayer && { playerId: "tbd" }),
+            });
           }}
         >
           <VStack spacing={1.5} w="100%" color="white">
             <Text fontSize="lg" fontWeight="bold">
-              {t("LaunchPage.button.launch")}
+              {launchLabel}
             </Text>
             <Text fontSize="sm" className="ellipsis-text">
               {selectedInstance
@@ -223,45 +293,7 @@ const HomeButtonGroup = () => {
             </Text>
           </VStack>
         </Button>
-
-        <Box position="absolute" top={1} right={1}>
-          <CompactButtonGroup
-            colorScheme={useColorModeValue("blackAlpha", "gray")}
-            size="xs"
-          >
-            {selectedInstance && hasInstances && (
-              <CommonIconButton
-                icon={LuSettings}
-                label={t("LaunchPage.button.instanceSettings")}
-                tooltipPlacement="top"
-                onClick={() =>
-                  router.push({
-                    pathname: "/instances/details/[id]/settings",
-                    query: { id: selectedInstance.id },
-                  })
-                }
-              />
-            )}
-
-            <ButtonWithPopover
-              tooltip={t(
-                `LaunchPage.SwitchButton.tooltip.${hasInstances ? "switchInstance" : "addInstance"}`
-              )}
-              popoverContent={
-                <InstancesView
-                  instances={instanceList}
-                  selectedInstance={selectedInstance}
-                  viewType="list"
-                  withMenu={false}
-                />
-              }
-              onClick={() => router.push("/instances/list")}
-              showAdd={!hasInstances}
-              onAddClick={() => router.push("/instances/add-import")}
-            />
-          </CompactButtonGroup>
-        </Box>
-      </Box>
+      </HStack>
     </Flex>
   );
 };

@@ -399,7 +399,7 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
             <Text>
               {t("MicrosoftFriendsModal.title", { name: curPlayer.name })}
             </Text>
-            <Badge colorScheme="purple">{t("General.beta")}</Badge>
+            <Badge colorScheme="brand">{t("General.beta")}</Badge>
           </HStack>
         </ModalHeader>
         <ModalCloseButton />

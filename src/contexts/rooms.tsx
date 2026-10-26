@@ -16,11 +16,11 @@ import { UnionService } from "@/services/union";
 const routes = (value: string) => value.split(/\s+/).filter(Boolean);
 function useRoomsState() {
   const { t } = useTranslation();
-  const { address, activeTarget } = useFederation();
-  const federationAddress = activeTarget?.address || address;
+  const { activeTarget } = useFederation();
+  const federationAddress =
+    activeTarget?.address || brand.federation.defaultAddress;
   const [seedOverride, setSeedOverride] = useState<string | null>(null);
-  const seeds =
-    seedOverride ?? (federationAddress || brand.federation.defaultAddress);
+  const seeds = seedOverride ?? federationAddress;
   const setSeeds = (value: string) => setSeedOverride(value);
   const resetSeeds = () => setSeedOverride(null);
   const { connection, connect, busy: gameBusy } = useGameConnection();

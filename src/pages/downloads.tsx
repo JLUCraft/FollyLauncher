@@ -131,7 +131,9 @@ export const DownloadTasksPage = () => {
       }
     >
       <VStack align="stretch" px="10%" spacing={4}>
-        {taskGroupList.length === 0 && <Empty withIcon={false} size="sm" />}
+        {taskGroupList.length === 0 && (
+          <Empty size="md" description={t("DownloadTasksPage.empty")} />
+        )}
         {taskGroupList.map(([group, expanded]) => (
           <OptionItemGroup
             key={group.taskGroup}

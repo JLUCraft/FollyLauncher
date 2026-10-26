@@ -3,6 +3,21 @@
     "about": {
       "title": "À propos",
       "settings": {
+        "community": {
+          "title": "Communauté des joueurs"
+        },
+        "docs": {
+          "title": "Documentation des joueurs"
+        },
+        "feedback": {
+          "title": "Signaler un problème"
+        },
+        "homepage": {
+          "title": "Page du projet"
+        },
+        "repository": {
+          "title": "Dépôt du code source"
+        },
         "version": {
           "title": "Version",
           "foundNew": "Il y a une nouvelle version.",
@@ -12,19 +27,6 @@
             "up2date": "Vous utilisez déjà la dernière version.",
             "error": "Échec de la vérification des mises à jour."
           }
-        },
-        "basedOn": {
-          "title": "Basé sur SJMCL",
-          "description": "{{productName}} est dérivé de SJMCL et ajoute la fédération et les salons. Les liens vers les contributeurs, le code, les conditions et l’aide concernent SJMCL en amont, dont la documentation ne couvre pas ces ajouts. Les mises à jour proviennent aussi de SJMCL en amont."
-        },
-        "contributors": {
-          "title": "Contributeurs de SJMCL en amont"
-        },
-        "sourceCode": {
-          "title": "Code source de SJMCL en amont"
-        },
-        "aboutSJMC": {
-          "title": "À propos de Minecraft society à l’université jiao tong shanghai (SJMC)"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "Informations légales",
+      "title": "Projet d'origine et licence",
       "settings": {
+        "basedOn": {
+          "title": "Basé sur le lanceur open source SJMCL",
+          "description": "{{productName}} est développé à partir de SJMCL. Dépôt d'origine : https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "Droits d'auteur",
-          "description": "Copyright © 2024-2026 Équipe de développement SJMCL."
+          "description": "Copyright © 2026 Équipe Folly Launcher. Basé sur SJMCL © 2024-2026 Équipe SJMCL."
         },
         "userAgreement": {
           "title": "Conditions d’utilisation de SJMCL en amont",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "Vue en grille",
       "list": "Vue en liste"
-    }
+    },
+    "empty": "Aucun compte de jeu dans cette vue. Ajoutez un compte ou importez-en un depuis un autre lanceur."
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "Nom de l'instance"
     },
     "sortBy": "Trier par",
-    "title": "Toutes les instances"
+    "title": "Toutes les instances",
+    "empty": "Aucune instance de jeu dans cette vue. Ajoutez un jeu ou importez une installation existante."
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "Connexion de jeu actuelle",
     "disconnectFirst": "Déconnectez ce service avant de rejoindre un autre salon ou match.",
-    "defaultSeed": "Utiliser le nœud connecté"
+    "defaultSeed": "Utiliser le nœud connecté",
+    "returnRooms": "Retour aux serveurs et salons",
+    "returnActivities": "Retour aux activités et ligues",
+    "linkStaged": "Lien reçu. Vérifiez-le et confirmez la connexion ici lorsque la configuration sera prête.",
+    "searching": "Recherche de serveurs de l'union à proximité…",
+    "searchEmpty": "Aucun serveur de l'union trouvé à proximité.",
+    "searchRetry": "Relancer la recherche",
+    "membershipTitle": "Union trouvée",
+    "membershipBody": "Le serveur est à proximité, mais vous n'avez pas encore rejoint. Vérifiez votre adhésion et la connexion se fera automatiquement.",
+    "membershipAction": "Vérifier et rejoindre",
+    "joinFailed": "La vérification a échoué. Vérifiez que vous êtes connecté au site de skins, ou contactez l'organisateur."
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "Mettre à jour le lanceur",
       "extension-update": "Mettre à jour l'extension {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} fonctionne"
-    }
+    },
+    "empty": "Aucune tâche de téléchargement pour l'instant. Les téléchargements lancés apparaîtront ici."
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} ne peut pas contrôler le comportement des extensions tierces, y compris la manière dont elles traitent vos données personnelles. N'installez et n'activez que des extensions provenant de sources fiables.",
     "fileDnD": {
-      "title": "Installer une extension SJMCL",
+      "title": "Installer une extension",
       "desc": "Installer le fichier d'extension {{fileName}} dans {{productName}}"
     },
     "installed": "Extensions installées",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "Aucune extension installée pour l'instant.",
+    "install": "Installer une extension"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "Mettre à jour l'extension",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "Fédération",
-    "overview": "Connexion",
-    "league": "Ligue",
-    "rooms": "Salons et serveurs",
-    "identity": "Mon identité",
-    "manage": "Gestion des saisons",
-    "connected": "Ligue synchronisée",
-    "restricted": "Connectez-vous en tant qu’administrateur de saison.",
+    "overview": "Connexion à l’alliance",
+    "activities": "Activités et ligues",
+    "rooms": "Serveurs et salons",
+    "identity": "Identité de l’alliance",
+    "manage": "Administration",
+    "connected": "Connecté",
+    "restricted": "Connectez-vous avec un compte administrateur pour gérer l’application.",
     "advanced": "Paramètres avancés",
     "disconnected": "Non connecté"
   },
   "FederationPage": {
+    "points": {
+      "title": "Points",
+      "balance": "Solde de points",
+      "account": "{{club}} · {{member}}",
+      "revision": "Révision {{revision}}",
+      "available": "Disponible : {{available}} points",
+      "frozen": "Gelé : {{frozen}} points",
+      "today": "Jour de calcul en cours : {{earned}} / {{cap}} points",
+      "todayProgress": "Progression d'activité du jour de calcul en cours",
+      "todayNoCap": "Jour de calcul en cours : {{earned}} points ; aucun plafond quotidien.",
+      "resetAt": "Réinitialisation à {{time}}",
+      "slices": "Tranches actives {{active}}, tranches de repos {{afk}}",
+      "asOf": "Relevé au {{time}}",
+      "exportStatement": "Exporter le relevé de points",
+      "exportDone": "Relevé de points enregistré",
+      "exportFailed": "Impossible d'exporter le relevé de points",
+      "historyTitle": "Crédits des 24 dernières heures et historique IA",
+      "activityTitle": "Crédits d’activité des 24 dernières heures",
+      "activityEmpty": "Aucun crédit d'activité au cours des 24 dernières heures.",
+      "activityRow": "Actives {{active}} · repos {{afk}} · {{time}}",
+      "aiTitle": "Débits et remboursements IA",
+      "aiEmpty": "Aucune requête IA pour le moment.",
+      "aiRow": "Gelé {{frozen}} · débité {{charged}} · remboursé {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} points",
+      "requestTitle": "Demander une IA",
+      "requestHelp": "Le texte est d'abord téléversé vers l'organisation. Seuls les workers enregistrés et leurs tarifs actuels sont utilisés.",
+      "requestText": "Texte destiné à l'IA",
+      "requestSize": "{{size}} octets",
+      "next": "Suivant",
+      "back": "Retour",
+      "noWorker": "Aucun worker enregistré n'est actif. Contactez un administrateur du serveur.",
+      "worker": "Worker enregistré",
+      "model": "Modèle",
+      "maxTokens": "Tokens de sortie maximum",
+      "maxTokensHelp": "Un entier de 1 à 4294967295.",
+      "length": "Longueur de sortie",
+      "lengthShort": "Courte",
+      "lengthStandard": "Standard",
+      "lengthDetailed": "Détaillée",
+      "lengthTokens": "{{label}} · jusqu’à {{tokens}} tokens",
+      "lengthUnavailable": "Aucun préréglage ne respecte la limite de sortie du serveur. Saisissez un nombre de tokens dans les paramètres avancés.",
+      "maxTokensNativeHelp": "Un entier de 1 à {{max}} tokens.",
+      "advancedShow": "Paramètres avancés",
+      "advancedHide": "Masquer les paramètres avancés",
+      "reviewPayer": "Payeur : {{payer}}",
+      "reviewMaxPoints": "Gel maximal : {{maxPoints}} points",
+      "reviewWorker": "Worker {{worker}} · modèle {{model}}",
+      "quote": "Base {{base}} + usage {{variable}} = gelé {{total}} points",
+      "maxPoints": "max_points : {{maxPoints}}",
+      "insufficient": "Les points disponibles ne couvrent pas ce gel. Gagnez des points d’activité ou demandez à un administrateur de revoir les tarifs.",
+      "automaticBudget": "Les workflows automatiques utilisent un budget séparé d'événement ou de rapport. Cette requête dépense vos propres points disponibles.",
+      "confirm": "Confirmer le coût",
+      "confirmTitle": "Confirmer les points gelés",
+      "confirmBody": "Au plus {{maxPoints}} points seront gelés. Un échec rembourse tout ; un succès règle l’usage réel et rembourse la différence.",
+      "confirmAction": "Geler et demander",
+      "requestAccepted": "Requête IA acceptée",
+      "budgetTitle": "Budget des workflows automatiques",
+      "budgetHelp": "Le budget est payé par {{member}} de {{club}} et ne finance que l’événement ou le rapport choisi. Disponible : {{available}} points.",
+      "budgetEmpty": "Aucun événement ou rapport que vous pouvez autoriser pour le moment.",
+      "budgetScope": "Événement ou rapport",
+      "budgetChoose": "Choisir un événement ou rapport réel",
+      "budgetEvent": "Événement : {{title}} ({{club}})",
+      "budgetReport": "Rapport : {{title}} ({{club}})",
+      "budgetAmount": "Points de budget",
+      "budgetLimit": "Ne peut pas dépasser vos {{available}} points disponibles.",
+      "budgetSubmit": "Autoriser le budget",
+      "budgetAccepted": "Budget limité au périmètre autorisé",
+      "aiStagePurpose": "Étape {{stage}} · {{purpose}}",
+      "aiStatusQueued": "En attente",
+      "aiStatusRunning": "En cours",
+      "aiStatusCompleted": "Terminé",
+      "aiStatusFailed": "Échec",
+      "aiStatusRefunded": "Remboursé",
+      "aiStatusCancelled": "Annulé",
+      "aiStatusUnknown": "Inconnu",
+      "purposeMemberAssist": "Assistance membre",
+      "purposeEventsDraft": "Rédaction du document d’activité",
+      "purposeEventsReview": "Révision des documents",
+      "purposeEventsSummary": "Résumé d’activité",
+      "purposeOther": "Autre usage",
+      "openResult": "Voir le résultat",
+      "aiRetry": "Réessayer l’étape échouée",
+      "aiCancel": "Annuler la demande",
+      "aiRetryConfirmTitle": "Confirmer la nouvelle tentative",
+      "aiRetryConfirmBody": "L’étape {{stage}} avait été estimée à {{quote}} points. La nouvelle tentative gèle à nouveau ce montant, et non le tarif actuel du modèle. Payeur : {{payer}}. Disponible : {{available}} points.",
+      "aiRetryConfirmAction": "Réessayer au tarif initial",
+      "resultTitle": "Résultat IA · {{model}} · étape {{stage}}",
+      "resultLoading": "Lecture du résultat…",
+      "resultFailed": "Impossible de lire le résultat. Réessayez.",
+      "resultRetry": "Réessayer",
+      "previousPage": "Précédent",
+      "nextPage": "Suivant",
+      "page": "Page {{page}} / {{pages}}"
+    },
     "gameConnection": {
       "title": "Connexion au match",
       "description": "Collez le lien de connexion fourni par l'organisateur",
@@ -976,28 +1091,54 @@
       "genesisLabel": "Code de vérification de la ligue (demandez à votre organisateur)",
       "genesisInvalid": "Saisissez le code de 64 caractères fourni par votre organisateur (chiffres 0–9 et lettres a–f).",
       "linkLabel": "Lien de connexion",
-      "linkHelp": "Collez le lien envoyé par votre organisateur. L’ouvrir sur cet appareil connecte aussi automatiquement.",
+      "linkHelp": "Collez le lien de l’organisateur et choisissez Connexion. Ouvrir un lien sur cet ordinateur le renseigne ici pour confirmation.",
       "linkConnect": "Se connecter",
       "linkInvalid": "Ce n’est pas un lien de connexion valide. Copiez le lien complet de votre organisateur.",
-      "shareLabel": "Partager cette connexion avec vos camarades",
-      "shareCopy": "Copier le lien",
       "manualTitle": "Saisir les informations manuellement",
       "connect": "Connecter / Actualiser",
       "myDevice": "Mon appareil : {{id}}",
       "myMember": "Mon numéro de membre : {{id}}",
       "myClub": "({{club}})",
-      "linkPlaceholder": "Collez le lien de votre organisateur"
+      "linkPlaceholder": "Collez le lien de votre organisateur",
+      "shareAction": "Copier le lien d'invitation",
+      "disconnect": "Se déconnecter",
+      "serverPeer": "Serveur {{peer}}"
     },
     "error": "Échec de l'opération ; vérifiez la connexion et l'inscription, puis réessayez",
-    "identityRequired": "La connexion exige une identité unifiée. Configurez-la d’abord sur la page d’identité.",
-    "openIdentity": "Ouvrir les paramètres d’identité",
+    "identityRequired": "Configurez votre identité d’alliance dans les paramètres avant de vous connecter.",
+    "openIdentity": "Ouvrir les paramètres d’identité de l’alliance",
     "empty": {
-      "noLeagues": "Cette union n'a pas encore de ligue."
+      "noActivities": "Aucune activité ni compétition pour le moment."
     },
     "phase": {
       "Registration": "Inscription",
       "Playing": "En cours",
       "Finished": "Terminé"
+    },
+    "activities": {
+      "description": "Parcourez les activités et les ligues et suivez leur état.",
+      "linkedCompetitions": "Compétitions",
+      "competitionsEmpty": "Aucune compétition n’est encore liée à cette activité.",
+      "standaloneTitle": "Compétitions indépendantes",
+      "competitionMissing": "Cette compétition ne fait pas partie de l’application actuelle.",
+      "eventMissing": "Cette activité ne fait pas partie de l’application actuelle.",
+      "organizer": "Club organisateur",
+      "opens": "Ouverture des inscriptions",
+      "closes": "Clôture des inscriptions",
+      "starts": "Début",
+      "signupCount": "{{count}} inscrit(s)",
+      "signup": "S’inscrire",
+      "cancelSignup": "Annuler l’inscription",
+      "noBrief": "Aucune description n’a été fournie pour cette activité.",
+      "competitionTitle": "Compétition"
+    },
+    "activityPhase": {
+      "draft": "Brouillon",
+      "review": "En révision",
+      "approved": "Approuvée",
+      "open": "Inscriptions ouvertes",
+      "done": "Terminée",
+      "cancelled": "Annulée"
     },
     "league": {
       "seatsPerTeam": "{{seats}} par équipe",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "Pour commencer",
       "setup": "Ajouter la configuration de votre organisateur",
-      "connect": "Vous connecter à votre ligue avec le lien",
+      "connect": "Se connecter automatiquement à votre union",
       "verify": "Vérifier votre adhésion",
       "done": "Terminé",
       "next": "Continuer"
+    },
+    "organizer": {
+      "areaTitle": "Actions de l'organisateur",
+      "areaHint": "Seul le club organisateur peut utiliser ces actions, et elles concernent tous les participants : chacune demande donc une confirmation.",
+      "startConfirmTitle": "Verrouiller les inscriptions et démarrer la compétition ?",
+      "startConfirmBody": "Les inscriptions ferment définitivement et le calendrier est tiré au sort parmi les équipes déjà inscrites. Cette action est irréversible."
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "Aide"
     },
     "bottomAlert": "Pour obtenir de l'aide, veuillez exporter et envoyer le rapport de crash, et non une capture d'écran de cette fenêtre.",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/en/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "Détails du crash",
       "OPENJ9": "Cette instance ne peut pas s'exécuter sur une JVM OpenJ9. Veuillez utiliser une JVM HotSpot.",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "Cette instance ne peut pas continuer à s'exécuter en raison d'un conflit entre Forge et LiteLoader. Essayez de supprimer LiteLoader ou de changer la version de Forge.",
       "UNKNOWN": "Impossible d'analyser cette erreur pour le moment. Veuillez consulter les journaux du jeu ou exporter un rapport de plantage."
     },
-    "autoCloseCountdown": "Cette fenêtre se fermera automatiquement dans {{seconds}} secondes (cliquez n'importe où dans la fenêtre pour annuler)"
+    "autoCloseCountdown": "Cette fenêtre se fermera automatiquement dans {{seconds}} secondes (cliquez n'importe où dans la fenêtre pour annuler)",
+    "placeholder": {
+      "unknown": "Inconnu"
+    }
   },
   "GameLogPage": {
     "placeholder": "Filtrer par mot-clé",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "Ajouter",
-    "alert": {
-      "noFullLogin": {
-        "title": "Fonction actuelle n'est pas disponible",
-        "description": "Veuillez utiliser cette fonction avant de vous connecter à votre compte microsoft."
-      }
-    },
     "back": "Retour",
     "beta": "Bêta",
     "browse": "Parcourir",
@@ -1373,7 +1517,8 @@
       "test-build": "Version de construction de test"
     },
     "versionNumberingHelp": "Aide sur la numérotation des versions",
-    "viewOnWiki": "Voir sur Minecraft Wiki"
+    "viewOnWiki": "Voir sur Minecraft Wiki",
+    "retry": "Réessayer"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "Communauté des joueurs universitaires",
       "settings": {
+        "JLUCraft": {
+          "title": "Club Minecraft de l'Université de Jilin (JLUCraft)",
+          "description": "La communauté derrière ce lanceur, pour les joueurs de l'Université de Jilin et au-delà",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "Alliance des universitaire Minecraft (MUA)",
           "description": "Jouez avec des joueurs de toutes les universités du pays",
           "url": "https://www.mualliance.cn/en"
-        },
-        "SJMC": {
-          "title": "Club Minecraft de l'Université Jiao Tong de Shanghai (SJMC)",
-          "url": "https://mc.sjtu.cn/en/"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
+          "title": "Documentation des joueurs",
+          "url": "https://www.jlucraft.com/docs/"
+        },
+        "UserGroup": {
+          "title": "Communauté des joueurs",
+          "description": "Rejoignez-nous pour signaler des problèmes, demander des fonctionnalités ou obtenir de l'aide",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "Projet d'origine",
+      "settings": {
+        "LauncherDocs": {
           "title": "Documentation de SJMCL en amont",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs"
         },
-        "UserGroup": {
-          "title": "Communauté de SJMCL en amont",
-          "description": "Rejoignez le groupe QQ ou GitHub Discussions pour signaler des problèmes, demander des fonctionnalités ou obtenir de l'aide",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
+        "SJMC": {
+          "title": "Club Minecraft de l'Université Jiao Tong de Shanghai (SJMC)",
+          "url": "https://mc.sjtu.cn/en/"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "À jour à la version {{sequence}}",
     "review": "Vérifier les modifications",
     "reviewHint": "Signer confirme les modifications ci-dessous. Lier deux appareils peut demander une signature de chacun ; échangez la modification dans les paramètres avancés.",
+    "technicalDetails": "Détails techniques",
+    "signatureCount": "Signatures : {{count}}",
+    "unknownAction": "Action inconnue : {{type}}",
     "sign": "Confirmer et signer",
     "submit": "Appliquer les modifications signées",
     "import": "Importer une modification à cosigner",
@@ -1711,12 +1873,24 @@
       "memberships": "Adhésions",
       "profiles": "Profils de jeu liés"
     },
+    "permissions": {
+      "read": "Lecture",
+      "write": "Écriture",
+      "admin": "Administration",
+      "use": "Utilisation",
+      "manage": "Gestion"
+    },
+    "services": {
+      "application": "Service d'application"
+    },
     "unnamedField": "Champ sans nom",
     "before": "Avant",
     "after": "Après",
     "unknown": "Actualisez l’identité pour voir l’association actuelle",
     "inspect": "Afficher les informations enregistrées (hors ligne)",
-    "hint": "La plupart des gens n’ont besoin que du premier bouton."
+    "hint": "La plupart des gens n’ont besoin que du premier bouton.",
+    "importSetup": "Charger la configuration de l’organisateur depuis un fichier",
+    "setupLoaded": "Configuration chargée. Vérifiez-la, puis enregistrez-la pour continuer."
   },
   "IdentityManagement": {
     "title": "Outils d’organisation",
@@ -1860,7 +2034,9 @@
         "info": "Voir les informations",
         "update": "Vérifier les mises à jour",
         "search": "Rechercher",
-        "placeholder": "Rechercher un mod..."
+        "placeholder": "Rechercher un mod...",
+        "download": "Télécharger des mods",
+        "import": "Importer des mods"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "Cette instance n'utilise pas de paramètres spécifiques. <toGlobal>Aller aux paramètres globaux du jeu</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "Ces options s'appliquent à l'instance « {{name}} ».",
+      "enabled": "Réglages propres à l'instance activés",
+      "disabled": "Réglages propres à l'instance désactivés"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "Gestion Java",
       "download": "Télécharger Java",
       "add": "Ajouter Java",
-      "remove": "Supprimer ce Java"
+      "remove": "Supprimer ce Java",
+      "empty": "Aucun environnement d'exécution Java détecté pour l'instant."
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "La dernière exécution s'est terminée anormalement",
-      "content": "{{productName}} s’est arrêté anormalement. Consultez les journaux. Les liens <community>communauté</community> et <github>GitHub</github> concernent SJMCL en amont. Précisez votre version dérivée ; adressez les problèmes de fédération aux responsables de cette version.",
+      "content": "{{productName}} s’est arrêté anormalement. Consultez d’abord les journaux. Vous pouvez signaler le problème via la <community>communauté des joueurs</community> ou les <github>GitHub Issues</github> ; joignez les journaux et le numéro de version.",
       "viewLog": "Voir les journaux"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "Lancer le jeu",
-      "instanceSettings": "Configuration de l'instance"
+      "instanceSettings": "Configuration de l'instance",
+      "returnToLaunch": "Revenir au lancement"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "Tous"
+    },
+    "listError": {
+      "description": "Échec du chargement de la liste des ressources : {{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "Afficher les identifiants à signer",
     "hostIdentity": "Identifiant de l’appareil hôte",
     "playerIdentity": "Identifiant de l’appareil participant",
-    "title": "Salons et serveurs",
-    "description": "Hébergez une salle ou rejoignez d’autres clubs avec votre identité de membre vérifiée.",
+    "title": "Serveurs et salons",
+    "description": "Trouvez un serveur, rejoignez un salon multijoueur ou créez le vôtre.",
     "seeds": "Adresses de recherche de salons (une par ligne)",
     "refresh": "Actualiser les salons et leur état",
     "partial": "Certains nœuds ou salons sont indisponibles. Cette liste peut être incomplète.",
@@ -2584,7 +2770,12 @@
     "start": "Ouvrir le salon",
     "stop": "Fermer le salon",
     "hosting": "Hébergement de {{name}}",
-    "error": "Opération impossible. Vérifiez votre identité, les paramètres du serveur et votre réseau, puis réessayez."
+    "error": "Opération impossible. Vérifiez votre identité, les paramètres du serveur et votre réseau, puis réessayez.",
+    "networkSettings": "Réseau des serveurs et salons",
+    "setupHint": "Vous pouvez parcourir la liste. Configurez votre identité dans les paramètres avant de rejoindre ou créer un salon.",
+    "setupToJoin": "Configurer pour rejoindre",
+    "setupToHost": "Configurer pour héberger",
+    "optionDetails": "{{school}} · {{version}} · jusqu'à {{max}} joueurs"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "Échec de l'ajout du joueur hors ligne",
           "description": {
             "DUPLICATE": "Le joueur existe déjà",
-            "FULL_LOGIN_UNAVAILABLE": "Veuillez vous connecter avec votre compte Microsoft avant d'accéder à cette fonctionnalité.",
             "INVALID": "UUID invalide",
             "TEXTURE_ERROR": "Impossible d'obtenir la texture du joueur"
           }
@@ -2753,7 +2943,6 @@
           "title": "Échec de l'ajout du joueur",
           "description": {
             "DUPLICATE": "Le joueur existe déjà",
-            "FULL_LOGIN_UNAVAILABLE": "Veuillez vous connecter avec votre compte Microsoft avant d'accéder à cette fonctionnalité.",
             "NETWORK_ERROR": "Impossible de se connecter au serveur d'authentification",
             "PARSE_ERROR": "Format de données du serveur incorrect",
             "NOT_FOUND": "Serveur d'authentification introuvable",
@@ -2798,7 +2987,6 @@
           "title": "Échec de l'ajout du joueur",
           "description": {
             "DUPLICATE": "Le joueur existe déjà",
-            "FULL_LOGIN_UNAVAILABLE": "Veuillez vous connecter avec votre compte Microsoft avant d'accéder à cette fonctionnalité.",
             "NETWORK_ERROR": "Impossible de se connecter au serveur d'authentification",
             "PARSE_ERROR": "Format de données du serveur incorrect",
             "INVALID": "Nom d'utilisateur ou mot de passe incorrect",
@@ -2826,7 +3014,6 @@
           "title": "Échec de l'ajout du joueur",
           "description": {
             "DUPLICATE": "Le joueur existe déjà",
-            "FULL_LOGIN_UNAVAILABLE": "Veuillez vous connecter avec votre compte Microsoft avant d'accéder à cette fonctionnalité.",
             "NETWORK_ERROR": "Impossible de se connecter au serveur d'authentification.",
             "PARSE_ERROR": "Le serveur a renvoyé des données dans un format incorrect.",
             "EXPIRED": "Le jeton a expiré. Veuillez vous reconnecter."
@@ -3464,7 +3651,9 @@
       "intelligence": "IA",
       "extension": "Extensions",
       "help": "Aide & Doc",
-      "about": "À propos"
+      "about": "À propos",
+      "federation": "Union",
+      "federation-management": "Administration de l’alliance"
     }
   },
   "SkinPreview": {
@@ -3520,7 +3709,7 @@
     "header": {
       "title": "Étoilez-nous sur GitHub !"
     },
-    "body": "Si vous aimez SJMCL et souhaitez nous soutenir, pouvez-vous nous donner une étoile sur GitHub ? Ce petit geste compte beaucoup pour nous et nous motive à continuer à améliorer l'expérience.",
+    "body": "Si vous aimez {{productName}} et souhaitez nous soutenir, pouvez-vous nous donner une étoile sur GitHub ? Ce petit geste compte beaucoup pour nous et nous motive à continuer à améliorer l'expérience.",
     "button": {
       "later": "Plus tard",
       "starUs": "Étoiler"
@@ -3598,7 +3787,7 @@
       "title": "Bienvenue !"
     },
     "body": {
-      "text": "Bienvenue dans {{productName}}, dérivé de SJMCL. Avant de continuer, lisez et acceptez les <terms>conditions d’utilisation de SJMCL en amont</terms>. Ce lien ne constitue pas des conditions propres aux services de fédération ajoutés."
+      "text": "Bienvenue dans {{productName}}, maintenu par le Club Minecraft de l'Université de Jilin (JLUCraft) et basé sur SJMCL. Avant de continuer, lisez et acceptez les <terms>conditions d’utilisation de SJMCL en amont</terms>. Ce lien renvoie aux conditions de SJMCL en amont, et non à des conditions propres à ce lanceur."
     },
     "warning": {
       "unstableVersion": "Vous utilisez actuellement {{productName}} (version {{versionLabel}}). Certaines fonctionnalités peuvent être instables ou encore en développement. Nous vous invitons à signaler tout problème d'utilisation ou à soumettre vos suggestions d'amélioration.",

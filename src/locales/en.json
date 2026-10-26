@@ -3,6 +3,21 @@
     "about": {
       "title": "About",
       "settings": {
+        "community": {
+          "title": "Player Community"
+        },
+        "docs": {
+          "title": "Player Documentation"
+        },
+        "feedback": {
+          "title": "Report an Issue"
+        },
+        "homepage": {
+          "title": "Project Homepage"
+        },
+        "repository": {
+          "title": "Source Repository"
+        },
         "version": {
           "title": "Version",
           "foundNew": "New Version Available",
@@ -12,19 +27,6 @@
             "up2date": "Already up to date",
             "error": "Failed to check for updates"
           }
-        },
-        "basedOn": {
-          "title": "Based on SJMCL",
-          "description": "{{productName}} is derived from SJMCL and adds federation and rooms. The contributor, source, terms and help links below refer to upstream SJMCL; its documentation does not cover these additions. The current updater also uses upstream SJMCL releases."
-        },
-        "contributors": {
-          "title": "Upstream SJMCL contributors"
-        },
-        "sourceCode": {
-          "title": "View upstream SJMCL source"
-        },
-        "aboutSJMC": {
-          "title": "About SJTU Minecraft Club (SJMC)"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "Legal Notices",
+      "title": "Upstream & License",
       "settings": {
+        "basedOn": {
+          "title": "Based on the Open-Source Launcher SJMCL",
+          "description": "{{productName}} is developed based on SJMCL. Original repository: https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "Copyright",
-          "description": "Copyright © 2024-2026 SJMCL Team."
+          "description": "Copyright © 2026 Folly Launcher Team. Based on SJMCL © 2024-2026 SJMCL Team."
         },
         "userAgreement": {
           "title": "Upstream SJMCL user agreement",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "Grid View",
       "list": "List View"
-    }
+    },
+    "empty": "No game accounts in this view. Add an account or import one from another launcher."
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "Instance Name"
     },
     "sortBy": "Sort by",
-    "title": "All Instances"
+    "title": "All Instances",
+    "empty": "No game instances in this view. Add a game or import an existing installation."
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "Current game connection",
     "disconnectFirst": "To join another room or match, disconnect this service first.",
-    "defaultSeed": "Use the connected node"
+    "defaultSeed": "Use the connected node",
+    "returnRooms": "Return to servers & rooms",
+    "returnActivities": "Return to activities & leagues",
+    "linkStaged": "Connection link received. Review and confirm it here when setup is ready.",
+    "searching": "Searching for nearby union servers…",
+    "searchEmpty": "No union server found nearby.",
+    "searchRetry": "Search again",
+    "membershipTitle": "Union found",
+    "membershipBody": "The server is nearby, but you have not joined yet. Verify your membership and it connects automatically.",
+    "membershipAction": "Verify and join",
+    "joinFailed": "Verification did not pass. Check that you are signed in to the skin site, or contact the organizer."
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "Update Launcher",
       "extension-update": "Update Extension {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} Runtime"
-    }
+    },
+    "empty": "No download tasks yet. Downloads you start will appear here."
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} cannot control the behavior of third-party extensions, including how they handle your personal data. Only install and enable extensions from trusted sources.",
     "fileDnD": {
-      "title": "Install SJMCL Extension",
+      "title": "Install Extension",
       "desc": "Install extension file {{fileName}} to {{productName}}"
     },
     "installed": "Installed Extensions",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "No extensions installed yet.",
+    "install": "Install Extension"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "Update Extension",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "Federation",
-    "overview": "Connection",
-    "league": "League",
-    "rooms": "Rooms & servers",
-    "identity": "My identity",
-    "manage": "Season management",
-    "connected": "League synchronized",
-    "restricted": "Connect with a season administrator account to manage seasons.",
+    "overview": "Alliance connection",
+    "activities": "Activities & leagues",
+    "rooms": "Servers & rooms",
+    "identity": "Alliance identity",
+    "manage": "Administration",
+    "connected": "Connected",
+    "restricted": "Connect with an administrator account to manage the application.",
     "advanced": "Advanced settings",
     "disconnected": "Not connected"
   },
   "FederationPage": {
+    "points": {
+      "title": "Points",
+      "balance": "Point balance",
+      "account": "{{club}} · {{member}}",
+      "revision": "Revision {{revision}}",
+      "available": "Available: {{available}} points",
+      "frozen": "Frozen: {{frozen}} points",
+      "today": "Current scoring day: {{earned}} / {{cap}} points",
+      "todayProgress": "Current scoring day activity progress",
+      "todayNoCap": "Current scoring day: {{earned}} points; no daily cap is set.",
+      "resetAt": "Resets at {{time}}",
+      "slices": "Active slices {{active}}, resting slices {{afk}}",
+      "asOf": "Statement as of {{time}}",
+      "exportStatement": "Export point statement",
+      "exportDone": "Point statement saved",
+      "exportFailed": "Could not export the point statement",
+      "historyTitle": "Recent activity and AI history",
+      "activityTitle": "Recent activity credits",
+      "activityEmpty": "No activity credits in the last 24 hours.",
+      "activityRow": "Active {{active}} · resting {{afk}} · {{time}}",
+      "aiTitle": "AI charges and refunds",
+      "aiEmpty": "No AI requests yet.",
+      "aiRow": "Frozen {{frozen}} · charged {{charged}} · refunded {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} points",
+      "requestTitle": "Request AI",
+      "requestHelp": "The text is uploaded to the organization first. Only registered workers and their current prices are used.",
+      "requestText": "Text for the AI",
+      "requestSize": "{{size}} bytes",
+      "next": "Next",
+      "back": "Back",
+      "noWorker": "No registered worker is active. Ask a server administrator.",
+      "worker": "Registered worker",
+      "model": "Model",
+      "maxTokens": "Maximum output tokens",
+      "maxTokensHelp": "An integer from 1 to 4294967295.",
+      "length": "Output length",
+      "lengthShort": "Short",
+      "lengthStandard": "Standard",
+      "lengthDetailed": "Detailed",
+      "lengthTokens": "{{label}} · up to {{tokens}} tokens",
+      "lengthUnavailable": "No preset fits the server's output limit. Enter a token count in advanced settings.",
+      "maxTokensNativeHelp": "An integer from 1 to {{max}} tokens.",
+      "advancedShow": "Advanced settings",
+      "advancedHide": "Hide advanced settings",
+      "reviewPayer": "Payer: {{payer}}",
+      "reviewMaxPoints": "Maximum freeze: {{maxPoints}} points",
+      "reviewWorker": "Worker {{worker}} · model {{model}}",
+      "quote": "Base {{base}} + usage {{variable}} = frozen {{total}} points",
+      "maxPoints": "max_points: {{maxPoints}}",
+      "insufficient": "Available points cannot cover this freeze. Earn activity points or ask an administrator to review the rates.",
+      "automaticBudget": "Automatic workflows use a separate event or report budget. This request spends your own available points.",
+      "confirm": "Confirm fee",
+      "confirmTitle": "Confirm frozen points",
+      "confirmBody": "At most {{maxPoints}} points will be frozen. A failed run refunds everything; a successful run settles actual usage and refunds the difference.",
+      "confirmAction": "Freeze and request",
+      "requestAccepted": "AI request accepted",
+      "budgetTitle": "Automatic workflow budget",
+      "budgetHelp": "The budget is paid by {{member}} in {{club}} and can only fund the selected event or report. Available now: {{available}} points.",
+      "budgetEmpty": "There is no event or report you can authorize now.",
+      "budgetScope": "Event or report",
+      "budgetChoose": "Choose a real event or report",
+      "budgetEvent": "Event: {{title}} ({{club}})",
+      "budgetReport": "Report: {{title}} ({{club}})",
+      "budgetAmount": "Budget points",
+      "budgetLimit": "Cannot exceed your available {{available}} points.",
+      "budgetSubmit": "Authorize budget",
+      "budgetAccepted": "Scoped AI budget authorized",
+      "aiStagePurpose": "Stage {{stage}} · {{purpose}}",
+      "aiStatusQueued": "Queued",
+      "aiStatusRunning": "Running",
+      "aiStatusCompleted": "Completed",
+      "aiStatusFailed": "Failed",
+      "aiStatusRefunded": "Refunded",
+      "aiStatusCancelled": "Cancelled",
+      "aiStatusUnknown": "Unknown",
+      "purposeMemberAssist": "Member assistance",
+      "purposeEventsDraft": "Activity document draft",
+      "purposeEventsReview": "Material review",
+      "purposeEventsSummary": "Activity summary",
+      "purposeOther": "Other purpose",
+      "openResult": "View result",
+      "aiRetry": "Retry failed stage",
+      "aiCancel": "Cancel request",
+      "aiRetryConfirmTitle": "Confirm retry",
+      "aiRetryConfirmBody": "Stage {{stage}} was originally quoted at {{quote}} points. Retrying freezes that same amount again, not the current model price. Payer: {{payer}}. Available: {{available}} points.",
+      "aiRetryConfirmAction": "Retry at original quote",
+      "resultTitle": "AI result · {{model}} · stage {{stage}}",
+      "resultLoading": "Reading the result…",
+      "resultFailed": "Could not read the result. Try again.",
+      "resultRetry": "Retry",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "page": "Page {{page}} / {{pages}}"
+    },
     "gameConnection": {
       "title": "Match Connection",
       "description": "Paste the match connection link provided by the organizer",
@@ -976,28 +1091,54 @@
       "genesisLabel": "League verification code (ask your organizer)",
       "genesisInvalid": "Enter the 64-character code from your organizer (digits 0–9 and letters a–f).",
       "linkLabel": "Connection link",
-      "linkHelp": "Paste the link your organizer sent you. Opening the link on this device connects automatically.",
+      "linkHelp": "Paste the organizer’s link and choose Connect. Opening a link on this computer fills it in here for confirmation.",
       "linkConnect": "Connect",
       "linkInvalid": "This is not a valid connection link. Copy the whole link from your organizer.",
-      "shareLabel": "Share this connection with classmates",
-      "shareCopy": "Copy link",
       "manualTitle": "Enter details manually",
       "connect": "Connect / Refresh",
       "myDevice": "My device: {{id}}",
       "myMember": "My member no.: {{id}}",
       "myClub": "({{club}})",
-      "linkPlaceholder": "Paste the link from your organizer"
+      "linkPlaceholder": "Paste the link from your organizer",
+      "shareAction": "Copy invite link",
+      "disconnect": "Disconnect",
+      "serverPeer": "Server {{peer}}"
     },
     "error": "Operation failed; check the connection and registration status, then retry",
-    "identityRequired": "Connecting requires a unified identity. Set one up on the identity page first.",
-    "openIdentity": "Open identity settings",
+    "identityRequired": "Set up your Alliance identity in Settings before connecting.",
+    "openIdentity": "Open Alliance identity settings",
     "empty": {
-      "noLeagues": "This union has no leagues yet."
+      "noActivities": "No activities or competitions yet."
     },
     "phase": {
       "Registration": "Registration",
       "Playing": "In Progress",
       "Finished": "Finished"
+    },
+    "activities": {
+      "description": "Browse events and leagues and follow their current status.",
+      "linkedCompetitions": "Competitions",
+      "competitionsEmpty": "No competitions are linked to this activity yet.",
+      "standaloneTitle": "Standalone competitions",
+      "competitionMissing": "This competition is not part of the current application.",
+      "eventMissing": "This activity is not part of the current application.",
+      "organizer": "Organizing club",
+      "opens": "Signup opens",
+      "closes": "Signup closes",
+      "starts": "Starts",
+      "signupCount": "{{count}} signed up",
+      "signup": "Sign up",
+      "cancelSignup": "Cancel signup",
+      "noBrief": "No description has been provided for this activity.",
+      "competitionTitle": "Competition"
+    },
+    "activityPhase": {
+      "draft": "Draft",
+      "review": "In review",
+      "approved": "Approved",
+      "open": "Signup open",
+      "done": "Completed",
+      "cancelled": "Cancelled"
     },
     "league": {
       "seatsPerTeam": "{{seats}} per team",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "Get started",
       "setup": "Add the setup from your organizer",
-      "connect": "Connect to your league with the link",
+      "connect": "Connect your union automatically",
       "verify": "Verify your membership",
       "done": "Done",
       "next": "Continue"
+    },
+    "organizer": {
+      "areaTitle": "Organizer actions",
+      "areaHint": "Only the organizing club can use these actions, and they affect every participant, so each one asks for confirmation first.",
+      "startConfirmTitle": "Lock signups and start the competition?",
+      "startConfirmBody": "Signups close permanently and the match schedule is drawn from the teams registered so far. This cannot be undone."
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "Help"
     },
     "bottomAlert": "Export and send the crash report instead of a screenshot of this page for help.",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/en/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "Crash Details",
       "OPENJ9": "OpenJ9 JVM is not supported. Please use HotSpot JVM.",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "The instance cannot continue due to Forge and LiteLoader conflict. Please try removing LiteLoader or changing Forge version.",
       "UNKNOWN": "Cannot determine the cause of the crash. Please check the logs for more details or export the crash report."
     },
-    "autoCloseCountdown": "This window will close automatically in {{seconds}} seconds (click anywhere in the window to cancel)"
+    "autoCloseCountdown": "This window will close automatically in {{seconds}} seconds (click anywhere in the window to cancel)",
+    "placeholder": {
+      "unknown": "Unknown"
+    }
   },
   "GameLogPage": {
     "placeholder": "Filter by Text",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "Add",
-    "alert": {
-      "noFullLogin": {
-        "title": "This Feature is Not Available Currently",
-        "description": "Please log in with your Microsoft account before accessing this feature."
-      }
-    },
     "back": "Back",
     "beta": "Beta",
     "browse": "Browse",
@@ -1373,7 +1517,8 @@
       "test-build": "test build"
     },
     "versionNumberingHelp": "Version Numbering Help",
-    "viewOnWiki": "View on Minecraft Wiki"
+    "viewOnWiki": "View on Minecraft Wiki",
+    "retry": "Retry"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "University Player Community",
       "settings": {
+        "JLUCraft": {
+          "title": "Jilin University Minecraft Club (JLUCraft)",
+          "description": "The community behind this launcher, for players of Jilin University and beyond",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "Minecraft University Alliance (MUA)",
           "description": "Play with university players across China",
           "url": "https://www.mualliance.cn/en"
-        },
-        "SJMC": {
-          "title": "SJTU Minecraft Club (SJMC)",
-          "url": "https://mc.sjtu.cn/en/"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "Upstream SJMCL documentation",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs"
+          "title": "Player Documentation",
+          "url": "https://www.jlucraft.com/docs/"
         },
         "UserGroup": {
-          "title": "Upstream SJMCL community",
-          "description": "Join the QQ group or GitHub Discussions to report issues, request features, or get help",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
+          "title": "Player Community",
+          "description": "Join us to report issues, request features, or get help",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "Upstream Project",
+      "settings": {
+        "LauncherDocs": {
+          "title": "Upstream SJMCL Documentation",
+          "url": "https://mc.sjtu.cn/sjmcl/en/docs"
+        },
+        "SJMC": {
+          "title": "SJTU Minecraft Club (SJMC)",
+          "url": "https://mc.sjtu.cn/en/"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "Up to date as of version {{sequence}}",
     "review": "Review changes",
     "reviewHint": "Signing confirms the changes below. Linking two devices may need a signature from each; pass the change between them in advanced settings.",
+    "technicalDetails": "Technical details",
+    "signatureCount": "Signatures: {{count}}",
+    "unknownAction": "Unknown action: {{type}}",
     "sign": "Confirm and sign",
     "submit": "Apply signed changes",
     "import": "Import a change to co-sign",
@@ -1711,12 +1873,24 @@
       "memberships": "Memberships",
       "profiles": "Linked game profiles"
     },
+    "permissions": {
+      "read": "Read",
+      "write": "Write",
+      "admin": "Admin",
+      "use": "Use",
+      "manage": "Manage"
+    },
+    "services": {
+      "application": "Application service"
+    },
     "unnamedField": "Unnamed field",
     "before": "Before",
     "after": "After",
     "unknown": "Refresh identity to see the current binding",
     "inspect": "View saved information (offline)",
-    "hint": "Most people only need the first button."
+    "hint": "Most people only need the first button.",
+    "importSetup": "Load organizer setup from file",
+    "setupLoaded": "Setup loaded. Review it, then save to continue."
   },
   "IdentityManagement": {
     "title": "Organizer tools",
@@ -1860,7 +2034,9 @@
         "info": "Mod Info",
         "update": "Update",
         "search": "Search",
-        "placeholder": " Search mods..."
+        "placeholder": " Search mods...",
+        "download": "Download Mods",
+        "import": "Import Mods"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "This instance is not using specific settings. <toGlobal>Go to Global Game Settings</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "These options apply to instance \"{{name}}\".",
+      "enabled": "Per-instance settings enabled",
+      "disabled": "Per-instance settings disabled"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "Java Management",
       "download": "Download Java",
       "add": "Add Java",
-      "remove": "Remove this Java"
+      "remove": "Remove this Java",
+      "empty": "No Java runtime detected yet."
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "Previous Run Exited Abnormally",
-      "content": "{{productName}} exited abnormally. Check the logs first. These <community>community</community> and <github>GitHub</github> links belong to upstream SJMCL. Identify your derivative when reporting issues; contact this version’s maintainers for federation issues.",
+      "content": "{{productName}} exited abnormally. Check the logs first. You can report the issue through the <community>player community</community> or <github>GitHub Issues</github>; include the logs and version number.",
       "viewLog": "View Logs"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "Launch Game",
-      "instanceSettings": "Instance Settings"
+      "instanceSettings": "Instance Settings",
+      "returnToLaunch": "Return to launch"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "All"
+    },
+    "listError": {
+      "description": "Failed to load the resource list: {{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "Show device IDs for signing",
     "hostIdentity": "Hosting device ID",
     "playerIdentity": "Joining device ID",
-    "title": "Rooms & servers",
-    "description": "Host a room or join other clubs with your verified member identity.",
+    "title": "Servers & rooms",
+    "description": "Find a server, join a multiplayer room, or host your own.",
     "seeds": "Room finder addresses (one per line)",
     "refresh": "Refresh rooms and status",
     "partial": "Some discovery nodes or rooms are unavailable. This list may be incomplete.",
@@ -2584,7 +2770,12 @@
     "start": "Start room",
     "stop": "Close room",
     "hosting": "Hosting {{name}}",
-    "error": "Couldn't complete that. Check your identity, the server settings and your network, then try again."
+    "error": "Couldn't complete that. Check your identity, the server settings and your network, then try again.",
+    "networkSettings": "Server and room network settings",
+    "setupHint": "You can browse here. Complete Alliance identity setup in Settings before joining or hosting.",
+    "setupToJoin": "Set up to join",
+    "setupToHost": "Set up to host",
+    "optionDetails": "{{school}} · {{version}} · up to {{max}} players"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "Failed to add offline player",
           "description": {
             "DUPLICATE": "Player already exists",
-            "FULL_LOGIN_UNAVAILABLE": "Please log in with your Microsoft account before accessing this feature.",
             "INVALID": "UUID is invalid",
             "TEXTURE_ERROR": "Unable to get player texture"
           }
@@ -2753,7 +2943,6 @@
           "title": "Failed to add player",
           "description": {
             "DUPLICATE": "Player already exists",
-            "FULL_LOGIN_UNAVAILABLE": "Please log in with your Microsoft account before accessing this feature.",
             "NETWORK_ERROR": "Unable to connect to the server",
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NOT_FOUND": "The authentication server does not exist",
@@ -2798,7 +2987,6 @@
           "title": "Failed to add player",
           "description": {
             "DUPLICATE": "Player already exists",
-            "FULL_LOGIN_UNAVAILABLE": "Please log in with your Microsoft account before accessing this feature.",
             "NETWORK_ERROR": "Unable to connect to the server",
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "INVALID": "Wrong account or password",
@@ -2826,7 +3014,6 @@
           "title": "Failed to add player",
           "description": {
             "DUPLICATE": "Player already exists",
-            "FULL_LOGIN_UNAVAILABLE": "Please log in with your Microsoft account before accessing this feature.",
             "NETWORK_ERROR": "Failed to connect to the server",
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "EXPIRED": "The access token has expired, please re-login"
@@ -3464,7 +3651,9 @@
       "intelligence": "Intelligence",
       "extension": "Extension",
       "help": "Docs & Help",
-      "about": "About"
+      "about": "About",
+      "federation": "Union",
+      "federation-management": "Alliance administration"
     }
   },
   "SkinPreview": {
@@ -3598,7 +3787,7 @@
       "title": "Welcome!"
     },
     "body": {
-      "text": "Welcome to {{productName}}, a derivative of SJMCL. Before continuing, read and agree to the linked <terms>upstream SJMCL user agreement</terms>. This link is not a separate set of terms for the added federation services."
+      "text": "Welcome to {{productName}}, maintained by the Jilin University Minecraft Club (JLUCraft) and based on SJMCL. Before continuing, read and agree to the linked <terms>upstream SJMCL user agreement</terms>. This link refers to upstream SJMCL terms, not a separate set for this launcher."
     },
     "warning": {
       "unstableVersion": "You are using the {{versionLabel}} of {{productName}}. Some features may be unstable or incomplete. Bug reports and feature requests are welcome.",

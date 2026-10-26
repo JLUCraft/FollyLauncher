@@ -26,6 +26,7 @@ import {
 import NavMenu, { MenuItem } from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { getModifierKeyLabel } from "@/utils/keyboard";
 
 interface DiscoverMenuItemConfig {
   key: string;
@@ -96,6 +97,10 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
   const createMenuItems = (
     items: DiscoverMenuItemConfig[]
   ): Array<MenuItem & { route?: string; onClick?: () => void }> => {
+    const modifierKeyLabel = getModifierKeyLabel(config.basicInfo.osType, {
+      short: true,
+    });
+
     return items.map((item) => ({
       label: (
         <HStack spacing={2} overflow="hidden" w="100%">
@@ -103,15 +108,9 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
           <Text fontSize="sm" className="ellipsis-text">
             {t(`DiscoverLayout.discoverDomainList.${item.key}`)}
           </Text>
-          {item.key === "search" && (
+          {item.key === "search" && modifierKeyLabel && (
             <HStack spacing={0.5} ml="auto">
-              <Kbd>
-                {t(
-                  `Enums.${config.basicInfo.osType === "macos" ? "metaKey" : "ctrlKey"}Short.${
-                    config.basicInfo.osType
-                  }`
-                )}
-              </Kbd>
+              <Kbd>{modifierKeyLabel}</Kbd>
               <Kbd>F</Kbd>
             </HStack>
           )}

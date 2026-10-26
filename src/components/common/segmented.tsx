@@ -14,6 +14,8 @@ interface SegmentedControlProps extends BoxProps {
     label: string | React.ReactNode;
     value: string;
     tooltip?: string;
+    // Accessible name for an icon-only label: a tooltip does not name the control.
+    ariaLabel?: string;
   }[];
   selected: string;
   onSelectItem: (label: string) => void;
@@ -55,6 +57,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({
               key={item.value}
               size={size == "2xs" ? "xs" : size}
               {...(size == "2xs" && { h: "1.2rem", w: "1.25rem" })}
+              aria-label={item.ariaLabel}
               colorScheme={colorScheme}
               variant={isSelected ? "outline" : "subtle"}
               bgColor={isSelected ? coreColor : `${colorScheme}.${palettes[0]}`}

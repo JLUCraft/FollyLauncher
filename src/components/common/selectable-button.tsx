@@ -30,8 +30,10 @@ const SelectableButton: React.FC<SelectableButtonProps> = ({
   return (
     <Button
       variant="ghost"
+      aria-pressed={isSelected}
       bg={isSelected ? selectedBg : "transparent"}
       color={isSelected ? selectedColor : defaultColor}
+      fontWeight={isSelected ? "semibold" : "normal"}
       textAlign="left"
       justifyContent="flex-start"
       overflow="hidden"

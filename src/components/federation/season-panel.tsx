@@ -29,7 +29,7 @@ export function SeasonPanel({
   state: UnionState;
   member?: string;
   busy: boolean;
-  request: (action: Record<string, unknown>) => Promise<void>;
+  request: (action: Record<string, unknown>) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const [league, setLeague] = useState(""),
@@ -43,13 +43,13 @@ export function SeasonPanel({
       )
   );
   async function handleSubmit() {
-    await request({
+    const accepted = await request({
       type: "dispute_result",
       id: crypto.randomUUID(),
       league,
       reason,
     });
-    setReason("");
+    if (accepted) setReason("");
   }
   return (
     <Section

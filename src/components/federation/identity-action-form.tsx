@@ -24,6 +24,9 @@ type Field = {
 };
 type ActionForm = { action: string; fields: Field[] };
 
+const SERVICE_SUGGESTIONS = ["application"];
+const PERMISSION_SUGGESTIONS = ["read", "write", "admin", "use", "manage"];
+
 export function IdentityActionForm({
   disabled,
   onDraft,
@@ -79,6 +82,17 @@ export function IdentityActionForm({
   };
   const form = forms.find((form) => form.action === selected);
   const locked = disabled || building;
+  const suggestionLabel = (field: string, value: string) => {
+    const key =
+      field === "service"
+        ? `IdentityFlow.services.${value}`
+        : field === "permission"
+          ? `IdentityFlow.permissions.${value}`
+          : "";
+    if (!key) return value;
+    const translated = t(key);
+    return translated === key ? value : translated;
+  };
   return (
     <Section
       title={t("IdentityManagement.title")}
@@ -148,21 +162,46 @@ export function IdentityActionForm({
                     })}
                   </HStack>
                 ) : (
-                  <Input
-                    id={`identity-action-${field.name}`}
-                    isDisabled={locked}
-                    type={field.kind === "number" ? "number" : "text"}
-                    min={field.kind === "number" ? 1 : undefined}
-                    value={String(values[field.name] ?? "")}
-                    onChange={(e) =>
-                      update(
-                        field.name,
-                        field.kind === "number" && e.target.value !== ""
-                          ? Number(e.target.value)
-                          : e.target.value
-                      )
-                    }
-                  />
+                  <>
+                    <Input
+                      id={`identity-action-${field.name}`}
+                      isDisabled={locked}
+                      type={field.kind === "number" ? "number" : "text"}
+                      min={field.kind === "number" ? 1 : undefined}
+                      value={String(values[field.name] ?? "")}
+                      onChange={(e) =>
+                        update(
+                          field.name,
+                          field.kind === "number" && e.target.value !== ""
+                            ? Number(e.target.value)
+                            : e.target.value
+                        )
+                      }
+                    />
+                    {(field.name === "service" ||
+                      field.name === "permission") && (
+                      <HStack flexWrap="wrap">
+                        {(field.name === "service"
+                          ? SERVICE_SUGGESTIONS
+                          : PERMISSION_SUGGESTIONS
+                        ).map((suggestion) => (
+                          <Button
+                            key={suggestion}
+                            size="xs"
+                            variant={
+                              String(values[field.name] ?? "") === suggestion
+                                ? "solid"
+                                : "outline"
+                            }
+                            isDisabled={locked}
+                            onClick={() => update(field.name, suggestion)}
+                          >
+                            {suggestionLabel(field.name, suggestion)}
+                          </Button>
+                        ))}
+                      </HStack>
+                    )}
+                  </>
                 )}
                 {field.generated && (
                   <Button

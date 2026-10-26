@@ -12,7 +12,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import router from "next/router";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -28,6 +29,7 @@ import {
   LuServerOff,
   LuUsersRound,
 } from "react-icons/lu";
+import Empty from "@/components/common/empty";
 import NavMenu from "@/components/common/nav-menu";
 import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
@@ -43,6 +45,7 @@ import { AuthServer, Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
+  const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const toast = useToast();
@@ -52,6 +55,7 @@ const AccountsPage = () => {
     useSharedModals();
 
   const { getPlayerList, getAuthServerList, selectedPlayer } = useGlobalData();
+  const returnToLaunch = router.query.returnTo === "launch";
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const [playerList, setPlayerList] = useState<Player[]>([]);
@@ -81,9 +85,16 @@ const AccountsPage = () => {
     const { add } = router.query;
     if (add) {
       onAddPlayerModalOpen();
-      router.replace("/accounts", undefined, { shallow: true });
+      void router.replace(
+        {
+          pathname: "/accounts",
+          query: returnToLaunch ? { returnTo: "launch" } : {},
+        },
+        undefined,
+        { shallow: true }
+      );
     }
-  }, [onAddPlayerModalOpen]);
+  }, [onAddPlayerModalOpen, returnToLaunch, router]);
 
   const playerTypeList = [
     {
@@ -100,7 +111,7 @@ const AccountsPage = () => {
     ...authServerList.map((server) => ({
       key: server.authUrl,
       icon: LuServer,
-      label: server.name,
+      label: server.name || server.authUrl,
     })),
   ];
 
@@ -319,12 +330,48 @@ const AccountsPage = () => {
               </HStack>
             }
           >
+            {returnToLaunch && (
+              <Button as={Link} href="/launch" alignSelf="flex-start" mb={3}>
+                {t("LaunchPage.button.returnToLaunch")}
+              </Button>
+            )}
             <Box overflow="auto" flexGrow={1} rounded="md">
-              <PlayersView
-                selectedPlayer={selectedPlayer}
-                players={filterPlayersByType(selectedPlayerType)}
-                viewType={selectedViewType}
-              />
+              {filterPlayersByType(selectedPlayerType).length === 0 ? (
+                <Empty description={t("AccountsPage.empty")}>
+                  <VStack spacing={3}>
+                    <HStack spacing={3} flexWrap="wrap" justify="center">
+                      <Button
+                        colorScheme={primaryColor}
+                        onClick={onAddPlayerModalOpen}
+                      >
+                        {t("AccountsPage.button.addPlayer")}
+                      </Button>
+                      {/* External (skin site) authentication is the first step for
+                          university players, so it must be reachable without
+                          hunting the sidebar bottom. */}
+                      <Button
+                        variant="outline"
+                        leftIcon={<LuCirclePlus />}
+                        onClick={() => openSharedModal("add-auth-server", {})}
+                      >
+                        {t("AccountsPage.button.add3rdPartyServer")}
+                      </Button>
+                    </HStack>
+                    <Button
+                      variant="ghost"
+                      onClick={onImportAccountInfoModalOpen}
+                    >
+                      {t("AccountsPage.button.importFromOtherLaunchers")}
+                    </Button>
+                  </VStack>
+                </Empty>
+              ) : (
+                <PlayersView
+                  selectedPlayer={selectedPlayer}
+                  players={filterPlayersByType(selectedPlayerType)}
+                  viewType={selectedViewType}
+                />
+              )}
             </Box>
           </Section>
         </GridItem>
@@ -333,11 +380,13 @@ const AccountsPage = () => {
         isOpen={isAddPlayerModalOpen}
         onClose={onAddPlayerModalClose}
         initialPlayerType={
-          selectedPlayerType === "all" || selectedPlayerType === "offline"
+          selectedPlayerType === "all"
             ? PlayerType.Offline
-            : selectedPlayerType === "microsoft"
-              ? PlayerType.Microsoft
-              : PlayerType.ThirdParty
+            : selectedPlayerType === "offline"
+              ? PlayerType.Offline
+              : selectedPlayerType === "microsoft"
+                ? PlayerType.Microsoft
+                : PlayerType.ThirdParty
         }
         initialAuthServerUrl={
           ["all", "offline", "microsoft"].includes(selectedPlayerType)

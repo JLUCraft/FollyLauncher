@@ -120,7 +120,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   <Link
                     color={`${primaryColor}.500`}
                     onClick={() =>
-                      openUrl("https://github.com/UNIkeEN/SJMCL/issues")
+                      openUrl(
+                        "https://github.com/JLUCraft/FollyLauncher/issues"
+                      )
                     }
                   />
                 ),
@@ -296,7 +298,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <Box flex="1" minH={0} overflow="auto">
           {children}
         </Box>
-        {isDev && <DevToolbar />}
       </Flex>
     );
   }

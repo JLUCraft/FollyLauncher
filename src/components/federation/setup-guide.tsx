@@ -1,26 +1,25 @@
-import { Button, HStack, Icon, Text, VStack } from "@chakra-ui/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { Badge, Button, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuCircle, LuCircleCheck } from "react-icons/lu";
+import { LuCheck } from "react-icons/lu";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 
-// First-run path. Every mark comes from real state, and the guide disappears once all steps are done.
-export function SetupGuide() {
+// First-run path. Every mark comes from real state, and the guide disappears once
+// all steps are done. Connection is automatic, so the last step reports progress
+// instead of asking for input.
+export function SetupGuide({
+  onAction,
+}: {
+  onAction: (step: "setup" | "verify" | "connect") => void;
+}) {
   const { t } = useTranslation();
-  const router = useRouter();
   const { config } = useLauncherConfig();
   const { state, identityConfigured, member } = useFederation();
   const steps = [
-    {
-      key: "setup",
-      done: identityConfigured === true,
-      href: "/federation/identity",
-    },
-    { key: "connect", done: !!state, href: "/federation/overview" },
-    { key: "verify", done: !!member, href: "/federation/identity" },
+    { key: "setup", done: identityConfigured === true },
+    { key: "verify", done: !!member },
+    { key: "connect", done: !!state },
   ];
   if (identityConfigured === null || steps.every((step) => step.done))
     return null;
@@ -30,28 +29,33 @@ export function SetupGuide() {
       <VStack align="stretch" spacing={3}>
         {steps.map((step, index) => (
           <HStack key={step.key} spacing={3} align="center">
-            <Icon
-              as={step.done ? LuCircleCheck : LuCircle}
-              boxSize={5}
-              color={step.done ? "green.500" : undefined}
-              aria-label={
-                step.done ? t("FederationPage.guide.done") : undefined
-              }
-            />
+            {/* Numbered steps, so the list no longer looks like radio buttons. */}
+            <Badge
+              flexShrink={0}
+              boxSize={6}
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              colorScheme={step.done ? "green" : undefined}
+            >
+              {step.done ? <Icon as={LuCheck} boxSize={3} /> : index + 1}
+            </Badge>
             <Text
               flex={1}
               fontWeight={index === current ? "semibold" : "normal"}
             >
               {t(`FederationPage.guide.${step.key}`)}
             </Text>
-            {index === current && router.pathname !== step.href && (
+            {/* The setup and verification editors are rendered inline below, so
+                only the connection step needs its own action here. */}
+            {index === current && step.key === "connect" && (
               <Button
-                as={Link}
-                href={step.href}
                 size="sm"
                 colorScheme={config.appearance.theme.primaryColor}
+                onClick={() => onAction("connect")}
               >
-                {t("FederationPage.guide.next")}
+                {t("ConnectionFlow.searchRetry")}
               </Button>
             )}
           </HStack>

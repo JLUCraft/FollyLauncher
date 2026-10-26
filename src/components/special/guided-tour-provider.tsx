@@ -32,6 +32,7 @@ import React, {
 } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
+import { getModifierKeyLabel } from "@/utils/keyboard";
 import { clamp } from "@/utils/math";
 
 export type Placement = "top" | "right" | "bottom" | "left";
@@ -126,11 +127,7 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
           i18nKey="GuidedTourProvider.step3.content"
           components={{ key: <Kbd /> }}
           values={{
-            keyname: t(
-              `Enums.${config.basicInfo.osType === "macos" ? "metaKey" : "ctrlKey"}.${
-                config.basicInfo.osType
-              }`
-            ),
+            keyname: getModifierKeyLabel(config.basicInfo.osType) ?? "",
           }}
         />
       ),

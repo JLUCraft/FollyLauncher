@@ -1,9 +1,16 @@
-import { Flex, HStack, Tag, Text, useDisclosure } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  HStack,
+  Tag,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuX } from "react-icons/lu";
+import { LuDownload, LuPlus, LuX } from "react-icons/lu";
 import {
   COMPACT_ICON_BUTTON_HEIGHT,
   CommonIconButton,
@@ -247,7 +254,27 @@ const JavaSettingsPage = () => {
             ))}
           />
         ) : (
-          <Empty withIcon={false} size="sm" />
+          <Empty size="md" description={t("JavaSettingsPage.javaList.empty")}>
+            {/* without a detection result, the way to add Java must be explicit */}
+            <HStack spacing={2} flexWrap="wrap" justify="center">
+              <Button
+                size="sm"
+                colorScheme={primaryColor}
+                leftIcon={<LuDownload />}
+                onClick={onDownloadJavaModalOpen}
+              >
+                {t("JavaSettingsPage.javaList.download")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                leftIcon={<LuPlus />}
+                onClick={(event) => handleAddJavaPath(event.altKey)}
+              >
+                {t("JavaSettingsPage.javaList.add")}
+              </Button>
+            </HStack>
+          </Empty>
         )}
       </Section>
       <DownloadJavaModal

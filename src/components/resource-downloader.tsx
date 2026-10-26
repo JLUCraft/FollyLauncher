@@ -38,7 +38,6 @@ import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual"
 import DownloadSpecificResourceModal from "@/components/modals/download-specific-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
-import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import {
   OtherResourceSource,
@@ -302,7 +301,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const toast = useToast();
   const { getGameVersionList } = useGlobalData();
 
   const [gameVersionList, setGameVersionList] = useState<string[]>([]);
@@ -310,6 +308,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [resourceList, setResourceList] = useState<OtherResourceInfo[]>([]);
   const [isLoadingResourceList, setIsLoadingResourceList] =
     useState<boolean>(false);
+  // A failed fetch is shown inline in the list container, so the reason and the
+  // retry action stay where the missing data is instead of covering the sidebar.
+  const [listError, setListError] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [pageSize, setPageSize] = useState<number>(20);
 
@@ -377,6 +378,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       )
         .then((response) => {
           if (response.status === "success") {
+            setListError("");
             const resourceData = response.data.list;
             if (!isLoadMore) {
               setResourceList(resourceData);
@@ -385,19 +387,15 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             }
             setHasMore(response.data.total > (page + 1) * pageSize);
           } else {
-            setResourceList([]);
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
+            if (!isLoadMore) setResourceList([]);
+            setListError(response.details || response.message);
           }
         })
         .finally(() => {
           setIsLoadingResourceList(false);
         });
     },
-    [toast]
+    []
   );
 
   const loadMore = () => {
@@ -637,6 +635,21 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           <VStack mt={8}>
             <BeatLoader size={16} color="gray" />
           </VStack>
+        ) : listError ? (
+          <Empty
+            size="md"
+            description={t("ResourceDownloader.listError.description", {
+              reason: listError,
+            })}
+          >
+            <Button
+              size="sm"
+              colorScheme={primaryColor}
+              onClick={reFetchResourceList}
+            >
+              {t("General.retry")}
+            </Button>
+          </Empty>
         ) : (
           <ResourceDownloaderList
             list={resourceList}

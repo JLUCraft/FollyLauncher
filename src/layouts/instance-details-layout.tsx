@@ -2,6 +2,12 @@ import {
   Button,
   HStack,
   Icon,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Portal,
   Text,
   VStack,
   useDisclosure,
@@ -16,6 +22,7 @@ import { GoDotFill } from "react-icons/go";
 import {
   LuBookDashed,
   LuEarth,
+  LuEllipsis,
   LuFullscreen,
   LuHaze,
   LuHouse,
@@ -143,10 +150,14 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         }
       },
     },
+  ];
+
+  // Deleting an instance is destructive, so it lives in the overflow menu
+  // instead of sitting next to the primary launch button.
+  const dangerOperations = [
     {
       icon: "delete",
       label: t("InstanceMenu.label.delete"),
-      danger: true,
       onClick: () => {
         if (summary)
           openSharedModal("delete-instance-alert", { instance: summary });
@@ -200,13 +211,38 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
               key={String(btn.icon)}
               icon={btn.icon}
               label={btn.label}
-              colorScheme={btn.danger ? "red" : "gray"}
               onClick={btn.onClick}
               size="xs"
               fontSize="sm"
               h={COMPACT_ICON_BUTTON_HEIGHT}
             />
           ))}
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label={t("General.more")}
+              icon={<LuEllipsis />}
+              size="xs"
+              fontSize="sm"
+              h={COMPACT_ICON_BUTTON_HEIGHT}
+              variant="ghost"
+              colorScheme="gray"
+            />
+            <Portal>
+              <MenuList minW={0}>
+                {dangerOperations.map((item) => (
+                  <MenuItem
+                    key={item.label}
+                    fontSize="xs"
+                    color="red.500"
+                    onClick={item.onClick}
+                  >
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Portal>
+          </Menu>
           <Button
             leftIcon={<LuPlay />}
             size="xs"

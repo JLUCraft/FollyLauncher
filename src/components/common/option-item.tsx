@@ -60,19 +60,20 @@ export const OptionItem: React.FC<OptionItemProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const palettes = useColorModeValue([100, 200, 300], [900, 800, 700]);
+  const hoverBg = useColorModeValue("blackAlpha.50", "whiteAlpha.100");
+  const activeBg = useColorModeValue("blackAlpha.100", "whiteAlpha.200");
 
   const titleLineClampProps: TextProps = {
     noOfLines: maxTitleLines,
     sx: {
-      wordBreak: "break-all",
+      overflowWrap: "break-word",
     },
   };
 
   const descriptionLineClampProps: TextProps = {
     noOfLines: maxDescriptionLines,
     sx: {
-      wordBreak: "break-all",
+      overflowWrap: "break-word",
     },
   };
 
@@ -122,18 +123,33 @@ export const OptionItem: React.FC<OptionItemProps> = ({
         onMouseLeave={() => setIsHovered(false)}
         borderRadius="md"
         _hover={{
-          bg: isFullClickZone ? `gray.${palettes[0]}` : "inherit",
+          bg: isFullClickZone ? hoverBg : "inherit",
           transition: "background-color 0.2s ease-in-out",
         }}
         _active={{
-          bg: isFullClickZone ? `gray.${palettes[1]}` : "inherit",
+          bg: isFullClickZone ? activeBg : "inherit",
           transition: "background-color 0.1s ease-in-out",
         }}
         cursor={isFullClickZone ? "pointer" : "default"}
-        p={0.5}
+        p={1}
+        gap={3}
+        role={isFullClickZone ? "button" : undefined}
+        tabIndex={isFullClickZone ? 0 : undefined}
+        _focusVisible={isFullClickZone ? { boxShadow: "outline" } : undefined}
         {...boxProps}
+        onKeyDown={(event) => {
+          boxProps.onKeyDown?.(event);
+          if (
+            isFullClickZone &&
+            event.target === event.currentTarget &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            event.currentTarget.click();
+          }
+        }}
       >
-        <HStack spacing={2.5} overflow="hidden">
+        <HStack spacing={2.5} overflow="hidden" minW={0}>
           {prefixElement && (
             <Skeleton isLoaded={!isLoading} flex="0 0 auto">
               {prefixElement}
@@ -228,7 +244,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
         <React.Fragment key={index}>
           {isOptionItemProps(item) ? <OptionItem {...item} /> : item}
           {index !== visibleItems.length - 1 &&
-            (withDivider ? <Divider my={1.5} /> : <Box h={1.5} />)}
+            (withDivider ? <Divider my={2} /> : <Box h={2} />)}
         </React.Fragment>
       ))}
       {hasShowAllBtn && remainingCount > 0 && (

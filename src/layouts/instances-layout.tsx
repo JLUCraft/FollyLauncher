@@ -20,6 +20,7 @@ import {
   LuBoxes,
   LuCirclePlus,
   LuFolder,
+  LuNetwork,
   LuSettings,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
@@ -69,6 +70,11 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
         value: "/instances/list",
         icon: <Icon as={LuBoxes} />,
         label: t("AllInstancesPage.title"),
+      },
+      {
+        value: "/instances/rooms",
+        icon: <Icon as={LuNetwork} />,
+        label: t("FederationNav.rooms"),
       },
       ...(navBarType === "instance"
         ? installTasks

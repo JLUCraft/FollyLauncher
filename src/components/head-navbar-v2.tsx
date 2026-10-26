@@ -144,10 +144,11 @@ const HeadNavBar = () => {
       return;
     }
 
-    const listRect = listEl.getBoundingClientRect();
-    const tabRect = selectedEl.getBoundingClientRect();
-    const nextLeft = Math.round(tabRect.left - listRect.left);
-    const nextWidth = Math.round(tabRect.width);
+    // Measure with layout metrics instead of getBoundingClientRect: the navbar
+    // card runs a scaleX animation, which distorts rect-based measurements
+    // taken mid-animation and made the pill offset to the left of the label.
+    const nextLeft = selectedEl.offsetLeft;
+    const nextWidth = selectedEl.offsetWidth;
 
     setIndicator((prev) => {
       if (prev.visible && prev.left === nextLeft && prev.width === nextWidth) {
@@ -165,6 +166,19 @@ const HeadNavBar = () => {
   useLayoutEffect(() => {
     updateIndicator();
   }, [updateIndicator, isSimplified, i18n.resolvedLanguage]);
+
+  // re-measure once the web fonts have finished loading, as the label glyph
+  // widths decide the tab width
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.fonts) return;
+    let cancelled = false;
+    document.fonts.ready.then(() => {
+      if (!cancelled) updateIndicator();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [updateIndicator]);
 
   useEffect(() => {
     window.addEventListener("resize", updateIndicator);

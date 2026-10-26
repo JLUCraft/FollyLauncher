@@ -107,8 +107,9 @@ const DownloadSettingsPage = () => {
     closeSharedModal("generic-confirm");
   };
 
-  const downloadSettingGroups: OptionItemGroupProps[] = [
+  const downloadSettingGroups: (OptionItemGroupProps & { id: string })[] = [
     {
+      id: "tools",
       items: [
         {
           title: t("DownloadTasksPage.title"),
@@ -125,6 +126,7 @@ const DownloadSettingsPage = () => {
       ],
     },
     {
+      id: "source",
       title: t("DownloadSettingPage.source.title"),
       items: [
         {
@@ -150,6 +152,7 @@ const DownloadSettingsPage = () => {
       ],
     },
     {
+      id: "download",
       title: t("DownloadSettingPage.download.title"),
       items: [
         {
@@ -288,6 +291,7 @@ const DownloadSettingsPage = () => {
       ],
     },
     {
+      id: "cache",
       title: t("DownloadSettingPage.cache.title"),
       items: [
         {
@@ -357,6 +361,7 @@ const DownloadSettingsPage = () => {
       ],
     },
     {
+      id: "proxy",
       title: t("DownloadSettingPage.proxy.title"),
       headExtra: (
         <Box display="flex" alignItems="center">
@@ -375,8 +380,8 @@ const DownloadSettingsPage = () => {
 
   return (
     <>
-      {downloadSettingGroups.map((group) => (
-        <OptionItemGroup key={group.title} {...group} />
+      {downloadSettingGroups.map(({ id, ...group }) => (
+        <OptionItemGroup key={id} {...group} />
       ))}
     </>
   );

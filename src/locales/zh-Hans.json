@@ -3,6 +3,21 @@
     "about": {
       "title": "关于",
       "settings": {
+        "community": {
+          "title": "玩家社群"
+        },
+        "docs": {
+          "title": "玩家文档"
+        },
+        "feedback": {
+          "title": "问题反馈"
+        },
+        "homepage": {
+          "title": "项目主页"
+        },
+        "repository": {
+          "title": "源码仓库"
+        },
         "version": {
           "title": "版本",
           "foundNew": "有新版本",
@@ -12,19 +27,6 @@
             "up2date": "当前已是最新版本",
             "error": "检查更新失败"
           }
-        },
-        "basedOn": {
-          "title": "基于开源启动器 SJMCL",
-          "description": "{{productName}} 是基于 SJMCL 的衍生版本，增加了联盟与房间功能。以下贡献者、源码、协议和帮助链接指向上游 SJMCL；上游文档不涵盖本版本新增功能。当前更新源也仍指向上游 SJMCL。"
-        },
-        "contributors": {
-          "title": "上游 SJMCL 贡献者"
-        },
-        "sourceCode": {
-          "title": "查看上游 SJMCL 源码"
-        },
-        "aboutSJMC": {
-          "title": "关于上海交通大学 Minecraft 社（SJMC）"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "法律信息",
+      "title": "上游与许可",
       "settings": {
+        "basedOn": {
+          "title": "基于开源启动器 SJMCL",
+          "description": "{{productName}} 基于 SJMCL 开发。原仓库：https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "版权",
-          "description": "版权所有 © 2024-2026 SJMCL 开发团队."
+          "description": "版权所有 © 2026 Folly Launcher 团队。基于 SJMCL © 2024-2026 SJMCL 开发团队。"
         },
         "userAgreement": {
           "title": "上游 SJMCL 用户协议",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "网格视图",
       "list": "列表视图"
-    }
+    },
+    "empty": "当前分类中没有游戏账号。添加角色，或从其他启动器导入。"
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "实例名称"
     },
     "sortBy": "排序方式",
-    "title": "全部实例"
+    "title": "全部实例",
+    "empty": "当前分类中没有游戏实例。添加游戏，或导入已有安装。"
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "当前游戏连接",
     "disconnectFirst": "要加入其他房间或比赛，请先断开当前服务。",
-    "defaultSeed": "使用已连接的节点"
+    "defaultSeed": "使用已连接的节点",
+    "returnRooms": "返回服务器与房间",
+    "returnActivities": "返回活动与联赛",
+    "linkStaged": "已收到连接链接，完成准备后在此确认连接。",
+    "searching": "正在搜索附近的联盟服务器…",
+    "searchEmpty": "附近没有找到联盟服务器。",
+    "searchRetry": "重新搜索",
+    "membershipTitle": "已找到联盟",
+    "membershipBody": "服务器就在附近，但你还没有加入。验证成员身份后会自动连接。",
+    "membershipAction": "验证身份并加入",
+    "joinFailed": "身份验证没有通过。请确认已在皮肤站登录，或联系组织者。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "更新启动器",
       "extension-update": "更新扩展 {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} 运行时"
-    }
+    },
+    "empty": "暂无下载任务。开始下载后会显示在此处。"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} 无法控制第三方扩展的行为，包括它们如何管理你的个人数据。请仅安装并启用来自可信来源的扩展。",
     "fileDnD": {
-      "title": "安装 SJMCL 扩展",
+      "title": "安装扩展",
       "desc": "将扩展文件 {{fileName}} 安装到 {{productName}}"
     },
     "installed": "已安装扩展",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "尚未安装任何扩展。",
+    "install": "安装扩展"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "更新扩展",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "联盟",
-    "overview": "连接",
-    "league": "联赛",
-    "rooms": "房间与服务器",
-    "identity": "我的身份",
-    "manage": "赛季运营",
-    "connected": "已同步联赛",
-    "restricted": "请使用赛季管理员身份连接后管理赛季。",
+    "overview": "联盟连接",
+    "activities": "活动与联赛",
+    "rooms": "服务器与房间",
+    "identity": "联盟身份",
+    "manage": "管理",
+    "connected": "已连接",
+    "restricted": "请使用管理员身份连接后管理应用。",
     "advanced": "高级设置",
     "disconnected": "尚未连接"
   },
   "FederationPage": {
+    "points": {
+      "title": "积分",
+      "balance": "积分余额",
+      "account": "{{club}} · {{member}}",
+      "revision": "修订 {{revision}}",
+      "available": "可用：{{available}} 分",
+      "frozen": "冻结中：{{frozen}} 分",
+      "today": "本计分日：{{earned}} / {{cap}} 分",
+      "todayProgress": "本计分日活跃进度",
+      "todayNoCap": "本计分日已获得 {{earned}} 分；尚未设置每日上限。",
+      "resetAt": "重置时间：{{time}}",
+      "slices": "有效切片 {{active}} 个，休息切片 {{afk}} 个",
+      "asOf": "对账单截至 {{time}}",
+      "exportStatement": "导出积分对账单",
+      "exportDone": "积分对账单已保存",
+      "exportFailed": "积分对账单导出失败",
+      "historyTitle": "最近24小时到账与 AI 流水",
+      "activityTitle": "最近24小时到账",
+      "activityEmpty": "最近24小时内还没有到账记录。",
+      "activityRow": "有效 {{active}} · 休息 {{afk}} · {{time}}",
+      "aiTitle": "AI 扣费与退还",
+      "aiEmpty": "还没有 AI 请求记录。",
+      "aiRow": "预冻 {{frozen}} · 实扣 {{charged}} · 退还 {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} 分",
+      "requestTitle": "发起 AI 请求",
+      "requestHelp": "文本会先上传到组织；只使用已登记的算力节点和当前费率。",
+      "requestText": "要交给 AI 的文本",
+      "requestSize": "{{size}} 字节",
+      "next": "下一步",
+      "back": "上一步",
+      "noWorker": "当前没有在线且已登记的算力节点，请联系服务器管理员。",
+      "worker": "已登记算力节点",
+      "model": "模型",
+      "maxTokens": "最大输出 Tokens",
+      "maxTokensHelp": "填写 1 到 4294967295 之间的整数。",
+      "length": "输出长度",
+      "lengthShort": "简短",
+      "lengthStandard": "标准",
+      "lengthDetailed": "详细",
+      "lengthTokens": "{{label}} · 最多 {{tokens}} Tokens",
+      "lengthUnavailable": "没有符合服务器输出上限的预设，请在高级设置中填写 Tokens。",
+      "maxTokensNativeHelp": "1 到 {{max}} 之间的整数。",
+      "advancedShow": "高级设置",
+      "advancedHide": "收起高级设置",
+      "reviewPayer": "付款账户：{{payer}}",
+      "reviewMaxPoints": "本次最多冻结：{{maxPoints}} 分",
+      "reviewWorker": "节点 {{worker}} · 模型 {{model}}",
+      "quote": "起步 {{base}} + 用量 {{variable}} = 冻结 {{total}} 分",
+      "maxPoints": "max_points：{{maxPoints}}",
+      "insufficient": "可用积分不足以覆盖本次冻结。请先获得活跃积分，或请管理员复核费率。",
+      "automaticBudget": "自动工作流使用单独的活动或报告预算；本次请求直接使用你自己的可用积分。",
+      "confirm": "确认费用",
+      "confirmTitle": "确认冻结积分",
+      "confirmBody": "本次最多冻结 {{maxPoints}} 分。推理失败会全额退回；成功则按实际用量结算并退回差额。",
+      "confirmAction": "确认冻结并发起",
+      "requestAccepted": "AI 请求已受理",
+      "budgetTitle": "自动流程预算",
+      "budgetHelp": "预算由 {{club}} 的 {{member}} 支付，只能用于所选活动或报告。当前可用 {{available}} 分。",
+      "budgetEmpty": "当前没有你可以授权的活动或报告。",
+      "budgetScope": "活动或报告",
+      "budgetChoose": "选择真实活动或报告",
+      "budgetEvent": "活动：{{title}}（{{club}}）",
+      "budgetReport": "报告：{{title}}（{{club}}）",
+      "budgetAmount": "预算积分",
+      "budgetLimit": "不能超过当前可用 {{available}} 分。",
+      "budgetSubmit": "授权预算",
+      "budgetAccepted": "已授权作用域预算",
+      "aiStagePurpose": "第 {{stage}} 步 · {{purpose}}",
+      "aiStatusQueued": "排队中",
+      "aiStatusRunning": "执行中",
+      "aiStatusCompleted": "已完成",
+      "aiStatusFailed": "失败",
+      "aiStatusRefunded": "已退款",
+      "aiStatusCancelled": "已取消",
+      "aiStatusUnknown": "未知状态",
+      "purposeMemberAssist": "成员协助",
+      "purposeEventsDraft": "活动文档起草",
+      "purposeEventsReview": "材料审核",
+      "purposeEventsSummary": "活动总结",
+      "purposeOther": "其他用途",
+      "openResult": "查看结果",
+      "aiRetry": "重试失败阶段",
+      "aiCancel": "撤回本次请求",
+      "aiRetryConfirmTitle": "确认重试失败阶段",
+      "aiRetryConfirmBody": "第 {{stage}} 步最初预冻 {{quote}} 分；重试会再次冻结同一金额，而不是当前模型价格。支付方：{{payer}}。当前可用：{{available}} 分。",
+      "aiRetryConfirmAction": "按原报价重试",
+      "resultTitle": "AI 结果 · {{model}} · 第 {{stage}} 步",
+      "resultLoading": "正在读取结果…",
+      "resultFailed": "结果读取失败，请重试。",
+      "resultRetry": "重试读取",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "page": "第 {{page}} / {{pages}} 页"
+    },
     "gameConnection": {
       "title": "比赛连接",
       "description": "粘贴组织者提供的比赛连接链接",
@@ -976,28 +1091,54 @@
       "genesisLabel": "联盟校验码（向组织者核实）",
       "genesisInvalid": "请输入组织者提供的 64 位校验码（数字 0–9 与字母 a–f）。",
       "linkLabel": "连接链接",
-      "linkHelp": "粘贴组织者发给你的链接。在本机打开该链接也会自动连接。",
+      "linkHelp": "粘贴组织者提供的链接，确认后点击连接。在本机打开链接会将其填入这里，等待确认。",
       "linkConnect": "连接",
       "linkInvalid": "这不是有效的连接链接，请完整复制组织者发来的链接。",
-      "shareLabel": "把这个连接分享给同学",
-      "shareCopy": "复制链接",
       "manualTitle": "手动填写连接信息",
       "connect": "连接 / 刷新",
       "myDevice": "我的设备：{{id}}",
       "myMember": "我的编号：{{id}}",
       "myClub": "（{{club}}）",
-      "linkPlaceholder": "粘贴组织者发来的链接"
+      "linkPlaceholder": "粘贴组织者发来的链接",
+      "shareAction": "复制邀请链接",
+      "disconnect": "断开连接",
+      "serverPeer": "服务器 {{peer}}"
     },
     "error": "操作未完成，请检查连接与报名状态后重试",
-    "identityRequired": "连接前需要先设置统一成员身份，请先到身份页面完成设置。",
-    "openIdentity": "打开身份设置",
+    "identityRequired": "连接前请在设置中完成联盟身份配置。",
+    "openIdentity": "前往联盟身份设置",
     "empty": {
-      "noLeagues": "当前联盟暂无联赛。"
+      "noActivities": "当前暂无活动或竞赛。"
     },
     "phase": {
       "Registration": "报名中",
       "Playing": "进行中",
       "Finished": "已结束"
+    },
+    "activities": {
+      "description": "浏览活动与联赛，查看报名和赛事进度。",
+      "linkedCompetitions": "赛事",
+      "competitionsEmpty": "此活动暂无关联赛事。",
+      "standaloneTitle": "独立赛事",
+      "competitionMissing": "此赛事不在当前应用中。",
+      "eventMissing": "此活动不在当前应用中。",
+      "organizer": "主办社团",
+      "opens": "报名开始",
+      "closes": "报名截止",
+      "starts": "开赛时间",
+      "signupCount": "已报名 {{count}} 人",
+      "signup": "报名",
+      "cancelSignup": "取消报名",
+      "noBrief": "此活动暂未提供说明。",
+      "competitionTitle": "赛事"
+    },
+    "activityPhase": {
+      "draft": "草稿",
+      "review": "审核中",
+      "approved": "已批准",
+      "open": "报名中",
+      "done": "已结束",
+      "cancelled": "已取消"
     },
     "league": {
       "seatsPerTeam": "每队 {{seats}} 人",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "开始使用",
       "setup": "添加组织者提供的设置",
-      "connect": "用链接连接你的联盟",
+      "connect": "自动连接你的联盟",
       "verify": "验证你的成员资格",
       "done": "已完成",
       "next": "继续"
+    },
+    "organizer": {
+      "areaTitle": "组织者操作",
+      "areaHint": "仅主办社团可使用这些操作，且会影响所有参赛者，因此每项操作都会先请求确认。",
+      "startConfirmTitle": "锁定报名并开始比赛？",
+      "startConfirmBody": "报名将永久关闭，赛程将根据当前已报名的队伍抽签生成，该操作不可撤销。"
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "帮助"
     },
     "bottomAlert": "如需寻求他人帮助，请导出并发送崩溃报告，而非这个窗口的截图",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "崩溃信息",
       "OPENJ9": "当前实例无法在 OpenJ9 JVM 上运行，请使用 HotSpot JVM。",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "当前实例由于 Forge 与 LiteLoader 冲突，无法继续运行。请尝试删除 LiteLoader 或更换 Forge 版本。",
       "UNKNOWN": "暂时无法分析该错误，请查看游戏日志或导出错误崩溃报告。"
     },
-    "autoCloseCountdown": "窗口将在 {{seconds}} 秒后自动关闭（点击窗口任意位置可取消）"
+    "autoCloseCountdown": "窗口将在 {{seconds}} 秒后自动关闭（点击窗口任意位置可取消）",
+    "placeholder": {
+      "unknown": "未知"
+    }
   },
   "GameLogPage": {
     "placeholder": "输入关键词筛选",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "添加",
-    "alert": {
-      "noFullLogin": {
-        "title": "当前功能暂不可用",
-        "description": "请先登录微软账户后使用此功能。"
-      }
-    },
     "back": "返回",
     "beta": "公测版",
     "browse": "浏览",
@@ -1373,7 +1517,8 @@
       "test-build": "测试构建版本"
     },
     "versionNumberingHelp": "版本号规则说明",
-    "viewOnWiki": "在 Minecraft Wiki 中查看"
+    "viewOnWiki": "在 Minecraft Wiki 中查看",
+    "retry": "重试"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "高校玩家社区",
       "settings": {
+        "JLUCraft": {
+          "title": "吉林大学 Minecraft 同好会（JLUCraft）",
+          "description": "本启动器所在的同好会，面向吉林大学及各地玩家",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "Minecraft 高校联盟（MUA）",
           "description": "和全国各高校的玩家一起游玩",
           "url": "https://www.mualliance.cn"
-        },
-        "SJMC": {
-          "title": "上海交通大学 Minecraft 社（SJMC）",
-          "url": "https://mc.sjtu.cn"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
+          "title": "玩家文档",
+          "url": "https://www.jlucraft.com/docs/"
+        },
+        "UserGroup": {
+          "title": "玩家社群",
+          "description": "欢迎加入，报告问题、请求功能或获取帮助",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "上游项目",
+      "settings": {
+        "LauncherDocs": {
           "title": "上游 SJMCL 文档",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
-        "UserGroup": {
-          "title": "上游 SJMCL 用户社群",
-          "description": "欢迎加入 QQ 群或 GitHub Discussions，报告问题、请求功能或获取帮助",
-          "url": "https://mc.sjtu.cn/sjmcl/docs/user-group"
+        "SJMC": {
+          "title": "上海交通大学 Minecraft 社（SJMC）",
+          "url": "https://mc.sjtu.cn"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "已同步至第 {{sequence}} 版",
     "review": "核对变更",
     "reviewHint": "签署即确认下列变更。关联两台设备可能需要各自签署，可在高级设置中在两台设备间传递变更。",
+    "technicalDetails": "技术详情",
+    "signatureCount": "已有 {{count}} 个签名",
+    "unknownAction": "未知操作：{{type}}",
     "sign": "确认并签名",
     "submit": "提交已签名变更",
     "import": "导入待联署的变更",
@@ -1711,12 +1873,24 @@
       "memberships": "成员资格",
       "profiles": "已绑定的游戏档案"
     },
+    "permissions": {
+      "read": "读取",
+      "write": "写入",
+      "admin": "管理",
+      "use": "使用",
+      "manage": "管理权限"
+    },
+    "services": {
+      "application": "应用服务"
+    },
     "unnamedField": "未命名字段",
     "before": "变更前",
     "after": "变更后",
     "unknown": "刷新身份后可查看当前绑定",
     "inspect": "查看已保存的信息（离线）",
-    "hint": "大多数人只需点击第一个按钮。"
+    "hint": "大多数人只需点击第一个按钮。",
+    "importSetup": "从文件载入组织者设置",
+    "setupLoaded": "设置已载入。请检查内容，然后保存以继续。"
   },
   "IdentityManagement": {
     "title": "组织者工具",
@@ -1860,7 +2034,9 @@
         "info": "查看信息",
         "update": "检查更新",
         "search": "搜索",
-        "placeholder": "搜索模组..."
+        "placeholder": "搜索模组...",
+        "download": "下载模组",
+        "import": "导入模组"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "当前实例未启用特定游戏设置，<toGlobal>前往全局游戏设置</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "以下选项仅作用于实例「{{name}}」。",
+      "enabled": "已启用实例独立设置",
+      "disabled": "未启用实例独立设置"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "Java 管理",
       "download": "下载 Java",
       "add": "添加 Java",
-      "remove": "移除此 Java"
+      "remove": "移除此 Java",
+      "empty": "尚未检测到 Java 运行环境。"
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "上次运行异常退出",
-      "content": "{{productName}} 上次运行时异常退出。可先查看日志。以下<community>用户社群</community>和 <github>GitHub</github> 入口属于上游 SJMCL；反馈时请注明使用的衍生版本，联盟功能问题应反馈给本版本维护者。",
+      "content": "{{productName}} 上次运行时异常退出。可先查看日志。可通过以下<community>玩家社群</community>和 <github>GitHub Issues</github> 反馈问题，反馈时请附上日志与版本号。",
       "viewLog": "查看日志"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "启动游戏",
-      "instanceSettings": "实例设置"
+      "instanceSettings": "实例设置",
+      "returnToLaunch": "返回启动页"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "全部"
+    },
+    "listError": {
+      "description": "资源列表加载失败：{{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "显示签名所需设备 ID",
     "hostIdentity": "开房设备 ID",
     "playerIdentity": "加入设备 ID",
-    "title": "房间与服务器",
-    "description": "使用已验证的成员身份开房或加入其他社团。",
+    "title": "服务器与房间",
+    "description": "寻找服务器、加入联机房间，或创建自己的房间。",
     "seeds": "房间发现地址（每行一个）",
     "refresh": "刷新房间与状态",
     "partial": "部分发现节点或房间暂时不可达，列表可能不完整。",
@@ -2584,7 +2770,12 @@
     "start": "启动房间",
     "stop": "关闭房间",
     "hosting": "正在托管 {{name}}",
-    "error": "操作未完成。请检查身份、服务器设置和网络后重试。"
+    "error": "操作未完成。请检查身份、服务器设置和网络后重试。",
+    "networkSettings": "服务器与房间网络设置",
+    "setupHint": "可以先浏览；加入或创建房间前，请在设置中完成联盟身份配置。",
+    "setupToJoin": "设置后加入",
+    "setupToHost": "设置后创建房间",
+    "optionDetails": "{{school}} · {{version}} · 最多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "离线角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "请先登录微软账户后使用此功能。",
             "INVALID": "UUID 无效",
             "TEXTURE_ERROR": "角色皮肤获取失败"
           }
@@ -2753,7 +2943,6 @@
           "title": "角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "请先登录微软账户后使用此功能。",
             "NETWORK_ERROR": "无法连接至认证服务器",
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NOT_FOUND": "认证服务器不存在",
@@ -2798,7 +2987,6 @@
           "title": "角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "请先登录微软账户后使用此功能。",
             "NETWORK_ERROR": "无法连接至认证服务器",
             "PARSE_ERROR": "服务器返回数据格式错误",
             "INVALID": "账号或密码错误",
@@ -2826,7 +3014,6 @@
           "title": "角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "请先登录微软账户后使用此功能。",
             "NETWORK_ERROR": "无法连接至认证服务器",
             "PARSE_ERROR": "服务器返回数据格式错误",
             "EXPIRED": "令牌已过期，请重新登录"
@@ -3464,7 +3651,9 @@
       "intelligence": "智能",
       "extension": "扩展插件",
       "help": "文档与帮助",
-      "about": "关于"
+      "about": "关于",
+      "federation": "联盟",
+      "federation-management": "联盟管理"
     }
   },
   "SkinPreview": {
@@ -3520,7 +3709,7 @@
     "header": {
       "title": "在 GitHub 为我们点亮星标"
     },
-    "body": "如果您喜爱 SJMCL，并希望支持我们，可以在 GitHub 为我们点一颗星吗？这个小小的动作对我们来说意义重大，能激励我们为您持续提供特性体验。",
+    "body": "如果您喜爱 {{productName}}，并希望支持我们，可以在 GitHub 为我们点一颗星吗？这个小小的动作对我们来说意义重大，能激励我们为您持续提供特性体验。",
     "button": {
       "later": "稍后",
       "starUs": "点亮星标"
@@ -3598,7 +3787,7 @@
       "title": "欢迎！"
     },
     "body": {
-      "text": "欢迎使用 {{productName}}！本版本基于 SJMCL 开发。继续前，请阅读并同意所链接的<terms>上游 SJMCL 用户协议</terms>；该链接不是本版本新增联盟服务的专门条款。"
+      "text": "欢迎使用 {{productName}}！本启动器由吉林大学 Minecraft 同好会（JLUCraft）维护，基于 SJMCL 开发。继续前，请阅读并同意所链接的<terms>上游 SJMCL 用户协议</terms>；该链接指向上游 SJMCL 条款，而非本启动器专用条款。"
     },
     "warning": {
       "unstableVersion": "您正在使用{{versionLabel}}的 {{productName}}，部分功能可能不稳定或未开发完成，欢迎报告使用问题与功能建议。",

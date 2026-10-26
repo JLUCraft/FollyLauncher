@@ -4,6 +4,7 @@ import {
   Avatar,
   AvatarBadge,
   Badge,
+  Button,
   HStack,
   Text,
 } from "@chakra-ui/react";
@@ -12,7 +13,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { openPath, openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "react-i18next";
-import { LuCircleCheck, LuCircleMinus } from "react-icons/lu";
+import { LuCircleCheck, LuCircleMinus, LuFolderOpen } from "react-icons/lu";
 import {
   COMPACT_ICON_BUTTON_HEIGHT,
   CommonIconButton,
@@ -297,7 +298,7 @@ const ExtensionSettingsPage = () => {
     <>
       <Section
         title={t("SettingsLayout.settingsDomainList.extension")}
-        titleExtra={<Badge colorScheme="purple">{t("General.beta")}</Badge>}
+        titleExtra={<Badge colorScheme="brand">{t("General.beta")}</Badge>}
         isAccordion
       >
         <OptionItemGroup items={extensionDocItems} />
@@ -328,7 +329,20 @@ const ExtensionSettingsPage = () => {
         {extensions.length > 0 ? (
           <OptionItemGroup items={extensionItems} />
         ) : (
-          <Empty withIcon={false} size="sm" />
+          <Empty
+            size="md"
+            description={t("ExtensionSettingsPage.installedEmpty")}
+          >
+            {/* the install action must be reachable without the tiny header icon */}
+            <Button
+              size="sm"
+              colorScheme={primaryColor}
+              leftIcon={<LuFolderOpen />}
+              onClick={handleBrowse}
+            >
+              {t("ExtensionSettingsPage.install")}
+            </Button>
+          </Empty>
         )}
       </Section>
     </>

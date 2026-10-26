@@ -128,6 +128,17 @@ export const isPathSanitized = (path: string, maxLength = 255): boolean => {
 export const isValidSemanticVersion = (version: string) =>
   /^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$/.test(version);
 
+const IDENTIFIER_PREFIX_LENGTH = 12;
+const IDENTIFIER_SUFFIX_LENGTH = 8;
+
+export const shortenIdentifier = (value: string) => {
+  const visibleLength = IDENTIFIER_PREFIX_LENGTH + IDENTIFIER_SUFFIX_LENGTH + 1;
+  if (value.length <= visibleLength) return value;
+  return `${value.slice(0, IDENTIFIER_PREFIX_LENGTH)}…${value.slice(
+    -IDENTIFIER_SUFFIX_LENGTH
+  )}`;
+};
+
 export const displayLauncherVersion = (info: {
   launcherVersion: string;
   buildType: BuildType;

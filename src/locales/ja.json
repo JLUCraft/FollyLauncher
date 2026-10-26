@@ -3,6 +3,21 @@
     "about": {
       "title": "SJMCLについて",
       "settings": {
+        "community": {
+          "title": "プレイヤーコミュニティ"
+        },
+        "docs": {
+          "title": "プレイヤー向けドキュメント"
+        },
+        "feedback": {
+          "title": "問題を報告"
+        },
+        "homepage": {
+          "title": "プロジェクトホームページ"
+        },
+        "repository": {
+          "title": "ソースリポジトリ"
+        },
         "version": {
           "title": "バージョン",
           "foundNew": "アップデートがあります",
@@ -12,19 +27,6 @@
             "up2date": "最新バージョンです",
             "error": "アップデートの確認に失敗"
           }
-        },
-        "basedOn": {
-          "title": "SJMCL ベース",
-          "description": "{{productName}} は SJMCL を基に、連盟・ルーム機能を追加した派生版です。以下の貢献者・ソース・規約・ヘルプは上流 SJMCL のものです。上流の文書は追加機能を扱いません。現在の更新元も上流 SJMCL です。"
-        },
-        "contributors": {
-          "title": "上流 SJMCL の貢献者"
-        },
-        "sourceCode": {
-          "title": "上流 SJMCL のソースを見る"
-        },
-        "aboutSJMC": {
-          "title": "上海交通大学 Minecraft クラブ (SJMC) について"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "法的情報",
+      "title": "上流プロジェクトとライセンス",
       "settings": {
+        "basedOn": {
+          "title": "オープンソースランチャー SJMCL ベース",
+          "description": "{{productName}} は SJMCL を基に開発されています。元のリポジトリ: https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "コピーライト",
-          "description": "© 2024-2026 SJMCL 開発チーム"
+          "description": "© 2026 Folly Launcher チーム。SJMCL © 2024-2026 SJMCL 開発チームに基づく。"
         },
         "userAgreement": {
           "title": "上流 SJMCL の利用規約",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "グリッドビュー",
       "list": "リストビュー"
-    }
+    },
+    "empty": "この分類にはゲームアカウントがありません。アカウントを追加するか、他のランチャーからインポートしてください。"
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "インスタンス名称"
     },
     "sortBy": "並べ替え方法",
-    "title": "すべてのインスタンス"
+    "title": "すべてのインスタンス",
+    "empty": "この分類にはゲームインスタンスがありません。ゲームを追加するか、既存の環境をインポートしてください。"
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "現在のゲーム接続",
     "disconnectFirst": "別のルームや試合に参加する前に、現在の接続を切断してください。",
-    "defaultSeed": "接続済みノードを使用"
+    "defaultSeed": "接続済みノードを使用",
+    "returnRooms": "サーバーとルームに戻る",
+    "returnActivities": "活動とリーグ戦に戻る",
+    "linkStaged": "接続リンクを受信しました。準備が整ったら、ここで内容を確認して接続してください。",
+    "searching": "近くのユニオンサーバーを検索中…",
+    "searchEmpty": "近くにユニオンサーバーが見つかりません。",
+    "searchRetry": "再検索",
+    "membershipTitle": "ユニオンを検出",
+    "membershipBody": "サーバーは近くにありますが、まだ参加していません。メンバー確認が通ると自動で接続します。",
+    "membershipAction": "確認して参加",
+    "joinFailed": "確認に失敗しました。スキンサイトにログインしているか確認するか、主催者に連絡してください。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "ランチャーを更新",
       "extension-update": "拡張機能 {{param1}} {{param2}} を更新",
       "mojang-java": "Java {{param}} ランタイム"
-    }
+    },
+    "empty": "ダウンロードタスクはまだありません。開始したダウンロードがここに表示されます。"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} はサードパーティー拡張機能の挙動や個人データの扱いを制御できません。信頼できる提供元の拡張機能のみをインストールして有効化してください。",
     "fileDnD": {
-      "title": "SJMCL 拡張機能をインストール",
+      "title": "拡張機能をインストール",
       "desc": "拡張機能ファイル {{fileName}} を {{productName}} にインストール"
     },
     "installed": "インストール済みの拡張機能",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "インストール済みの拡張機能はありません。",
+    "install": "拡張機能をインストール"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "拡張機能を更新",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "連盟",
-    "overview": "接続",
-    "league": "リーグ",
-    "rooms": "ルームとサーバー",
-    "identity": "自分の身元",
-    "manage": "シーズン管理",
-    "connected": "リーグ同期済み",
-    "restricted": "管理者として接続するとシーズンを管理できます。",
+    "overview": "連盟の接続",
+    "activities": "活動とリーグ戦",
+    "rooms": "サーバーとルーム",
+    "identity": "連盟の身元情報",
+    "manage": "管理",
+    "connected": "接続済み",
+    "restricted": "管理者アカウントで接続するとアプリケーションを管理できます。",
     "advanced": "詳細設定",
     "disconnected": "未接続"
   },
   "FederationPage": {
+    "points": {
+      "title": "ポイント",
+      "balance": "ポイント残高",
+      "account": "{{club}} · {{member}}",
+      "revision": "リビジョン {{revision}}",
+      "available": "利用可能：{{available}} ポイント",
+      "frozen": "凍結中：{{frozen}} ポイント",
+      "today": "現在の集計日：{{earned}} / {{cap}} ポイント",
+      "todayProgress": "現在の集計日の活動進捗",
+      "todayNoCap": "現在の集計日は {{earned}} ポイント獲得済み。1日の上限は未設定です。",
+      "resetAt": "リセット：{{time}}",
+      "slices": "有効スライス {{active}}、休憩スライス {{afk}}",
+      "asOf": "{{time}} 時点の明細",
+      "exportStatement": "ポイント明細を書き出す",
+      "exportDone": "ポイント明細を保存しました",
+      "exportFailed": "ポイント明細を書き出せませんでした",
+      "historyTitle": "直近24時間の入帳と AI の履歴",
+      "activityTitle": "直近24時間の入帳",
+      "activityEmpty": "直近24時間の入帳はありません。",
+      "activityRow": "有効 {{active}} · 休憩 {{afk}} · {{time}}",
+      "aiTitle": "AI の請求と返金",
+      "aiEmpty": "AI リクエストはまだありません。",
+      "aiRow": "凍結 {{frozen}} · 実費 {{charged}} · 返金 {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} ポイント",
+      "requestTitle": "AI をリクエスト",
+      "requestHelp": "本文はまず組織にアップロードされます。登録済みワーカーと現在の料金だけを使用します。",
+      "requestText": "AI に渡す本文",
+      "requestSize": "{{size}} バイト",
+      "next": "次へ",
+      "back": "戻る",
+      "noWorker": "登録済みで稼働中のワーカーがありません。サーバー管理者に連絡してください。",
+      "worker": "登録済みワーカー",
+      "model": "モデル",
+      "maxTokens": "最大出力トークン",
+      "maxTokensHelp": "1 から 4294967295 までの整数。",
+      "length": "出力の長さ",
+      "lengthShort": "短め",
+      "lengthStandard": "標準",
+      "lengthDetailed": "詳細",
+      "lengthTokens": "{{label}} · 最大 {{tokens}} トークン",
+      "lengthUnavailable": "サーバーの出力上限に合うプリセットがありません。詳細設定でトークン数を入力してください。",
+      "maxTokensNativeHelp": "1 から {{max}} までの整数。",
+      "advancedShow": "詳細設定",
+      "advancedHide": "詳細設定を閉じる",
+      "reviewPayer": "支払元：{{payer}}",
+      "reviewMaxPoints": "今回の最大凍結：{{maxPoints}} ポイント",
+      "reviewWorker": "ワーカー {{worker}} · モデル {{model}}",
+      "quote": "基本 {{base}} + 使用量 {{variable}} = 凍結 {{total}} ポイント",
+      "maxPoints": "max_points：{{maxPoints}}",
+      "insufficient": "利用可能ポイントが今回の凍結額に足りません。活動ポイントを獲得するか、管理者に料金の確認を依頼してください。",
+      "automaticBudget": "自動ワークフローは別のイベントまたは報告書の予算を使います。このリクエストは自分の利用可能ポイントを使います。",
+      "confirm": "料金を確認",
+      "confirmTitle": "凍結ポイントの確認",
+      "confirmBody": "最大 {{maxPoints}} ポイントを凍結します。失敗時は全額返金され、成功時は実使用量で精算し差額を返金します。",
+      "confirmAction": "凍結してリクエスト",
+      "requestAccepted": "AI リクエストを受け付けました",
+      "budgetTitle": "自動ワークフロー予算",
+      "budgetHelp": "予算は {{club}} の {{member}} が支払い、選択したイベントまたは報告書だけに使えます。現在の利用可能額は {{available}} ポイントです。",
+      "budgetEmpty": "現在承認できるイベントまたは報告書がありません。",
+      "budgetScope": "イベントまたは報告書",
+      "budgetChoose": "実際のイベントまたは報告書を選択",
+      "budgetEvent": "イベント：{{title}}（{{club}}）",
+      "budgetReport": "報告書：{{title}}（{{club}}）",
+      "budgetAmount": "予算ポイント",
+      "budgetLimit": "利用可能な {{available}} ポイントを超えられません。",
+      "budgetSubmit": "予算を承認",
+      "budgetAccepted": "スコープ予算を承認しました",
+      "aiStagePurpose": "第 {{stage}} 段階 · {{purpose}}",
+      "aiStatusQueued": "待機中",
+      "aiStatusRunning": "実行中",
+      "aiStatusCompleted": "完了",
+      "aiStatusFailed": "失敗",
+      "aiStatusRefunded": "返金済み",
+      "aiStatusCancelled": "キャンセル済み",
+      "aiStatusUnknown": "不明",
+      "purposeMemberAssist": "メンバー支援",
+      "purposeEventsDraft": "活動文書の下書き",
+      "purposeEventsReview": "資料レビュー",
+      "purposeEventsSummary": "活動まとめ",
+      "purposeOther": "その他の用途",
+      "openResult": "結果を見る",
+      "aiRetry": "失敗した段階を再試行",
+      "aiCancel": "リクエストを取り消す",
+      "aiRetryConfirmTitle": "再試行の確認",
+      "aiRetryConfirmBody": "第 {{stage}} 段階は当初 {{quote}} ポイントで凍結されました。再試行では現在のモデル料金ではなく同じ金額を再度凍結します。支払者：{{payer}}。利用可能：{{available}} ポイント。",
+      "aiRetryConfirmAction": "元の見積額で再試行",
+      "resultTitle": "AI 結果 · {{model}} · 第 {{stage}} 段階",
+      "resultLoading": "結果を読み込み中…",
+      "resultFailed": "結果を読み込めませんでした。再試行してください。",
+      "resultRetry": "再試行",
+      "previousPage": "前へ",
+      "nextPage": "次へ",
+      "page": "{{page}} / {{pages}} ページ"
+    },
     "gameConnection": {
       "title": "マッチ接続",
       "description": "主催者から提供されたマッチ接続リンクを貼り付けてください",
@@ -976,28 +1091,54 @@
       "genesisLabel": "連盟の確認コード（主催者に確認してください）",
       "genesisInvalid": "主催者から届いた 64 文字のコード（数字 0–9 と英字 a–f）を入力してください。",
       "linkLabel": "接続リンク",
-      "linkHelp": "主催者から届いたリンクを貼り付けてください。この端末でリンクを開いても自動的に接続されます。",
+      "linkHelp": "主催者のリンクを貼り付けて接続を選択してください。この端末でリンクを開くと、確認用にここへ入力されます。",
       "linkConnect": "接続",
       "linkInvalid": "有効な接続リンクではありません。主催者から届いたリンク全体をコピーしてください。",
-      "shareLabel": "この接続をクラスメートに共有",
-      "shareCopy": "リンクをコピー",
       "manualTitle": "接続情報を手動で入力",
       "connect": "接続 / 更新",
       "myDevice": "自分のデバイス：{{id}}",
       "myMember": "自分のメンバー番号：{{id}}",
       "myClub": "（{{club}}）",
-      "linkPlaceholder": "主催者から届いたリンクを貼り付け"
+      "linkPlaceholder": "主催者から届いたリンクを貼り付け",
+      "shareAction": "招待リンクをコピー",
+      "disconnect": "切断",
+      "serverPeer": "サーバー {{peer}}"
     },
     "error": "操作が完了しませんでした。接続とエントリーの状態を確認して再試行してください",
-    "identityRequired": "接続には統一メンバーIDが必要です。先にIDページで設定してください。",
-    "openIdentity": "ID設定を開く",
+    "identityRequired": "接続する前に、設定で連盟の身元情報を設定してください。",
+    "openIdentity": "連盟の身元情報の設定を開く",
     "empty": {
-      "noLeagues": "このユニオンにはまだリーグがありません。"
+      "noActivities": "まだ活動や競技はありません。"
     },
     "phase": {
       "Registration": "エントリー受付中",
       "Playing": "開催中",
       "Finished": "終了"
+    },
+    "activities": {
+      "description": "活動とリーグ戦を閲覧し、参加登録や試合の状況を確認できます。",
+      "linkedCompetitions": "競技",
+      "competitionsEmpty": "この活動にはまだ競技が紐付いていません。",
+      "standaloneTitle": "単独の競技",
+      "competitionMissing": "この競技は現在のアプリケーションに含まれていません。",
+      "eventMissing": "この活動は現在のアプリケーションに含まれていません。",
+      "organizer": "主催クラブ",
+      "opens": "受付開始",
+      "closes": "受付終了",
+      "starts": "開始",
+      "signupCount": "{{count}} 名が参加登録済み",
+      "signup": "参加登録",
+      "cancelSignup": "参加登録をキャンセル",
+      "noBrief": "この活動の説明はまだ登録されていません。",
+      "competitionTitle": "競技"
+    },
+    "activityPhase": {
+      "draft": "下書き",
+      "review": "審査中",
+      "approved": "承認済み",
+      "open": "受付中",
+      "done": "完了",
+      "cancelled": "中止"
     },
     "league": {
       "seatsPerTeam": "1チーム {{seats}} 人",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "はじめに",
       "setup": "主催者から提供された設定を追加",
-      "connect": "リンクで連盟に接続",
+      "connect": "ユニオンに自動接続",
       "verify": "メンバー資格を確認",
       "done": "完了",
       "next": "続ける"
+    },
+    "organizer": {
+      "areaTitle": "主催者向け操作",
+      "areaHint": "これらの操作は主催クラブのみが使用でき、全参加者に影響するため、実行前に確認を求めます。",
+      "startConfirmTitle": "参加受付を締め切って試合を開始しますか？",
+      "startConfirmBody": "参加受付は完全に締め切られ、現時点で登録済みのチームから対戦表が抽選されます。この操作は取り消せません。"
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "サポート"
     },
     "bottomAlert": "サポートを問い合わせる場合は、「このウィンドウのスクリーンショット」ではなく、クラッシュレポートをエクスポートし、相手に送信してください。",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/en/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "クラッシュ情報",
       "OPENJ9": "OpenJ9 JVM で実行できません。HotSpot JVM を使用してください。",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "Forge と LiteLoader が競合しているため実行できません。LiteLoader を削除するか、Forge バージョンを変更してみてください。",
       "UNKNOWN": "このエラーを一時的に分析できません。ゲームログを確認するか、エラークラッシュレポートをエクスポートしてください。"
     },
-    "autoCloseCountdown": "このウィンドウは {{seconds}} 秒後に自動で閉じられます（ウィンドウ内の任意の場所をクリックするとキャンセル）"
+    "autoCloseCountdown": "このウィンドウは {{seconds}} 秒後に自動で閉じられます（ウィンドウ内の任意の場所をクリックするとキャンセル）",
+    "placeholder": {
+      "unknown": "不明"
+    }
   },
   "GameLogPage": {
     "placeholder": "キーワードを入力して検索",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "追加",
-    "alert": {
-      "noFullLogin": {
-        "title": "この機能は現在利用できません",
-        "description": "この機能を使用するには、まず Microsoft アカウントでログインしてください。"
-      }
-    },
     "back": "戻る",
     "beta": "ベータ版",
     "browse": "参照",
@@ -1373,7 +1517,8 @@
       "test-build": "テストビルド版"
     },
     "versionNumberingHelp": "バージョン番号の説明",
-    "viewOnWiki": "Minecraft Wiki へ"
+    "viewOnWiki": "Minecraft Wiki へ",
+    "retry": "再試行"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "大学生ゲーマーコミュニティー",
       "settings": {
+        "JLUCraft": {
+          "title": "吉林大学 Minecraft 同好会（JLUCraft）",
+          "description": "このランチャーを支えるコミュニティ。吉林大学および全国のプレイヤーのための場です",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "大学 Minecraft アライアンス（MUA）",
           "description": "中国の大学ゲーマーとともに遊ぼう",
           "url": "https://www.mualliance.cn"
-        },
-        "SJMC": {
-          "title": "上海交通大学 Minecraft クラブ（SJMC）",
-          "url": "https://mc.sjtu.cn"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
+          "title": "プレイヤー向けドキュメント",
+          "url": "https://www.jlucraft.com/docs/"
+        },
+        "UserGroup": {
+          "title": "プレイヤーコミュニティ",
+          "description": "問題報告、機能要望、サポートの相談はこちらへ",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "上流プロジェクト",
+      "settings": {
+        "LauncherDocs": {
           "title": "上流 SJMCL のドキュメント",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
-        "UserGroup": {
-          "title": "上流 SJMCL のコミュニティ",
-          "description": "QQ グループや GitHub Discussions に参加して、問題報告、機能要望、サポートの相談ができます",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
+        "SJMC": {
+          "title": "上海交通大学 Minecraft クラブ（SJMC）",
+          "url": "https://mc.sjtu.cn"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "バージョン {{sequence}} まで反映済み",
     "review": "変更を確認",
     "reviewHint": "署名すると以下の変更を確定します。2 台のデバイスを関連付ける場合は、それぞれの署名が必要なことがあります。変更のやり取りは詳細設定で行えます。",
+    "technicalDetails": "技術的な詳細",
+    "signatureCount": "署名数: {{count}}",
+    "unknownAction": "不明な操作: {{type}}",
     "sign": "確認して署名",
     "submit": "署名済み変更を適用",
     "import": "共同署名する変更を読み込む",
@@ -1711,12 +1873,24 @@
       "memberships": "所属",
       "profiles": "リンク済みゲームプロフィール"
     },
+    "permissions": {
+      "read": "読み取り",
+      "write": "書き込み",
+      "admin": "管理者",
+      "use": "使用",
+      "manage": "管理"
+    },
+    "services": {
+      "application": "アプリケーションサービス"
+    },
     "unnamedField": "名前のない項目",
     "before": "変更前",
     "after": "変更後",
     "unknown": "身元を更新すると現在の紐付けを確認できます",
     "inspect": "保存済みの情報を表示（オフライン）",
-    "hint": "ほとんどの場合、最初のボタンだけで足ります。"
+    "hint": "ほとんどの場合、最初のボタンだけで足ります。",
+    "importSetup": "主催者の設定をファイルから読み込む",
+    "setupLoaded": "設定を読み込みました。内容を確認して保存すると続行できます。"
   },
   "IdentityManagement": {
     "title": "主催者ツール",
@@ -1860,7 +2034,9 @@
         "info": "詳細を見る",
         "update": "アップデートチェック",
         "search": "サーチ",
-        "placeholder": "モッドを検索"
+        "placeholder": "モッドを検索",
+        "download": "Mod をダウンロード",
+        "import": "Mod をインポート"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "このインスタンスでは個別設定が有効になっていません。<toGlobal>グローバルゲーム設定へ</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "以下の設定はインスタンス「{{name}}」にのみ適用されます。",
+      "enabled": "インスタンス固有設定は有効です",
+      "disabled": "インスタンス固有設定は無効です"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "Java 管理",
       "download": "Java ダウンロード",
       "add": "Java 追加",
-      "remove": "Java 削除"
+      "remove": "Java 削除",
+      "empty": "Java ランタイムがまだ検出されていません。"
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "前回の実行は異常終了しました",
-      "content": "{{productName}} が異常終了しました。まずログを確認してください。<community>コミュニティ</community>と <github>GitHub</github> は上流 SJMCL の窓口です。報告時は派生版名を明記し、連盟機能の問題は本版の保守担当者に連絡してください。",
+      "content": "{{productName}} が異常終了しました。まずログを確認してください。<community>プレイヤーコミュニティ</community>または <github>GitHub Issues</github> から問題を報告できます。ログとバージョンを添えてください。",
       "viewLog": "ログを表示"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "ゲーム起動",
-      "instanceSettings": "インスタンス設定"
+      "instanceSettings": "インスタンス設定",
+      "returnToLaunch": "起動画面に戻る"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "すべて"
+    },
+    "listError": {
+      "description": "リソース一覧の読み込みに失敗しました: {{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "署名用のデバイス ID を表示",
     "hostIdentity": "ホスト用デバイス ID",
     "playerIdentity": "参加用デバイス ID",
-    "title": "ルームとサーバー",
-    "description": "確認済みのメンバーIDで部屋を開いたり、他団体の部屋に参加できます。",
+    "title": "サーバーとルーム",
+    "description": "サーバーを探す、マルチプレイルームに参加する、または自分のルームを作成できます。",
     "seeds": "ルーム検索用アドレス（1 行に 1 つ）",
     "refresh": "ルームと状態を更新",
     "partial": "一部のノードやルームに接続できません。一覧が不完全な場合があります。",
@@ -2584,7 +2770,12 @@
     "start": "ルームを開始",
     "stop": "ルームを閉じる",
     "hosting": "{{name}} をホスト中",
-    "error": "操作を完了できませんでした。身元・サーバー設定・ネットワークを確認してもう一度お試しください。"
+    "error": "操作を完了できませんでした。身元・サーバー設定・ネットワークを確認してもう一度お試しください。",
+    "networkSettings": "サーバーとルームのネットワーク設定",
+    "setupHint": "閲覧は可能です。参加またはルーム作成の前に、設定で連盟の身元情報を設定してください。",
+    "setupToJoin": "設定して参加",
+    "setupToHost": "設定してルームを作成",
+    "optionDetails": "{{school}} · {{version}} · 最大 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "オフラインキャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
-            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "INVALID": "UUID が無効です",
             "TEXTURE_ERROR": "キャラクタースキンの取得に失敗"
           }
@@ -2753,7 +2943,6 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
-            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーへの接続に失敗",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "NOT_FOUND": "認証サーバーが見つからない",
@@ -2798,7 +2987,6 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
-            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーへの接続に失敗",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "INVALID": "ログイン情報が間違っている",
@@ -2826,7 +3014,6 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
-            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーに接続できません",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "EXPIRED": "トークンの有効期限が切れました。再ログインしてください"
@@ -3464,7 +3651,9 @@
       "intelligence": "AI",
       "extension": "拡張機能",
       "help": "マニュアルとヘルプ",
-      "about": "バージョン情報"
+      "about": "バージョン情報",
+      "federation": "ユニオン",
+      "federation-management": "連盟の管理"
     }
   },
   "SkinPreview": {
@@ -3518,9 +3707,9 @@
   },
   "StarUsModal": {
     "header": {
-      "title": "GitHub で SJMCL をスター"
+      "title": "GitHub で {{productName}} をスター"
     },
-    "body": "SJMCL にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
+    "body": "{{productName}} にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
     "button": {
       "later": "あとで",
       "starUs": "スターを付与"
@@ -3598,7 +3787,7 @@
       "title": "ようこそ！"
     },
     "body": {
-      "text": "{{productName}} へようこそ。本製品は SJMCL の派生版です。続行前にリンク先の<terms>上流 SJMCL の利用規約</terms>を読み、同意してください。このリンクは追加された連盟サービス専用の規約ではありません。"
+      "text": "{{productName}} へようこそ。本製品は吉林大学 Minecraft 同好会（JLUCraft）が維持し、SJMCL を基に開発されています。続行前にリンク先の<terms>上流 SJMCL の利用規約</terms>を読み、同意してください。このリンクは上流 SJMCL の規約を指すもので、本ランチャー専用の規約ではありません。"
     },
     "warning": {
       "unstableVersion": "{{versionLabel}}の {{productName}} を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",

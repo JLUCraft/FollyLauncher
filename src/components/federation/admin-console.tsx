@@ -30,7 +30,7 @@ export function AdminConsole({
 }: {
   state: UnionState;
   busy: boolean;
-  request: (action: Record<string, unknown>) => Promise<void>;
+  request: (action: Record<string, unknown>) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
@@ -273,11 +273,11 @@ export function AdminConsole({
                     alignSelf="flex-start"
                     colorScheme={primaryColor}
                     isDisabled={busy || !reviewResponse.trim() || invalidDeltas}
-                    onClick={() => {
+                    onClick={async () => {
                       const players = parseDeltas(playerDeltas);
                       const teams = parseDeltas(teamDeltas);
                       if (!players || !teams) return;
-                      void request({
+                      const accepted = await request({
                         type: "resolve_dispute",
                         id: reviewId,
                         response: reviewResponse.trim(),
@@ -286,6 +286,7 @@ export function AdminConsole({
                           : undefined),
                         ...(Object.keys(teams).length ? { teams } : undefined),
                       });
+                      if (!accepted) return;
                       setReviewId("");
                       setReviewResponse("");
                       setPlayerDeltas("");

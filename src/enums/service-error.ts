@@ -1,7 +1,6 @@
 export enum AccountServiceError {
   Duplicate = "DUPLICATE",
   Expired = "EXPIRED",
-  FullLoginUnavailable = "FULL_LOGIN_UNAVAILABLE",
   Invalid = "INVALID",
   NotFound = "NOT_FOUND",
   TextureError = "TEXTURE_ERROR",

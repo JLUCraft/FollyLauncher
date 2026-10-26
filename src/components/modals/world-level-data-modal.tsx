@@ -92,7 +92,7 @@ const WorldLevelDataModal: React.FC<WorldLevelDataModalProps> = ({
         <ModalHeader>
           <HStack>
             <Text>{t("WorldLevelDataModal.header.title", { worldName })}</Text>
-            <Badge colorScheme="purple">{t("General.beta")}</Badge>
+            <Badge colorScheme="brand">{t("General.beta")}</Badge>
           </HStack>
         </ModalHeader>
         <ModalCloseButton />

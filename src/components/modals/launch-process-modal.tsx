@@ -40,6 +40,10 @@ import { InstanceSummary } from "@/models/instance/misc";
 import { ResponseError } from "@/models/response";
 import { AccountService } from "@/services/account";
 import { LaunchService } from "@/services/launch";
+import {
+  LAUNCH_ACCOUNT_SETUP_PATH,
+  LAUNCH_INSTANCE_SETUP_PATH,
+} from "@/utils/launch-flow";
 
 // This modal will use shared-modal-context
 interface LaunchProcessModalProps extends Omit<ModalProps, "children"> {
@@ -263,6 +267,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
         status: "warning",
       });
       handleCloseModalWithCancel();
+      void router.push(LAUNCH_INSTANCE_SETUP_PATH);
       return;
     }
     if (!effectiveInstance) {
@@ -276,7 +281,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
         title: t("LaunchProcessModal.toast.noSelectedPlayer"),
         status: "warning",
       });
-      router.push("/accounts");
+      void router.push(LAUNCH_ACCOUNT_SETUP_PATH);
       handleCloseModalWithCancel();
       return;
     }

@@ -12,6 +12,7 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,6 +27,7 @@ import {
   LuPlus,
 } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
+import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import InstancesView from "@/components/instances-view";
@@ -110,6 +112,7 @@ const InstanceListPage = () => {
           size="xs"
           fontSize="sm"
           variant="ghost"
+          aria-label={t("AllInstancesPage.button.sortAndFilter")}
           icon={<LuListFilter />}
         ></MenuButton>
       </Tooltip>
@@ -164,6 +167,7 @@ const InstanceListPage = () => {
               ...item,
               value: item.key,
               label: <Icon as={item.icon} />,
+              ariaLabel: item.tooltip,
             }))}
             withTooltip
           />
@@ -197,11 +201,23 @@ const InstanceListPage = () => {
       }
     >
       <Box overflow="auto" flexGrow={1} rounded="md">
-        <InstancesView
-          instances={instanceList}
-          selectedInstance={selectedInstance}
-          viewType={selectedViewType}
-        />
+        {instanceList.length === 0 ? (
+          <Empty description={t("AllInstancesPage.empty")}>
+            <Button
+              as={Link}
+              href="/instances/add-import"
+              colorScheme={primaryColor}
+            >
+              {t("AllInstancesPage.button.addAndImport")}
+            </Button>
+          </Empty>
+        ) : (
+          <InstancesView
+            instances={instanceList}
+            selectedInstance={selectedInstance}
+            viewType={selectedViewType}
+          />
+        )}
       </Box>
     </Section>
   );

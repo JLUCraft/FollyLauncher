@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import type { UnionLeague } from "@/services/union";
 
 export const LEAGUE_PHASE_COLOR_SCHEME: Record<UnionLeague["phase"], string> = {
-  Registration: "blue",
+  Registration: "brand",
   Playing: "green",
   Finished: "gray",
 };

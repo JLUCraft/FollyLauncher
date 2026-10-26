@@ -1,6 +1,4 @@
 import {
-  Avatar,
-  AvatarGroup,
   Button,
   HStack,
   Text,
@@ -66,8 +64,6 @@ const AboutSettingsPage = () => {
     setCheckingUpdate(false);
   }, [handleCheckLauncherUpdate, t, toast, closeToast, openSharedModal]);
 
-  const avatarUserList = ["UNIkeEN", "xunying123", "SundayChen"];
-
   const aboutSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("AboutSettingsPage.about.title"),
@@ -108,81 +104,81 @@ const AboutSettingsPage = () => {
           ),
         },
         {
-          title: t("AboutSettingsPage.about.settings.basedOn.title"),
-          description: t(
-            "AboutSettingsPage.about.settings.basedOn.description"
-          ),
+          title: t("AboutSettingsPage.about.settings.homepage.title"),
           children: (
             <CommonIconButton
-              label="https://github.com/UNIkeEN/SJMCL"
+              label="https://www.jlucraft.com/"
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://github.com/UNIkeEN/SJMCL");
+                openUrl("https://www.jlucraft.com/");
               }}
             />
           ),
         },
         {
-          title: t("AboutSettingsPage.about.settings.contributors.title"),
-          children: (
-            <HStack spacing={2.5}>
-              <AvatarGroup size="xs" spacing={-2}>
-                {avatarUserList.map((username) => (
-                  <Avatar
-                    key={username}
-                    name={username}
-                    src={`https://avatars.githubusercontent.com/${username}`}
-                  />
-                ))}
-              </AvatarGroup>
-              <CommonIconButton
-                label="https://github.com/UNIkeEN/SJMCL/graphs/contributors?all=1"
-                icon="external"
-                withTooltip
-                tooltipPlacement="bottom-end"
-                size="xs"
-                h={18}
-                onClick={() => {
-                  openUrl(
-                    "https://github.com/UNIkeEN/SJMCL/graphs/contributors?all=1"
-                  );
-                }}
-              />
-            </HStack>
-          ),
-        },
-        {
-          title: t("AboutSettingsPage.about.settings.sourceCode.title"),
+          title: t("AboutSettingsPage.about.settings.repository.title"),
           children: (
             <CommonIconButton
-              label="https://github.com/UNIkeEN/SJMCL"
+              label="https://github.com/JLUCraft/FollyLauncher"
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://github.com/UNIkeEN/SJMCL");
+                openUrl("https://github.com/JLUCraft/FollyLauncher");
               }}
             />
           ),
         },
         {
-          title: t("AboutSettingsPage.about.settings.aboutSJMC.title"),
+          title: t("AboutSettingsPage.about.settings.docs.title"),
           children: (
             <CommonIconButton
-              label="https://mc.sjtu.cn/welcome/content/3/"
+              label="https://www.jlucraft.com/docs/"
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://mc.sjtu.cn/welcome/content/3/");
+                openUrl("https://www.jlucraft.com/docs/");
+              }}
+            />
+          ),
+        },
+        {
+          title: t("AboutSettingsPage.about.settings.feedback.title"),
+          children: (
+            <CommonIconButton
+              label="https://github.com/JLUCraft/FollyLauncher/issues"
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() => {
+                openUrl("https://github.com/JLUCraft/FollyLauncher/issues");
+              }}
+            />
+          ),
+        },
+        {
+          title: t("AboutSettingsPage.about.settings.community.title"),
+          children: (
+            <CommonIconButton
+              label="https://www.jlucraft.com/about/"
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() => {
+                openUrl("https://www.jlucraft.com/about/");
               }}
             />
           ),
@@ -213,6 +209,25 @@ const AboutSettingsPage = () => {
     {
       title: t("AboutSettingsPage.legalInfo.title"),
       items: [
+        {
+          title: t("AboutSettingsPage.legalInfo.settings.basedOn.title"),
+          description: t(
+            "AboutSettingsPage.legalInfo.settings.basedOn.description"
+          ),
+          children: (
+            <CommonIconButton
+              label="https://github.com/UNIkeEN/SJMCL"
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() => {
+                openUrl("https://github.com/UNIkeEN/SJMCL");
+              }}
+            />
+          ),
+        },
         {
           title: t("AboutSettingsPage.legalInfo.settings.copyright.title"),
           description: t(

@@ -63,8 +63,12 @@ body img {
 }
 
 .secondary-text {
-  color: var(--chakra-colors-gray-500);
+  color: var(--chakra-colors-gray-600);
   line-height: var(--chakra-lineHeights-4);
+}
+
+[data-theme="dark"] .secondary-text {
+  color: var(--chakra-colors-gray-400);
 }
 
 .warning-text {

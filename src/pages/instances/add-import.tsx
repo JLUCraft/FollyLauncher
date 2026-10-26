@@ -1,4 +1,5 @@
 import {
+  Button,
   HStack,
   Icon,
   Menu,
@@ -11,6 +12,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { LuArrowRight, LuCloudDownload, LuFolderPlus } from "react-icons/lu";
@@ -150,6 +152,11 @@ const AddAndImportInstancePage = () => {
   return (
     <>
       <VStack w="100%" spacing={4}>
+        {router.query.returnTo === "launch" && (
+          <Button as={Link} href="/launch" alignSelf="flex-start">
+            {t("LaunchPage.button.returnToLaunch")}
+          </Button>
+        )}
         {optionGroups.map((group) => (
           <OptionItemGroup w="100%" {...group} key={group.title} />
         ))}

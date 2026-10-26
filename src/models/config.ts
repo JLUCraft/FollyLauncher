@@ -86,7 +86,6 @@ export interface LauncherConfig {
     isPortable: boolean;
     isExePathAvailable: boolean;
     isChinaMainlandIp: boolean;
-    allowFullLoginFeature: boolean;
     // Build metadata, sourced from compile-time constants injected by build.rs.
     buildType: BuildType;
     buildCommitSha: string;
@@ -280,7 +279,6 @@ export const defaultConfig: LauncherConfig = {
     isPortable: false,
     isExePathAvailable: true,
     isChinaMainlandIp: false,
-    allowFullLoginFeature: false,
     buildType: BuildType.Dev,
     buildCommitSha: "",
   },

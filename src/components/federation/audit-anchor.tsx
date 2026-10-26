@@ -19,7 +19,7 @@ export function AuditAnchor({
 }: {
   anchors: Record<string, unknown>;
   busy: boolean;
-  request: (action: Record<string, unknown>) => Promise<void>;
+  request: (action: Record<string, unknown>) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const [id, setId] = useState("");

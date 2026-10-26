@@ -2,6 +2,7 @@ import {
   Avatar,
   AvatarBadge,
   Box,
+  Button,
   Center,
   Flex,
   HStack,
@@ -23,6 +24,8 @@ import {
   LuCircleCheck,
   LuCircleMinus,
   LuClockArrowUp,
+  LuDownload,
+  LuPlus,
   LuSearch,
   LuSquareLibrary,
   LuTriangleAlert,
@@ -324,6 +327,7 @@ const InstanceModsPage = () => {
     },
     {
       icon: "download",
+      label: t("InstanceModsPage.modList.menu.download"),
       onClick: () => {
         openSharedModal("download-resource", {
           initialResourceType: OtherResourceType.Mod,
@@ -338,6 +342,7 @@ const InstanceModsPage = () => {
     },
     {
       icon: "add",
+      label: t("InstanceModsPage.modList.menu.import"),
       onClick: () => {
         handleImportResources({
           filterName: t("InstanceDetailsLayout.instanceTabList.mods"),
@@ -515,18 +520,41 @@ const InstanceModsPage = () => {
         }}
         headExtra={
           <HStack spacing={2}>
-            {modSecMenuOperations.map((btn) => (
-              <CommonIconButton
-                key={String(btn.icon)}
-                icon={btn.icon}
-                label={btn.label}
-                onClick={btn.onClick}
-                size="xs"
-                fontSize="sm"
-                h={COMPACT_ICON_BUTTON_HEIGHT}
-                isDisabled={btn.disable}
-              />
-            ))}
+            {modSecMenuOperations.map((btn) =>
+              // High-frequency sub-resource actions carry text labels so they are
+              // not confused with the instance-level toolbar above.
+              btn.label && btn.icon === "add" ? (
+                <Button
+                  key={String(btn.icon)}
+                  leftIcon={<LuPlus />}
+                  size="xs"
+                  variant="outline"
+                  onClick={btn.onClick}
+                >
+                  {btn.label}
+                </Button>
+              ) : btn.label && btn.icon === "download" ? (
+                <Button
+                  key={String(btn.icon)}
+                  leftIcon={<LuDownload />}
+                  size="xs"
+                  onClick={btn.onClick}
+                >
+                  {btn.label}
+                </Button>
+              ) : (
+                <CommonIconButton
+                  key={String(btn.icon)}
+                  icon={btn.icon}
+                  label={btn.label}
+                  onClick={btn.onClick}
+                  size="xs"
+                  fontSize="sm"
+                  h={COMPACT_ICON_BUTTON_HEIGHT}
+                  isDisabled={btn.disable}
+                />
+              )
+            )}
 
             {isSearching ? (
               <HStack>

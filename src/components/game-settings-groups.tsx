@@ -289,7 +289,8 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Input
               size="xs"
-              maxW={32}
+              w="100%"
+              maxW="sm"
               value={customTitle}
               onChange={(event) => {
                 setCustomTitle(event.target.value);
@@ -311,7 +312,8 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Input
               size="xs"
-              maxW={32}
+              w="100%"
+              maxW="sm"
               value={customInfo}
               onChange={(event) => {
                 setCustomInfo(event.target.value);

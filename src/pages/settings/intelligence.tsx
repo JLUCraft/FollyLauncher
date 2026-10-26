@@ -58,8 +58,9 @@ const IntelligenceSettingsPage = () => {
     );
   };
 
-  const settingsGroups: OptionItemGroupProps[] = [
+  const settingsGroups: (OptionItemGroupProps & { id: string })[] = [
     {
+      id: "introduction",
       items: [
         {
           prefixElement: <SparklesIconBox />,
@@ -70,6 +71,7 @@ const IntelligenceSettingsPage = () => {
       ],
     },
     {
+      id: "mcp-server",
       title: t("IntelligenceSettingsPage.mcpServer.title"),
       headExtra: (
         <Box display="flex" alignItems="center">
@@ -164,8 +166,8 @@ const IntelligenceSettingsPage = () => {
 
   return (
     <>
-      {settingsGroups.map((group) => (
-        <OptionItemGroup key={group.title} {...group} />
+      {settingsGroups.map(({ id, ...group }) => (
+        <OptionItemGroup key={id} {...group} />
       ))}
     </>
   );

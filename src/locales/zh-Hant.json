@@ -3,6 +3,21 @@
     "about": {
       "title": "關於",
       "settings": {
+        "community": {
+          "title": "玩家社群"
+        },
+        "docs": {
+          "title": "玩家文件"
+        },
+        "feedback": {
+          "title": "問題回報"
+        },
+        "homepage": {
+          "title": "專案首頁"
+        },
+        "repository": {
+          "title": "原始碼倉庫"
+        },
         "version": {
           "title": "版本",
           "foundNew": "有新版本",
@@ -12,19 +27,6 @@
             "up2date": "目前已是最新版本",
             "error": "檢查更新失敗"
           }
-        },
-        "basedOn": {
-          "title": "基於開源啟動器 SJMCL",
-          "description": "{{productName}} 是基於 SJMCL 的衍生版本，加入聯盟與房間功能。以下貢獻者、原始碼、協議和說明連結指向上游 SJMCL；上游文件不涵蓋本版本新增功能。目前更新來源也仍指向上游 SJMCL。"
-        },
-        "contributors": {
-          "title": "上游 SJMCL 貢獻者"
-        },
-        "sourceCode": {
-          "title": "查看上游 SJMCL 原始碼"
-        },
-        "aboutSJMC": {
-          "title": "關於上海交通大學 Minecraft 社（SJMC）"
         }
       }
     },
@@ -62,11 +64,15 @@
       }
     },
     "legalInfo": {
-      "title": "法律資訊",
+      "title": "上游與許可",
       "settings": {
+        "basedOn": {
+          "title": "基於開源啟動器 SJMCL",
+          "description": "{{productName}} 基於 SJMCL 開發。原始倉庫：https://github.com/UNIkeEN/SJMCL"
+        },
         "copyright": {
           "title": "版權",
-          "description": "版權所有 © 2024-2026 SJMCL 開發團隊."
+          "description": "版權所有 © 2026 Folly Launcher 團隊。基於 SJMCL © 2024-2026 SJMCL 開發團隊。"
         },
         "userAgreement": {
           "title": "上游 SJMCL 使用者協議",
@@ -93,7 +99,8 @@
     "viewTypeList": {
       "grid": "網格檢視",
       "list": "清單檢視"
-    }
+    },
+    "empty": "目前分類中沒有遊戲帳號。新增角色，或從其他啟動器匯入。"
   },
   "AddAndImportInstancePage": {
     "addAndImportOptions": {
@@ -293,7 +300,8 @@
       "name": "實例名稱"
     },
     "sortBy": "排序方式",
-    "title": "全部實例"
+    "title": "全部實例",
+    "empty": "目前分類中沒有遊戲實例。新增遊戲，或匯入既有安裝。"
   },
   "AppearanceSettingsPage": {
     "theme": {
@@ -478,7 +486,17 @@
     },
     "currentGame": "目前遊戲連線",
     "disconnectFirst": "要加入其他房間或比賽，請先中斷目前服務。",
-    "defaultSeed": "使用已連線的節點"
+    "defaultSeed": "使用已連線的節點",
+    "returnRooms": "返回伺服器與房間",
+    "returnActivities": "返回活動與聯賽",
+    "linkStaged": "已收到連線連結，完成準備後在此確認連線。",
+    "searching": "正在搜尋附近的聯盟伺服器…",
+    "searchEmpty": "附近找不到聯盟伺服器。",
+    "searchRetry": "重新搜尋",
+    "membershipTitle": "已找到聯盟",
+    "membershipBody": "伺服器就在附近，但你尚未加入。驗證成員身分後會自動連線。",
+    "membershipAction": "驗證身分並加入",
+    "joinFailed": "身分驗證未通過。請確認已在面板站登入，或連絡主辦者。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -743,7 +761,8 @@
       "launcher-update": "更新啟動器",
       "extension-update": "更新擴充套件 {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} 執行時"
-    }
+    },
+    "empty": "暫無下載任務。開始下載後會顯示於此處。"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -924,7 +943,7 @@
   "ExtensionSettingsPage": {
     "alert": "{{productName}} 無法控制第三方擴充套件的行為，包括它們如何處理你的個人資料。請僅安裝並啟用來自可信來源的擴充套件。",
     "fileDnD": {
-      "title": "安裝 SJMCL 擴充套件",
+      "title": "安裝擴充套件",
       "desc": "將擴充套件檔案 {{fileName}} 安裝到 {{productName}}"
     },
     "installed": "已安裝擴充套件",
@@ -944,7 +963,9 @@
           "url": "https://github.com/SJMC-Dev/awesome-SJMCL-extensions"
         }
       }
-    }
+    },
+    "installedEmpty": "尚未安裝任何擴充功能。",
+    "install": "安裝擴充功能"
   },
   "ExtensionUpdateConfirmDialog": {
     "title": "更新擴充套件",
@@ -952,17 +973,111 @@
   },
   "FederationNav": {
     "title": "聯盟",
-    "overview": "連線",
-    "league": "聯賽",
-    "rooms": "房間與伺服器",
-    "identity": "我的身分",
-    "manage": "賽季營運",
-    "connected": "已同步聯賽",
-    "restricted": "請使用賽季管理員身分連線後管理賽季。",
+    "overview": "聯盟連線",
+    "activities": "活動與聯賽",
+    "rooms": "伺服器與房間",
+    "identity": "聯盟身分",
+    "manage": "管理",
+    "connected": "已連線",
+    "restricted": "請使用管理員身分連線後管理應用。",
     "advanced": "進階設定",
     "disconnected": "尚未連線"
   },
   "FederationPage": {
+    "points": {
+      "title": "積分",
+      "balance": "積分餘額",
+      "account": "{{club}} · {{member}}",
+      "revision": "修訂 {{revision}}",
+      "available": "可用：{{available}} 分",
+      "frozen": "凍結中：{{frozen}} 分",
+      "today": "本計分日：{{earned}} / {{cap}} 分",
+      "todayProgress": "本計分日活躍進度",
+      "todayNoCap": "本計分日已獲得 {{earned}} 分；尚未設定每日上限。",
+      "resetAt": "重置時間：{{time}}",
+      "slices": "有效切片 {{active}} 個，休息切片 {{afk}} 個",
+      "asOf": "對帳單截至 {{time}}",
+      "exportStatement": "匯出積分對帳單",
+      "exportDone": "積分對帳單已儲存",
+      "exportFailed": "積分對帳單匯出失敗",
+      "historyTitle": "最近24小時到帳與 AI 流水",
+      "activityTitle": "最近24小時到帳",
+      "activityEmpty": "最近24小時內還沒有到帳紀錄。",
+      "activityRow": "有效 {{active}} · 休息 {{afk}} · {{time}}",
+      "aiTitle": "AI 扣費與退還",
+      "aiEmpty": "還沒有 AI 請求紀錄。",
+      "aiRow": "預凍 {{frozen}} · 實扣 {{charged}} · 退還 {{refunded}} · {{time}}",
+      "pointsValue": "{{points}} 分",
+      "requestTitle": "發起 AI 請求",
+      "requestHelp": "文字會先上傳到組織；只使用已登記的算力節點和目前費率。",
+      "requestText": "要交給 AI 的文字",
+      "requestSize": "{{size}} 位元組",
+      "next": "下一步",
+      "back": "上一步",
+      "noWorker": "目前沒有線上且已登記的算力節點，請聯絡伺服器管理員。",
+      "worker": "已登記算力節點",
+      "model": "模型",
+      "maxTokens": "最大輸出 Tokens",
+      "maxTokensHelp": "填寫 1 到 4294967295 之間的整數。",
+      "length": "輸出長度",
+      "lengthShort": "簡短",
+      "lengthStandard": "標準",
+      "lengthDetailed": "詳細",
+      "lengthTokens": "{{label}} · 最多 {{tokens}} Tokens",
+      "lengthUnavailable": "沒有符合伺服器輸出上限的預設，請在進階設定中填寫 Tokens。",
+      "maxTokensNativeHelp": "1 到 {{max}} 之間的整數。",
+      "advancedShow": "進階設定",
+      "advancedHide": "收起進階設定",
+      "reviewPayer": "付款帳戶：{{payer}}",
+      "reviewMaxPoints": "本次最多凍結：{{maxPoints}} 分",
+      "reviewWorker": "節點 {{worker}} · 模型 {{model}}",
+      "quote": "起步 {{base}} + 用量 {{variable}} = 凍結 {{total}} 分",
+      "maxPoints": "max_points：{{maxPoints}}",
+      "insufficient": "可用積分不足以覆蓋本次凍結。請先獲得活躍積分，或請管理員複核費率。",
+      "automaticBudget": "自動工作流使用另外的活動或報告預算；本次請求直接使用你自己的可用積分。",
+      "confirm": "確認費用",
+      "confirmTitle": "確認凍結積分",
+      "confirmBody": "本次最多凍結 {{maxPoints}} 分。推理失敗會全額退還；成功則按實際用量結算並退還差額。",
+      "confirmAction": "確認凍結並發起",
+      "requestAccepted": "AI 請求已受理",
+      "budgetTitle": "自動流程預算",
+      "budgetHelp": "預算由 {{club}} 的 {{member}} 支付，只能用於所選活動或報告。目前可用 {{available}} 分。",
+      "budgetEmpty": "目前沒有你可以授權的活動或報告。",
+      "budgetScope": "活動或報告",
+      "budgetChoose": "選擇真實活動或報告",
+      "budgetEvent": "活動：{{title}}（{{club}}）",
+      "budgetReport": "報告：{{title}}（{{club}}）",
+      "budgetAmount": "預算積分",
+      "budgetLimit": "不能超過目前可用 {{available}} 分。",
+      "budgetSubmit": "授權預算",
+      "budgetAccepted": "已授權作用域預算",
+      "aiStagePurpose": "第 {{stage}} 步 · {{purpose}}",
+      "aiStatusQueued": "排隊中",
+      "aiStatusRunning": "執行中",
+      "aiStatusCompleted": "已完成",
+      "aiStatusFailed": "失敗",
+      "aiStatusRefunded": "已退款",
+      "aiStatusCancelled": "已取消",
+      "aiStatusUnknown": "未知狀態",
+      "purposeMemberAssist": "成員協助",
+      "purposeEventsDraft": "活動文件草擬",
+      "purposeEventsReview": "材料審核",
+      "purposeEventsSummary": "活動總結",
+      "purposeOther": "其他用途",
+      "openResult": "檢視結果",
+      "aiRetry": "重試失敗階段",
+      "aiCancel": "撤回本次請求",
+      "aiRetryConfirmTitle": "確認重試失敗階段",
+      "aiRetryConfirmBody": "第 {{stage}} 步最初預凍 {{quote}} 分；重試會再次凍結同一金額，而不是目前模型價格。支付方：{{payer}}。目前可用：{{available}} 分。",
+      "aiRetryConfirmAction": "依原報價重試",
+      "resultTitle": "AI 結果 · {{model}} · 第 {{stage}} 步",
+      "resultLoading": "正在讀取結果…",
+      "resultFailed": "結果讀取失敗，請重試。",
+      "resultRetry": "重試讀取",
+      "previousPage": "上一頁",
+      "nextPage": "下一頁",
+      "page": "第 {{page}} / {{pages}} 頁"
+    },
     "gameConnection": {
       "title": "比賽連線",
       "description": "貼上主辦方提供的比賽連線連結",
@@ -976,28 +1091,54 @@
       "genesisLabel": "聯盟校驗碼（向組織者核實）",
       "genesisInvalid": "請輸入組織者提供的 64 位校驗碼（數字 0–9 與字母 a–f）。",
       "linkLabel": "連線連結",
-      "linkHelp": "貼上組織者傳給你的連結。在本機開啟該連結也會自動連線。",
+      "linkHelp": "貼上組織者提供的連結，確認後點擊連線。在本機開啟連結會將其填入這裡，等待確認。",
       "linkConnect": "連線",
       "linkInvalid": "這不是有效的連線連結，請完整複製組織者傳來的連結。",
-      "shareLabel": "把這個連線分享給同學",
-      "shareCopy": "複製連結",
       "manualTitle": "手動填寫連線資訊",
       "connect": "連線 / 重新整理",
       "myDevice": "我的裝置：{{id}}",
       "myMember": "我的編號：{{id}}",
       "myClub": "（{{club}}）",
-      "linkPlaceholder": "貼上組織者傳來的連結"
+      "linkPlaceholder": "貼上組織者傳來的連結",
+      "shareAction": "複製邀請連結",
+      "disconnect": "中斷連線",
+      "serverPeer": "伺服器 {{peer}}"
     },
     "error": "操作未完成，請檢查連線與報名狀態後重試",
-    "identityRequired": "連線前需要先設定統一成員身分，請先到身分頁面完成設定。",
-    "openIdentity": "開啟身分設定",
+    "identityRequired": "連線前請在設定中完成聯盟身分配置。",
+    "openIdentity": "前往聯盟身分設定",
     "empty": {
-      "noLeagues": "目前聯盟暫無聯賽。"
+      "noActivities": "目前暫無活動或競賽。"
     },
     "phase": {
       "Registration": "報名中",
       "Playing": "進行中",
       "Finished": "已結束"
+    },
+    "activities": {
+      "description": "瀏覽活動與聯賽，查看報名及賽事進度。",
+      "linkedCompetitions": "賽事",
+      "competitionsEmpty": "此活動暫無關聯賽事。",
+      "standaloneTitle": "獨立賽事",
+      "competitionMissing": "此賽事不在目前應用中。",
+      "eventMissing": "此活動不在目前應用中。",
+      "organizer": "主辦社團",
+      "opens": "報名開始",
+      "closes": "報名截止",
+      "starts": "開賽時間",
+      "signupCount": "已報名 {{count}} 人",
+      "signup": "報名",
+      "cancelSignup": "取消報名",
+      "noBrief": "此活動暫未提供說明。",
+      "competitionTitle": "賽事"
+    },
+    "activityPhase": {
+      "draft": "草稿",
+      "review": "審核中",
+      "approved": "已批准",
+      "open": "報名中",
+      "done": "已結束",
+      "cancelled": "已取消"
     },
     "league": {
       "seatsPerTeam": "每隊 {{seats}} 人",
@@ -1039,10 +1180,16 @@
     "guide": {
       "title": "開始使用",
       "setup": "新增組織者提供的設定",
-      "connect": "用連結連線你的聯盟",
+      "connect": "自動連線你的聯盟",
       "verify": "驗證你的成員資格",
       "done": "已完成",
       "next": "繼續"
+    },
+    "organizer": {
+      "areaTitle": "組織者操作",
+      "areaHint": "僅主辦社團可使用這些操作，且會影響所有參賽者，因此每項操作都會先請求確認。",
+      "startConfirmTitle": "鎖定報名並開始比賽？",
+      "startConfirmBody": "報名將永久關閉，賽程將依目前已完成報名的隊伍抽籤產生，此操作無法復原。"
     }
   },
   "FileDnDProvider": {
@@ -1215,7 +1362,7 @@
       "help": "幫助"
     },
     "bottomAlert": "如需尋求他人幫助，請匯出併發送崩潰報告，而非這個視窗的截圖",
-    "helpUrl": "https://mc.sjtu.cn/sjmcl/docs/user-group.html",
+    "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
       "title": "崩潰資訊",
       "OPENJ9": "目前實例無法在 OpenJ9 JVM 上執行，請使用 HotSpot JVM。",
@@ -1284,7 +1431,10 @@
       "FORGE_LITELOADER_CONFLICT": "目前實例由於 Forge 與 LiteLoader 衝突，無法繼續執行。請嘗試刪除 LiteLoader 或更換 Forge 版本。",
       "UNKNOWN": "暫時無法分析該錯誤，請檢視遊戲日誌或匯出錯誤崩潰報告。"
     },
-    "autoCloseCountdown": "視窗將在 {{seconds}} 秒後自動關閉（點擊視窗任意位置可取消）"
+    "autoCloseCountdown": "視窗將在 {{seconds}} 秒後自動關閉（點擊視窗任意位置可取消）",
+    "placeholder": {
+      "unknown": "未知"
+    }
   },
   "GameLogPage": {
     "placeholder": "輸入關鍵字篩選",
@@ -1301,12 +1451,6 @@
   },
   "General": {
     "add": "新增",
-    "alert": {
-      "noFullLogin": {
-        "title": "目前功能暫不可用",
-        "description": "請先登入微軟帳戶後使用此功能。"
-      }
-    },
     "back": "返回",
     "beta": "Beta",
     "browse": "瀏覽",
@@ -1373,7 +1517,8 @@
       "test-build": "測試構建版本"
     },
     "versionNumberingHelp": "版本號規則說明",
-    "viewOnWiki": "在 Minecraft Wiki 中檢視"
+    "viewOnWiki": "在 Minecraft Wiki 中檢視",
+    "retry": "重試"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1594,14 +1739,15 @@
     "community": {
       "title": "高校玩家社群",
       "settings": {
+        "JLUCraft": {
+          "title": "吉林大學 Minecraft 同好會（JLUCraft）",
+          "description": "本啟動器所屬的同好會，服務吉林大學及各地玩家",
+          "url": "https://www.jlucraft.com/"
+        },
         "MUA": {
           "title": "Minecraft 高校聯盟（MUA）",
           "description": "和全國各高校的玩家一起遊玩",
           "url": "https://www.mualliance.cn"
-        },
-        "SJMC": {
-          "title": "上海交通大學 Minecraft 社（SJMC）",
-          "url": "https://mc.sjtu.cn"
         }
       }
     },
@@ -1630,13 +1776,26 @@
     "top": {
       "settings": {
         "LauncherDocs": {
+          "title": "玩家文件",
+          "url": "https://www.jlucraft.com/docs/"
+        },
+        "UserGroup": {
+          "title": "玩家社群",
+          "description": "歡迎加入，回報問題、請求功能或取得協助",
+          "url": "https://www.jlucraft.com/about/"
+        }
+      }
+    },
+    "upstream": {
+      "title": "上游專案",
+      "settings": {
+        "LauncherDocs": {
           "title": "上游 SJMCL 文件",
           "url": "https://mc.sjtu.cn/sjmcl/docs"
         },
-        "UserGroup": {
-          "title": "上游 SJMCL 使用者社群",
-          "description": "歡迎加入 QQ 群或 GitHub Discussions，回報問題、請求功能或取得協助",
-          "url": "https://mc.sjtu.cn/sjmcl/docs/user-group"
+        "SJMC": {
+          "title": "上海交通大學 Minecraft 社（SJMC）",
+          "url": "https://mc.sjtu.cn"
         }
       }
     }
@@ -1668,6 +1827,9 @@
     "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
     "reviewHint": "簽署即確認下列變更。關聯兩台裝置可能需要各自簽署，可在進階設定中於兩台裝置間傳遞變更。",
+    "technicalDetails": "技術詳情",
+    "signatureCount": "已有 {{count}} 個簽章",
+    "unknownAction": "未知操作：{{type}}",
     "sign": "確認並簽章",
     "submit": "提交已簽章變更",
     "import": "匯入待聯署的變更",
@@ -1711,12 +1873,24 @@
       "memberships": "成員資格",
       "profiles": "已繫結的遊戲檔案"
     },
+    "permissions": {
+      "read": "讀取",
+      "write": "寫入",
+      "admin": "管理",
+      "use": "使用",
+      "manage": "管理權限"
+    },
+    "services": {
+      "application": "應用服務"
+    },
     "unnamedField": "未命名字段",
     "before": "變更前",
     "after": "變更後",
     "unknown": "重新整理身分後可查看目前綁定",
     "inspect": "檢視已儲存的資訊（離線）",
-    "hint": "大多數人只需按第一個按鈕。"
+    "hint": "大多數人只需按第一個按鈕。",
+    "importSetup": "從檔案載入組織者設定",
+    "setupLoaded": "設定已載入。請檢查內容，然後儲存以繼續。"
   },
   "IdentityManagement": {
     "title": "組織者工具",
@@ -1860,7 +2034,9 @@
         "info": "檢視資訊",
         "update": "檢查更新",
         "search": "搜尋",
-        "placeholder": "搜尋模組..."
+        "placeholder": "搜尋模組...",
+        "download": "下載模組",
+        "import": "匯入模組"
       }
     }
   },
@@ -1906,6 +2082,11 @@
     },
     "tipsToGlobal": {
       "content": "目前實例未啟用特定遊戲設定，<toGlobal>前往全域性遊戲設定</toGlobal>"
+    },
+    "advancedScope": {
+      "instance": "以下選項僅作用於實例「{{name}}」。",
+      "enabled": "已啟用實例獨立設定",
+      "disabled": "未啟用實例獨立設定"
     }
   },
   "InstanceShaderPacksPage": {
@@ -2007,7 +2188,8 @@
       "title": "Java 管理",
       "download": "下載 Java",
       "add": "新增 Java",
-      "remove": "移除此 Java"
+      "remove": "移除此 Java",
+      "empty": "尚未偵測到 Java 執行環境。"
     },
     "toast": {
       "addSuccess": {
@@ -2039,14 +2221,15 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "上次執行異常退出",
-      "content": "{{productName}} 上次執行時異常結束。可先查看日誌。以下<community>使用者社群</community>和 <github>GitHub</github> 入口屬於上游 SJMCL；回報時請註明衍生版本，聯盟問題應交由本版本維護者處理。",
+      "content": "{{productName}} 上次執行時異常結束。可先查看日誌。可透過以下<community>玩家社群</community>和 <github>GitHub Issues</github> 回報問題，回報時請附上日誌與版本號。",
       "viewLog": "檢視日誌"
     }
   },
   "LaunchPage": {
     "button": {
       "launch": "啟動遊戲",
-      "instanceSettings": "實例設定"
+      "instanceSettings": "實例設定",
+      "returnToLaunch": "返回啟動頁"
     },
     "SwitchButton": {
       "tooltip": {
@@ -2538,6 +2721,9 @@
     },
     "versionList": {
       "All": "全部"
+    },
+    "listError": {
+      "description": "資源列表載入失敗：{{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2564,8 +2750,8 @@
     "showIdentities": "顯示簽名所需裝置 ID",
     "hostIdentity": "開房裝置 ID",
     "playerIdentity": "加入裝置 ID",
-    "title": "房間與伺服器",
-    "description": "使用已驗證的成員身份開房或加入其他社團。",
+    "title": "伺服器與房間",
+    "description": "尋找伺服器、加入連線房間，或建立自己的房間。",
     "seeds": "房間探索位址（每行一個）",
     "refresh": "重新整理房間與狀態",
     "partial": "部分探索節點或房間暫時無法連線，清單可能不完整。",
@@ -2584,7 +2770,12 @@
     "start": "啟動房間",
     "stop": "關閉房間",
     "hosting": "正在託管 {{name}}",
-    "error": "操作未完成。請檢查身分、伺服器設定和網路後重試。"
+    "error": "操作未完成。請檢查身分、伺服器設定和網路後重試。",
+    "networkSettings": "伺服器與房間網路設定",
+    "setupHint": "可先瀏覽；加入或建立房間前，請在設定中完成聯盟身分配置。",
+    "setupToJoin": "設定後加入",
+    "setupToHost": "設定後建立房間",
+    "optionDetails": "{{school}} · {{version}} · 最多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {
@@ -2730,7 +2921,6 @@
           "title": "離線角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "INVALID": "UUID 無效",
             "TEXTURE_ERROR": "角色外觀獲取失敗"
           }
@@ -2753,7 +2943,6 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "NOT_FOUND": "認證伺服器不存在",
@@ -2798,7 +2987,6 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "INVALID": "帳號或密碼錯誤",
@@ -2826,7 +3014,6 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
-            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "EXPIRED": "令牌已過期，請重新登入"
@@ -3464,7 +3651,9 @@
       "intelligence": "智慧",
       "extension": "擴充套件",
       "help": "文件與幫助",
-      "about": "關於"
+      "about": "關於",
+      "federation": "聯盟",
+      "federation-management": "聯盟管理"
     }
   },
   "SkinPreview": {
@@ -3520,7 +3709,7 @@
     "header": {
       "title": "在 GitHub 為我們點亮星標"
     },
-    "body": "如果您喜愛 SJMCL，並希望支援我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
+    "body": "如果您喜愛 {{productName}}，並希望支持我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
     "button": {
       "later": "稍後",
       "starUs": "點亮星標"
@@ -3598,7 +3787,7 @@
       "title": "歡迎！"
     },
     "body": {
-      "text": "歡迎使用 {{productName}}！本版本基於 SJMCL 開發。繼續前，請閱讀並同意所連結的<terms>上游 SJMCL 使用者協議</terms>；該連結不是本版本新增聯盟服務的專門條款。"
+      "text": "歡迎使用 {{productName}}！本啟動器由吉林大學 Minecraft 同好會（JLUCraft）維護，基於 SJMCL 開發。繼續前，請閱讀並同意所連結的<terms>上游 SJMCL 使用者協議</terms>；該連結指向上游 SJMCL 條款，而非本啟動器專用條款。"
     },
     "warning": {
       "unstableVersion": "您正在使用{{versionLabel}}的 {{productName}}，部分功能可能不穩定或未開發完成，歡迎報告使用問題與功能建議。",

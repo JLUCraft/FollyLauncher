@@ -8,6 +8,7 @@ import { brand } from "@/brand";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
+import { windowTitlebarHeight } from "@/utils/window";
 
 const MainWindowExtensionTitle = () => {
   const { t } = useTranslation();
@@ -63,7 +64,18 @@ const WindowTitlebar = () => {
   const isMac = osType === "macos" || osType === "darwin";
   const isWindows = osType === "windows";
 
-  const titlebarHeight = isWindows ? 32 : 28; // the same as Windows 11 / macOS 15 native titlebar height.
+  const titlebarHeight = windowTitlebarHeight(osType);
+
+  // Publish the chrome height for floating layers that must stay below the titlebar.
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--window-titlebar-height",
+      `${titlebarHeight}px`
+    );
+    return () => {
+      document.documentElement.style.removeProperty("--window-titlebar-height");
+    };
+  }, [titlebarHeight]);
 
   const [isMacFullscreen, setIsMacFullscreen] = useState(false);
   const [isLinuxMaximized, setIsLinuxMaximized] = useState(false);
@@ -131,6 +143,7 @@ const WindowTitlebar = () => {
     const blockOverlayCloseAtTop = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
       if (
+        event.detail > 0 &&
         event.clientY <= titlebarHeight &&
         document.querySelector(".chakra-modal__overlay") &&
         !target?.closest(

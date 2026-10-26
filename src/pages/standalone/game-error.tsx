@@ -72,23 +72,29 @@ const GameErrorPage: React.FC = () => {
   useEffect(() => {
     // construct info maps
     let infoList = new Map<string, string>();
-    infoList.set("launcherVersion", config.basicInfo.launcherVersion);
+    infoList.set(
+      "launcherVersion",
+      config.basicInfo.launcherVersion || t("GameErrorPage.placeholder.unknown")
+    );
     let platform = platformName();
-    if (platform === "Linux") {
+    if (!platform) {
+      infoList.set("os", t("GameErrorPage.placeholder.unknown"));
+    } else if (platform === "Linux") {
       infoList.set("os", "Linux");
     } else {
-      infoList.set(
-        "os",
-        `${platform} ${
-          platform === "Windows"
-            ? parseModernWindowsVersion(config.basicInfo.platformVersion)
-            : config.basicInfo.platformVersion
-        }`
-      );
+      const platformVersion = config.basicInfo.platformVersion
+        ? platform === "Windows"
+          ? parseModernWindowsVersion(config.basicInfo.platformVersion)
+          : config.basicInfo.platformVersion
+        : t("GameErrorPage.placeholder.unknown");
+      infoList.set("os", `${platform} ${platformVersion}`.trim());
     }
-    infoList.set("arch", config.basicInfo.arch);
+    infoList.set(
+      "arch",
+      config.basicInfo.arch || t("GameErrorPage.placeholder.unknown")
+    );
     setBasicInfoParams(infoList);
-  }, [config.basicInfo, platformName]);
+  }, [config.basicInfo, platformName, t]);
 
   // retrieve launching state and initialize auto-close
   useEffect(() => {
@@ -284,14 +290,14 @@ const GameErrorPage: React.FC = () => {
         </Button>
         <Button
           colorScheme={primaryColor}
-          variant="solid"
+          variant="outline"
           onClick={handleOpenLogWindow}
         >
           {t("GameErrorPage.button.gameLogs")}
         </Button>
         <Button
           colorScheme={primaryColor}
-          variant="solid"
+          variant="outline"
           onClick={() => openUrl(t("GameErrorPage.helpUrl"))}
         >
           {t("GameErrorPage.button.help")}
@@ -305,7 +311,7 @@ const GameErrorPage: React.FC = () => {
           <Button
             key={props.id || `ext-btn-${index}`}
             colorScheme={primaryColor}
-            variant="solid"
+            variant="outline"
             {...props}
             size="sm" // keep default size
           />

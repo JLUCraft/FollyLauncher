@@ -62,10 +62,11 @@ const GeneralSettingsPage = () => {
     closeSharedModal("generic-confirm");
   }, [setConfig, toast, closeSharedModal]);
 
-  const generalSettingGroups: OptionItemGroupProps[] = [
+  const generalSettingGroups: (OptionItemGroupProps & { id: string })[] = [
     // Frontend grouping was modified after discussions in PR#1299
     // resulting in a mismatch with the backend storage structure. (TODO: migration?)
     {
+      id: "language",
       title: t("GeneralSettingsPage.language.title"),
       items: [
         {
@@ -79,6 +80,7 @@ const GeneralSettingsPage = () => {
       ],
     },
     {
+      id: "language-options",
       items: [
         {
           title: t(
@@ -149,6 +151,7 @@ const GeneralSettingsPage = () => {
       ],
     },
     {
+      id: "discover",
       title: t("GeneralSettingsPage.functions.title"),
       items: [
         {
@@ -178,6 +181,7 @@ const GeneralSettingsPage = () => {
       ],
     },
     {
+      id: "function-options",
       items: [
         {
           title: t(
@@ -248,6 +252,7 @@ const GeneralSettingsPage = () => {
       ],
     },
     {
+      id: "sync",
       title: t("GeneralSettingsPage.sync.title"),
       items: [
         {
@@ -274,6 +279,7 @@ const GeneralSettingsPage = () => {
       ],
     },
     {
+      id: "advanced",
       title: t("GeneralSettingsPage.advanced.title"),
       items: [
         {
@@ -380,12 +386,8 @@ const GeneralSettingsPage = () => {
 
   return (
     <>
-      {generalSettingGroups.map((group) => (
-        <OptionItemGroup
-          title={group.title}
-          items={group.items}
-          key={group.title}
-        />
+      {generalSettingGroups.map(({ id, ...group }) => (
+        <OptionItemGroup key={id} {...group} />
       ))}
 
       <SyncConfigExportModal

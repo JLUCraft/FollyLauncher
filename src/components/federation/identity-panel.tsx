@@ -14,16 +14,22 @@ import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { IdentityActionForm } from "@/components/federation/identity-action-form";
+import { IdentityRecordSummary } from "@/components/federation/identity-record-summary";
 import { RecordFields } from "@/components/federation/record-fields";
-import { SetupGuide } from "@/components/federation/setup-guide";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { useToast } from "@/contexts/toast";
 import { IdentityFacts, UnionService } from "@/services/union";
 import { UtilsService } from "@/services/utils";
 import { copyText } from "@/utils/copy";
-import { GENESIS_PATTERN } from "@/utils/federation/connection-link";
-import { sanitizeFileName } from "@/utils/string";
+import { sanitizeFileName, shortenIdentifier } from "@/utils/string";
+
+function parseSetup(value: string): Record<string, unknown> {
+  const parsed: unknown = JSON.parse(value);
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed))
+    throw new Error("Identity setup must be a JSON object");
+  return parsed as Record<string, unknown>;
+}
 
 export function IdentityPanel() {
   const { t } = useTranslation();
@@ -37,10 +43,6 @@ export function IdentityPanel() {
     setIdentityFacts: setFacts,
     identityConfigured,
     setIdentityConfigured,
-    address,
-    peer,
-    genesisHash,
-    connect,
   } = useFederation();
   const [configuration, setConfiguration] = useState("");
   const [cached, setCached] = useState(false);
@@ -79,17 +81,18 @@ export function IdentityPanel() {
       if (operation === "save") {
         let parsed: unknown;
         try {
-          parsed = JSON.parse(configuration);
+          parsed = parseSetup(configuration);
         } catch {
           setSaveInvalid(true);
           return;
         }
         const value = await UnionService.identityConfiguration(parsed);
+        if (!value) {
+          setSaveInvalid(true);
+          return;
+        }
         setConfiguration(JSON.stringify(value, null, 2));
         setIdentityConfigured(true);
-        // Connecting needs this setup, so retry the connection the student already entered.
-        if (address && peer && GENESIS_PATTERN.test(genesisHash))
-          void connect();
         setCached(false);
         setFacts(null);
         setProposal(null);
@@ -163,7 +166,10 @@ export function IdentityPanel() {
       toast({ title: t("IdentityFlow.exportFailed"), status: "error" });
     }
   };
-  const importFromFile = async () => {
+  const importFromFile = async (
+    target: "record" | "configuration" = "record"
+  ) => {
+    setBusy(true);
     try {
       const path = await open({
         filters: [
@@ -176,12 +182,24 @@ export function IdentityPanel() {
       if (typeof path !== "string") return;
       const response = await UtilsService.readFile(path, "string");
       if (response.status === "success" && typeof response.data === "string") {
-        setImported(response.data);
+        if (target === "configuration") {
+          setConfiguration(response.data);
+          setSaveInvalid(false);
+          try {
+            parseSetup(response.data);
+          } catch {
+            setSaveInvalid(true);
+            return;
+          }
+          toast({ title: t("IdentityFlow.setupLoaded"), status: "info" });
+        } else setImported(response.data);
       } else {
         toast({ title: t("IdentityFlow.importFailed"), status: "error" });
       }
     } catch {
       toast({ title: t("IdentityFlow.importFailed"), status: "error" });
+    } finally {
+      setBusy(false);
     }
   };
   const action =
@@ -211,265 +229,292 @@ export function IdentityPanel() {
       ? (proposal as { signatures?: unknown }).signatures
       : undefined;
   const signed = Array.isArray(signatures) && signatures.length > 0;
+  const publicPeer = (() => {
+    if (!publicIdentity) return "";
+    try {
+      const parsed = JSON.parse(publicIdentity) as { peer?: unknown };
+      return typeof parsed.peer === "string" ? parsed.peer : "";
+    } catch {
+      return "";
+    }
+  })();
   return (
-    <Section title={t("FederationNav.identity")}>
-      <VStack align="stretch" spacing={4}>
-        <SetupGuide />
-        <Text>{t("IdentityFlow.intro")}</Text>
-        <Section
-          title={t("IdentityManagement.publicTitle")}
-          description={t("IdentityManagement.publicHint")}
-          isAccordion
-          initialIsOpen={false}
-        >
-          <VStack align="stretch" spacing={3}>
+    <VStack align="stretch" spacing={4}>
+      <Text>{t("IdentityFlow.intro")}</Text>
+      <Section
+        title={t("IdentityManagement.publicTitle")}
+        description={t("IdentityManagement.publicHint")}
+        isAccordion
+        initialIsOpen={false}
+      >
+        <VStack align="stretch" spacing={3}>
+          {publicPeer && (
+            <Text overflowWrap="anywhere" title={publicPeer}>
+              {t("IdentityFlow.device")}: {shortenIdentifier(publicPeer)}
+            </Text>
+          )}
+          <Button
+            isDisabled={!publicIdentity}
+            onClick={() => void copyText(publicIdentity, { toast })}
+          >
+            {t("IdentityManagement.copy")}
+          </Button>
+          <Section
+            title={t("IdentityFlow.technicalDetails")}
+            isAccordion
+            initialIsOpen={false}
+          >
             <Textarea
               isReadOnly
               aria-label={t("IdentityManagement.publicTitle")}
               value={publicIdentity}
             />
+          </Section>
+        </VStack>
+      </Section>
+      {needsSetup ? (
+        <Section title={t("FederationPage.identity.configuration")}>
+          <VStack align="stretch" spacing={3}>
+            <Text>{t("IdentityFlow.setup")}</Text>
             <Button
-              isDisabled={!publicIdentity}
-              onClick={() => void copyText(publicIdentity, { toast })}
+              alignSelf="flex-start"
+              isDisabled={busy}
+              onClick={() => void importFromFile("configuration")}
             >
-              {t("IdentityManagement.copy")}
+              {t("IdentityFlow.importSetup")}
+            </Button>
+            <Textarea
+              id="identity-setup"
+              aria-label={t("FederationPage.identity.configuration")}
+              value={configuration}
+              isDisabled={busy}
+              onChange={(e) => {
+                setConfiguration(e.target.value);
+                setSaveInvalid(false);
+              }}
+            />
+            {saveInvalid && (
+              <Text role="alert">
+                {t("FederationPage.identity.saveInvalid")}
+              </Text>
+            )}
+            <Button
+              alignSelf="flex-start"
+              colorScheme={primaryColor}
+              isLoading={busy}
+              isDisabled={!configuration.trim()}
+              onClick={() => void run("save")}
+            >
+              {t("FederationPage.identity.save")}
             </Button>
           </VStack>
         </Section>
-        {needsSetup ? (
-          <Section title={t("FederationPage.identity.configuration")}>
-            <VStack align="stretch" spacing={3}>
-              <Text>{t("IdentityFlow.setup")}</Text>
-              <Textarea
-                aria-label={t("FederationPage.identity.configuration")}
-                value={configuration}
-                isDisabled={busy}
-                onChange={(e) => {
-                  setConfiguration(e.target.value);
-                  setSaveInvalid(false);
-                }}
+      ) : (
+        <>
+          <VStack align="stretch" spacing={2}>
+            <HStack flexWrap="wrap">
+              <Button
+                id="identity-verify"
+                colorScheme={primaryColor}
+                isDisabled={busy || !configured}
+                onClick={() => void run("automatic")}
+              >
+                {t("IdentityFlow.automatic")}
+              </Button>
+              {["sync", "inspect", "host"].map((op) => (
+                <Button
+                  key={op}
+                  variant="outline"
+                  isDisabled={busy || !configured}
+                  onClick={() => void run(op)}
+                >
+                  {t(`IdentityFlow.${op}`)}
+                </Button>
+              ))}
+            </HStack>
+            <Text fontSize="sm" className="secondary-text">
+              {t("IdentityFlow.hint")}
+            </Text>
+          </VStack>
+          {busy && (
+            <Text role="status">{t("FederationPage.identity.loading")}</Text>
+          )}
+          {failed && (
+            <Text role="alert">{t("FederationPage.identity.unavailable")}</Text>
+          )}
+          {cached && (
+            <Text role="status">{t("IdentityManagement.cached")}</Text>
+          )}
+          {facts ? (
+            <AdvancedCard p={4}>
+              <VStack align="stretch">
+                <Text>
+                  {t("FederationPage.settings.myMember", {
+                    id: ownMember || t("IdentityFlow.unbound"),
+                  })}
+                </Text>
+                {facts.memberships
+                  .filter(([id]) => id === ownMember)
+                  .map(([id, c]) => (
+                    <Text key={`${id}/${c}`}>
+                      {t("FederationPage.settings.myClub", { club: c })}
+                    </Text>
+                  ))}
+              </VStack>
+            </AdvancedCard>
+          ) : (
+            !busy && (
+              <Empty
+                size="md"
+                description={t("FederationPage.identity.empty")}
               />
-              {saveInvalid && (
-                <Text role="alert">
-                  {t("FederationPage.identity.saveInvalid")}
+            )
+          )}
+          {facts && (
+            <Section
+              title={t("IdentityManagement.facts")}
+              isAccordion
+              initialIsOpen={false}
+            >
+              <RecordFields value={facts} />
+            </Section>
+          )}
+          <IdentityActionForm
+            disabled={busy || !configured}
+            onDraft={(action) => run("draft", action)}
+          />
+          {proposal !== null && (
+            <Section title={t("IdentityFlow.review")}>
+              <VStack align="stretch" spacing={3}>
+                <Text>{t("IdentityFlow.reviewHint")}</Text>
+                {binding && (
+                  <HStack align="start" spacing={4}>
+                    <Section title={t("IdentityFlow.before")} flex={1}>
+                      <Text overflowWrap="anywhere">{before}</Text>
+                    </Section>
+                    <Section title={t("IdentityFlow.after")} flex={1}>
+                      <Text overflowWrap="anywhere">{after}</Text>
+                    </Section>
+                  </HStack>
+                )}
+                <IdentityRecordSummary value={proposal} />
+                <Section
+                  title={t("IdentityFlow.technicalDetails")}
+                  isAccordion
+                  initialIsOpen={false}
+                >
+                  <RecordFields value={proposal} />
+                </Section>
+                <HStack flexWrap="wrap">
+                  <Button
+                    isDisabled={busy || !configured}
+                    onClick={() => void run("sign_offline")}
+                  >
+                    {t("IdentityManagement.signOffline")}
+                  </Button>
+                  <Button
+                    colorScheme={primaryColor}
+                    isDisabled={busy || !configured}
+                    onClick={() => void run("sign")}
+                  >
+                    {t("IdentityFlow.sign")}
+                  </Button>
+                  <Button
+                    colorScheme={primaryColor}
+                    isDisabled={busy || !configured}
+                    onClick={() => void run("submit")}
+                  >
+                    {t("IdentityFlow.submit")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    isDisabled={!signed}
+                    onClick={() => void exportProposal()}
+                  >
+                    {t("IdentityFlow.exportFile")}
+                  </Button>
+                </HStack>
+              </VStack>
+            </Section>
+          )}
+          <Section
+            title={t("FederationNav.advanced")}
+            isAccordion
+            initialIsOpen={false}
+          >
+            <VStack align="stretch" spacing={3}>
+              <Text overflowWrap="anywhere">
+                {t("FederationPage.settings.myDevice", { id: identity })}
+              </Text>
+              {facts && (
+                <Text>
+                  {t("IdentityFlow.position", {
+                    sequence: facts.checkpoint.sequence,
+                  })}
                 </Text>
               )}
+              <FormControl>
+                <FormLabel htmlFor="identity-configuration">
+                  {t("FederationPage.identity.configuration")}
+                </FormLabel>
+                <Textarea
+                  id="identity-configuration"
+                  value={configuration}
+                  isDisabled={busy}
+                  onChange={(e) => setConfiguration(e.target.value)}
+                />
+              </FormControl>
               <Button
-                alignSelf="flex-start"
-                colorScheme={primaryColor}
-                isLoading={busy}
-                isDisabled={!configuration.trim()}
+                isDisabled={busy || !configuration}
                 onClick={() => void run("save")}
               >
                 {t("FederationPage.identity.save")}
               </Button>
-            </VStack>
-          </Section>
-        ) : (
-          <>
-            <VStack align="stretch" spacing={2}>
+              <FormControl>
+                <FormLabel htmlFor="identity-import">
+                  {t("IdentityFlow.import")}
+                </FormLabel>
+                <Textarea
+                  id="identity-import"
+                  value={imported}
+                  onChange={(e) => setImported(e.target.value)}
+                />
+              </FormControl>
               <HStack flexWrap="wrap">
                 <Button
-                  colorScheme={primaryColor}
-                  isDisabled={busy || !configured}
-                  onClick={() => void run("automatic")}
+                  isDisabled={busy || !imported}
+                  onClick={() => void run("import")}
                 >
-                  {t("IdentityFlow.automatic")}
+                  {t("IdentityFlow.review")}
                 </Button>
-                {["sync", "inspect", "host"].map((op) => (
-                  <Button
-                    key={op}
-                    variant="outline"
-                    isDisabled={busy || !configured}
-                    onClick={() => void run(op)}
-                  >
-                    {t(`IdentityFlow.${op}`)}
-                  </Button>
-                ))}
-              </HStack>
-              <Text fontSize="sm" className="secondary-text">
-                {t("IdentityFlow.hint")}
-              </Text>
-            </VStack>
-            {busy && (
-              <Text role="status">{t("FederationPage.identity.loading")}</Text>
-            )}
-            {failed && (
-              <Text role="alert">
-                {t("FederationPage.identity.unavailable")}
-              </Text>
-            )}
-            {cached && (
-              <Text role="status">{t("IdentityManagement.cached")}</Text>
-            )}
-            {facts ? (
-              <AdvancedCard p={4}>
-                <VStack align="stretch">
-                  <Text>
-                    {t("FederationPage.settings.myMember", {
-                      id: ownMember || t("IdentityFlow.unbound"),
-                    })}
-                  </Text>
-                  {facts.memberships
-                    .filter(([id]) => id === ownMember)
-                    .map(([id, c]) => (
-                      <Text key={`${id}/${c}`}>
-                        {t("FederationPage.settings.myClub", { club: c })}
-                      </Text>
-                    ))}
-                </VStack>
-              </AdvancedCard>
-            ) : (
-              !busy && (
-                <Empty
-                  size="md"
-                  description={t("FederationPage.identity.empty")}
-                />
-              )
-            )}
-            {facts && (
-              <Section
-                title={t("IdentityManagement.facts")}
-                isAccordion
-                initialIsOpen={false}
-              >
-                <RecordFields value={facts} />
-              </Section>
-            )}
-            <IdentityActionForm
-              disabled={busy || !configured}
-              onDraft={(action) => run("draft", action)}
-            />
-            {proposal !== null && (
-              <Section title={t("IdentityFlow.review")}>
-                <VStack align="stretch" spacing={3}>
-                  <Text>{t("IdentityFlow.reviewHint")}</Text>
-                  {typeof action?.type === "string" && (
-                    <Text fontWeight="semibold">
-                      {t(`IdentityManagement.actions.${action.type}`)}
-                    </Text>
-                  )}
-                  {binding && (
-                    <HStack align="start" spacing={4}>
-                      <Section title={t("IdentityFlow.before")} flex={1}>
-                        <Text overflowWrap="anywhere">{before}</Text>
-                      </Section>
-                      <Section title={t("IdentityFlow.after")} flex={1}>
-                        <Text overflowWrap="anywhere">{after}</Text>
-                      </Section>
-                    </HStack>
-                  )}
-                  <RecordFields value={proposal} />
-                  <HStack flexWrap="wrap">
-                    <Button
-                      isDisabled={busy || !configured}
-                      onClick={() => void run("sign_offline")}
-                    >
-                      {t("IdentityManagement.signOffline")}
-                    </Button>
-                    <Button
-                      colorScheme={primaryColor}
-                      isDisabled={busy || !configured}
-                      onClick={() => void run("sign")}
-                    >
-                      {t("IdentityFlow.sign")}
-                    </Button>
-                    <Button
-                      colorScheme={primaryColor}
-                      isDisabled={busy || !configured}
-                      onClick={() => void run("submit")}
-                    >
-                      {t("IdentityFlow.submit")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      isDisabled={!signed}
-                      onClick={() => void exportProposal()}
-                    >
-                      {t("IdentityFlow.exportFile")}
-                    </Button>
-                  </HStack>
-                </VStack>
-              </Section>
-            )}
-            <Section
-              title={t("FederationNav.advanced")}
-              isAccordion
-              initialIsOpen={false}
-            >
-              <VStack align="stretch" spacing={3}>
-                <Text overflowWrap="anywhere">
-                  {t("FederationPage.settings.myDevice", { id: identity })}
-                </Text>
-                {facts && (
-                  <Text>
-                    {t("IdentityFlow.position", {
-                      sequence: facts.checkpoint.sequence,
-                    })}
-                  </Text>
-                )}
-                <FormControl>
-                  <FormLabel htmlFor="identity-configuration">
-                    {t("FederationPage.identity.configuration")}
-                  </FormLabel>
-                  <Textarea
-                    id="identity-configuration"
-                    value={configuration}
-                    isDisabled={busy}
-                    onChange={(e) => setConfiguration(e.target.value)}
-                  />
-                </FormControl>
                 <Button
-                  isDisabled={busy || !configuration}
-                  onClick={() => void run("save")}
+                  variant="outline"
+                  isDisabled={busy}
+                  onClick={() => void importFromFile()}
                 >
-                  {t("FederationPage.identity.save")}
+                  {t("IdentityFlow.importFile")}
                 </Button>
-                <FormControl>
-                  <FormLabel htmlFor="identity-import">
-                    {t("IdentityFlow.import")}
-                  </FormLabel>
-                  <Textarea
-                    id="identity-import"
-                    value={imported}
-                    onChange={(e) => setImported(e.target.value)}
-                  />
-                </FormControl>
-                <HStack flexWrap="wrap">
+              </HStack>
+              {proposal !== null && (
+                <>
+                  <Section title={t("IdentityFlow.export")}>
+                    <RecordFields value={proposal} />
+                  </Section>
                   <Button
-                    isDisabled={busy || !imported}
-                    onClick={() => void run("import")}
+                    onClick={() =>
+                      void copyText(JSON.stringify(proposal, null, 2), {
+                        toast,
+                      })
+                    }
                   >
-                    {t("IdentityFlow.review")}
+                    {t("IdentityManagement.copy")}
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => void importFromFile()}
-                  >
-                    {t("IdentityFlow.importFile")}
-                  </Button>
-                </HStack>
-                {proposal !== null && (
-                  <>
-                    <Section title={t("IdentityFlow.export")}>
-                      <RecordFields value={proposal} />
-                    </Section>
-                    <Button
-                      onClick={() =>
-                        void copyText(JSON.stringify(proposal, null, 2), {
-                          toast,
-                        })
-                      }
-                    >
-                      {t("IdentityManagement.copy")}
-                    </Button>
-                  </>
-                )}
-              </VStack>
-            </Section>
-          </>
-        )}
-      </VStack>
-    </Section>
+                </>
+              )}
+            </VStack>
+          </Section>
+        </>
+      )}
+    </VStack>
   );
 }

@@ -5,12 +5,12 @@ import { AdminConsole } from "@/components/federation/admin-console";
 import { AuditAnchor } from "@/components/federation/audit-anchor";
 import { BusinessAdmin } from "@/components/federation/business-admin";
 import { ConnectionRequired } from "@/components/federation/connection-required";
-import { useFederation, useLeagueRequest } from "@/contexts/federation";
+import { useApplicationRequest, useFederation } from "@/contexts/federation";
 
 export default function ManagePage() {
   const { t } = useTranslation();
   const { state, isAdmin } = useFederation();
-  const { busy, error, handleRequest } = useLeagueRequest();
+  const { busy, error, handleRequest } = useApplicationRequest();
   if (!state) return <ConnectionRequired />;
   if (!isAdmin) return <Empty description={t("FederationNav.restricted")} />;
   return (

@@ -96,11 +96,9 @@ const InstancesView: React.FC<InstancesViewProps> = ({
       isFullClickZone: true,
       onClick: () => handleSelectInstance(instance),
     }),
-    children: withMenu ? (
-      <InstanceMenu instance={instance} variant="buttonGroup" />
-    ) : (
-      <></>
-    ),
+    // Row actions stay in one overflow menu, so the destructive delete action is
+    // never adjacent to the high-frequency details button.
+    children: withMenu ? <InstanceMenu instance={instance} /> : <></>,
   }));
 
   const gridItems = instances.map((instance) => ({
