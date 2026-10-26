@@ -167,10 +167,10 @@ export async function managementScenario({
     });
   }
   try {
-    await evaluate("window.next.router.push('/federation/identity')");
+    await evaluate("window.next.router.push('/settings/federation')");
     await until(
-      "location.pathname==='/federation/identity' && document.getElementById('identity-action-kind')",
-      "identity page"
+      "location.pathname==='/settings/federation' && document.getElementById('identity-action-kind')",
+      "union settings page"
     );
     await expand(locale.FederationNav.advanced);
     const publicIdentity = await native("union_public_identity");
@@ -267,12 +267,12 @@ export async function managementScenario({
     await stopHost();
     const binding = await save("binding.json", {
       genesis: root.genesis_hash,
-      namespace: "league",
+      namespace: "application",
       service,
       audience: peer,
       club: "school",
     });
-    const business = resolve(temp, "league-genesis.json");
+    const business = resolve(temp, "application-genesis.json");
     const pin = await run([
       "business-genesis",
       "--binding",
@@ -282,9 +282,8 @@ export async function managementScenario({
     ]);
     config.node.listen = [address.replace(`/p2p/${peer}`, "")];
     config.services.governance = {
-      domain: "league",
       genesis: business,
-      journal: resolve(temp, "league.journal"),
+      journal: resolve(temp, "application.journal"),
     };
     await start(config);
     const link = `folly://federation?${new URLSearchParams({ address, peer, genesis: pin })}`;
@@ -292,10 +291,17 @@ export async function managementScenario({
       `window.dispatchEvent(new CustomEvent('deeplink:emit',{detail:[${JSON.stringify(link)}]}))`
     );
     await until(
-      "location.pathname==='/federation/overview'",
+      "location.pathname==='/settings/federation'",
       "federation link route"
     );
-    await evaluate("window.next.router.push('/federation/manage')");
+    await button(locale.FederationPage.settings.linkConnect);
+    await until(
+      `document.body.innerText.includes(${JSON.stringify(locale.FederationNav.connected)})`,
+      "confirmed application connection"
+    );
+    await evaluate(
+      "window.next.router.push('/settings/federation-management')"
+    );
     await until(
       `Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()===${JSON.stringify(locale.AuditAnchor.title)})`,
       "authorized management view"
@@ -354,21 +360,26 @@ export async function managementScenario({
     });
     assert.deepEqual(updated.state.members.founder.roles, ["reviewer"]);
     await button(locale.BusinessAdmin.add);
-    for (const [label,value] of [
-      [locale.BusinessAdmin.nodeId,"1"],
-      [locale.IdentityManagement.fields.audience,peer],
-      [locale.BusinessAdmin.addresses,address],
+    for (const [label, value] of [
+      [locale.BusinessAdmin.nodeId, "1"],
+      [locale.IdentityManagement.fields.audience, peer],
+      [locale.BusinessAdmin.addresses, address],
     ]) {
-      await evaluate(`(()=>{const el=Array.from(document.querySelectorAll('input,textarea')).find(e=>e.getAttribute('aria-label')===${JSON.stringify(label)});const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${JSON.stringify(value)});el.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+      await evaluate(
+        `(()=>{const el=Array.from(document.querySelectorAll('input,textarea')).find(e=>e.getAttribute('aria-label')===${JSON.stringify(label)});const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${JSON.stringify(value)});el.dispatchEvent(new Event('input',{bubbles:true}));})()`
+      );
       await delay(150);
     }
     await button(locale.BusinessAdmin.reviewReplicas);
     await button(locale.BusinessAdmin.submit);
-    const withReplicas = await native("union_governance", {input:{address,peer,genesis_hash:pin}});
-    assert.equal(withReplicas.state.consensus_members["1"].peer,peer);
+    const withReplicas = await native("union_governance", {
+      input: { address, peer, genesis_hash: pin },
+    });
+    assert.equal(withReplicas.state.consensus_members["1"].peer, peer);
     await shot("management-business", "真实联赛治理提交审计摘要与成员业务角色");
     await stopHost();
-    await evaluate("window.next.router.push('/federation/identity')");
+    await evaluate("window.next.router.push('/settings/federation')");
+    await expand(locale.FederationNav.identity);
     await button(locale.IdentityFlow.inspect);
     await until(
       `document.body.innerText.includes(${JSON.stringify(locale.IdentityManagement.cached)})`,

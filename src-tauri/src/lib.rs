@@ -11,10 +11,12 @@ mod tasks;
 mod union;
 mod utils;
 
-use account::helpers::authlib_injector::info::refresh_and_update_auth_servers;
+use account::helpers::authlib_injector::info::{
+  AuthServerRefresh, refresh_and_update_auth_servers,
+};
 use account::helpers::offline::yggdrasil_server::YggdrasilServer;
 use account::models::AccountInfo;
-use instance::helpers::misc::refresh_and_update_instances;
+use instance::helpers::misc::{InstanceRefresh, refresh_and_update_instances};
 use instance::models::misc::Instance;
 use launch::models::LaunchingState;
 use launcher_config::helpers::java::refresh_and_update_javas;
@@ -108,6 +110,8 @@ pub async fn run() {
         union::union_proxy_stop,
         union::union_proxy_status,
         union::union_governance,
+        union::union_discover,
+        union::union_points_output,
         launcher_config::commands::retrieve_launcher_config,
         launcher_config::commands::update_launcher_config,
         launcher_config::commands::reset_launcher_config,
@@ -253,9 +257,11 @@ pub async fn run() {
 
         let account_info = AccountInfo::load().unwrap_or_default();
         app.manage(Mutex::new(account_info));
+        app.manage(AuthServerRefresh::default());
 
         let instances: HashMap<String, Instance> = HashMap::new();
         app.manage(Mutex::new(instances));
+        app.manage(InstanceRefresh::default());
 
         let javas: Vec<JavaInfo> = vec![];
         app.manage(Mutex::new(javas));
@@ -284,12 +290,10 @@ pub async fn run() {
           local_ygg_server.run().await.unwrap_or_default();
         });
 
-        // check if full account feature (offline and 3rd-party login) is available
+        // Resolve the region used for automatic download source selection.
         let app_handle = app.handle().clone();
         tauri::async_runtime::spawn(async move {
-          account::helpers::misc::check_full_login_availability(&app_handle)
-            .await
-            .unwrap_or_default();
+          let _ = utils::web::is_china_mainland_ip(&app_handle).await;
         });
 
         // Refresh all auth servers
@@ -303,7 +307,7 @@ pub async fn run() {
         // Refresh all instances
         let app_handle = app.handle().clone();
         tauri::async_runtime::spawn(async move {
-          refresh_and_update_instances(&app_handle, true).await;
+          refresh_and_update_instances(&app_handle).await;
         });
 
         // Refresh all javas

@@ -145,8 +145,13 @@ pub async fn prepare_libraries(
     root_dir: root,
     library_dir: libraries,
   };
-  let downloads =
-    minecraftd::minecraft::loader::processors::prepare_libraries(priority, &target, client_info)?;
+  let downloads = minecraftd::minecraft::loader::processors::prepare_libraries(
+    priority,
+    &target,
+    client_info,
+    &crate::instance::helpers::client_json::rule_platform(),
+  )
+  .await?;
   crate::tasks::commands::schedule_progressive_task_group(
     app.clone(),
     format!(

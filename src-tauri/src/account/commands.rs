@@ -118,10 +118,6 @@ pub async fn add_player_oauth(
 
   misc::add_player(&app, new_player)?;
 
-  if server_type == PlayerType::Microsoft {
-    misc::check_full_login_availability(&app).await?;
-  }
-
   Ok(())
 }
 
@@ -178,7 +174,7 @@ pub async fn relogin_player_oauth(
     }
   }
 
-  misc::check_full_login_availability(&app).await
+  Ok(())
 }
 
 #[tauri::command]
@@ -289,7 +285,7 @@ pub async fn relogin_player_3rdparty_password(
     }
   }
 
-  misc::check_full_login_availability(&app).await
+  Ok(())
 }
 
 #[tauri::command]
@@ -401,7 +397,7 @@ pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()>
     account_state.save()?;
   }
 
-  misc::check_full_login_availability(&app).await
+  Ok(())
 }
 
 #[tauri::command]

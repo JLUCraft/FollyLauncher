@@ -371,7 +371,13 @@ pub async fn refresh_all_instances(
   instance_map
 }
 
-pub async fn refresh_and_update_instances(app: &AppHandle, is_first_run: bool) {
+#[derive(Default)]
+pub struct InstanceRefresh(pub tokio::sync::Mutex<bool>);
+
+pub async fn refresh_and_update_instances(app: &AppHandle) {
+  let refresh = app.state::<InstanceRefresh>();
+  let mut initialized = refresh.0.lock().await;
+  let is_first_run = !*initialized;
   // get launcher config -> local game directories
   let local_game_directories = {
     let binding = app.state::<Mutex<LauncherConfig>>();
@@ -383,6 +389,7 @@ pub async fn refresh_and_update_instances(app: &AppHandle, is_first_run: bool) {
   let binding = app.state::<Mutex<HashMap<String, Instance>>>();
   let mut state = binding.lock().unwrap();
   *state = instances;
+  *initialized = true;
 }
 
 #[cfg(any(target_os = "windows", target_os = "linux"))]

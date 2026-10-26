@@ -169,11 +169,8 @@ pub fn normalize_url(input: &str) -> String {
     path = path.trim_end_matches('/').to_string();
   }
 
-  // remove default port(e.g. 80 for HTTP, 443 for HTTPS)
-  let port = match (url.port(), url.port_or_known_default()) {
-    (Some(p), Some(default)) if p == default => None,
-    (p, _) => p,
-  };
+  // Url already omits the scheme's default port; retain every explicit nondefault port.
+  let port = url.port();
 
   let mut normalized = match Url::parse(&format!("{}://{}", url.scheme(), url.host_str().unwrap()))
   {
@@ -187,4 +184,29 @@ pub fn normalize_url(input: &str) -> String {
   normalized.set_fragment(url.fragment());
 
   normalized.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::utils::web::normalize_url;
+
+  #[test]
+  fn authentication_servers_on_distinct_ports_remain_distinct() {
+    assert_ne!(
+      normalize_url("http://127.0.0.1:45431/"),
+      normalize_url("http://127.0.0.1:46137/")
+    );
+    assert_eq!(
+      normalize_url("http://127.0.0.1:45431/auth/"),
+      "http://127.0.0.1:45431/auth"
+    );
+    assert_eq!(
+      normalize_url("http://example.test:80/"),
+      "http://example.test/"
+    );
+    assert_eq!(
+      normalize_url("https://example.test:443/"),
+      "https://example.test/"
+    );
+  }
 }

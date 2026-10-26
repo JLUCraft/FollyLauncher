@@ -1,8 +1,10 @@
 use sjmcl_types::error::SJMCLResult;
+use sjmcl_types::storage::Storage;
 use std::collections::BTreeSet;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
+use tokio::sync::OnceCell;
 use url::Url;
 
 use crate::account::helpers::authlib_injector::constants::CLIENT_IDS;
@@ -79,11 +81,23 @@ pub async fn fetch_auth_url(app: &AppHandle, root: Url) -> SJMCLResult<String> {
   }
 }
 
+#[derive(Default)]
+pub struct AuthServerRefresh(OnceCell<()>);
+
 pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()> {
+  app
+    .state::<AuthServerRefresh>()
+    .0
+    .get_or_try_init(|| refresh_auth_servers(app))
+    .await?;
+  Ok(())
+}
+
+async fn refresh_auth_servers(app: &AppHandle) -> SJMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let cloned_account_state = account_binding.lock()?.clone();
 
-  let mut refreshed_auth_server_info_list =
+  let refreshed_auth_server_info_list =
     futures::future::join_all(cloned_account_state.auth_servers.iter().map(|info| async {
       if let Ok(refreshed_info) = fetch_auth_server_info(app, info.auth_url.clone()).await {
         refreshed_info
@@ -93,11 +107,34 @@ pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()>
     }))
     .await;
 
-  refreshed_auth_server_info_list.retain(|info| !info.metadata.is_null()); // remove invalid servers
-
   let mut account_state = account_binding.lock()?;
-  account_state.auth_servers = refreshed_auth_server_info_list;
+  apply_refreshed_servers(
+    &mut account_state,
+    &cloned_account_state.auth_servers,
+    refreshed_auth_server_info_list,
+    |account| Ok(account.save()?),
+  )
+}
 
+fn apply_refreshed_servers(
+  account: &mut AccountInfo,
+  original: &[AuthServerInfo],
+  refreshed: Vec<AuthServerInfo>,
+  save: impl FnOnce(&AccountInfo) -> SJMCLResult<()>,
+) -> SJMCLResult<()> {
+  let mut updated = account.clone();
+  // Only replace entries unchanged since the request began. Preserve concurrent edits.
+  for (before, after) in original.iter().zip(refreshed) {
+    if let Some(index) = updated.auth_servers.iter().position(|info| info == before) {
+      if after.metadata.is_null() {
+        updated.auth_servers.remove(index);
+      } else {
+        updated.auth_servers[index] = after;
+      }
+    }
+  }
+  save(&updated)?;
+  *account = updated;
   Ok(())
 }
 
@@ -189,5 +226,66 @@ mod tests {
       ]
     );
     assert!(skin_domains(&[]).is_empty());
+  }
+
+  #[test]
+  fn refresh_preserves_concurrent_changes_and_persists_new_domains() {
+    let before = server(
+      "https://auth.example",
+      json!({"skinDomains": ["old.example"]}),
+    );
+    let removed = server("https://removed.example", json!({}));
+    let edited = server("https://edited.example", json!({"name": "old"}));
+    let mut current_edit = edited.clone();
+    current_edit.metadata = json!({"name": "edited"});
+    let added = server("https://added.example", json!({}));
+    let mut account = AccountInfo {
+      auth_servers: vec![before.clone(), current_edit.clone(), added.clone()],
+      ..Default::default()
+    };
+    let refreshed = server(
+      "https://auth.example",
+      json!({"skinDomains": ["new.example"]}),
+    );
+    let mut persisted = None;
+    apply_refreshed_servers(
+      &mut account,
+      &[before, removed.clone(), edited.clone()],
+      vec![refreshed.clone(), removed, edited],
+      |value| {
+        persisted = Some(serde_json::to_string(value)?);
+        Ok(())
+      },
+    )
+    .unwrap();
+    assert_eq!(account.auth_servers, vec![refreshed, current_edit, added]);
+    let stored: AccountInfo = serde_json::from_str(&persisted.unwrap()).unwrap();
+    assert_eq!(stored, account);
+    assert!(skin_domains(&stored.auth_servers).contains(&"new.example".to_string()));
+    assert!(!skin_domains(&stored.auth_servers).contains(&"old.example".to_string()));
+  }
+
+  #[test]
+  fn failed_save_does_not_publish_refreshed_metadata() {
+    let before = server(
+      "https://auth.example",
+      json!({"skinDomains": ["old.example"]}),
+    );
+    let mut account = AccountInfo {
+      auth_servers: vec![before.clone()],
+      ..Default::default()
+    };
+    let unchanged = account.clone();
+    let result = apply_refreshed_servers(
+      &mut account,
+      &[before],
+      vec![server(
+        "https://auth.example",
+        json!({"skinDomains": ["new.example"]}),
+      )],
+      |_| Err(AccountError::SaveError.into()),
+    );
+    assert!(result.is_err());
+    assert_eq!(account, unchanged);
   }
 }

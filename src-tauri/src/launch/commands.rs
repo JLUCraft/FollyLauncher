@@ -221,6 +221,13 @@ pub async fn validate_selected_player(
 ) -> SJMCLResult<bool> {
   let mut player = get_selected_player_info(&app)?;
 
+  if matches!(
+    player.player_type,
+    PlayerType::ThirdParty | PlayerType::Offline
+  ) {
+    authlib_injector::info::refresh_and_update_auth_servers(&app).await?;
+  }
+
   if player.player_type == PlayerType::Microsoft {
     if !microsoft::oauth::validate(&app, &player).await? {
       return Ok(false);

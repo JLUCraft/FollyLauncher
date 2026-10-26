@@ -7,11 +7,9 @@ use tauri_plugin_http::reqwest::{self, RequestBuilder};
 use crate::account::constants::DEFAULT_POLLING_INTERVAL;
 use crate::account::models::{
   AccountError, AccountInfo, DeviceAuthResponseInfo, OAuthErrorResponse, OAuthTokens, PlayerInfo,
-  PlayerType,
 };
 use crate::launcher_config::models::LauncherConfig;
 use crate::utils::image::{ImageWrapper, decode_image};
-use crate::utils::web::is_china_mainland_ip;
 
 pub async fn fetch_image(app: &AppHandle, url: String) -> SJMCLResult<ImageWrapper> {
   let client = app.state::<reqwest::Client>();
@@ -65,12 +63,6 @@ pub fn add_player(app: &AppHandle, new_player: PlayerInfo) -> SJMCLResult<()> {
     let config_binding = app.state::<Mutex<LauncherConfig>>();
     let mut config_state = config_binding.lock()?;
 
-    if new_player.player_type != PlayerType::Microsoft
-      && !config_state.basic_info.allow_full_login_feature
-    {
-      return Err(AccountError::FullLoginUnavailable.into());
-    }
-
     if account_state
       .players
       .iter()
@@ -118,39 +110,6 @@ pub fn update_player_by_id(app: &AppHandle, player_id: &str, info: PlayerInfo) -
     account_state.players[index] = info;
     account_state.save()?;
   }
-  Ok(())
-}
-
-pub async fn check_full_login_availability(app: &AppHandle) -> SJMCLResult<()> {
-  let loc_flag = is_china_mainland_ip(app).await;
-
-  let account_binding = app.state::<Mutex<AccountInfo>>();
-  let account_state = account_binding.lock()?;
-
-  let config_binding = app.state::<Mutex<LauncherConfig>>();
-  let mut config_state = config_binding.lock()?;
-
-  match loc_flag {
-    Some(true) => {
-      // in China (mainland), full account feature (offline and 3rd-party login) is always available
-      config_state.partial_update(
-        app,
-        "basic_info.allow_full_login_feature",
-        &serde_json::to_string(&true)?,
-      )?;
-    }
-    _ => {
-      // not in China (mainland) or cannot determine the IP
-      // check if any player has been added (not only microsoft type player, because user may delete it)
-      config_state.partial_update(
-        app,
-        "basic_info.allow_full_login_feature",
-        &serde_json::to_string(&!account_state.players.is_empty())?,
-      )?;
-    }
-  }
-
-  config_state.save()?;
   Ok(())
 }
 

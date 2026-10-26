@@ -176,7 +176,16 @@ impl TaskMonitor {
       .unwrap();
   }
 
-  pub async fn enqueue_task_group(&self, task_group: String, futures: Vec<SJMCLFutureDesc>) {
+  pub async fn enqueue_task_group(
+    &self,
+    task_group: String,
+    futures: Vec<SJMCLFutureDesc>,
+  ) -> GEventStatus {
+    let status = if futures.is_empty() {
+      GEventStatus::Completed
+    } else {
+      GEventStatus::Started
+    };
     let mut hvec: Vec<(u32, Arc<RwLock<PTaskHandle>>)> = Vec::new();
 
     for future in futures.iter() {
@@ -199,10 +208,13 @@ impl TaskMonitor {
       task_group.clone(),
       GroupMonitor {
         phs: HashMap::from_iter(hvec),
-        status: GEventStatus::Started,
+        status: status.clone(),
       },
     );
     GEvent::emit_group_started(&self.app_handle, &task_group);
+    if status == GEventStatus::Completed {
+      GEvent::emit_group_completed(&self.app_handle, &task_group);
+    }
 
     for future in futures {
       let task = Box::pin(async move {
@@ -226,6 +238,7 @@ impl TaskMonitor {
         .await
         .unwrap();
     }
+    status
   }
 
   pub async fn background_process(&self) {

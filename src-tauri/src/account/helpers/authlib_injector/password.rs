@@ -4,7 +4,9 @@ use sjmcl_types::error::SJMCLResult;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-use crate::account::helpers::authlib_injector::common::{parse_profile, retrieve_profile};
+use crate::account::helpers::authlib_injector::common::{
+  auth_server_endpoint, parse_profile, retrieve_profile,
+};
 use crate::account::models::{AccountError, PlayerInfo};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -31,7 +33,10 @@ pub async fn login(
   let client = app.state::<reqwest::Client>();
 
   let response = client
-    .post(format!("{}/authserver/authenticate", auth_server_url))
+    .post(auth_server_endpoint(
+      &auth_server_url,
+      &["authserver", "authenticate"],
+    )?)
     .json(&json!({
       "username": username,
       "password": password,
@@ -108,10 +113,10 @@ pub async fn refresh(
   let client = app.state::<reqwest::Client>();
 
   let response = client
-    .post(format!(
-      "{}/authserver/refresh",
-      player.auth_server_url.clone().unwrap_or_default()
-    ))
+    .post(auth_server_endpoint(
+      player.auth_server_url.as_deref().unwrap_or_default(),
+      &["authserver", "refresh"],
+    )?)
     .json(&YggdrasilSession {
       access_token: player.access_token.clone().unwrap_or_default(),
       selected_profile: if is_new_bind {

@@ -92,17 +92,6 @@ jobs:
           repository: JLUCraft/game-server
           path: workspace/federated-server
 
-      # federated-server embeds its founder manifest at compile time; the file
-      # stays untracked until the federation settles its founder list (docs/TODO.md),
-      # and an empty manifest is a supported build state.
-      - name: Scaffold the founder manifest
-        shell: bash
-        working-directory: workspace/federated-server
-        run: |
-          if [ ! -f src/founders.json ]; then
-            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
-          fi
-
       - name: Resolve build metadata
         id: build_metadata
         shell: bash

@@ -27,8 +27,8 @@ use crate::instance::helpers::loader::optifine::{
   download_optifine_installer, finish_optifine_install,
 };
 use crate::instance::helpers::misc::{
-  get_instance_game_config, get_instance_subdir_path_by_id, get_instance_subdir_paths,
-  refresh_and_update_instances, unify_instance_name,
+  InstanceRefresh, get_instance_game_config, get_instance_subdir_path_by_id,
+  get_instance_subdir_paths, refresh_and_update_instances, unify_instance_name,
 };
 use crate::instance::helpers::modpack::export::{
   ExportModpackOptions, build_export_bundle, create_modpack_zip, list_files,
@@ -82,7 +82,7 @@ use crate::utils::image::ImageWrapper;
 
 #[tauri::command]
 pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceSummary>> {
-  refresh_and_update_instances(&app, false).await; // firstly refresh and update
+  refresh_and_update_instances(&app).await; // firstly refresh and update
   let global_version_isolation = get_global_game_config(&app).version_isolation;
   let mut summary_list = Vec::new();
 
@@ -316,7 +316,7 @@ pub async fn rename_instance(
     instance.name = new_name;
     new_path
   };
-  refresh_and_update_instances(&app, false).await;
+  refresh_and_update_instances(&app).await;
   Ok(new_path)
 }
 
@@ -1228,6 +1228,8 @@ pub async fn create_instance(
 
 #[tauri::command]
 pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
+  let refresh = app.state::<InstanceRefresh>();
+  let _guard = refresh.0.lock().await;
   let instance = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
     let state = binding.lock()?;
@@ -1379,6 +1381,8 @@ pub async fn change_mod_loader(
   is_install_fabric_api: Option<bool>,
   is_install_qf_api: Option<bool>,
 ) -> SJMCLResult<()> {
+  let refresh = app.state::<InstanceRefresh>();
+  let _guard = refresh.0.lock().await;
   let mut instance = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
     let state = binding.lock()?;

@@ -6,6 +6,7 @@ use std::str::FromStr;
 use strum::IntoEnumIterator;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
+use url::Url;
 use uuid::Uuid;
 
 use crate::account::helpers::authlib_injector::models::{MinecraftProfile, TextureInfo};
@@ -24,10 +25,10 @@ pub async fn retrieve_profile(
   let client = app.state::<reqwest::Client>();
   Ok(
     client
-      .get(format!(
-        "{}/sessionserver/session/minecraft/profile/{}",
-        auth_server_url, id
-      ))
+      .get(auth_server_endpoint(
+        &auth_server_url,
+        &["sessionserver", "session", "minecraft", "profile", &id],
+      )?)
       .send()
       .await
       .map_err(|_| AccountError::NetworkError)?
@@ -35,6 +36,16 @@ pub async fn retrieve_profile(
       .await
       .map_err(|_| AccountError::ParseError)?,
   )
+}
+
+pub fn auth_server_endpoint(base: &str, segments: &[&str]) -> SJMCLResult<Url> {
+  let mut url = Url::parse(base).map_err(|_| AccountError::Invalid)?;
+  url
+    .path_segments_mut()
+    .map_err(|_| AccountError::Invalid)?
+    .pop_if_empty()
+    .extend(segments);
+  Ok(url)
 }
 
 pub async fn parse_profile(
@@ -109,10 +120,10 @@ pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool>
   let client = app.state::<reqwest::Client>();
 
   let response = client
-    .post(format!(
-      "{}/authserver/validate",
-      player.auth_server_url.clone().unwrap_or_default()
-    ))
+    .post(auth_server_endpoint(
+      player.auth_server_url.as_deref().unwrap_or_default(),
+      &["authserver", "validate"],
+    )?)
     .json(&json!({
       "accessToken": player.access_token.clone()
     }))
@@ -121,6 +132,55 @@ pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool>
     .map_err(|_| AccountError::NetworkError)?;
 
   Ok(response.status().is_success())
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::account::helpers::authlib_injector::common::auth_server_endpoint;
+  #[test]
+  fn auth_endpoints_append_to_root_and_prefixed_bases() {
+    for (base, expected) in [
+      (
+        "http://127.0.0.1:8123",
+        "http://127.0.0.1:8123/sessionserver/session/minecraft/profile/id",
+      ),
+      (
+        "http://127.0.0.1:8123/",
+        "http://127.0.0.1:8123/sessionserver/session/minecraft/profile/id",
+      ),
+      (
+        "https://auth.example/api/yggdrasil",
+        "https://auth.example/api/yggdrasil/sessionserver/session/minecraft/profile/id",
+      ),
+      (
+        "https://auth.example/api/yggdrasil/",
+        "https://auth.example/api/yggdrasil/sessionserver/session/minecraft/profile/id",
+      ),
+    ] {
+      assert_eq!(
+        auth_server_endpoint(
+          base,
+          &["sessionserver", "session", "minecraft", "profile", "id"]
+        )
+        .unwrap()
+        .as_str(),
+        expected
+      );
+    }
+    assert_eq!(
+      auth_server_endpoint("https://auth.example/", &["authserver", "authenticate"])
+        .unwrap()
+        .path(),
+      "/authserver/authenticate"
+    );
+    assert_eq!(
+      auth_server_endpoint("https://auth.example/api/", &["authserver", "refresh"])
+        .unwrap()
+        .path(),
+      "/api/authserver/refresh"
+    );
+    assert!(auth_server_endpoint("mailto:test@example.test", &["authserver"]).is_err());
+  }
 }
 
 pub async fn refresh(

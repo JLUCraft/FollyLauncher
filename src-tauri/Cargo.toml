@@ -161,7 +161,7 @@ expat-sys = { git = "https://github.com/SJMC-dev/libexpat.git" }
 keyring = { version = "=3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
 zeroize = "1"
 
-client = { path = "../../union-core/crates/client", features = ["league"] }
+client = { path = "../../union-core/crates/client", features = [] }
 node = { path = "../../union-core/crates/node" }
 identity = { path = "../../union-core/crates/identity" }
 protocol = { path = "../../union-core/crates/protocol" }

@@ -3,53 +3,50 @@ import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
 import { brand } from "@/brand";
 import { defaultConfig } from "@/models/config";
 
-const config = structuredClone(defaultConfig);
+export const config = structuredClone(defaultConfig);
 config.mocked = false;
 config.runCount = 10;
 const w = window as any;
 w.calls = [];
 w.admin = false;
 w.proxy = null;
-w.failOffice = false;
 w.scheme = brand.deeplinkScheme;
-w.failOfficeAction = false;
-w.delayFetch = false;
-w.fetchResolvers = {};
 const member = {
   club: "club-a",
   device: "device-a",
   additional_devices: [],
   roles: [],
 };
-const office = {
-  state: {
-    revision: 1,
-    clock_ms: 1000,
-    events: {},
-    tasks: {},
-    signups: {},
-    checkins: {},
-    flow_templates: {},
-    flows: {},
-    files: { branches: {} },
-  },
-  identity: { admins: [], members: { "member-a": member } },
-  commits: {},
-  max_file_bytes: 2097152,
-  max_commit_paths: 24,
+w.application = {
+  revision: 1,
+  clock_ms: 1000,
+  leagues: {},
+  seasons: {},
+  disputes: {},
+  events: {},
+  tasks: {},
+  signups: {},
+  checkins: {},
+  organization: {},
+  flow_templates: {},
+  flows: {},
+  files: { branches: {} },
 };
-w.office = office;
 mockWindows("main");
 mockIPC(
   async (cmd, args: any) => {
     w.calls.push({ cmd, args });
+    if (w.testHandlers?.[cmd]) return await w.testHandlers[cmd](args);
     if (cmd === "update_launcher_config") return;
     if (cmd === "retrieve_launcher_config") return config;
     if (cmd === "union_identity") return "device-a";
     if (cmd === "union_identity_configuration") return null;
+    if (cmd === "union_discover") return { servers: w.discoverServers || [] };
     if (cmd === "union_governance")
       return {
-        state: { revision: 1, clock_ms: 1000, leagues: {} },
+        state: structuredClone(w.application),
+        activity_briefs: {},
+        season_rankings: {},
         identity_view: {
           members: { "member-a": member },
           admins: w.admin ? ["device-a"] : [],
@@ -90,22 +87,6 @@ mockIPC(
         ],
         unavailable: [],
       };
-    if (cmd === "union_office_snapshot") {
-      if (w.failOffice) throw "offline";
-      return structuredClone(w.office);
-    }
-    if (cmd === "union_office_action") {
-      if (w.failOfficeAction) throw "denied";
-      return;
-    }
-    if (cmd === "union_office_upload") return "bafy-file";
-    if (cmd === "union_office_fetch") {
-      if (w.delayFetch)
-        return new Promise((resolve) => {
-          w.fetchResolvers[args.cid] = resolve;
-        });
-      return "QUJD";
-    }
     if (cmd === "plugin:deep-link|get_current")
       return new URL(location.href).searchParams.getAll("test-deep-link");
     if (cmd.includes("get_current")) return null;

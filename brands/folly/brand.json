@@ -8,6 +8,7 @@
   "copyright": "Copyright © 2026 Folly Launcher Team",
   "federation": {
     "defaultAddress": "",
-    "defaultPeer": ""
+    "defaultPeer": "",
+    "genesisHash": "a3b906bdc418bc155d9101ed3d6782309cfeac24bbe088b69453ec0fddd6be9f"
   }
 }

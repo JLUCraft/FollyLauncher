@@ -4,9 +4,8 @@ use sjmcl_types::error::SJMCLResult;
 use tauri::AppHandle;
 pub fn rule_platform() -> RulePlatform {
   RulePlatform {
-    os: tauri_plugin_os::type_().to_string(),
-    arch: tauri_plugin_os::arch().into(),
     version: tauri_plugin_os::version().to_string(),
+    ..RulePlatform::default()
   }
 }
 #[cfg(target_os = "windows")]

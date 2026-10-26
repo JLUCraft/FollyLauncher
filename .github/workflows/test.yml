@@ -108,17 +108,6 @@ jobs:
           repository: JLUCraft/game-server
           path: workspace/federated-server
 
-      # federated-server embeds its founder manifest at compile time; the file
-      # stays untracked until the federation settles its founder list (docs/TODO.md),
-      # and an empty manifest is a supported build state.
-      - name: Scaffold the founder manifest
-        shell: bash
-        working-directory: workspace/federated-server
-        run: |
-          if [ ! -f src/founders.json ]; then
-            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
-          fi
-
       - uses: actions/setup-node@v7
         with:
           node-version: lts/*
@@ -175,14 +164,6 @@ jobs:
           repository: JLUCraft/game-server
           path: workspace/federated-server
 
-      - name: Scaffold the founder manifest
-        shell: bash
-        working-directory: workspace/federated-server
-        run: |
-          if [ ! -f src/founders.json ]; then
-            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
-          fi
-
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: swatinem/rust-cache@v2
@@ -230,14 +211,6 @@ jobs:
         with:
           repository: JLUCraft/game-server
           path: workspace/federated-server
-
-      - name: Scaffold the founder manifest
-        shell: bash
-        working-directory: workspace/federated-server
-        run: |
-          if [ ! -f src/founders.json ]; then
-            printf '{"federation":"unconfigured","quorum":1,"founders":[]}\n' > src/founders.json
-          fi
 
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-latest'

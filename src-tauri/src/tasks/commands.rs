@@ -3,7 +3,6 @@ use std::pin::Pin;
 use tauri::{AppHandle, Manager};
 
 use crate::tasks::download::DownloadTask;
-use crate::tasks::events::GEventStatus;
 use crate::tasks::monitor::TaskMonitor;
 use crate::tasks::{PTaskGroupDesc, PTaskParam, SJMCLFutureDesc, THandle};
 use crate::utils::fs::extract_filename;
@@ -52,13 +51,13 @@ pub async fn schedule_progressive_task_group(
       }
     }
   }
-  monitor
+  let status = monitor
     .enqueue_task_group(task_group.clone(), future_descs)
     .await;
   Ok(PTaskGroupDesc {
     task_group,
     task_descs,
-    status: GEventStatus::Started,
+    status,
   })
 }
 

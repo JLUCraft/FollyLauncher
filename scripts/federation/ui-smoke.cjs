@@ -4,11 +4,10 @@ const { chromium } = require(
 );
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
-const { mkdtempSync, rmSync } = require("node:fs");
-const { tmpdir } = require("node:os");
+const { readFileSync, rmSync } = require("node:fs");
 const path = require("node:path");
-const output = mkdtempSync(path.join(tmpdir(), "federation-ui-"));
-const bootstrap = path.join(output, "mock-ipc.js");
+const output = path.resolve(__dirname, "../../out");
+const bootstrap = path.join(output, "federation-ui-mock.js");
 execFileSync("bun", [
   "build",
   path.join(__dirname, "mock-ipc.ts"),
@@ -34,7 +33,9 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await page.addInitScript({ path: bootstrap });
+    await page.addInitScript({
+      content: `${readFileSync(bootstrap, "utf8")}\nwindow.testHandlers = { union_identity_configuration: () => ({ genesis_hash: "a".repeat(64) }) };`,
+    });
     // The match link box lives in a collapsed section until a student needs it.
     const openGameLink = async () => {
       const input = page.locator("#game-link");
@@ -42,22 +43,32 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
         await page.getByText("比赛连接", { exact: true }).first().click();
       await input.waitFor();
     };
+    const openCompetition = async () => {
+      await page.evaluate(() =>
+        window.next.router.push(
+          "/federation/activities/competition?id=test-league"
+        )
+      );
+      await page.waitForURL(
+        "**/federation/activities/competition?id=test-league"
+      );
+      await openGameLink();
+    };
     const nav = async (name) => {
-      await page.getByRole("button", { name, exact: true }).first().click();
       const paths = {
-        连接: "overview",
-        联赛: "league",
-        房间与服务器: "rooms",
-        我的身份: "identity",
-        赛季运营: "manage",
+        连接: "/settings/federation",
+        活动: "/federation/activities",
+        服务器与房间: "/instances/rooms",
+        联盟: "/settings/federation",
+        联盟管理: "/settings/federation-management",
       };
-      await page.waitForURL(`**/federation/${paths[name]}`);
-      if (paths[name] === "league") await openGameLink();
-      if (paths[name] === "rooms")
+      await page.evaluate((path) => window.next.router.push(path), paths[name]);
+      await page.waitForURL(`**${paths[name]}`);
+      if (name === "服务器与房间")
         await page.getByPlaceholder("搜索房间、社团或版本").waitFor();
     };
     await page.goto(`${base}/federation`);
-    await page.waitForURL("**/federation/rooms");
+    await page.waitForURL("**/federation/activities");
     await nav("连接");
     await page.locator("#federation-link").fill("not a link");
     await page.locator("#federation-link").press("Enter");
@@ -69,12 +80,12 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     })}`;
     await page.locator("#federation-link").fill(connectionLink);
     await page.locator("#federation-link").press("Enter");
-    await page.getByText("已同步联赛", { exact: true }).waitFor();
+    await page.getByText("已连接", { exact: true }).waitFor();
     assert.equal(
-      await page.getByRole("button", { name: "赛季运营", exact: true }).count(),
+      await page.getByRole("button", { name: "联盟管理", exact: true }).count(),
       0
     );
-    await nav("房间与服务器");
+    await nav("服务器与房间");
     await page
       .getByRole("button", { name: "刷新房间与状态", exact: true })
       .click();
@@ -88,16 +99,15 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       await page.getByText("Study build", { exact: true }).count(),
       1
     );
-    await page.screenshot({ path: "/tmp/federation-rooms.png" });
+    await page.screenshot({ path: path.join(output, "federation-rooms.png") });
     await page.getByRole("button", { name: "加入房间", exact: true }).click();
     await page.getByText(/已连接至 127\.0\.0\.1:12345/).waitFor();
     const discoveries = await page.evaluate(
       () => window.calls.filter((c) => c.cmd === "union_rooms").length
     );
-    await nav("联赛");
-    await openGameLink();
+    await openCompetition();
     await page.getByText("Study build", { exact: true }).waitFor();
-    await nav("房间与服务器");
+    await nav("服务器与房间");
     assert.equal(
       await page.getByPlaceholder("搜索房间、社团或版本").inputValue(),
       "Study"
@@ -117,9 +127,9 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       "room-b"
     );
     await page.getByRole("button", { name: "断开连接", exact: true }).click();
-    await nav("我的身份");
+    await nav("联盟");
     assert.equal(await page.locator("textarea:visible").count(), 0);
-    await nav("联赛");
+    await nav("活动");
     await page.waitForTimeout(500);
     const pollCount = await page.evaluate(
       () => window.calls.filter((c) => c.cmd === "union_proxy_status").length
@@ -140,17 +150,14 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await page
       .getByRole("button", { name: "连接 / 刷新", exact: true })
       .click();
-    await page.getByRole("button", { name: "赛季运营", exact: true }).waitFor();
+    await page.getByRole("button", { name: "联盟管理", exact: true }).waitFor();
     const governanceCalls = await page.evaluate(
       () => window.calls.filter((c) => c.cmd === "union_governance").length
     );
     await page.locator("#federation-peer").fill("unapplied-edit");
+    assert.equal(await page.getByText("已连接", { exact: true }).count(), 1);
     assert.equal(
-      await page.getByText("已同步联赛", { exact: true }).count(),
-      1
-    );
-    assert.equal(
-      await page.getByRole("button", { name: "赛季运营", exact: true }).count(),
+      await page.getByRole("button", { name: "联盟管理", exact: true }).count(),
       1
     );
     assert.equal(
@@ -161,15 +168,14 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     );
     assert.equal(
       await page.evaluate(
-        () =>
-          JSON.parse(localStorage.getItem("federation-connections")).league.peer
+        () => JSON.parse(localStorage.getItem("federation-connection")).peer
       ),
       "test"
     );
-    await nav("赛季运营");
-    await page.goto(`${base}/federation/manage`);
+    await nav("联盟管理");
+    await page.goto(`${base}/settings/federation-management`);
     await page
-      .getByText("请使用赛季管理员身份连接后管理赛季。", { exact: true })
+      .getByText("请使用管理员身份连接后管理应用。", { exact: true })
       .waitFor();
     // A full reload restores confirmed targets, not the unfinished edit.
     assert.equal(
@@ -179,14 +185,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       ),
       "test"
     );
-    assert.equal(
-      await page.evaluate(() =>
-        window.calls.some((c) => c.cmd.startsWith("union_office_"))
-      ),
-      false
-    );
-    await nav("联赛");
-    await openGameLink();
+    await openCompetition();
     await page.locator("#game-link").fill("invalid-link");
     await page
       .getByRole("button", { name: "建立游戏连接", exact: true })
@@ -207,22 +206,65 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
         ),
       link
     );
-    await page.waitForURL("**/federation/league");
-    await openGameLink();
+    await page.waitForURL("**/federation/activities");
+    await openCompetition();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     await page.goto(
       `${base}/launch?test-deep-link=${encodeURIComponent(link)}`
     );
-    await page.waitForURL("**/federation/league");
-    await openGameLink();
+    await page.waitForURL("**/federation/activities");
+    await openCompetition();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     assert.deepEqual(errors, []);
+    // LAN auto-discovery: a pinned server connects with no manual input at all.
+    const autoServer = {
+      peer: "auto-peer",
+      address: "/ip4/127.0.0.1/tcp/4001/p2p/auto-peer",
+      federation: "jilin",
+      genesis: { federation: "jilin" },
+      genesis_hash: "a".repeat(64),
+      application: "b".repeat(64),
+      services: [],
+    };
+    const mockContent = readFileSync(bootstrap, "utf8");
+    const autoContext = await browser.newContext({
+      viewport: { width: 1280, height: 850 },
+    });
+    const autoPage = await autoContext.newPage();
+    autoPage.on("pageerror", (e) => errors.push(e.message));
+    await autoPage.addInitScript({
+      content: `${mockContent}\nwindow.testHandlers = { union_identity_configuration: () => ({ genesis_hash: "a".repeat(64) }) };\nwindow.discoverServers = [${JSON.stringify(autoServer)}];`,
+    });
+    await autoPage.goto(`${base}/settings/federation`);
+    await autoPage.getByText("已连接", { exact: true }).waitFor();
+    const autoCalls = await autoPage.evaluate(() =>
+      window.calls.filter((c) => c.cmd === "union_governance")
+    );
+    assert.equal(autoCalls.at(-1).args.input.peer, "auto-peer");
+    assert.equal(autoCalls.at(-1).args.input.address, autoServer.address);
+    await autoContext.close();
+    // Auto identity setup: discovery also adopts the identity configuration.
+    const setupContext = await browser.newContext({
+      viewport: { width: 1280, height: 850 },
+    });
+    const setupPage = await setupContext.newPage();
+    setupPage.on("pageerror", (e) => errors.push(e.message));
+    await setupPage.addInitScript({
+      content: `${mockContent}\nwindow.savedIdentity = null;\nwindow.testHandlers = { union_identity_configuration: (args) => { if (args.config) window.savedIdentity = args.config; return window.savedIdentity; } };\nwindow.discoverServers = [${JSON.stringify(autoServer)}];`,
+    });
+    await setupPage.goto(`${base}/settings/federation`);
+    await setupPage.getByText("已连接", { exact: true }).waitFor();
+    const saved = await setupPage.evaluate(() => window.savedIdentity);
+    assert.equal(saved.peer, "auto-peer");
+    assert.equal(saved.genesis_hash, autoServer.genesis_hash);
+    await setupContext.close();
+    assert.deepEqual(errors, []);
     console.log(
-      "PASS: game routes, connection drafts, reconnect, deep links, room cache, no office calls."
+      "PASS: game routes, connection drafts, reconnect, deep links, room cache, unified application connection, LAN auto-discovery."
     );
   } finally {
     await browser.close();
-    rmSync(output, { recursive: true, force: true });
+    rmSync(bootstrap, { force: true });
   }
 })().catch((e) => {
   console.error(e);

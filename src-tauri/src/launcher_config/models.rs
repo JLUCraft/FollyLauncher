@@ -256,8 +256,6 @@ structstruck::strike! {
       pub is_exe_path_available: bool,
       #[default = false]
       pub is_china_mainland_ip: bool,
-      #[default = false]
-      pub allow_full_login_feature: bool,
       // Build metadata, sourced from compile-time constants injected by build.rs.
       // Filled by setup_with_app; not meant to be edited by the user.
       #[default(BuildType::Dev)]

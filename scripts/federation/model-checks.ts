@@ -35,6 +35,10 @@ const scheduleState = {
   revision: 0,
   clock_ms: 0,
   members: {},
+  events: {},
+  signups: {},
+  checkins: {},
+  tasks: {},
   seasons: {
     fresh: { title: "Fresh", leagues: [] },
     other: { title: "Other", leagues: ["assigned"] },
