@@ -19,7 +19,7 @@ function Navigation({ children }: { children: ReactNode }) {
   const currentPath = router.asPath.split(/[?#]/)[0];
   const items = [
     { key: "rooms", icon: LuGamepad2, path: FEDERATION_ROOMS_PATH },
-    { key: "league", icon: LuTrophy, path: FEDERATION_ACTIVITIES_PATH },
+    { key: "activities", icon: LuTrophy, path: FEDERATION_ACTIVITIES_PATH },
     { key: "identity", icon: LuUsers, path: FEDERATION_SETTINGS_PATH },
     ...(isAdmin
       ? [
