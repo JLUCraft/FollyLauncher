@@ -89,7 +89,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          repository: JLUCraft/game-server
+          repository: JLUCraft/federated-server
           path: workspace/federated-server
 
       - name: Resolve build metadata
