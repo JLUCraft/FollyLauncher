@@ -58,7 +58,7 @@ SJMCL/
 │   │   └── sjmcl-macros/     # 后端所使用的过程宏包
 │   └── infoplist/            # macOS InfoPlist 资源
 ├── public/                   # 前端静态资源
-├── docs/                     # 文档
+├── docs/                     # Inherited documentation and illustration assets
 └── cli/                      # 配套 CLI（通过 MCP 集成操作应用本体）
 ```
 
@@ -83,7 +83,7 @@ SJMCL/
 - `src/brand.gen.json` 是生成文件，不要手改；其提交默认值保持上游 SJMCL 身份，仅在构建社团分发时运行品牌脚本。
 - 不要在页面组件中硬编码产品名或深链 scheme，一律取自 `brand`。
 
-Federation 集成文档已外移至团队知识库（本地草稿 `../docs/guides/folly-federation.md`）。
+Federation implementation and evidence are recorded in the machine-local workspace files `../TODO.md`; open work is tracked in `../PROBLEMS.md`. These files are not part of this repository.
 
 ## 扩展开发规范
 
@@ -165,3 +165,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Documentation ownership
+
+Keep newly authored project documentation in the root `AGENTS.md` and `README.md`. Existing documentation and agent tooling inherited from SJMCL are explicitly allowed to remain in their original locations. Product content and required license files retain their existing locations. Workspace progress and evidence belong in `../TODO.md`; unresolved issues belong in `../PROBLEMS.md`. These workspace records are machine-local and are not published.
+
+Use Conventional Commits for commit messages and pull request titles. Describe the concrete problem, resulting behavior, and validation evidence in each pull request. Maintain the inherited release tooling and changelogs in their existing locations; do not add extra project documentation files.

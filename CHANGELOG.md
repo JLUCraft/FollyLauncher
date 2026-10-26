@@ -8,7 +8,7 @@ SJMCL follows [Semantic Versioning 2.0.0](http://semver.org/).
 
 The Folly Launcher fork adds the Jilin University union federation on top of
 upstream SJMCL. Branding is data-driven via `brands/<club>/brand.json` +
-`bun run brand <club>`; see `JLU-FEDERATION.md` for the architecture.
+`bun run brand <club>`; see https://www.jlucraft.com/tech/clients for the architecture.
 
 - 🌟 Union federation page: connect to an authority, create teams, invite and
   register, follow proposals, ballots and feedback, seasons, scoreboards and
