@@ -12,16 +12,19 @@ dependencies = [
  "base64 0.22.1",
  "chacha20poly1305",
  "chrono",
- "client",
  "csv",
  "dotenvy",
  "federated-server",
+ "federation-client",
+ "federation-identity",
+ "federation-node",
+ "federation-protocol",
+ "federation-terminal-runtime",
  "flume",
  "font-loader",
  "futures",
  "glob",
  "hex",
- "identity",
  "image",
  "jsonwebtoken",
  "keyring",
@@ -30,9 +33,7 @@ dependencies = [
  "log",
  "minecraftd",
  "native-dialog",
- "node",
  "pin-project",
- "protocol",
  "rand 0.9.5",
  "regex",
  "reqwest-middleware",
@@ -69,7 +70,6 @@ dependencies = [
  "tauri-plugin-single-instance",
  "tauri-plugin-window-state",
  "tempfile",
- "terminal-runtime",
  "time",
  "tokio",
  "tokio-util",
@@ -548,22 +548,6 @@ dependencies = [
  "http 1.5.0",
  "log",
  "url",
-]
-
-[[package]]
-name = "authority"
-version = "0.2.0"
-dependencies = [
- "futures",
- "identity",
- "journal",
- "node",
- "protocol",
- "serde",
- "serde_json",
- "state",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -1148,21 +1132,6 @@ name = "clap_lex"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c133bc6a41be0d194c306b5506d15e6feeea7b1d6604bd3f8310dfb2ca96486"
-
-[[package]]
-name = "client"
-version = "0.2.0"
-dependencies = [
- "authority",
- "events",
- "identity",
- "node",
- "protocol",
- "serde",
- "serde_json",
- "state",
- "tokio",
-]
 
 [[package]]
 name = "clipboard-win"
@@ -2382,18 +2351,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "events"
-version = "0.1.0"
-dependencies = [
- "node",
- "protocol",
- "serde",
- "serde_json",
- "state",
- "tokio",
-]
-
-[[package]]
 name = "expat-sys"
 version = "2.1.6"
 source = "git+https://github.com/SJMC-dev/libexpat.git#24b7dca23a08467491a15e1055d491a8a7dce5ee"
@@ -2441,36 +2398,182 @@ version = "0.2.0"
 dependencies = [
  "aes-gcm 0.11.1",
  "anyhow",
- "authority",
  "axum",
  "base64 0.22.1",
  "clap",
- "client",
- "events",
+ "federation-authority",
+ "federation-client",
+ "federation-events",
+ "federation-flows",
+ "federation-identity",
+ "federation-llm-gateway",
+ "federation-node",
+ "federation-state",
+ "federation-terminal-runtime",
  "flate2",
- "flows",
  "futures",
  "hmac 0.13.0",
- "identity",
  "league",
- "llm-gateway",
  "minecraftd",
- "node",
  "openssl",
  "reqwest 0.13.5",
  "rmcp",
  "serde",
  "serde_json",
  "sha2 0.11.1",
- "state",
  "subtle",
  "sysinfo",
- "terminal-runtime",
  "tokio",
  "tokio-util",
  "tracing",
  "uuid",
  "web-push",
+]
+
+[[package]]
+name = "federation-authority"
+version = "0.2.0"
+dependencies = [
+ "federation-identity",
+ "federation-journal",
+ "federation-node",
+ "federation-protocol",
+ "federation-state",
+ "futures",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "federation-client"
+version = "0.2.0"
+dependencies = [
+ "federation-authority",
+ "federation-events",
+ "federation-identity",
+ "federation-node",
+ "federation-protocol",
+ "federation-state",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "federation-events"
+version = "0.2.0"
+dependencies = [
+ "federation-node",
+ "federation-protocol",
+ "federation-state",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "federation-flows"
+version = "0.2.0"
+dependencies = [
+ "federation-protocol",
+ "federation-state",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "federation-identity"
+version = "0.2.0"
+dependencies = [
+ "federation-protocol",
+ "libp2p-identity",
+ "multibase",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "federation-journal"
+version = "0.2.0"
+dependencies = [
+ "federation-identity",
+ "federation-protocol",
+ "federation-state",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
+name = "federation-llm-gateway"
+version = "0.2.0"
+dependencies = [
+ "federation-protocol",
+ "futures",
+ "reqwest 0.13.5",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
+name = "federation-node"
+version = "0.2.0"
+dependencies = [
+ "federation-identity",
+ "federation-journal",
+ "federation-protocol",
+ "futures",
+ "libp2p",
+ "libp2p-stream",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "federation-protocol"
+version = "0.2.0"
+dependencies = [
+ "futures",
+ "multibase",
+ "prost",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "federation-state"
+version = "0.2.0"
+dependencies = [
+ "federation-identity",
+ "federation-protocol",
+ "multiaddr",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "federation-terminal-runtime"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "federation-node",
+ "futures",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -2554,16 +2657,6 @@ dependencies = [
  "crc32fast",
  "miniz_oxide 0.9.1",
  "zlib-rs",
-]
-
-[[package]]
-name = "flows"
-version = "0.1.0"
-dependencies = [
- "protocol",
- "serde",
- "serde_json",
- "state",
 ]
 
 [[package]]
@@ -3691,19 +3784,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
-name = "identity"
-version = "0.2.0"
-dependencies = [
- "libp2p-identity",
- "multibase",
- "protocol",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.21",
-]
-
-[[package]]
 name = "idna"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4097,19 +4177,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "journal"
-version = "0.2.0"
-dependencies = [
- "identity",
- "protocol",
- "serde",
- "serde_json",
- "state",
- "tempfile",
- "tokio",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4262,17 +4329,17 @@ dependencies = [
 name = "league"
 version = "0.2.0"
 dependencies = [
- "authority",
- "client",
- "events",
- "flows",
- "identity",
- "node",
- "protocol",
+ "federation-authority",
+ "federation-client",
+ "federation-events",
+ "federation-flows",
+ "federation-identity",
+ "federation-node",
+ "federation-protocol",
+ "federation-state",
  "serde",
  "serde_json",
  "sha2 0.11.1",
- "state",
  "tokio",
 ]
 
@@ -4866,19 +4933,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4744e383959f0db86ede514b809b1c53251889093803c05267acc7d4e7030d70"
 
 [[package]]
-name = "llm-gateway"
-version = "0.1.0"
-dependencies = [
- "futures",
- "protocol",
- "reqwest 0.13.5",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
 name = "lock_api"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5368,22 +5422,6 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
-]
-
-[[package]]
-name = "node"
-version = "0.2.0"
-dependencies = [
- "futures",
- "identity",
- "journal",
- "libp2p",
- "libp2p-stream",
- "protocol",
- "serde_json",
- "tokio",
- "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -6486,19 +6524,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
-]
-
-[[package]]
-name = "protocol"
-version = "0.2.0"
-dependencies = [
- "futures",
- "multibase",
- "prost",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -7997,17 +8022,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
-name = "state"
-version = "0.2.0"
-dependencies = [
- "identity",
- "multiaddr",
- "protocol",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8802,20 +8816,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fed54709c5b3a53d09bb1c113ea4f5ceafd1e772ddcb0030a82e1d56c087b08"
 dependencies = [
  "new_debug_unreachable",
-]
-
-[[package]]
-name = "terminal-runtime"
-version = "0.2.0"
-dependencies = [
- "anyhow",
- "clap",
- "futures",
- "node",
- "tokio",
- "tokio-util",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
