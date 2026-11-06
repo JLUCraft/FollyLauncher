@@ -213,7 +213,7 @@ const chakraExtendTheme = extendTheme({
     },
   },
   colors: {
-    // 校徽取色得到的色阶（生成文件，见 brand-palette 仓库）。新组件用
+    // 静态品牌色阶，原生成器已移除。新组件用
     // colorScheme="brand"，或在需要按模式取值时写 mode("brand.700", "brand.300")。
     brand: brandColors,
     overlay: "rgba(0, 0, 0, 0.45)",
