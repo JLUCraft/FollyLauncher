@@ -80,9 +80,12 @@ pub async fn union_bind_host_device(app: AppHandle) -> Result<serde_json::Value,
   let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
   let player = identity(&app).await?;
   let host = crate::union::rooms::host_identity(&app).await?;
-  let node = node::Node::start(player.clone(), node::NodeConfig::default())
-    .await
-    .map_err(|e| e.to_string())?;
+  let node = node::Node::start(
+    player.clone(),
+    node::NodeConfig::new(config.namespace.clone()),
+  )
+  .await
+  .map_err(|e| e.to_string())?;
   let result = async {
     let log = tokio::sync::Mutex::new(config.open().map_err(|e| e.to_string())?);
     config
@@ -100,8 +103,10 @@ pub async fn union_bind_host_device(app: AppHandle) -> Result<serde_json::Value,
         member: member.into(),
         device: host.peer_id().to_string(),
       });
-    client::trust::sign(&mut record, &player).map_err(|e| e.to_string())?;
-    client::trust::sign(&mut record, &host).map_err(|e| e.to_string())?;
+    client::trust::sign_with_namespace(&mut record, &player, &config.namespace)
+      .map_err(|e| e.to_string())?;
+    client::trust::sign_with_namespace(&mut record, &host, &config.namespace)
+      .map_err(|e| e.to_string())?;
     // Return for explicit user review/submission in the shared identity panel.
     serde_json::to_value(record).map_err(|e| e.to_string())
   }

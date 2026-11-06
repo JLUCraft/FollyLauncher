@@ -2407,6 +2407,7 @@ dependencies = [
  "federation-flows",
  "federation-identity",
  "federation-llm-gateway",
+ "federation-mcp",
  "federation-node",
  "federation-state",
  "federation-terminal-runtime",
@@ -2520,6 +2521,18 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.21",
  "tokio",
+]
+
+[[package]]
+name = "federation-mcp"
+version = "0.2.0"
+dependencies = [
+ "federation-client",
+ "federation-identity",
+ "federation-node",
+ "federation-protocol",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

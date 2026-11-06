@@ -17,7 +17,7 @@ async fn apply(app: &AppHandle, enabled: bool) -> Result<(), String> {
         node::NodeConfig {
           relay: Some(node::RelayConfig::default()),
           discovery_server: true,
-          ..Default::default()
+          ..node::NodeConfig::new(protocol::Namespace::jlucraft())
         },
       )
       .await
