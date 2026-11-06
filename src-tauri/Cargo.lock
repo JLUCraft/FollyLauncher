@@ -3695,10 +3695,12 @@ name = "identity"
 version = "0.2.0"
 dependencies = [
  "libp2p-identity",
+ "multibase",
  "protocol",
  "serde",
  "serde_json",
  "tempfile",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
