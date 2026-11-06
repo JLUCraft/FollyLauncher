@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
-//! Federation commands shared with the Android manager through union-core.
-use client::application as client;
+//! Federation commands shared with the Android manager through league.
+use league::application as client;
 const MAX_GAME_ADDRESSES: usize = 8;
 const MAX_GAME_ADDRESS_BYTES: usize = 2048;
 use identity::Identity;
@@ -33,7 +33,7 @@ pub async fn union_governance(
   let signer = identity(&app).await?;
   let genesis = input["genesis_hash"].as_str().unwrap_or("").to_owned();
   let response = if input["action"]["type"] == "local.points.request_ai" {
-    ::client::points::request_text(signer.clone(), input).await
+    league::points::request_text(signer.clone(), input).await
   } else {
     let input: client::Input = serde_json::from_value(input).map_err(|e| e.to_string())?;
     client::execute(signer.clone(), input).await
@@ -83,7 +83,7 @@ pub async fn union_governance(
     .zip(response.identity_view.as_ref())
     .zip(response.proof.as_ref())
     .map(|((state, view), proof)| {
-      ::client::points::present(state, view, &signer, &genesis, proof.observed_ms)
+      league::points::present(state, view, &signer, &genesis, proof.observed_ms)
     })
     .transpose()
     .map_err(|e| e.failure())?
@@ -104,7 +104,7 @@ pub struct DiscoverInput {
   pub wait_ms: Option<u64>,
 }
 
-/// LAN auto-discovery from union-core; when `expected_genesis` is the built-in pin,
+/// LAN auto-discovery from league; when `expected_genesis` is the built-in pin,
 /// only the matching union's servers are returned.
 #[tauri::command]
 pub async fn union_discover(
@@ -115,7 +115,7 @@ pub async fn union_discover(
     expected_genesis: None,
     wait_ms: None,
   });
-  let mut servers = ::client::discovery::discover(
+  let mut servers = league::discovery::discover(
     identity(&app).await?,
     input.wait_ms.map(std::time::Duration::from_millis),
   )
@@ -124,18 +124,9 @@ pub async fn union_discover(
   if let Some(expected) = input.expected_genesis {
     servers.retain(|server| server.genesis_hash == expected);
   }
-  serde_json::to_value(serde_json::json!({
-    "servers": servers.into_iter().map(|server| serde_json::json!({
-      "peer": server.peer.to_string(),
-      "address": server.address,
-      "federation": server.federation,
-      "genesis": server.genesis,
-      "genesis_hash": server.genesis_hash,
-      "application": server.application,
-      "services": server.services,
-    })).collect::<Vec<_>>()
+  Ok(serde_json::json!({
+    "servers": servers.iter().map(league::discovery::Discovered::to_json).collect::<Vec<_>>()
   }))
-  .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -144,7 +135,7 @@ pub fn union_points_output(
   instance: String,
   stage: usize,
 ) -> Result<String, String> {
-  ::client::points::output_value(&snapshot, &instance, stage)
+  league::points::output_value(&snapshot, &instance, stage)
     .map_err(|_| "AI output unavailable".to_owned())
 }
 

@@ -26,6 +26,7 @@ dependencies = [
  "jsonwebtoken",
  "keyring",
  "lazy_static",
+ "league",
  "log",
  "minecraftd",
  "native-dialog",
@@ -1154,9 +1155,7 @@ version = "0.2.0"
 dependencies = [
  "authority",
  "events",
- "flows",
  "identity",
- "league",
  "node",
  "protocol",
  "serde",
@@ -2386,7 +2385,6 @@ dependencies = [
 name = "events"
 version = "0.1.0"
 dependencies = [
- "league",
  "node",
  "protocol",
  "serde",
@@ -2451,6 +2449,7 @@ dependencies = [
  "events",
  "flate2",
  "flows",
+ "futures",
  "hmac 0.13.0",
  "identity",
  "league",
@@ -2459,11 +2458,13 @@ dependencies = [
  "node",
  "openssl",
  "reqwest 0.13.5",
+ "rmcp",
  "serde",
  "serde_json",
  "sha2 0.11.1",
  "state",
  "subtle",
+ "sysinfo",
  "terminal-runtime",
  "tokio",
  "tokio-util",
@@ -4259,12 +4260,18 @@ dependencies = [
 name = "league"
 version = "0.2.0"
 dependencies = [
+ "authority",
+ "client",
+ "events",
+ "flows",
  "identity",
+ "node",
  "protocol",
  "serde",
  "serde_json",
  "sha2 0.11.1",
  "state",
+ "tokio",
 ]
 
 [[package]]

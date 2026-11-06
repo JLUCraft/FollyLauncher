@@ -178,7 +178,7 @@ export interface DiscoveredServer {
   genesis: unknown;
   genesis_hash: string;
   application: string | null;
-  services: string[];
+  services: { id: string; name: string; protocol: string }[];
 }
 export class UnionService {
   static async discover(
