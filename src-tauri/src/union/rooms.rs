@@ -41,17 +41,17 @@ fn addresses(values: Vec<String>) -> Result<Vec<node::Multiaddr>, String> {
     .collect()
 }
 
-pub(crate) fn host_identity(app: &AppHandle) -> Result<identity::Identity, String> {
+pub(crate) async fn host_identity(app: &AppHandle) -> Result<identity::Identity, String> {
   let directory = app
     .path()
     .app_data_dir()
     .map_err(|e| e.to_string())?
     .join("room-host");
-  crate::union::vault::identity_for(&directory, "room-host")
+  crate::union::vault::identity_for(&directory, "room-host").await
 }
 #[tauri::command]
-pub fn union_room_identity(app: AppHandle) -> Result<String, String> {
-  Ok(host_identity(&app)?.peer_id().to_string())
+pub async fn union_room_identity(app: AppHandle) -> Result<String, String> {
+  Ok(host_identity(&app).await?.peer_id().to_string())
 }
 
 #[tauri::command]
@@ -61,7 +61,7 @@ pub async fn union_rooms(
 ) -> Result<client::rooms::Discovery, String> {
   let seeds = addresses(seeds)?;
   let node = node::Node::start(
-    identity(&app)?,
+    identity(&app).await?,
     node::NodeConfig {
       bootstrap: seeds.clone(),
       ..Default::default()
@@ -114,9 +114,10 @@ pub async fn union_room_host(
       "node":{"key":"","listen":["/ip4/0.0.0.0/tcp/0"],"bootstrap":seeds.iter().map(ToString::to_string).collect::<Vec<_>>(),"reserve":relays.iter().map(ToString::to_string).collect::<Vec<_>>()},
       "services":{"identity":{"genesis":genesis_path,"genesis_hash":identity_config.genesis_hash,"log":replica,"writer":false,"source":{"peer":identity_config.peer,"address":identity_config.address},"max_staleness_seconds":60},"member_rooms":[room]}
     })).map_err(|e|e.to_string())?;
-  let host = federated_server::runtime::Host::start_with_identity(config, host_identity(&app)?)
-    .await
-    .map_err(|e| e.to_string())?;
+  let host =
+    federated_server::runtime::Host::start_with_identity(config, host_identity(&app).await?)
+      .await
+      .map_err(|e| e.to_string())?;
   let status = host.room_status().ok_or("Room stopped during startup")?;
   *active = Some(RoomHandle(host));
   Ok(status)

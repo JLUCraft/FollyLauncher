@@ -28,11 +28,7 @@ import {
   classifyFederationError,
   federationErrorKey,
 } from "@/utils/federation/errors";
-import {
-  FEDERATION_ROOMS_PATH,
-  FEDERATION_SETTINGS_PATH,
-  federationSettingsLink,
-} from "@/utils/federation/navigation";
+import { FEDERATION_SETTINGS_PATH } from "@/utils/federation/navigation";
 
 const CONNECTION_STORAGE_KEY = "federation-connection";
 export function validTarget(value: unknown): value is FederationTarget {
@@ -75,6 +71,11 @@ function useFederationState() {
   );
   const [identityRequired, setIdentityRequired] = useState(false);
   const [identityError, setIdentityError] = useState(false);
+  const [identityAttempt, setIdentityAttempt] = useState(0);
+  const retryIdentity = () => {
+    setIdentityError(false);
+    setIdentityAttempt((attempt) => attempt + 1);
+  };
   const [discovering, setDiscovering] = useState(false);
   const generation = useRef(0);
   const connectTarget = useCallback(
@@ -132,7 +133,7 @@ function useFederationState() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [identityAttempt]);
   useEffect(() => {
     let active = true;
     void UnionService.identityConfiguration()
@@ -276,9 +277,7 @@ function useFederationState() {
       setPeer(target.peer);
       setGenesisHash(target.genesis);
       setConnectionLink(url);
-      void router.push(
-        federationSettingsLink(FEDERATION_SETTINGS_PATH, FEDERATION_ROOMS_PATH)
-      );
+      void router.push(FEDERATION_SETTINGS_PATH);
     },
   });
   const request = useCallback(async (action?: Record<string, unknown>) => {
@@ -325,6 +324,7 @@ function useFederationState() {
     setIdentityConfigured,
     identityRequired,
     identityError,
+    retryIdentity,
     connect: () => connectTarget({ address, peer, genesis: genesisHash }),
     connectWithLink,
     disconnect,

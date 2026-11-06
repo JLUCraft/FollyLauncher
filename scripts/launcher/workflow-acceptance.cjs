@@ -425,7 +425,7 @@ const results =
     await run(
       "activity-single-prerequisite",
       "empty",
-      "/federation/activities",
+      "/instances/activities",
       async (page) => {
         await page
           .getByRole("link", {

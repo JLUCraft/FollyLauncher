@@ -85,9 +85,7 @@ const results =
     await page.waitForURL((url) => url.pathname === pathname);
     const navLabel = pathname.startsWith("/settings/")
       ? locale.HeadNavBar.navList.settings
-      : pathname.startsWith("/instances")
-        ? locale.HeadNavBar.navList.instances
-        : locale.HeadNavBar.navList.federation;
+      : locale.HeadNavBar.navList.instances;
     await page
       .getByRole("tab", { name: navLabel, exact: true, selected: true })
       .waitFor();
@@ -110,25 +108,24 @@ const results =
       "/launch",
       false,
       async (page) => {
-        await page
-          .getByRole("tab", {
-            name: locale.HeadNavBar.navList.federation,
-            exact: true,
-          })
-          .click();
-        await go(page, "/federation/activities");
-        await page
-          .getByText(locale.FederationNav.activities, { exact: true })
-          .first()
-          .waitFor();
+        assert.equal(
+          await page.locator("#head-navbar-tab-federation").count(),
+          0
+        );
         await page
           .getByRole("tab", {
             name: locale.HeadNavBar.navList.instances,
             exact: true,
           })
           .click();
-        // The instances tab restores the last visited instances route.
         await page.waitForURL((url) => url.pathname.startsWith("/instances"));
+        await page
+          .getByRole("button", {
+            name: locale.FederationNav.activities,
+            exact: true,
+          })
+          .click();
+        await go(page, "/instances/activities");
         await page
           .getByRole("button", {
             name: locale.FederationNav.rooms,
@@ -173,9 +170,7 @@ const results =
           .getByRole("link", { name: locale.Rooms.setupToJoin, exact: true })
           .click();
         await go(page, "/settings/federation");
-        const target = new URL(page.url()).searchParams.get("returnTo");
-        assert.equal(target.split("#")[0].split("?")[0], "/instances/rooms");
-        assert.ok(target.endsWith("#room-host-b-room-b"));
+        assert.equal(new URL(page.url()).searchParams.has("returnTo"), false);
         assert.equal(
           await page
             .getByRole("tab", {
@@ -191,12 +186,7 @@ const results =
             exact: true,
           })
           .waitFor();
-        await page
-          .getByRole("link", {
-            name: locale.ConnectionFlow.returnRooms,
-            exact: true,
-          })
-          .click();
+        await page.goBack();
         await go(page, "/instances/rooms");
         assert.equal(await search.inputValue(), "Study");
         assert.equal(
@@ -220,26 +210,14 @@ const results =
           .getByRole("link", { name: locale.Rooms.setupToHost, exact: true })
           .click();
         await go(page, "/settings/federation");
-        await page
-          .getByRole("link", {
-            name: locale.ConnectionFlow.returnRooms,
-            exact: true,
-          })
-          .click();
+        await page.goBack();
         await go(page, "/instances/rooms");
-        assert.ok(new URL(page.url()).hash === "#room-host");
-        assert.equal(
-          await page
-            .getByRole("button", { name: locale.Rooms.host, exact: true })
-            .getAttribute("aria-expanded"),
-          "true"
-        );
         assert.equal((await calls(page, "union_room_host")).length, 0);
       }
     );
     await run(
       "activity-settings-return",
-      "/federation/activities",
+      "/instances/activities",
       false,
       async (page) => {
         await page
@@ -253,19 +231,14 @@ const results =
           await page.getByRole("link", { name: next, exact: true }).count(),
           0
         );
-        await page
-          .getByRole("link", {
-            name: locale.ConnectionFlow.returnActivities,
-            exact: true,
-          })
-          .click();
-        await go(page, "/federation/activities");
+        await page.goBack();
+        await go(page, "/instances/activities");
         assert.equal((await calls(page, "union_governance")).length, 0);
       }
     );
     await run(
       "league-detail-settings-return",
-      "/federation/activities/competition?id=retained-league",
+      "/instances/activities/competition?id=retained-league",
       false,
       async (page) => {
         await page
@@ -275,13 +248,8 @@ const results =
           })
           .click();
         await go(page, "/settings/federation");
-        await page
-          .getByRole("link", {
-            name: locale.ConnectionFlow.returnActivities,
-            exact: true,
-          })
-          .click();
-        await go(page, "/federation/activities/competition");
+        await page.goBack();
+        await go(page, "/instances/activities/competition");
         assert.equal(
           new URL(page.url()).searchParams.get("id"),
           "retained-league"
@@ -308,12 +276,7 @@ const results =
           ),
           null
         );
-        await page
-          .getByRole("link", {
-            name: locale.ConnectionFlow.returnRooms,
-            exact: true,
-          })
-          .click();
+        await page.goBack();
         await go(page, "/instances/rooms");
         assert.ok(
           (await calls(page, "union_rooms")).every(
@@ -480,11 +443,17 @@ const results =
         );
         await page
           .getByRole("tab", {
-            name: locale.HeadNavBar.navList.federation,
+            name: locale.HeadNavBar.navList.instances,
             exact: true,
           })
           .click();
-        await go(page, "/federation/activities");
+        await page
+          .getByRole("button", {
+            name: locale.FederationNav.activities,
+            exact: true,
+          })
+          .click();
+        await go(page, "/instances/activities");
         assert.equal(
           await page
             .getByRole("button", {
@@ -497,19 +466,6 @@ const results =
           0
         );
         assert.equal(await page.locator("#room-seeds").count(), 0);
-      }
-    );
-    await run(
-      "return-destination-boundary",
-      "/settings/federation?returnTo=https%3A%2F%2Foutside.example",
-      false,
-      async (page) => {
-        const link = page.getByRole("link", {
-          name: locale.ConnectionFlow.returnRooms,
-          exact: true,
-        });
-        await link.waitFor();
-        assert.equal(await link.getAttribute("href"), "/instances/rooms");
       }
     );
     console.log(`PASS: ${results.length} Alliance navigation scenarios`);

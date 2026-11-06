@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import AdvancedCard from "@/components/common/advanced-card";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
+import { DeviceIdentityStatus } from "@/components/federation/device-identity-status";
 import { IdentityActionForm } from "@/components/federation/identity-action-form";
 import { IdentityRecordSummary } from "@/components/federation/identity-record-summary";
 import { RecordFields } from "@/components/federation/record-fields";
@@ -52,6 +53,7 @@ export function IdentityPanel() {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (!identity) return;
     let active = true;
     void UnionService.publicIdentity()
       .then((value) => {
@@ -70,7 +72,7 @@ export function IdentityPanel() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [identity]);
   const configured = identityConfigured === true;
   const needsSetup = identityConfigured === false;
   const run = async (operation: string, draftAction?: unknown) => {
@@ -238,6 +240,7 @@ export function IdentityPanel() {
       return "";
     }
   })();
+  if (!identity) return <DeviceIdentityStatus />;
   return (
     <VStack align="stretch" spacing={4}>
       <Text>{t("IdentityFlow.intro")}</Text>

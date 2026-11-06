@@ -134,6 +134,25 @@ pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool>
   Ok(response.status().is_success())
 }
 
+pub async fn refresh(
+  app: &AppHandle,
+  player: &PlayerInfo,
+  auth_server: &AuthServer,
+) -> SJMCLResult<PlayerInfo> {
+  if player.refresh_token.is_none() || Some("") == player.refresh_token.as_deref() {
+    // to be compatible with legacy version of account config
+    password::refresh(app, player, false).await
+  } else {
+    oauth::refresh(
+      app,
+      player,
+      auth_server.client_id.clone(),
+      auth_server.features.openid_configuration_url.clone(),
+    )
+    .await
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use crate::account::helpers::authlib_injector::common::auth_server_endpoint;
@@ -180,24 +199,5 @@ mod tests {
       "/api/authserver/refresh"
     );
     assert!(auth_server_endpoint("mailto:test@example.test", &["authserver"]).is_err());
-  }
-}
-
-pub async fn refresh(
-  app: &AppHandle,
-  player: &PlayerInfo,
-  auth_server: &AuthServer,
-) -> SJMCLResult<PlayerInfo> {
-  if player.refresh_token.is_none() || Some("") == player.refresh_token.as_deref() {
-    // to be compatible with legacy version of account config
-    password::refresh(app, player, false).await
-  } else {
-    oauth::refresh(
-      app,
-      player,
-      auth_server.client_id.clone(),
-      auth_server.features.openid_configuration_url.clone(),
-    )
-    .await
   }
 }

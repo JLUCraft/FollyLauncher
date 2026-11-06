@@ -45,6 +45,8 @@ const TOKENS_PER_UNIT = BigInt(1000);
 const MAX_U32 = BigInt(4_294_967_295);
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 const POINTS_HISTORY_PAGE_SIZE = 8;
+// Keep federation AI history visible while its invocation controls are hidden.
+const SHOW_AI_FEATURES = false;
 const OUTPUT_LENGTH_PRESETS = [
   {
     key: "short",
@@ -1209,7 +1211,9 @@ export function PointsPanel() {
                         {t("FederationPage.points.openResult")}
                       </Button>
                     )}
-                    <AiFlowActions state={state} points={points} row={row} />
+                    {SHOW_AI_FEATURES && (
+                      <AiFlowActions state={state} points={points} row={row} />
+                    )}
                   </VStack>
                 ))
               )}
@@ -1250,13 +1254,17 @@ export function PointsPanel() {
             </VStack>
           </AdvancedCard>
         </Section>
-        <RequestAi points={points} />
-        <BudgetAuthorization
-          points={points}
-          state={state}
-          member={member}
-          isAdmin={isAdmin}
-        />
+        {SHOW_AI_FEATURES && (
+          <>
+            <RequestAi points={points} />
+            <BudgetAuthorization
+              points={points}
+              state={state}
+              member={member}
+              isAdmin={isAdmin}
+            />
+          </>
+        )}
         {resultRow && state ? (
           <AiResultDialog
             state={state}

@@ -46,18 +46,18 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     const openCompetition = async () => {
       await page.evaluate(() =>
         window.next.router.push(
-          "/federation/activities/competition?id=test-league"
+          "/instances/activities/competition?id=test-league"
         )
       );
       await page.waitForURL(
-        "**/federation/activities/competition?id=test-league"
+        "**/instances/activities/competition?id=test-league"
       );
       await openGameLink();
     };
     const nav = async (name) => {
       const paths = {
         连接: "/settings/federation",
-        活动: "/federation/activities",
+        联赛: "/instances/activities",
         服务器与房间: "/instances/rooms",
         联盟: "/settings/federation",
         联盟管理: "/settings/federation-management",
@@ -68,7 +68,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
         await page.getByPlaceholder("搜索房间、社团或版本").waitFor();
     };
     await page.goto(`${base}/federation`);
-    await page.waitForURL("**/federation/activities");
+    await page.waitForURL("**/instances/activities");
     await nav("连接");
     await page.locator("#federation-link").fill("not a link");
     await page.locator("#federation-link").press("Enter");
@@ -129,7 +129,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await page.getByRole("button", { name: "断开连接", exact: true }).click();
     await nav("联盟");
     assert.equal(await page.locator("textarea:visible").count(), 0);
-    await nav("活动");
+    await nav("联赛");
     await page.waitForTimeout(500);
     const pollCount = await page.evaluate(
       () => window.calls.filter((c) => c.cmd === "union_proxy_status").length
@@ -206,13 +206,13 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
         ),
       link
     );
-    await page.waitForURL("**/federation/activities");
+    await page.waitForURL("**/instances/activities");
     await openCompetition();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     await page.goto(
       `${base}/launch?test-deep-link=${encodeURIComponent(link)}`
     );
-    await page.waitForURL("**/federation/activities");
+    await page.waitForURL("**/instances/activities");
     await openCompetition();
     assert.equal(await page.locator("#game-link").inputValue(), link);
     assert.deepEqual(errors, []);

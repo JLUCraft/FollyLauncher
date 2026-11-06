@@ -487,8 +487,6 @@
     "currentGame": "目前遊戲連線",
     "disconnectFirst": "要加入其他房間或比賽，請先中斷目前服務。",
     "defaultSeed": "使用已連線的節點",
-    "returnRooms": "返回伺服器與房間",
-    "returnActivities": "返回活動與聯賽",
     "linkStaged": "已收到連線連結，完成準備後在此確認連線。",
     "searching": "正在搜尋附近的聯盟伺服器…",
     "searchEmpty": "附近找不到聯盟伺服器。",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "聯盟",
     "overview": "聯盟連線",
-    "activities": "活動與聯賽",
+    "activities": "聯賽與組隊",
     "rooms": "伺服器與房間",
     "identity": "聯盟身分",
     "manage": "管理",
@@ -1094,6 +1092,11 @@
       "linkHelp": "貼上組織者提供的連結，確認後點擊連線。在本機開啟連結會將其填入這裡，等待確認。",
       "linkConnect": "連線",
       "linkInvalid": "這不是有效的連線連結，請完整複製組織者傳來的連結。",
+      "relay": {
+        "title": "作為中繼服務執行",
+        "description": "在無法直接連線時，協助聯盟成員建立連線。",
+        "updateFailed": "無法更新中繼服務。"
+      },
       "manualTitle": "手動填寫連線資訊",
       "connect": "連線 / 重新整理",
       "myDevice": "我的裝置：{{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "恢復"
     },
     "identity": {
+      "storagePending": "正在等待系統憑證儲存",
+      "storageError": "無法存取系統憑證儲存，請解鎖後重試",
       "configuration": "組織者提供的設定內容",
       "save": "儲存設定",
       "loading": "正在核對你的身分…",
@@ -1729,7 +1734,6 @@
       "launch": "啟動",
       "instances": "實例",
       "accounts": "帳戶",
-      "federation": "聯盟",
       "discover": "發現",
       "search": "搜尋",
       "settings": "設定"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} 智慧",
     "description": "將 AI 模型整合到你的啟動器與 Minecraft 遊玩體驗中。",
+    "federationNotice": "鏈上智慧將於後續版本上線；下方 MCP 服務是上游 SJMCL 的獨立功能。",
     "mcpServer": {
       "title": "MCP 服務",
       "headExtra": "需要重新啟動",
@@ -2775,7 +2780,7 @@
     "setupHint": "可先瀏覽；加入或建立房間前，請在設定中完成聯盟身分配置。",
     "setupToJoin": "設定後加入",
     "setupToHost": "設定後建立房間",
-    "optionDetails": "{{school}} · {{version}} · 最多 {{max}} 人"
+    "maxPlayers": "最多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {

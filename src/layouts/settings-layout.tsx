@@ -1,6 +1,5 @@
 import {
   Badge,
-  Button,
   Grid,
   GridItem,
   HStack,
@@ -8,7 +7,6 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -29,12 +27,6 @@ import {
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
-import {
-  FEDERATION_MANAGEMENT_SETTINGS_PATH,
-  FEDERATION_ROOMS_PATH,
-  FEDERATION_SETTINGS_PATH,
-  federationReturnPath,
-} from "@/utils/federation/navigation";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -46,11 +38,6 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   const { config, newerVersion } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { isAdmin } = useFederation();
-  const returnTo = federationReturnPath(router.query.returnTo);
-  const isAllianceSetting = [
-    FEDERATION_SETTINGS_PATH,
-    FEDERATION_MANAGEMENT_SETTINGS_PATH,
-  ].includes(router.pathname);
 
   const settingsDomainList: { key: string; icon: IconType }[][] = [
     [
@@ -91,17 +78,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
             <NavMenu
               key={group[0].key}
               selectedKeys={[selectedKey]}
-              onClick={(value) => {
-                const alliancePath = [
-                  FEDERATION_SETTINGS_PATH,
-                  FEDERATION_MANAGEMENT_SETTINGS_PATH,
-                ].includes(value);
-                void router.push(
-                  alliancePath
-                    ? { pathname: value, query: { returnTo } }
-                    : value
-                );
-              }}
+              onClick={(value) => void router.push(value)}
               items={group.map((item) => ({
                 label: (
                   <HStack spacing={2} overflow="hidden" w="100%">
@@ -125,20 +102,6 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
       </GridItem>
       <GridItem className="content-full-y" key={router.asPath}>
         <VStack align="stretch" spacing={4}>
-          {isAllianceSetting && (
-            <Button
-              as={Link}
-              href={returnTo}
-              alignSelf="flex-start"
-              variant="outline"
-            >
-              {t(
-                returnTo.split(/[?#]/)[0] === FEDERATION_ROOMS_PATH
-                  ? "ConnectionFlow.returnRooms"
-                  : "ConnectionFlow.returnActivities"
-              )}
-            </Button>
-          )}
           {children}
         </VStack>
       </GridItem>

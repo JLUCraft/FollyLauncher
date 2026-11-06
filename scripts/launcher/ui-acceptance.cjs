@@ -51,7 +51,7 @@ const routes = [
   "/settings/federation",
   "/settings/federation-management",
   "/instances/rooms",
-  "/federation/activities",
+  "/instances/activities",
 ];
 
 function contrast(foreground, background) {

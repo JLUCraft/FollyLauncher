@@ -55,7 +55,7 @@ pub async fn union_identity_action(
   operation: Operation,
 ) -> Result<serde_json::Value, String> {
   let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
-  client::trust::execute_identity(identity(&app)?, Input { config, operation })
+  client::trust::execute_identity(identity(&app).await?, Input { config, operation })
     .await
     .map_err(|e| e.to_string())
 }
@@ -78,8 +78,8 @@ pub async fn synchronize(
 #[tauri::command]
 pub async fn union_bind_host_device(app: AppHandle) -> Result<serde_json::Value, String> {
   let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
-  let player = identity(&app)?;
-  let host = crate::union::rooms::host_identity(&app)?;
+  let player = identity(&app).await?;
+  let host = crate::union::rooms::host_identity(&app).await?;
   let node = node::Node::start(player.clone(), node::NodeConfig::default())
     .await
     .map_err(|e| e.to_string())?;
@@ -115,7 +115,7 @@ pub async fn union_bind_host_device(app: AppHandle) -> Result<serde_json::Value,
 pub async fn union_automated_identity(app: AppHandle) -> Result<serde_json::Value, String> {
   use tauri_plugin_http::reqwest;
   let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
-  let device = identity(&app)?;
+  let device = identity(&app).await?;
   let player = crate::account::helpers::misc::get_selected_player_info(&app)
     .map_err(|_| "Select an authenticated skin-site account")?;
   let mut url = reqwest::Url::parse(
@@ -221,16 +221,19 @@ pub fn union_management(request: client::management::Request) -> Result<serde_js
   client::management::execute(request).map_err(|e| e.to_string())
 }
 #[tauri::command]
-pub fn union_public_identity(app: AppHandle) -> Result<client::management::PublicIdentity, String> {
+pub async fn union_public_identity(
+  app: AppHandle,
+) -> Result<client::management::PublicIdentity, String> {
   Ok(client::management::PublicIdentity::from_identity(
-    &identity(&app)?,
+    &identity(&app).await?,
   ))
 }
 #[tauri::command]
-pub fn union_sign_identity_offline(
+pub async fn union_sign_identity_offline(
   app: AppHandle,
   record: client::trust::TrustRecord,
 ) -> Result<serde_json::Value, String> {
   let config = configuration(&app)?.ok_or("Unified identity is not configured")?;
-  client::management::sign_offline(&identity(&app)?, &config, record).map_err(|e| e.to_string())
+  client::management::sign_offline(&identity(&app).await?, &config, record)
+    .map_err(|e| e.to_string())
 }

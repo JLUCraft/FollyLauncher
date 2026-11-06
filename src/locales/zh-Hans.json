@@ -487,8 +487,6 @@
     "currentGame": "当前游戏连接",
     "disconnectFirst": "要加入其他房间或比赛，请先断开当前服务。",
     "defaultSeed": "使用已连接的节点",
-    "returnRooms": "返回服务器与房间",
-    "returnActivities": "返回活动与联赛",
     "linkStaged": "已收到连接链接，完成准备后在此确认连接。",
     "searching": "正在搜索附近的联盟服务器…",
     "searchEmpty": "附近没有找到联盟服务器。",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "联盟",
     "overview": "联盟连接",
-    "activities": "活动与联赛",
+    "activities": "联赛与组队",
     "rooms": "服务器与房间",
     "identity": "联盟身份",
     "manage": "管理",
@@ -1094,6 +1092,11 @@
       "linkHelp": "粘贴组织者提供的链接，确认后点击连接。在本机打开链接会将其填入这里，等待确认。",
       "linkConnect": "连接",
       "linkInvalid": "这不是有效的连接链接，请完整复制组织者发来的链接。",
+      "relay": {
+        "title": "作为中继服务运行",
+        "description": "在无法直接连接时，帮助联盟成员建立连接。",
+        "updateFailed": "无法更新中继服务。"
+      },
       "manualTitle": "手动填写连接信息",
       "connect": "连接 / 刷新",
       "myDevice": "我的设备：{{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "恢复"
     },
     "identity": {
+      "storagePending": "正在等待系统凭据存储",
+      "storageError": "无法访问系统凭据存储，请解锁后重试",
       "configuration": "组织者提供的设置内容",
       "save": "保存配置",
       "loading": "正在核对你的身份…",
@@ -1729,7 +1734,6 @@
       "launch": "启动",
       "instances": "实例",
       "accounts": "账户",
-      "federation": "联盟",
       "discover": "发现",
       "search": "搜索",
       "settings": "设置"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} 智能",
     "description": "将人工智能模型整合进您的启动器使用与 Minecraft 游玩体验",
+    "federationNotice": "链上智能将在后续版本上线；下方 MCP 服务是上游 SJMCL 的独立功能。",
     "mcpServer": {
       "title": "MCP 服务",
       "headExtra": "以下设置重启后生效",
@@ -2775,7 +2780,7 @@
     "setupHint": "可以先浏览；加入或创建房间前，请在设置中完成联盟身份配置。",
     "setupToJoin": "设置后加入",
     "setupToHost": "设置后创建房间",
-    "optionDetails": "{{school}} · {{version}} · 最多 {{max}} 人"
+    "maxPlayers": "最多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {

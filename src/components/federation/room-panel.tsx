@@ -1,10 +1,15 @@
 import {
+  Avatar,
   Button,
   FormControl,
   FormLabel,
   HStack,
+  Icon,
   Input,
+  InputGroup,
+  InputLeftElement,
   Select,
+  Tag,
   Text,
   Textarea,
   VStack,
@@ -13,30 +18,28 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import AdvancedCard from "@/components/common/advanced-card";
+import { LuSchool, LuSearch, LuUsers } from "react-icons/lu";
+import {
+  COMPACT_ICON_BUTTON_HEIGHT,
+  CommonIconButton,
+} from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
+import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { CurrentGameConnection } from "@/components/federation/current-game-connection";
 import { RoomNetworkSettings } from "@/components/federation/room-network-settings";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { useRooms } from "@/contexts/rooms";
-import {
-  FEDERATION_SETTINGS_PATH,
-  federationSettingsLink,
-} from "@/utils/federation/navigation";
+import { FEDERATION_SETTINGS_PATH } from "@/utils/federation/navigation";
 
 export function RoomPanel() {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const router = useRouter();
   const { identityConfigured, identityRequired } = useFederation();
   const needsSetup = identityConfigured === false || identityRequired;
-  const setupLink = (fragment = "") =>
-    federationSettingsLink(
-      FEDERATION_SETTINGS_PATH,
-      `${router.asPath.split("#")[0]}${fragment}`
-    );
   const {
     query,
     setQuery,
@@ -66,29 +69,56 @@ export function RoomPanel() {
     // Discover once when the page opens; later visits keep the cached list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const roomAnchor = (room: (typeof rooms)[number]) =>
+    `room-${encodeURIComponent(`${room.peer}-${room.service}`)}`;
+  const visibleRooms = rooms.filter(
+    (room) =>
+      (!school || room.metadata.school === school) &&
+      [room.name, room.metadata.school, room.metadata.version].some((v) =>
+        v.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+      )
+  );
   return (
-    <Section title={t("Rooms.title")} description={t("Rooms.description")}>
-      <VStack align="stretch" spacing={3}>
+    <Section
+      title={t("Rooms.title")}
+      description={t("Rooms.description")}
+      headExtra={
+        <CommonIconButton
+          icon="refresh"
+          label={t("Rooms.refresh")}
+          size="xs"
+          fontSize="sm"
+          h={COMPACT_ICON_BUTTON_HEIGHT}
+          isLoading={busy}
+          onClick={() => void handleRefresh()}
+        />
+      }
+    >
+      <VStack align="stretch" spacing={4}>
         {needsSetup && (
           <HStack flexWrap="wrap" spacing={3}>
             <Text fontSize="sm">{t("Rooms.setupHint")}</Text>
-            <Button as={Link} href={setupLink()} size="sm">
+            <Button as={Link} href={FEDERATION_SETTINGS_PATH} size="sm">
               {t("FederationPage.openIdentity")}
             </Button>
           </HStack>
         )}
-        {/* Search, school filter and refresh share one toolbar row. */}
-        <HStack spacing={2} flexWrap="wrap">
-          <Input
-            aria-label={t("RoomSearch.search")}
-            placeholder={t("RoomSearch.search")}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-            flex="1"
-            minW="12rem"
-          />
+        <HStack spacing={2}>
+          <InputGroup size="sm" flex="1">
+            <InputLeftElement pointerEvents="none">
+              <Icon as={LuSearch} className="secondary-text" />
+            </InputLeftElement>
+            <Input
+              aria-label={t("RoomSearch.search")}
+              placeholder={t("RoomSearch.search")}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+              borderRadius="md"
+              focusBorderColor={`${primaryColor}.500`}
+            />
+          </InputGroup>
           <Select
             aria-label={t("RoomSearch.school")}
             placeholder={t("RoomSearch.all")}
@@ -96,9 +126,11 @@ export function RoomPanel() {
             onChange={(e) => {
               setSchool(e.target.value);
             }}
+            size="sm"
+            borderRadius="md"
             w="auto"
-            minW="10rem"
             flexShrink={0}
+            focusBorderColor={`${primaryColor}.500`}
           >
             {Array.from(new Set(rooms.map((r) => r.metadata.school)))
               .sort()
@@ -108,16 +140,17 @@ export function RoomPanel() {
                 </option>
               ))}
           </Select>
-          <Button
-            flexShrink={0}
-            onClick={() => void handleRefresh()}
-            isLoading={busy}
-          >
-            {t("Rooms.refresh")}
-          </Button>
         </HStack>
-        {partial && <Text role="status">{t("Rooms.partial")}</Text>}
-        {seedsChanged && <Text role="status">{t("Rooms.seedsChanged")}</Text>}
+        {partial && (
+          <Text role="status" fontSize="sm" className="secondary-text">
+            {t("Rooms.partial")}
+          </Text>
+        )}
+        {seedsChanged && (
+          <Text role="status" fontSize="sm" className="secondary-text">
+            {t("Rooms.seedsChanged")}
+          </Text>
+        )}
         {!busy && rooms.length === 0 && (
           <Empty
             size="sm"
@@ -125,68 +158,82 @@ export function RoomPanel() {
             description={t(loaded ? "Rooms.empty" : "Rooms.initial")}
           />
         )}
-        {rooms
-          .filter(
-            (room) =>
-              (!school || room.metadata.school === school) &&
-              [room.name, room.metadata.school, room.metadata.version].some(
-                (v) => v.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-              )
-          )
-          .map((room) => (
-            <AdvancedCard
-              key={`${room.peer}/${room.service}`}
-              id={`room-${encodeURIComponent(`${room.peer}-${room.service}`)}`}
-            >
-              <VStack align="stretch">
-                <Text fontWeight="semibold">{room.name}</Text>
-                {/* the title above already shows the room name */}
-                <Text fontSize="sm" className="secondary-text">
-                  {t("Rooms.optionDetails", {
-                    school: room.metadata.school,
-                    version: room.metadata.version,
-                    max: room.metadata.players_max,
-                  })}
-                </Text>
+        {visibleRooms.length > 0 && (
+          <OptionItemGroup
+            items={visibleRooms.map((room) => (
+              <OptionItem
+                key={roomAnchor(room)}
+                id={roomAnchor(room)}
+                prefixElement={
+                  <Avatar
+                    name={room.name}
+                    boxSize="32px"
+                    borderRadius="md"
+                    fontSize="xs"
+                  />
+                }
+                title={room.name}
+                titleExtra={
+                  <Tag colorScheme={primaryColor} className="tag-xs">
+                    {room.metadata.version}
+                  </Tag>
+                }
+                description={
+                  <HStack
+                    spacing={3}
+                    fontSize="xs"
+                    className="secondary-text"
+                    flexWrap="wrap"
+                  >
+                    <HStack spacing={1}>
+                      <Icon as={LuSchool} />
+                      <Text>{room.metadata.school}</Text>
+                    </HStack>
+                    <HStack spacing={1}>
+                      <Icon as={LuUsers} />
+                      <Text>
+                        {t("Rooms.maxPlayers", {
+                          max: room.metadata.players_max,
+                        })}
+                      </Text>
+                    </HStack>
+                  </HStack>
+                }
+              >
                 {needsSetup ? (
                   <Button
                     as={Link}
-                    href={setupLink(
-                      `#room-${encodeURIComponent(`${room.peer}-${room.service}`)}`
-                    )}
-                    alignSelf="flex-start"
-                    colorScheme={config.appearance.theme.primaryColor}
+                    href={FEDERATION_SETTINGS_PATH}
+                    size="sm"
+                    variant="outline"
+                    colorScheme={primaryColor}
+                    flexShrink={0}
                     isDisabled={busy || !!address}
                   >
                     {t("Rooms.setupToJoin")}
                   </Button>
                 ) : (
                   <Button
-                    alignSelf="flex-start"
-                    colorScheme={config.appearance.theme.primaryColor}
+                    size="sm"
+                    colorScheme={primaryColor}
+                    flexShrink={0}
                     isDisabled={busy || !!address}
                     onClick={() => void handleJoin(room)}
                   >
                     {t("Rooms.join")}
                   </Button>
                 )}
-              </VStack>
-            </AdvancedCard>
-          ))}
-        {rooms.length > 0 &&
-          !rooms.some(
-            (room) =>
-              (!school || room.metadata.school === school) &&
-              [room.name, room.metadata.school, room.metadata.version].some(
-                (v) => v.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-              )
-          ) && (
-            <Empty
-              size="sm"
-              withIcon={false}
-              description={t("RoomSearch.noMatches")}
-            />
-          )}
+              </OptionItem>
+            ))}
+          />
+        )}
+        {rooms.length > 0 && visibleRooms.length === 0 && (
+          <Empty
+            size="sm"
+            withIcon={false}
+            description={t("RoomSearch.noMatches")}
+          />
+        )}
         <CurrentGameConnection />
         <Section
           id="room-host"
@@ -195,7 +242,7 @@ export function RoomPanel() {
           initialIsOpen={router.asPath.endsWith("#room-host")}
         >
           {needsSetup && !host ? (
-            <Button as={Link} href={setupLink("#room-host")}>
+            <Button as={Link} href={FEDERATION_SETTINGS_PATH}>
               {t("Rooms.setupToHost")}
             </Button>
           ) : (

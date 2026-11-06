@@ -1,23 +1,25 @@
 import { Button, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import Empty from "@/components/common/empty";
+import { DeviceIdentityStatus } from "@/components/federation/device-identity-status";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { federationErrorKey } from "@/utils/federation/errors";
-import {
-  FEDERATION_SETTINGS_PATH,
-  federationSettingsLink,
-} from "@/utils/federation/navigation";
+import { FEDERATION_SETTINGS_PATH } from "@/utils/federation/navigation";
 
 export function ConnectionRequired() {
   const { t } = useTranslation();
-  const router = useRouter();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { connecting, connectionError, identityRequired, identityConfigured } =
-    useFederation();
+  const {
+    identity,
+    connecting,
+    connectionError,
+    identityRequired,
+    identityConfigured,
+  } = useFederation();
+  if (!identity) return <DeviceIdentityStatus />;
   const needsSetup = identityRequired || identityConfigured === false;
   return (
     <VStack align="stretch">
@@ -37,10 +39,7 @@ export function ConnectionRequired() {
         {needsSetup ? (
           <Button
             as={Link}
-            href={federationSettingsLink(
-              FEDERATION_SETTINGS_PATH,
-              router.asPath
-            )}
+            href={FEDERATION_SETTINGS_PATH}
             colorScheme={primaryColor}
           >
             {t("FederationPage.openIdentity")}
@@ -48,10 +47,7 @@ export function ConnectionRequired() {
         ) : (
           <Button
             as={Link}
-            href={federationSettingsLink(
-              FEDERATION_SETTINGS_PATH,
-              router.asPath
-            )}
+            href={FEDERATION_SETTINGS_PATH}
             colorScheme={primaryColor}
           >
             {t("ConnectionFlow.setup")}

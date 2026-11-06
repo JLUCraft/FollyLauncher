@@ -72,6 +72,10 @@ We welcome contributions and bug reports through [GitHub Issues](https://github.
 
 Use Bun, Node.js, Rust, and the Tauri platform dependencies declared by the repository configuration. Configure the variables documented in `.env.template` in your local environment; keep credentials outside source control. `bun run tauri build` creates application bundles in the existing build directories.
 
+Device credentials are loaded on blocking worker threads so OS credential prompts and storage locks do not occupy the UI thread. Federation pages show a waiting state until the device identity is available and offer retry after a storage error. Java discovery also runs on blocking workers and releases the launcher configuration lock before probing executables.
+
+Development builds use `debug = "line-tables-only"` in the Cargo `dev` profile. This retains source locations in backtraces while reducing debug data and link work; full variable/type inspection requires overriding `CARGO_PROFILE_DEV_DEBUG=2`. Incremental compilation remains enabled. The first build after changing this setting rebuilds affected dependencies. Release and CI `test-build` profiles are unchanged.
+
 The CLI connects to the running GUI through its MCP server. Build it from the repository root with `cargo build --release --manifest-path cli/Cargo.toml`.
 
 Project instructions live in [AGENTS.md](AGENTS.md). Release history is available in [CHANGELOG.md](CHANGELOG.md) and [GitHub Releases](https://github.com/JLUCraft/FollyLauncher/releases). The inherited [contribution guide](CONTRIBUTING.md), [code of conduct](CODE_OF_CONDUCT.md), and [security policy](SECURITY.md) are retained. Use Conventional Commits and include the problem, resulting behavior, and validation evidence in pull requests. Select one validation channel for each batch.

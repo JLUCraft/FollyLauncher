@@ -383,7 +383,7 @@ d=x.XOpenDisplay(None);x.XRaiseWindow(d,${Number(nativeWindow)});x.XFlush(d)
       ["instances", "/instances/list", "游戏实例"],
       ["federation", "/settings/federation", "联盟设置"],
       ["rooms", "/instances/rooms", "服务器与房间"],
-      ["activities", "/federation/activities", "活动与联赛"],
+      ["activities", "/instances/activities", "联赛与组队"],
       ["settings", "/settings/general", "常规设置"],
       ["java", "/settings/java", "Java 环境"],
       ["about", "/settings/about", "Folly 与上游 SJMCL 来源说明"],

@@ -91,8 +91,10 @@ pub async fn run() {
     builder
       .manage(minecraftd::process::client::ClientProcesses::default())
       .manage(union::ProxyState::default())
+      .manage(union::relay::RelayState::default())
       .manage(union::rooms::RoomState::default())
       .invoke_handler(tauri::generate_handler![
+        union::relay::union_set_relay_enabled,
         union::rooms::union_rooms,
         union::rooms::union_room_host,
         union::rooms::union_room_identity,
@@ -253,7 +255,15 @@ pub async fn run() {
         let exe_sha256 = launcher_config.basic_info.exe_sha256.clone();
         let auto_purge_launcher_logs = launcher_config.general.advanced.auto_purge_launcher_logs;
         let launcher_mcp_config = launcher_config.intelligence.mcp_server.launcher.clone();
+        let relay_enabled = launcher_config.federation.relay_enabled;
         app.manage(Mutex::new(launcher_config));
+
+        if relay_enabled {
+          let app_handle = app.handle().clone();
+          tauri::async_runtime::spawn(async move {
+            union::relay::start_configured(&app_handle).await;
+          });
+        }
 
         let account_info = AccountInfo::load().unwrap_or_default();
         app.manage(Mutex::new(account_info));

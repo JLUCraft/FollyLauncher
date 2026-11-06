@@ -487,8 +487,6 @@
     "currentGame": "Connexion de jeu actuelle",
     "disconnectFirst": "Déconnectez ce service avant de rejoindre un autre salon ou match.",
     "defaultSeed": "Utiliser le nœud connecté",
-    "returnRooms": "Retour aux serveurs et salons",
-    "returnActivities": "Retour aux activités et ligues",
     "linkStaged": "Lien reçu. Vérifiez-le et confirmez la connexion ici lorsque la configuration sera prête.",
     "searching": "Recherche de serveurs de l'union à proximité…",
     "searchEmpty": "Aucun serveur de l'union trouvé à proximité.",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "Fédération",
     "overview": "Connexion à l’alliance",
-    "activities": "Activités et ligues",
+    "activities": "Ligues et équipes",
     "rooms": "Serveurs et salons",
     "identity": "Identité de l’alliance",
     "manage": "Administration",
@@ -1094,6 +1092,11 @@
       "linkHelp": "Collez le lien de l’organisateur et choisissez Connexion. Ouvrir un lien sur cet ordinateur le renseigne ici pour confirmation.",
       "linkConnect": "Se connecter",
       "linkInvalid": "Ce n’est pas un lien de connexion valide. Copiez le lien complet de votre organisateur.",
+      "relay": {
+        "title": "Exécuter comme service de relais",
+        "description": "Aidez les membres de la fédération à se connecter lorsqu’une connexion directe est indisponible.",
+        "updateFailed": "Impossible de mettre à jour le service de relais."
+      },
       "manualTitle": "Saisir les informations manuellement",
       "connect": "Connecter / Actualiser",
       "myDevice": "Mon appareil : {{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "Reprendre"
     },
     "identity": {
+      "storagePending": "En attente du stockage des identifiants du système",
+      "storageError": "Impossible d’accéder au stockage des identifiants du système. Déverrouillez-le et réessayez.",
       "configuration": "Configuration fournie par votre organisateur",
       "save": "Enregistrer la configuration",
       "loading": "Vérification de votre identité…",
@@ -1729,7 +1734,6 @@
       "launch": "Lancer",
       "instances": "Instances",
       "accounts": "Comptes",
-      "federation": "Fédération",
       "discover": "Découvrir",
       "search": "Recherche",
       "settings": "Paramètres"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "Intelligence {{productName}}",
     "description": "Intégrez des modèles d'IA à votre lanceur et à votre expérience de jeu Minecraft.",
+    "federationNotice": "L’intelligence sur la chaîne sera disponible dans une version ultérieure ; le service MCP ci-dessous est une fonctionnalité distincte du projet upstream SJMCL.",
     "mcpServer": {
       "title": "Service MCP",
       "headExtra": "Redémarrage requis",
@@ -2775,7 +2780,7 @@
     "setupHint": "Vous pouvez parcourir la liste. Configurez votre identité dans les paramètres avant de rejoindre ou créer un salon.",
     "setupToJoin": "Configurer pour rejoindre",
     "setupToHost": "Configurer pour héberger",
-    "optionDetails": "{{school}} · {{version}} · jusqu'à {{max}} joueurs"
+    "maxPlayers": "Jusqu'à {{max}} joueurs"
   },
   "ScreenshotPreviewModal": {
     "menu": {

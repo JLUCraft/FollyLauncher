@@ -3,10 +3,20 @@ use identity::Identity;
 use std::{fs::OpenOptions, path::Path, sync::Mutex};
 use zeroize::Zeroizing;
 static SERIAL: Mutex<()> = Mutex::new(());
-pub fn identity(directory: &Path) -> Result<Identity, String> {
-  identity_for(directory, "launcher")
+pub async fn identity(directory: &Path) -> Result<Identity, String> {
+  identity_for(directory, "launcher").await
 }
-pub(super) fn identity_for(directory: &Path, account: &str) -> Result<Identity, String> {
+pub(super) async fn identity_for(
+  directory: &Path,
+  account: &'static str,
+) -> Result<Identity, String> {
+  let directory = directory.to_owned();
+  // OS prompts and both locks may wait indefinitely; keep them off UI and runtime threads.
+  tauri::async_runtime::spawn_blocking(move || load_identity(&directory, account))
+    .await
+    .map_err(|_| "Identity storage task failed".to_string())?
+}
+fn load_identity(directory: &Path, account: &str) -> Result<Identity, String> {
   let _serial = SERIAL
     .lock()
     .map_err(|_| "Identity storage is temporarily unavailable".to_string())?;
@@ -74,6 +84,30 @@ fn load(directory: &Path, entry: &keyring::Entry) -> Result<Identity, String> {
 mod tests {
   use crate::union::vault::load;
   use identity::Identity;
+  #[tokio::test(flavor = "current_thread")]
+  async fn waiting_for_identity_storage_does_not_block_the_runtime() {
+    let (ready_tx, ready_rx) = std::sync::mpsc::channel();
+    let (release_tx, release_rx) = std::sync::mpsc::channel();
+    let holder = std::thread::spawn(move || {
+      let _guard = super::SERIAL.lock().unwrap();
+      ready_tx.send(()).unwrap();
+      release_rx.recv_timeout(std::time::Duration::from_secs(5))
+    });
+    ready_rx.recv().unwrap();
+    // A file cannot be an identity directory, so this never accesses an OS vault.
+    let file = tempfile::NamedTempFile::new().unwrap();
+    let path = file.path().to_owned();
+    let request = tokio::spawn(async move { super::identity_for(&path, "launcher").await });
+    tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+    assert!(!request.is_finished());
+    let released = release_tx.send(());
+    assert!(
+      holder.join().unwrap().is_ok(),
+      "identity loading blocked the runtime"
+    );
+    released.unwrap();
+    assert!(request.await.unwrap().is_err());
+  }
   #[test]
   fn vault_is_required_and_unsupported_files_are_rejected() {
     keyring::set_default_credential_builder(keyring::mock::default_credential_builder());

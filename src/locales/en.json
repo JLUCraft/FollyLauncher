@@ -487,8 +487,6 @@
     "currentGame": "Current game connection",
     "disconnectFirst": "To join another room or match, disconnect this service first.",
     "defaultSeed": "Use the connected node",
-    "returnRooms": "Return to servers & rooms",
-    "returnActivities": "Return to activities & leagues",
     "linkStaged": "Connection link received. Review and confirm it here when setup is ready.",
     "searching": "Searching for nearby union servers…",
     "searchEmpty": "No union server found nearby.",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "Federation",
     "overview": "Alliance connection",
-    "activities": "Activities & leagues",
+    "activities": "Leagues & teams",
     "rooms": "Servers & rooms",
     "identity": "Alliance identity",
     "manage": "Administration",
@@ -1094,6 +1092,11 @@
       "linkHelp": "Paste the organizer’s link and choose Connect. Opening a link on this computer fills it in here for confirmation.",
       "linkConnect": "Connect",
       "linkInvalid": "This is not a valid connection link. Copy the whole link from your organizer.",
+      "relay": {
+        "title": "Run as a relay service",
+        "description": "Help federation members connect when direct connections are unavailable.",
+        "updateFailed": "Could not update the relay service."
+      },
       "manualTitle": "Enter details manually",
       "connect": "Connect / Refresh",
       "myDevice": "My device: {{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "Resume"
     },
     "identity": {
+      "storagePending": "Waiting for system credential storage",
+      "storageError": "Cannot access system credential storage. Unlock it and retry.",
       "configuration": "Setup provided by your organizer",
       "save": "Save configuration",
       "loading": "Checking your identity…",
@@ -1729,7 +1734,6 @@
       "launch": "Launch",
       "instances": "Games",
       "accounts": "Accounts",
-      "federation": "Federation",
       "discover": "Discover",
       "search": "Search",
       "settings": "Settings"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} Intelligence",
     "description": "Integrate AI models into your launcher and Minecraft gameplay experience.",
+    "federationNotice": "On-chain intelligence will be available in a future release; the MCP service below is a separate upstream SJMCL feature.",
     "mcpServer": {
       "title": "MCP Service",
       "headExtra": "Restart Required",
@@ -2775,7 +2780,7 @@
     "setupHint": "You can browse here. Complete Alliance identity setup in Settings before joining or hosting.",
     "setupToJoin": "Set up to join",
     "setupToHost": "Set up to host",
-    "optionDetails": "{{school}} · {{version}} · up to {{max}} players"
+    "maxPlayers": "Up to {{max}} players"
   },
   "ScreenshotPreviewModal": {
     "menu": {

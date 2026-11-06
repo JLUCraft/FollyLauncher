@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useDeepLink } from "@/hooks/deep-link";
 import { GameConnection, UnionService } from "@/services/union";
+import { FEDERATION_ACTIVITIES_PATH } from "@/utils/federation/navigation";
 
 const STATUS_INTERVAL_MS = 3000;
 function useGameState() {
@@ -24,7 +25,7 @@ function useGameState() {
     trigger: (path) => path === "connect" || path.startsWith("connect?"),
     onCall: (url) => {
       setGameLink(url);
-      void router.push("/federation/activities");
+      void router.push(FEDERATION_ACTIVITIES_PATH);
     },
   });
   const connected = !!connection;

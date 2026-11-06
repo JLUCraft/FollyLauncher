@@ -8,6 +8,7 @@ import {
   HStack,
   Input,
   Spinner,
+  Switch,
   Tag,
   Text,
   VStack,
@@ -17,6 +18,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
 import AdvancedCard from "@/components/common/advanced-card";
+import { OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { IdentityPanel } from "@/components/federation/identity-panel";
 import { SetupGuide } from "@/components/federation/setup-guide";
@@ -70,6 +72,20 @@ export default function FederationSettingsPage() {
   const [rejectedLink, setRejectedLink] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [joinFailed, setJoinFailed] = useState(false);
+  const [updatingRelay, setUpdatingRelay] = useState(false);
+  const handleRelayChange = async (enabled: boolean) => {
+    setUpdatingRelay(true);
+    try {
+      await UnionService.setRelayEnabled(enabled);
+    } catch {
+      toast({
+        title: t("FederationPage.settings.relay.updateFailed"),
+        status: "error",
+      });
+    } finally {
+      setUpdatingRelay(false);
+    }
+  };
   // The server answered but refused the read: this device is not a member yet.
   const needsMembership = !state && error === "membership";
   // One tap from "found the union" to "joined and connected": the skin station
@@ -326,6 +342,25 @@ export default function FederationSettingsPage() {
             </VStack>
           </HStack>
         </AdvancedCard>
+
+        <OptionItemGroup
+          items={[
+            {
+              title: t("FederationPage.settings.relay.title"),
+              description: t("FederationPage.settings.relay.description"),
+              children: (
+                <Switch
+                  colorScheme={primaryColor}
+                  isChecked={config.federation.relayEnabled}
+                  isDisabled={updatingRelay}
+                  onChange={(event) =>
+                    void handleRelayChange(event.target.checked)
+                  }
+                />
+              ),
+            },
+          ]}
+        />
 
         {identityConfigured !== null && (
           <Section

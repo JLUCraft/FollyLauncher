@@ -140,6 +140,10 @@ default = []
 # releases never ship an inspector; CI portable builds opt in via --features devtools.
 devtools = ["tauri/devtools"]
 
+# Keep source locations in development backtraces without full variable/type debug data.
+[profile.dev]
+debug = "line-tables-only"
+
 [profile.release]
 opt-level = 3   # as default
 strip = true

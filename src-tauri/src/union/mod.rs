@@ -6,16 +6,17 @@ const MAX_GAME_ADDRESS_BYTES: usize = 2048;
 use identity::Identity;
 use tauri::{AppHandle, Manager};
 
+pub mod relay;
 pub mod rooms;
 pub mod trust;
 mod vault;
-fn identity(app: &AppHandle) -> Result<Identity, String> {
+async fn identity(app: &AppHandle) -> Result<Identity, String> {
   let directory = app.path().app_data_dir().map_err(|e| e.to_string())?;
-  vault::identity(&directory)
+  vault::identity(&directory).await
 }
 #[tauri::command]
-pub fn union_identity(app: AppHandle) -> Result<String, String> {
-  Ok(identity(&app)?.peer_id().to_string())
+pub async fn union_identity(app: AppHandle) -> Result<String, String> {
+  Ok(identity(&app).await?.peer_id().to_string())
 }
 #[tauri::command]
 pub async fn union_governance(
@@ -29,7 +30,7 @@ pub async fn union_governance(
     }
   })?)
   .map_err(|e| e.to_string())?;
-  let signer = identity(&app)?;
+  let signer = identity(&app).await?;
   let genesis = input["genesis_hash"].as_str().unwrap_or("").to_owned();
   let response = if input["action"]["type"] == "local.points.request_ai" {
     ::client::points::request_text(signer.clone(), input).await
@@ -115,7 +116,7 @@ pub async fn union_discover(
     wait_ms: None,
   });
   let mut servers = ::client::discovery::discover(
-    identity(&app)?,
+    identity(&app).await?,
     input.wait_ms.map(std::time::Duration::from_millis),
   )
   .await
@@ -208,7 +209,7 @@ pub async fn union_proxy_start(
     .service
     .parse()
     .map_err(|e: protocol::Error| e.to_string())?;
-  let device = identity(&app)?;
+  let device = identity(&app).await?;
   trust::configuration(&app)?.ok_or("Configure unified identity before joining rooms")?;
   let node = node::Node::start(device, node::NodeConfig::default())
     .await

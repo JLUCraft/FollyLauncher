@@ -487,8 +487,6 @@
     "currentGame": "現在のゲーム接続",
     "disconnectFirst": "別のルームや試合に参加する前に、現在の接続を切断してください。",
     "defaultSeed": "接続済みノードを使用",
-    "returnRooms": "サーバーとルームに戻る",
-    "returnActivities": "活動とリーグ戦に戻る",
     "linkStaged": "接続リンクを受信しました。準備が整ったら、ここで内容を確認して接続してください。",
     "searching": "近くのユニオンサーバーを検索中…",
     "searchEmpty": "近くにユニオンサーバーが見つかりません。",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "連盟",
     "overview": "連盟の接続",
-    "activities": "活動とリーグ戦",
+    "activities": "リーグ戦とチーム",
     "rooms": "サーバーとルーム",
     "identity": "連盟の身元情報",
     "manage": "管理",
@@ -1094,6 +1092,11 @@
       "linkHelp": "主催者のリンクを貼り付けて接続を選択してください。この端末でリンクを開くと、確認用にここへ入力されます。",
       "linkConnect": "接続",
       "linkInvalid": "有効な接続リンクではありません。主催者から届いたリンク全体をコピーしてください。",
+      "relay": {
+        "title": "リレーサービスとして実行",
+        "description": "直接接続できない連盟メンバー同士の接続を支援します。",
+        "updateFailed": "リレーサービスを更新できませんでした。"
+      },
       "manualTitle": "接続情報を手動で入力",
       "connect": "接続 / 更新",
       "myDevice": "自分のデバイス：{{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "再開"
     },
     "identity": {
+      "storagePending": "システムの資格情報ストアを待っています",
+      "storageError": "システムの資格情報ストアにアクセスできません。ロックを解除して再試行してください。",
       "configuration": "主催者から提供された設定内容",
       "save": "設定を保存",
       "loading": "身元を確認しています…",
@@ -1729,7 +1734,6 @@
       "launch": "起動",
       "instances": "ゲーム",
       "accounts": "アカウント",
-      "federation": "連盟",
       "discover": "ディスカバー",
       "search": "メタサーチ",
       "settings": "設定"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} AI",
     "description": "AI モデルをランチャーと Minecraft の体験に統合します。",
+    "federationNotice": "オンチェーン AI は今後のリリースで提供予定です。以下の MCP サービスは上流 SJMCL の独立した機能です。",
     "mcpServer": {
       "title": "MCP サービス",
       "headExtra": "再起動が必要",
@@ -2775,7 +2780,7 @@
     "setupHint": "閲覧は可能です。参加またはルーム作成の前に、設定で連盟の身元情報を設定してください。",
     "setupToJoin": "設定して参加",
     "setupToHost": "設定してルームを作成",
-    "optionDetails": "{{school}} · {{version}} · 最大 {{max}} 人"
+    "maxPlayers": "最大 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {

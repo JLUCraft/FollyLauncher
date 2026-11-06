@@ -257,6 +257,9 @@ export class UnionService {
   static identity(): Promise<string> {
     return invoke("union_identity");
   }
+  static setRelayEnabled(enabled: boolean): Promise<void> {
+    return invoke("union_set_relay_enabled", { enabled });
+  }
   static async request(
     address: string,
     peer: string,

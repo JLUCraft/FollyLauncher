@@ -487,8 +487,6 @@
     "currentGame": "當前遊戲連線",
     "disconnectFirst": "欲入別房或賽事，請先斷此服務。",
     "defaultSeed": "用已連節點",
-    "returnRooms": "返伺服器與房間",
-    "returnActivities": "返活動與聯賽",
     "linkStaged": "連線連結已收，備妥後於此確認連線。",
     "searching": "方覓近旁聯盟之伺服器…",
     "searchEmpty": "近旁未見聯盟伺服器。",
@@ -974,7 +972,7 @@
   "FederationNav": {
     "title": "聯盟",
     "overview": "聯盟連線",
-    "activities": "活動與聯賽",
+    "activities": "聯賽與組隊",
     "rooms": "伺服器與房間",
     "identity": "聯盟身分",
     "manage": "管理",
@@ -1094,6 +1092,11 @@
       "linkHelp": "貼主辦者所予連結，確認後連線。於本機開啟連結，將填於此候確認。",
       "linkConnect": "連線",
       "linkInvalid": "此非有效之連線鏈，請完整錄主辦所授。",
+      "relay": {
+        "title": "為中繼服務",
+        "description": "助直連未通之聯盟成員相連。",
+        "updateFailed": "未能更新中繼服務。"
+      },
       "manualTitle": "手填連線資訊",
       "connect": "連接 / 新",
       "myDevice": "吾之機：{{id}}",
@@ -1165,6 +1168,8 @@
       "resume": "復行"
     },
     "identity": {
+      "storagePending": "待系统凭据",
+      "storageError": "系统凭据不可取，请解锁重试",
       "configuration": "主辦者所授之設定",
       "save": "存設定",
       "loading": "方核君之身分…",
@@ -1729,7 +1734,6 @@
       "launch": "啟",
       "instances": "例",
       "accounts": "戶簿",
-      "federation": "聯盟",
       "discover": "發見",
       "search": "尋",
       "settings": "置設"
@@ -2163,6 +2167,7 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} 智慧",
     "description": "將人工智慧形整合進您的啟者使用與 礦藝 遊玩體驗",
+    "federationNotice": "鏈上智能，俟後版乃上；下方 MCP 服務屬上游 SJMCL 之獨立功能。",
     "mcpServer": {
       "title": "MCP 服務",
       "headExtra": "以下置設復啟而效",
@@ -2775,7 +2780,7 @@
     "setupHint": "可先瀏覽；欲入或建房，先於設定備妥聯盟身分。",
     "setupToJoin": "設定後加入",
     "setupToHost": "設定後建房",
-    "optionDetails": "{{school}} · {{version}} · 至多 {{max}} 人"
+    "maxPlayers": "至多 {{max}} 人"
   },
   "ScreenshotPreviewModal": {
     "menu": {
