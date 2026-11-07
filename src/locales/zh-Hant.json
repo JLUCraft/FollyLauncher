@@ -1102,6 +1102,7 @@
       "myDevice": "我的裝置：{{id}}",
       "myMember": "我的編號：{{id}}",
       "myClub": "（{{club}}）",
+      "myGameProfile": "遊戲檔案：{{id}}",
       "linkPlaceholder": "貼上組織者傳來的連結",
       "shareAction": "複製邀請連結",
       "disconnect": "中斷連線",
@@ -1822,11 +1823,7 @@
     "sync": "重新整理身分",
     "automatic": "透過皮膚站驗證",
     "host": "綁定開房裝置",
-    "binding": "綁定裝置或遊戲檔案",
-    "member": "成員編號",
     "device": "裝置編號",
-    "club": "社團",
-    "profile": "Minecraft 玩家 ID",
     "unbound": "尚未綁定",
     "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
@@ -1855,7 +1852,8 @@
       "member": "成員",
       "device": "裝置",
       "club": "社團",
-      "profile": "遊戲檔案",
+      "kind": "屬性類型",
+      "value": "屬性值",
       "evidence": "驗證依據",
       "verifier": "驗證方",
       "type": "操作",
@@ -1875,7 +1873,7 @@
       "devices": "已繫結的裝置",
       "revoked_devices": "已撤銷的裝置",
       "memberships": "成員資格",
-      "profiles": "已繫結的遊戲檔案"
+      "attributes": "已繫結的屬性"
     },
     "permissions": {
       "read": "讀取",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "應用服務"
+    },
+    "attributeKinds": {
+      "game_profile": "遊戲檔案"
     },
     "unnamedField": "未命名字段",
     "before": "變更前",
@@ -1907,7 +1908,8 @@
       "confirm_member": "確認成員資格",
       "revoke_membership": "撤銷成員資格",
       "bind_device": "綁定裝置",
-      "bind_game_profile": "綁定遊戲身分",
+      "bind_attribute": "綁定成員屬性",
+      "unbind_attribute": "解除綁定成員屬性",
       "revoke_device": "撤銷裝置",
       "register_service": "登記服務",
       "grant_permission": "授予服務權限",
@@ -1924,7 +1926,8 @@
       "member": "穩定成員 ID",
       "club": "社團 ID",
       "device": "裝置 ID",
-      "profile": "Minecraft 玩家 ID（32 位）",
+      "kind": "屬性類型",
+      "value": "屬性值",
       "service": "服務 ID",
       "audience": "主機伺服器 ID",
       "id": "請求編號",
@@ -1942,6 +1945,7 @@
     "publicHint": "分享給組織者，用於登記或關聯裝置，不含私鑰。",
     "copy": "複製",
     "cached": "正在顯示已儲存的資訊，重新整理即可查看最新的成員資格。",
+    "gameProfileHint": "填寫 32 位 Minecraft 玩家 UUID。",
     "generateId": "產生新 ID",
     "facts": "完整身分詳情（技術資訊）",
     "organizerHint": "僅限組織者和社長使用，一般成員無需操作。"

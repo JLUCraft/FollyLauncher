@@ -1102,6 +1102,7 @@
       "myDevice": "Mi dispositivo: {{id}}",
       "myMember": "Mi número de miembro: {{id}}",
       "myClub": "({{club}})",
+      "myGameProfile": "Perfil de juego: {{id}}",
       "linkPlaceholder": "Pega el enlace de tu organizador",
       "shareAction": "Copiar enlace de invitación",
       "disconnect": "Desconectar",
@@ -1822,11 +1823,7 @@
     "sync": "Actualizar identidad",
     "automatic": "Verificar con el sitio de skins",
     "host": "Vincular dispositivo anfitrión",
-    "binding": "Vincular dispositivo o perfil de juego",
-    "member": "ID de miembro",
     "device": "ID de dispositivo",
-    "club": "Club",
-    "profile": "ID de jugador de Minecraft",
     "unbound": "Sin vincular",
     "position": "Al día hasta la versión {{sequence}}",
     "review": "Revisar cambios",
@@ -1855,7 +1852,8 @@
       "member": "Miembro",
       "device": "Dispositivo",
       "club": "Club",
-      "profile": "Perfil de juego",
+      "kind": "Tipo de atributo",
+      "value": "Valor del atributo",
       "evidence": "Evidencia de verificación",
       "verifier": "Verificador",
       "type": "Acción",
@@ -1875,7 +1873,7 @@
       "devices": "Dispositivos vinculados",
       "revoked_devices": "Dispositivos revocados",
       "memberships": "Membresías",
-      "profiles": "Perfiles de juego vinculados"
+      "attributes": "Atributos vinculados"
     },
     "permissions": {
       "read": "Lectura",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "Servicio de aplicación"
+    },
+    "attributeKinds": {
+      "game_profile": "Perfil de juego"
     },
     "unnamedField": "Campo sin nombre",
     "before": "Antes",
@@ -1907,7 +1908,8 @@
       "confirm_member": "Confirmar afiliación",
       "revoke_membership": "Revocar afiliación",
       "bind_device": "Vincular dispositivo",
-      "bind_game_profile": "Vincular perfil de juego",
+      "bind_attribute": "Vincular atributo",
+      "unbind_attribute": "Desvincular atributo",
       "revoke_device": "Revocar dispositivo",
       "register_service": "Registrar servicio",
       "grant_permission": "Conceder permiso",
@@ -1924,7 +1926,8 @@
       "member": "ID estable del miembro",
       "club": "ID del club",
       "device": "ID del dispositivo",
-      "profile": "ID de jugador de Minecraft (32 caracteres)",
+      "kind": "Tipo de atributo",
+      "value": "Valor del atributo",
       "service": "ID del servicio",
       "audience": "ID del servidor anfitrión",
       "id": "ID de la solicitud",
@@ -1942,6 +1945,7 @@
     "publicHint": "Compártelo con un organizador para registrarte o vincular un dispositivo. No incluye ninguna clave privada.",
     "copy": "Copiar",
     "cached": "Se muestra información guardada. Actualiza para ver tu membresía más reciente.",
+    "gameProfileHint": "Introduce el UUID de jugador de Minecraft de 32 caracteres.",
     "generateId": "Generar nuevo ID",
     "facts": "Detalles completos de identidad (técnico)",
     "organizerHint": "Solo para organizadores y presidentes. Los miembros normales no lo necesitan."

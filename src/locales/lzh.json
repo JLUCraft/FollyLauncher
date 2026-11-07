@@ -1102,6 +1102,7 @@
       "myDevice": "吾之機：{{id}}",
       "myMember": "吾之號：{{id}}",
       "myClub": "（{{club}}）",
+      "myGameProfile": "遊戲身分：{{id}}",
       "linkPlaceholder": "貼主辦者所授之連結",
       "shareAction": "複邀請之鏈",
       "disconnect": "斷連",
@@ -1822,11 +1823,7 @@
     "sync": "更新身分",
     "automatic": "以皮膚站驗證",
     "host": "繫開房裝置",
-    "binding": "繫裝置或遊戲身分",
-    "member": "社員編號",
     "device": "裝置編號",
-    "club": "社團",
-    "profile": "Minecraft 玩家識別",
     "unbound": "尚未繫定",
     "position": "已同步至第 {{sequence}} 版",
     "review": "核對變更",
@@ -1855,7 +1852,8 @@
       "member": "社員",
       "device": "裝置",
       "club": "社團",
-      "profile": "遊戲身分",
+      "kind": "屬類",
+      "value": "屬值",
       "evidence": "驗證依據",
       "verifier": "驗證者",
       "type": "操作",
@@ -1875,7 +1873,7 @@
       "devices": "已繫裝置",
       "revoked_devices": "已撤裝置",
       "memberships": "社籍",
-      "profiles": "已繫遊戲身分"
+      "attributes": "已繫之屬"
     },
     "permissions": {
       "read": "閱",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "應用之服務"
+    },
+    "attributeKinds": {
+      "game_profile": "遊戲身分"
     },
     "unnamedField": "未名之欄",
     "before": "變更前",
@@ -1907,7 +1908,8 @@
       "confirm_member": "定社員籍",
       "revoke_membership": "除社員籍",
       "bind_device": "繫設備",
-      "bind_game_profile": "繫遊戲籍",
+      "bind_attribute": "繫成員之屬",
+      "unbind_attribute": "解成員之屬",
       "revoke_device": "撤設備",
       "register_service": "錄服務",
       "grant_permission": "授服務權",
@@ -1924,7 +1926,8 @@
       "member": "社員恆定 ID",
       "club": "社團 ID",
       "device": "器識別",
-      "profile": "Minecraft 玩家識別（三十二位）",
+      "kind": "屬類",
+      "value": "屬值",
       "service": "服務 ID",
       "audience": "主機識別",
       "id": "請求編號",
@@ -1942,6 +1945,7 @@
     "publicHint": "授予主辦者以登記或連器，不含私鑰。",
     "copy": "複製",
     "cached": "今示已存之資，重新整理可見最新會籍。",
+    "gameProfileHint": "書 Minecraft 玩家三十二位識別。",
     "generateId": "生新 ID",
     "facts": "身分全詳（技術之資）",
     "organizerHint": "惟主辦者與社長用之，常會員無須為。"

@@ -20,7 +20,7 @@ import { RecordFields } from "@/components/federation/record-fields";
 import { useLauncherConfig } from "@/contexts/config";
 import { useFederation } from "@/contexts/federation";
 import { useToast } from "@/contexts/toast";
-import { IdentityFacts, UnionService } from "@/services/union";
+import { GAME_PROFILE, IdentityFacts, UnionService } from "@/services/union";
 import { UtilsService } from "@/services/utils";
 import { copyText } from "@/utils/copy";
 import { sanitizeFileName, shortenIdentifier } from "@/utils/string";
@@ -213,19 +213,27 @@ export function IdentityPanel() {
       ? (proposal.action as Record<string, unknown>)
       : undefined;
   const binding =
-    action?.type === "bind_device" || action?.type === "bind_game_profile";
+    action?.type === "bind_device" ||
+    action?.type === "bind_attribute" ||
+    action?.type === "unbind_attribute";
   const before = facts
     ? (action?.type === "bind_device"
         ? facts.devices[String(action.device)]
-        : facts.profiles[String(action?.member)]) || t("IdentityFlow.unbound")
+        : facts.attributes[String(action?.member)]?.[String(action?.kind)]) ||
+      t("IdentityFlow.unbound")
     : t("IdentityFlow.unknown");
   const after =
     action?.type === "bind_device"
       ? String(action.member)
-      : String(action?.profile);
+      : action?.type === "bind_attribute"
+        ? String(action.value)
+        : t("IdentityFlow.unbound");
   const ownMember = facts?.revoked_devices.includes(identity)
     ? undefined
     : facts?.devices[identity];
+  const ownGameProfile = ownMember
+    ? facts?.attributes[ownMember]?.[GAME_PROFILE]
+    : undefined;
   const signatures =
     proposal && typeof proposal === "object" && "signatures" in proposal
       ? (proposal as { signatures?: unknown }).signatures
@@ -363,6 +371,13 @@ export function IdentityPanel() {
                       {t("FederationPage.settings.myClub", { club: c })}
                     </Text>
                   ))}
+                {ownGameProfile && (
+                  <Text overflowWrap="anywhere">
+                    {t("FederationPage.settings.myGameProfile", {
+                      id: ownGameProfile,
+                    })}
+                  </Text>
+                )}
               </VStack>
             </AdvancedCard>
           ) : (

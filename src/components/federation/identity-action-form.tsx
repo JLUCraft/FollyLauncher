@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -13,19 +12,22 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
-import { UnionService } from "@/services/union";
+import { GAME_PROFILE, UnionService } from "@/services/union";
 
 type Field = {
   name: string;
-  kind: "text" | "peer" | "profile" | "number" | "choices" | "chairs";
+  kind: "text" | "peer" | "number" | "identifiers" | "chairs";
   optional: boolean;
   generated: boolean;
-  choices: string[];
 };
 type ActionForm = { action: string; fields: Field[] };
 
-const SERVICE_SUGGESTIONS = ["application"];
-const PERMISSION_SUGGESTIONS = ["read", "write", "admin", "use", "manage"];
+const FIELD_SUGGESTIONS: Record<string, string[]> = {
+  service: ["application"],
+  permission: ["read", "write", "admin", "use", "manage"],
+  kind: [GAME_PROFILE],
+  evidence: ["institutional_email", GAME_PROFILE],
+};
 
 export function IdentityActionForm({
   disabled,
@@ -88,7 +90,11 @@ export function IdentityActionForm({
         ? `IdentityFlow.services.${value}`
         : field === "permission"
           ? `IdentityFlow.permissions.${value}`
-          : "";
+          : field === "kind"
+            ? `IdentityFlow.attributeKinds.${value}`
+            : field === "evidence"
+              ? `IdentityManagement.evidence.${value}`
+              : "";
     if (!key) return value;
     const translated = t(key);
     return translated === key ? value : translated;
@@ -138,29 +144,15 @@ export function IdentityActionForm({
                     disabled={locked}
                     onChange={(value) => update(field.name, value)}
                   />
-                ) : field.kind === "choices" ? (
-                  <HStack flexWrap="wrap">
-                    {field.choices.map((choice) => {
-                      const current = (values[field.name] as string[]) || [];
-                      return (
-                        <Checkbox
-                          key={choice}
-                          isDisabled={locked}
-                          isChecked={current.includes(choice)}
-                          onChange={(e) =>
-                            update(
-                              field.name,
-                              e.target.checked
-                                ? [...current, choice]
-                                : current.filter((v) => v !== choice)
-                            )
-                          }
-                        >
-                          {t(`IdentityManagement.evidence.${choice}`)}
-                        </Checkbox>
-                      );
-                    })}
-                  </HStack>
+                ) : field.kind === "identifiers" ? (
+                  <IdentifierFields
+                    id={`identity-action-${field.name}`}
+                    disabled={locked}
+                    value={(values[field.name] as string[]) || []}
+                    suggestions={FIELD_SUGGESTIONS[field.name] || []}
+                    label={(value) => suggestionLabel(field.name, value)}
+                    onChange={(value) => update(field.name, value)}
+                  />
                 ) : (
                   <>
                     <Input
@@ -178,13 +170,9 @@ export function IdentityActionForm({
                         )
                       }
                     />
-                    {(field.name === "service" ||
-                      field.name === "permission") && (
+                    {FIELD_SUGGESTIONS[field.name] && (
                       <HStack flexWrap="wrap">
-                        {(field.name === "service"
-                          ? SERVICE_SUGGESTIONS
-                          : PERMISSION_SUGGESTIONS
-                        ).map((suggestion) => (
+                        {FIELD_SUGGESTIONS[field.name].map((suggestion) => (
                           <Button
                             key={suggestion}
                             size="xs"
@@ -224,6 +212,11 @@ export function IdentityActionForm({
                     {t("IdentityManagement.optional")}
                   </FormHelperText>
                 )}
+                {field.name === "value" && values.kind === GAME_PROFILE && (
+                  <FormHelperText>
+                    {t("IdentityManagement.gameProfileHint")}
+                  </FormHelperText>
+                )}
               </FormControl>
             ))}
             <Button
@@ -237,6 +230,70 @@ export function IdentityActionForm({
         )}
       </VStack>
     </Section>
+  );
+}
+
+function IdentifierFields({
+  id,
+  disabled,
+  value,
+  suggestions,
+  label,
+  onChange,
+}: {
+  id: string;
+  disabled: boolean;
+  value: string[];
+  suggestions: string[];
+  label: (value: string) => string;
+  onChange: (value: string[]) => void;
+}) {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState("");
+  const options = [...new Set([...suggestions, ...value])];
+  const toggle = (item: string) =>
+    onChange(
+      value.includes(item) ? value.filter((v) => v !== item) : [...value, item]
+    );
+  const add = () => {
+    const item = draft.trim();
+    if (!item) return;
+    if (!value.includes(item)) onChange([...value, item]);
+    setDraft("");
+  };
+  return (
+    <VStack align="stretch" spacing={2}>
+      <HStack flexWrap="wrap">
+        {options.map((item) => (
+          <Button
+            key={item}
+            size="xs"
+            variant={value.includes(item) ? "solid" : "outline"}
+            aria-pressed={value.includes(item)}
+            isDisabled={disabled}
+            onClick={() => toggle(item)}
+          >
+            {label(item)}
+          </Button>
+        ))}
+      </HStack>
+      <HStack>
+        <Input
+          id={id}
+          isDisabled={disabled}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            add();
+          }}
+        />
+        <Button isDisabled={disabled || !draft.trim()} onClick={add}>
+          {t("General.add")}
+        </Button>
+      </HStack>
+    </VStack>
   );
 }
 

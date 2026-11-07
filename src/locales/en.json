@@ -1102,6 +1102,7 @@
       "myDevice": "My device: {{id}}",
       "myMember": "My member no.: {{id}}",
       "myClub": "({{club}})",
+      "myGameProfile": "Game profile: {{id}}",
       "linkPlaceholder": "Paste the link from your organizer",
       "shareAction": "Copy invite link",
       "disconnect": "Disconnect",
@@ -1822,11 +1823,7 @@
     "sync": "Refresh identity",
     "automatic": "Verify with skin site",
     "host": "Link hosting device",
-    "binding": "Link a device or game profile",
-    "member": "Member ID",
     "device": "Device ID",
-    "club": "Club",
-    "profile": "Minecraft player ID",
     "unbound": "Not linked",
     "position": "Up to date as of version {{sequence}}",
     "review": "Review changes",
@@ -1855,7 +1852,8 @@
       "member": "Member",
       "device": "Device",
       "club": "Club",
-      "profile": "Game profile",
+      "kind": "Attribute type",
+      "value": "Attribute value",
       "evidence": "Verification evidence",
       "verifier": "Verifier",
       "type": "Action",
@@ -1875,7 +1873,7 @@
       "devices": "Linked devices",
       "revoked_devices": "Revoked devices",
       "memberships": "Memberships",
-      "profiles": "Linked game profiles"
+      "attributes": "Linked attributes"
     },
     "permissions": {
       "read": "Read",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "Application service"
+    },
+    "attributeKinds": {
+      "game_profile": "Game profile"
     },
     "unnamedField": "Unnamed field",
     "before": "Before",
@@ -1907,7 +1908,8 @@
       "confirm_member": "Confirm membership",
       "revoke_membership": "Revoke membership",
       "bind_device": "Bind device",
-      "bind_game_profile": "Bind game profile",
+      "bind_attribute": "Bind attribute",
+      "unbind_attribute": "Unbind attribute",
       "revoke_device": "Revoke device",
       "register_service": "Register service",
       "grant_permission": "Grant service permission",
@@ -1924,7 +1926,8 @@
       "member": "Stable member ID",
       "club": "Club ID",
       "device": "Device ID",
-      "profile": "Minecraft player ID (32 characters)",
+      "kind": "Attribute type",
+      "value": "Attribute value",
       "service": "Service ID",
       "audience": "Host server ID",
       "id": "Request ID",
@@ -1942,6 +1945,7 @@
     "publicHint": "Share this so an organizer can register you or link a device. It never includes a private key.",
     "copy": "Copy",
     "cached": "Showing saved information. Refresh to see your latest membership.",
+    "gameProfileHint": "Enter the 32-character Minecraft player UUID.",
     "generateId": "Generate new ID",
     "facts": "Full identity details (technical)",
     "organizerHint": "Only for organizers and chairs. Regular members don't need this."

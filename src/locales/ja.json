@@ -1102,6 +1102,7 @@
       "myDevice": "自分のデバイス：{{id}}",
       "myMember": "自分のメンバー番号：{{id}}",
       "myClub": "（{{club}}）",
+      "myGameProfile": "ゲームプロフィール：{{id}}",
       "linkPlaceholder": "主催者から届いたリンクを貼り付け",
       "shareAction": "招待リンクをコピー",
       "disconnect": "切断",
@@ -1822,11 +1823,7 @@
     "sync": "身元を更新",
     "automatic": "スキンサイトで認証",
     "host": "ホスト端末を紐付け",
-    "binding": "端末・ゲームプロフィールの紐付け",
-    "member": "メンバー ID",
     "device": "端末 ID",
-    "club": "クラブ",
-    "profile": "Minecraft プレイヤー ID",
     "unbound": "未連携",
     "position": "バージョン {{sequence}} まで反映済み",
     "review": "変更を確認",
@@ -1855,7 +1852,8 @@
       "member": "メンバー",
       "device": "端末",
       "club": "クラブ",
-      "profile": "ゲームプロフィール",
+      "kind": "属性の種類",
+      "value": "属性の値",
       "evidence": "検証の根拠",
       "verifier": "検証者",
       "type": "操作",
@@ -1875,7 +1873,7 @@
       "devices": "リンク済み端末",
       "revoked_devices": "取り消された端末",
       "memberships": "所属",
-      "profiles": "リンク済みゲームプロフィール"
+      "attributes": "リンク済み属性"
     },
     "permissions": {
       "read": "読み取り",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "アプリケーションサービス"
+    },
+    "attributeKinds": {
+      "game_profile": "ゲームプロフィール"
     },
     "unnamedField": "名前のない項目",
     "before": "変更前",
@@ -1907,7 +1908,8 @@
       "confirm_member": "メンバー資格を確認",
       "revoke_membership": "メンバー資格を取り消す",
       "bind_device": "デバイスを登録",
-      "bind_game_profile": "ゲームIDを登録",
+      "bind_attribute": "属性を登録",
+      "unbind_attribute": "属性の登録を解除",
       "revoke_device": "デバイスを失効",
       "register_service": "サービスを登録",
       "grant_permission": "サービス権限を付与",
@@ -1924,7 +1926,8 @@
       "member": "固定メンバーID",
       "club": "団体ID",
       "device": "デバイス ID",
-      "profile": "Minecraft プレイヤー ID（32 文字）",
+      "kind": "属性の種類",
+      "value": "属性の値",
       "service": "サービスID",
       "audience": "ホストサーバー ID",
       "id": "申請 ID",
@@ -1942,6 +1945,7 @@
     "publicHint": "主催者への登録やデバイスの関連付けに使います。秘密鍵は含まれません。",
     "copy": "コピー",
     "cached": "保存済みの情報を表示しています。更新すると最新のメンバー資格を確認できます。",
+    "gameProfileHint": "32 文字の Minecraft プレイヤー UUID を入力してください。",
     "generateId": "新しいIDを生成",
     "facts": "身元情報の詳細（技術情報）",
     "organizerHint": "主催者と部長向けです。一般のメンバーは操作不要です。"

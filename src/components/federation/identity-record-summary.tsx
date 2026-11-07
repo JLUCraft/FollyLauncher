@@ -13,6 +13,7 @@ function translatedValue(
   if (field === "evidence") key = `IdentityManagement.evidence.${value}`;
   else if (field === "permission") key = `IdentityFlow.permissions.${value}`;
   else if (field === "service") key = `IdentityFlow.services.${value}`;
+  else if (field === "kind") key = `IdentityFlow.attributeKinds.${value}`;
   if (!key) return null;
   const translated = t(key);
   return translated === key ? null : translated;

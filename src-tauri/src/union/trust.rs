@@ -188,8 +188,14 @@ pub async fn union_automated_identity(app: AppHandle) -> Result<serde_json::Valu
         device: Some(holder),
         ..
       } if kind == "membership" && holder == &device.peer_id().to_string() => {}
-      client::protocol::TrustAction::BindGameProfile { profile, .. }
-        if kind == "profile" && profile == &player.uuid.simple().to_string() => {}
+      client::protocol::TrustAction::BindAttribute {
+        kind: attribute_kind,
+        value,
+        ..
+      } if kind == "profile"
+        && attribute_kind == league::GAME_PROFILE
+        && value == &player.uuid.simple().to_string()
+        && league::validate_game_profile(value).is_ok() => {}
       _ => return Err("Verifier proposed an unrelated identity action".into()),
     }
     let signed = client::trust::execute_identity(

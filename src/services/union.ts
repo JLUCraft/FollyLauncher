@@ -17,13 +17,19 @@ export interface GameConnection {
   service: string;
   origin?: GameConnectionOrigin;
 }
+/** Attribute kind of the core `league::GAME_PROFILE` binding. */
+export const GAME_PROFILE = "game_profile";
 export interface IdentityFacts {
-  federation: string;
+  namespace: {
+    organization: string;
+    wire_version: number;
+    signing_version: number;
+  };
   checkpoint: { sequence: number; head: string };
   devices: Record<string, string>;
   revoked_devices: string[];
   memberships: [string, string][];
-  profiles: Record<string, string>;
+  attributes: Record<string, Record<string, string>>;
 }
 export interface UnionTeam {
   captain: string;

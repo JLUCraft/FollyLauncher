@@ -1102,6 +1102,7 @@
       "myDevice": "我的设备：{{id}}",
       "myMember": "我的编号：{{id}}",
       "myClub": "（{{club}}）",
+      "myGameProfile": "游戏档案：{{id}}",
       "linkPlaceholder": "粘贴组织者发来的链接",
       "shareAction": "复制邀请链接",
       "disconnect": "断开连接",
@@ -1822,11 +1823,7 @@
     "sync": "刷新身份",
     "automatic": "通过皮肤站验证",
     "host": "绑定开房设备",
-    "binding": "绑定设备或游戏档案",
-    "member": "成员编号",
     "device": "设备编号",
-    "club": "社团",
-    "profile": "Minecraft 玩家 ID",
     "unbound": "尚未绑定",
     "position": "已同步至第 {{sequence}} 版",
     "review": "核对变更",
@@ -1855,7 +1852,8 @@
       "member": "成员",
       "device": "设备",
       "club": "社团",
-      "profile": "游戏档案",
+      "kind": "属性类型",
+      "value": "属性值",
       "evidence": "验证依据",
       "verifier": "验证方",
       "type": "操作",
@@ -1875,7 +1873,7 @@
       "devices": "已绑定的设备",
       "revoked_devices": "已撤销的设备",
       "memberships": "成员资格",
-      "profiles": "已绑定的游戏档案"
+      "attributes": "已绑定的属性"
     },
     "permissions": {
       "read": "读取",
@@ -1886,6 +1884,9 @@
     },
     "services": {
       "application": "应用服务"
+    },
+    "attributeKinds": {
+      "game_profile": "游戏档案"
     },
     "unnamedField": "未命名字段",
     "before": "变更前",
@@ -1907,7 +1908,8 @@
       "confirm_member": "确认成员资格",
       "revoke_membership": "撤销成员资格",
       "bind_device": "绑定设备",
-      "bind_game_profile": "绑定游戏身份",
+      "bind_attribute": "绑定成员属性",
+      "unbind_attribute": "解绑成员属性",
       "revoke_device": "撤销设备",
       "register_service": "登记服务",
       "grant_permission": "授予服务权限",
@@ -1924,7 +1926,8 @@
       "member": "稳定成员 ID",
       "club": "社团 ID",
       "device": "设备 ID",
-      "profile": "Minecraft 玩家 ID（32 位）",
+      "kind": "属性类型",
+      "value": "属性值",
       "service": "服务 ID",
       "audience": "主机服务器 ID",
       "id": "请求编号",
@@ -1942,6 +1945,7 @@
     "publicHint": "分享给组织者，用于登记或关联设备，不包含私钥。",
     "copy": "复制",
     "cached": "正在显示已保存的信息，刷新即可查看最新的成员资格。",
+    "gameProfileHint": "填写 32 位 Minecraft 玩家 UUID。",
     "generateId": "生成新 ID",
     "facts": "完整身份详情（技术信息）",
     "organizerHint": "仅限组织者和社长使用，普通成员无需操作。"
