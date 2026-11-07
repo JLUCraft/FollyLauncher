@@ -229,7 +229,7 @@ pub async fn union_automated_identity(app: AppHandle) -> Result<serde_json::Valu
 
 #[tauri::command]
 pub fn union_management(request: client::management::Request) -> Result<serde_json::Value, String> {
-  client::management::execute(request).map_err(|e| e.to_string())
+  client::management::execute_with(request, &league::Suggestions).map_err(|e| e.to_string())
 }
 #[tauri::command]
 pub async fn union_public_identity(

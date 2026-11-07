@@ -19,15 +19,9 @@ type Field = {
   kind: "text" | "peer" | "number" | "identifiers" | "chairs";
   optional: boolean;
   generated: boolean;
+  suggestions?: string[];
 };
 type ActionForm = { action: string; fields: Field[] };
-
-const FIELD_SUGGESTIONS: Record<string, string[]> = {
-  service: ["application"],
-  permission: ["read", "write", "admin", "use", "manage"],
-  kind: [GAME_PROFILE],
-  evidence: ["institutional_email", GAME_PROFILE],
-};
 
 export function IdentityActionForm({
   disabled,
@@ -149,7 +143,7 @@ export function IdentityActionForm({
                     id={`identity-action-${field.name}`}
                     disabled={locked}
                     value={(values[field.name] as string[]) || []}
-                    suggestions={FIELD_SUGGESTIONS[field.name] || []}
+                    suggestions={field.suggestions ?? []}
                     label={(value) => suggestionLabel(field.name, value)}
                     onChange={(value) => update(field.name, value)}
                   />
@@ -170,9 +164,9 @@ export function IdentityActionForm({
                         )
                       }
                     />
-                    {FIELD_SUGGESTIONS[field.name] && (
+                    {!!field.suggestions?.length && (
                       <HStack flexWrap="wrap">
-                        {FIELD_SUGGESTIONS[field.name].map((suggestion) => (
+                        {field.suggestions.map((suggestion) => (
                           <Button
                             key={suggestion}
                             size="xs"
