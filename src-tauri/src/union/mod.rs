@@ -118,7 +118,7 @@ pub async fn union_discover(
   let mut servers = league::discovery::discover_with_namespace(
     identity(&app).await?,
     input.wait_ms.map(std::time::Duration::from_millis),
-    protocol::Namespace::jlucraft(),
+    protocol::Namespace::builtin(),
   )
   .await
   .map_err(|e| e.to_string())?;
@@ -205,7 +205,7 @@ pub async fn union_proxy_start(
   trust::configuration(&app)?.ok_or("Configure unified identity before joining rooms")?;
   let node = node::Node::start(
     device,
-    node::NodeConfig::new(protocol::Namespace::jlucraft()),
+    node::NodeConfig::new(protocol::Namespace::builtin()),
   )
   .await
   .map_err(|e| e.to_string())?;

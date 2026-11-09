@@ -64,7 +64,7 @@ pub async fn union_rooms(
     identity(&app).await?,
     node::NodeConfig {
       bootstrap: seeds.clone(),
-      ..node::NodeConfig::new(protocol::Namespace::jlucraft())
+      ..node::NodeConfig::new(protocol::Namespace::builtin())
     },
   )
   .await
