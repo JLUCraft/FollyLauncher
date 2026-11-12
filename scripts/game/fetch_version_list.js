@@ -1,6 +1,7 @@
 const fs = require("fs");
 const https = require("https");
 const path = require("path");
+const { isRecord, parseRecord } = require("../json.cjs");
 
 const url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
@@ -24,12 +25,24 @@ https
 
     res.on("end", () => {
       try {
-        const json = JSON.parse(data);
-        const versions = json.versions
-          .map((v) => ({
-            id: v.id,
-            timestamp: new Date(v.releaseTime).getTime(),
-          }))
+        const json = parseRecord(data);
+        if (!Array.isArray(json.versions))
+          throw new Error("Expected a version list");
+        /** @type {unknown[]} */
+        const entries = json.versions;
+        const versions = entries
+          .map((entry) => {
+            if (
+              !isRecord(entry) ||
+              typeof entry.id !== "string" ||
+              typeof entry.releaseTime !== "string"
+            )
+              throw new Error("Invalid version entry");
+            return {
+              id: entry.id,
+              timestamp: new Date(entry.releaseTime).getTime(),
+            };
+          })
           .sort((a, b) => {
             if (a.timestamp === b.timestamp) {
               // If release times are the same, sort by "id" in ascending order

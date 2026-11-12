@@ -5,6 +5,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseRecord, objectValue } from "../json.cjs";
 
 const repo = fileURLToPath(new URL("../../", import.meta.url));
 if (process.platform !== "linux")
@@ -13,6 +14,7 @@ if (!process.env.TUTORIAL_OUTPUT_DIR)
   throw new Error("Set TUTORIAL_OUTPUT_DIR to a new evidence directory");
 const out = resolve(process.env.TUTORIAL_OUTPUT_DIR);
 await mkdir(out, { recursive: true });
+/** @param {number} ms @returns {Promise<void>} */
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const temp =
   process.env.NATIVE_FOLLOWUP_PROFILE ||
@@ -33,9 +35,11 @@ const fixture = await followupModule?.prepareNativeFixture({
 const reservation = createServer();
 await new Promise((r, j) => {
   reservation.once("error", j);
-  reservation.listen(0, "127.0.0.1", r);
+  reservation.listen(0, "127.0.0.1", () => r(undefined));
 });
-const port = reservation.address().port;
+const address = reservation.address();
+assert.ok(address && typeof address !== "string");
+const port = address.port;
 await new Promise((r) => reservation.close(r));
 const inspector = `127.0.0.1:${port}`;
 const log = await open(
@@ -71,17 +75,25 @@ const app = spawn(
   }
 );
 const exited = new Promise((resolve) => app.once("exit", resolve));
+/** @type {unknown} */
 let launchError;
 app.on("error", (error) => {
   launchError = error;
 });
+/** @type {WebSocket | undefined} */
 let socket;
 let serial = 0;
+/** @type {string | undefined} */
 let target;
+/** @type {Map<string, import("../launcher/types").Target>} */
 const targets = new Map();
+/** @type {Map<string, WebSocket>} */
 const targetSockets = new Map();
+/** @type {Map<string, WebSocket>} */
 const inspectorSockets = new Map();
+/** @type {Map<number, (value: Record<string, unknown>) => void>} */
 const pending = new Map();
+/** @type {{file: string, step: string, scope: string}[]} */
 const shots = [];
 try {
   let path;
@@ -103,21 +115,29 @@ try {
   assert.ok(path, "Native inspector must become ready");
   socket = new WebSocket(`ws://${inspector}${path}`);
   inspectorSockets.set(path, socket);
+  /** @param {MessageEvent<unknown>} event @param {WebSocket} connection */
   const receive = (event, connection) => {
-    const message = JSON.parse(event.data);
-    if (
-      message.method === "Target.targetCreated" &&
-      message.params.targetInfo.type === "page"
-    ) {
-      const info = message.params.targetInfo;
+    assert.equal(typeof event.data, "string");
+    if (typeof event.data !== "string")
+      throw new Error("Inspector text frame required");
+    const message = parseRecord(event.data);
+    if (message.method === "Target.targetCreated") {
+      const info = objectValue(objectValue(message.params).targetInfo);
+      if (info.type !== "page") return;
+      assert.equal(typeof info.targetId, "string");
+      if (typeof info.targetId !== "string")
+        throw new Error("Inspector target required");
       const channel = [...inspectorSockets].find(
         ([, owner]) => owner === connection
-      )[0];
+      )?.[0];
+      assert.ok(channel);
       const key = `${channel}:${info.targetId}`;
       targets.set(key, {
-        ...info,
         targetId: key,
         protocolTargetId: info.targetId,
+        url: typeof info.url === "string" ? info.url : undefined,
+        title: typeof info.title === "string" ? info.title : undefined,
+        type: "page",
       });
       targetSockets.set(key, connection);
       target ||= key;
@@ -126,12 +146,13 @@ try {
       for (const [key, info] of targets)
         if (
           targetSockets.get(key) === connection &&
-          info.protocolTargetId === message.params.targetId
+          info.protocolTargetId === objectValue(message.params).targetId
         )
           targets.delete(key);
     }
     if (message.method === "Target.dispatchMessageFromTarget") {
-      const inner = JSON.parse(message.params.message);
+      const inner = parseRecord(String(objectValue(message.params).message));
+      if (typeof inner.id !== "number") return;
       const resolve = pending.get(inner.id);
       if (resolve) {
         pending.delete(inner.id);
@@ -139,10 +160,11 @@ try {
       }
     }
   };
-  socket.onmessage = (event) => receive(event, socket);
+  const mainSocket = socket;
+  socket.onmessage = (event) => receive(event, mainSocket);
   await new Promise((r, j) => {
-    socket.onopen = r;
-    socket.onerror = j;
+    mainSocket.onopen = r;
+    mainSocket.onerror = j;
   });
   for (let i = 0; i < 50 && !target; i++) await delay(100);
   assert.ok(target);
@@ -166,8 +188,13 @@ try {
     }
     return [...targets.values()];
   }
+  /** @param {string} expression @param {string} [selectedTarget] @returns {Promise<unknown>} */
   async function evaluate(expression, selectedTarget = target) {
+    assert.ok(selectedTarget);
+    const targetInfo = targets.get(selectedTarget);
+    assert.ok(targetInfo);
     const id = ++serial;
+    /** @type {Promise<Record<string, unknown>>} */
     const result = new Promise((r, j) => {
       const timer = setTimeout(() => {
         pending.delete(id);
@@ -178,12 +205,14 @@ try {
         r(value);
       });
     });
-    (targetSockets.get(selectedTarget) || socket).send(
+    const connection = targetSockets.get(selectedTarget) || socket;
+    assert.ok(connection);
+    connection.send(
       JSON.stringify({
         id: ++serial,
         method: "Target.sendMessageToTarget",
         params: {
-          targetId: targets.get(selectedTarget).protocolTargetId,
+          targetId: targetInfo.protocolTargetId,
           message: JSON.stringify({
             id,
             method: "Runtime.evaluate",
@@ -193,9 +222,13 @@ try {
       })
     );
     const response = await result;
-    if (response.error || response.result?.wasThrown)
+    const resultValue =
+      response.result === undefined ? undefined : objectValue(response.result);
+    if (response.error || resultValue?.wasThrown)
       throw new Error(JSON.stringify(response));
-    return response.result?.result?.value;
+    return resultValue?.result === undefined
+      ? undefined
+      : objectValue(resultValue.result).value;
   }
   for (let i = 0; i < 60; i++) {
     if (
@@ -227,14 +260,16 @@ try {
         Number(window.size[1]) > 400 &&
         Number(window.size[2]) > 300
     );
-  const windowId = candidates
-    .map((window) => window.id)
-    .find((id) => {
-      const pid = execFileSync("xprop", ["-id", id, "_NET_WM_PID"], {
-        encoding: "utf8",
-      });
-      return Number(pid.match(/=\s*(\d+)/)?.[1]) === app.pid;
-    });
+  const windowId =
+    candidates
+      .map((window) => window.id)
+      .filter((id) => typeof id === "string")
+      .find((id) => {
+        const pid = execFileSync("xprop", ["-id", id, "_NET_WM_PID"], {
+          encoding: "utf8",
+        });
+        return Number(pid.match(/=\s*(\d+)/)?.[1]) === app.pid;
+      }) || "";
   assert.ok(windowId, "Native window must carry the selected Folly brand");
   execFileSync("python3", [
     "-c",
@@ -249,6 +284,7 @@ d=x.XOpenDisplay(None);x.XMoveResizeWindow(d,${Number(windowId)},0,0,1200,780);x
     `window.__TAURI_INTERNALS__.invoke('update_launcher_config',{keyPath:'general.general.language',value:JSON.stringify('zh-Hans')})`
   );
   await delay(1500);
+  /** @param {string} name @param {string} step @param {import("../launcher/types").ShotOptions} [options] */
   async function shot(
     name,
     step,
@@ -270,6 +306,8 @@ d=x.XOpenDisplay(None);x.XMoveResizeWindow(d,${Number(windowId)},0,0,1200,780);x
         );
     }
     const body = await evaluate("document.body.innerText");
+    assert.equal(typeof body, "string");
+    if (typeof body !== "string") throw new Error("Page text required");
     assert.ok(
       !body.includes("Unhandled Runtime Error"),
       "Page must not contain a runtime error overlay"
@@ -352,6 +390,7 @@ d=x.XOpenDisplay(None);x.XRaiseWindow(d,${Number(nativeWindow)});x.XFlush(d)
     "Tutorial pages must not be obscured by a modal"
   );
   if (followup) {
+    assert.ok(followupModule && fixture && app.pid);
     await followupModule.nativeFollowup({
       evaluate,
       delay,
@@ -425,7 +464,7 @@ d=x.XOpenDisplay(None);x.XRaiseWindow(d,${Number(nativeWindow)});x.XFlush(d)
         id: ++serial,
         method: "Target.sendMessageToTarget",
         params: {
-          targetId: targets.get(target).protocolTargetId,
+          targetId: targets.get(target)?.protocolTargetId,
           message: JSON.stringify({
             id: ++serial,
             method: "Runtime.evaluate",

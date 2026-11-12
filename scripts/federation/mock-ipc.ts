@@ -1,4 +1,3 @@
-import type { InvokeArgs } from "@tauri-apps/api/core";
 // Browser test fixtures only. Never imported by the application.
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
 import { brand } from "@/brand";
@@ -6,8 +5,8 @@ import { defaultConfig } from "@/models/config";
 import type { LauncherConfig } from "@/models/config";
 import type { GameConnection } from "@/services/union";
 
-interface BrowserFixtureState {
-  calls: { cmd: string; args?: InvokeArgs }[];
+export interface BrowserFixtureState {
+  calls: { cmd: string; args: Record<string, unknown> }[];
   admin: boolean;
   proxy: GameConnection | null;
   scheme: string;
@@ -15,7 +14,7 @@ interface BrowserFixtureState {
   discoverServers?: unknown[];
   testHandlers?: Record<string, (args: Record<string, unknown>) => unknown>;
   testConfig?: LauncherConfig;
-  testFilePath?: string;
+  testFilePath?: string | null;
   testFileContent?: string;
   testIdentityConfiguration?: unknown;
 }
@@ -55,7 +54,6 @@ const w = fixtureWindow;
 mockWindows("main");
 mockIPC(
   async (cmd, payload) => {
-    w.calls.push({ cmd, args: payload });
     const args =
       payload &&
       !Array.isArray(payload) &&
@@ -63,6 +61,7 @@ mockIPC(
       !(payload instanceof Uint8Array)
         ? payload
         : {};
+    w.calls.push({ cmd, args });
     const handler = w.testHandlers?.[cmd];
     if (handler) return await handler(args);
     if (cmd === "update_launcher_config") return;

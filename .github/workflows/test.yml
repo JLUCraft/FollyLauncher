@@ -15,6 +15,7 @@ on:
       - bun.lock
       - tsconfig.json
       - next.config.ts
+      - next-i18next.config.mjs
       - eslint.config.mjs
       - .oxfmtrc.json
       - .oxlintrc.json
@@ -32,6 +33,7 @@ on:
       - bun.lock
       - tsconfig.json
       - next.config.ts
+      - next-i18next.config.mjs
       - eslint.config.mjs
       - .oxfmtrc.json
       - .oxlintrc.json
@@ -68,6 +70,7 @@ jobs:
               - 'bun.lock'
               - 'tsconfig.json'
               - 'next.config.ts'
+              - 'next-i18next.config.mjs'
               - 'eslint.config.mjs'
               - '.oxfmtrc.json'
               - '.oxlintrc.json'

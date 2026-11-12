@@ -3,6 +3,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { LauncherConfig, VersionMetaInfo } from "@/models/config";
 import { JavaInfo } from "@/models/misc";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 export const CONFIG_PARTIAL_UPDATE_EVENT = "config:partial-update";
@@ -19,7 +20,7 @@ export class ConfigService {
   static async retrieveLauncherConfig(): Promise<
     InvokeResponse<LauncherConfig>
   > {
-    return await invoke("retrieve_launcher_config");
+    return await invoke(nativeCommands.config.retrieveLauncherConfig);
   }
 
   /**
@@ -33,7 +34,7 @@ export class ConfigService {
     keyPath: string,
     value: unknown
   ): Promise<InvokeResponse<void>> {
-    return await invoke("update_launcher_config", {
+    return await invoke(nativeCommands.config.updateLauncherConfig, {
       keyPath,
       value: JSON.stringify(value),
     });
@@ -118,7 +119,7 @@ export class ConfigService {
    */
   @responseHandler("config")
   static async retrieveJavaList(): Promise<InvokeResponse<JavaInfo[]>> {
-    return await invoke("retrieve_java_list");
+    return await invoke(nativeCommands.config.retrieveJavaList);
   }
 
   /**
@@ -128,7 +129,7 @@ export class ConfigService {
    */
   @responseHandler("config")
   static async validateJava(javaPath: string): Promise<InvokeResponse<void>> {
-    return await invoke("validate_java", { javaPath });
+    return await invoke(nativeCommands.config.validateJava, { javaPath });
   }
 
   /**

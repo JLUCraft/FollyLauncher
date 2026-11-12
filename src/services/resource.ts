@@ -13,6 +13,7 @@ import {
   OtherResourceVersionPack,
 } from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { getResourceCompatibleModLoader } from "@/utils/resource";
 import { responseHandler } from "@/utils/response";
 
@@ -42,7 +43,9 @@ export class ResourceService {
   static async fetchGameVersionSpecific(
     gameVersion: string
   ): Promise<InvokeResponse<GameClientResourceInfo>> {
-    return await invoke("fetch_game_version_specific", { gameVersion });
+    return await invoke(nativeCommands.resource.fetchGameVersionSpecific, {
+      gameVersion,
+    });
   }
 
   /**
@@ -56,7 +59,7 @@ export class ResourceService {
     gameVersion: string,
     modLoaderType: ModLoaderType
   ): Promise<InvokeResponse<ModLoaderResourceInfo[]>> {
-    return await invoke("fetch_mod_loader_version_list", {
+    return await invoke(nativeCommands.resource.fetchModLoaderVersionList, {
       gameVersion,
       modLoaderType,
     });
@@ -71,7 +74,9 @@ export class ResourceService {
   static async fetchOptiFineVersionList(
     gameVersion: string
   ): Promise<InvokeResponse<OptiFineResourceInfo[]>> {
-    return await invoke("fetch_optifine_version_list", { gameVersion });
+    return await invoke(nativeCommands.resource.fetchOptiFineVersionList, {
+      gameVersion,
+    });
   }
 
   /**
@@ -89,7 +94,7 @@ export class ResourceService {
     page: number,
     pageSize: number
   ): Promise<InvokeResponse<OtherResourceSearchRes>> {
-    return await invoke("fetch_resource_list_by_name", {
+    return await invoke(nativeCommands.resource.fetchResourceListByName, {
       downloadSource,
       query: {
         resourceType,

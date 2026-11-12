@@ -5,6 +5,8 @@ import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
+import locale from "../../src/locales/zh-Hans.json" with { type: "json" };
+import { parseRecord, parseValue, isRecord } from "../json.cjs";
 import { deviceScenario, prepareDeviceFixture } from "./native-device.mjs";
 import { modpackScenario } from "./native-modpack.mjs";
 
@@ -12,26 +14,32 @@ const INSTANCE = "NativeAcceptance";
 const DIRECTORY = "native-followup";
 const EXTENSION = "org.jlucraft.nativeacceptance";
 const WORLD_METADATA = "data/minecraft/weather.dat";
+/** @param {string} value */
 const text = (value) => {
   const bytes = Buffer.from(value);
   const size = Buffer.alloc(2);
   size.writeUInt16BE(bytes.length);
   return Buffer.concat([size, bytes]);
 };
+/** @param {number} type @param {string} name @param {Buffer} value */
 const tag = (type, name, value) =>
   Buffer.concat([Buffer.from([type]), text(name), value]);
+/** @param {...Buffer} children */
 const compound = (...children) =>
   Buffer.concat([...children, Buffer.from([0])]);
+/** @param {number} value */
 const integer = (value) => {
   const b = Buffer.alloc(4);
   b.writeInt32BE(value);
   return b;
 };
+/** @param {bigint} value */
 const long = (value) => {
   const b = Buffer.alloc(8);
   b.writeBigInt64BE(value);
   return b;
 };
+/** @param {string} world */
 async function writeWorldMetadata(world) {
   await mkdir(resolve(world, "data/minecraft"), { recursive: true });
   await writeFile(
@@ -46,8 +54,10 @@ async function writeWorldMetadata(world) {
   );
 }
 
+/** @param {{temp: string, repo: string, reuse?: boolean}} options @returns {Promise<import("./types").NativeFixture>} */
 export async function prepareNativeFixture({ temp, repo, reuse = false }) {
-  const config = JSON.parse(
+  /** @type {unknown} */
+  const configValue = JSON.parse(
     execFileSync(
       "bun",
       [
@@ -57,9 +67,15 @@ export async function prepareNativeFixture({ temp, repo, reuse = false }) {
       { cwd: repo, encoding: "utf8" }
     )
   );
-  const identity = JSON.parse(
-    await readFile(resolve(repo, "src-tauri/tauri.conf.json"))
+  const config =
+    /** @type {import("../../src/models/config").LauncherConfig} */ (
+      configValue
+    );
+  const identity = parseRecord(
+    await readFile(resolve(repo, "src-tauri/tauri.conf.json"), "utf8")
   ).identifier;
+  assert.equal(typeof identity, "string");
+  if (typeof identity !== "string") throw new Error("Native identity required");
   const runtime = resolve(temp, "minecraft");
   const versionPath = resolve(runtime, "versions", INSTANCE);
   const world = resolve(versionPath, "saves", "NativeAcceptanceWorld");
@@ -172,6 +188,7 @@ with zipfile.ZipFile(sys.argv[2],'w') as z:
   };
 }
 
+/** @param {string} windowId @param {...string} keys */
 function nativeKey(windowId, ...keys) {
   execFileSync("python3", [
     "-c",
@@ -193,6 +210,7 @@ for key in sys.argv[2:]:
   ]);
 }
 
+/** @param {string} windowId @param {{x: number, y: number}} point */
 function nativeClick(windowId, point) {
   execFileSync("python3", [
     "-c",
@@ -212,6 +230,7 @@ t.XTestFakeMotionEvent(d,-1,a.value,b.value,0);x.XSync(d,0);t.XTestFakeButtonEve
   ]);
 }
 
+/** @param {import("./types").FollowupContext} context */
 export async function nativeFollowup({
   evaluate,
   delay,
@@ -225,6 +244,7 @@ export async function nativeFollowup({
   targets,
   refreshTargets,
 }) {
+  /** @type {import("./types").NativeReport} */
   const result = {
     startedAt: new Date().toISOString(),
     profileScope:
@@ -241,7 +261,12 @@ export async function nativeFollowup({
     resolve(out, "native-followup-result.json"),
     "utf8"
   )
-    .then(JSON.parse)
+    .then(
+      (text) =>
+        /** @type {Partial<import("./types").NativeReport>} */ (
+          parseRecord(text)
+        )
+    )
     .catch(() => null);
   if (previous) {
     result.checks = previous.checks || [];
@@ -276,7 +301,8 @@ export async function nativeFollowup({
     ).split(",")
   );
   let serial = 0;
-  async function invoke(command, args = {}, timeout = 60000) {
+  /** @param {string} command @param {object} [args] @param {number} [timeout] @returns {Promise<unknown>} */
+  async function invokeRaw(command, args = {}, timeout = 60000) {
     const key = `__nativeFollowup${++serial}`;
     await evaluate(
       `void window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)},${JSON.stringify(args)}).then(value=>window.${key}={value},error=>window.${key}={error:String(error)})`
@@ -284,8 +310,10 @@ export async function nativeFollowup({
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {
       const value = await evaluate(`window.${key}`);
-      if (value) {
+      if (isRecord(value)) {
         await evaluate(`delete window.${key}`);
+        if (value.error !== undefined && typeof value.error !== "string")
+          throw new Error("Native error string required");
         if (value.error) throw new Error(`${command}: ${value.error}`);
         return value.value;
       }
@@ -293,6 +321,8 @@ export async function nativeFollowup({
     }
     throw new Error(`${command}: timeout after ${timeout}ms`);
   }
+  const invoke = /** @type {import("./types").NativeInvoke} */ (invokeRaw);
+  /** @param {string} expression @param {number} [timeout] @param {string} [page] */
   async function until(expression, timeout = 30000, page) {
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {
@@ -302,16 +332,23 @@ export async function nativeFollowup({
     }
     throw new Error(`Timed out waiting for ${expression}`);
   }
+  /** @param {string} path */
   async function route(path) {
     await evaluate(`window.next.router.push(${JSON.stringify(path)})`);
     await until(`location.pathname===${JSON.stringify(path.split("?")[0])}`);
     await delay(500);
   }
+  /** @param {string} expression */
   async function clickElement(expression) {
     const point = await evaluate(
       `(() => {const element=${expression};element.scrollIntoView({block:'center'});const r=element.getBoundingClientRect();return {x:(r.left+r.width/2)*devicePixelRatio,y:(r.top+r.height/2)*devicePixelRatio};})()`
     );
-    nativeClick(windowId, point);
+    assert.ok(
+      isRecord(point) &&
+        typeof point.x === "number" &&
+        typeof point.y === "number"
+    );
+    nativeClick(windowId, { x: point.x, y: point.y });
     await delay(300);
   }
   function findChildWindow(pid = appPid) {
@@ -323,7 +360,8 @@ export async function nativeFollowup({
           line.match(/(?:[6-9]\d\d|\d{4})x(?:[4-9]\d\d|\d{4})[+-]/)
       )
       .map((line) => line.match(/0x[0-9a-f]+/)?.[0])
-      .filter((id) => id && id !== windowId)
+      .filter((id) => typeof id === "string")
+      .filter((id) => id !== windowId)
       .find(
         (id) =>
           Number(
@@ -333,8 +371,10 @@ export async function nativeFollowup({
           ) === pid
       );
   }
+  /** @param {string} key @param {() => Promise<unknown>} action */
   async function record(key, action) {
     if (!selected.has(key)) return;
+    /** @type {import("./types").NativeCheck} */
     const check = { name: key, startedAt: new Date().toISOString() };
     try {
       check.detail = await action();
@@ -381,9 +421,7 @@ export async function nativeFollowup({
     await route(
       `/instances/details/${encodeURIComponent(fixture.instanceId)}/worlds`
     );
-    const label = JSON.parse(
-      await readFile(resolve(repo, "src/locales/zh-Hans.json"))
-    ).InstanceWorldsPage.worldList.viewLevelData;
+    const label = locale.InstanceWorldsPage.worldList.viewLevelData;
     await until(
       `Array.from(document.querySelectorAll('button')).some(b => (b.getAttribute('aria-label')||b.title||b.textContent).includes(${JSON.stringify(label)}))`
     );
@@ -413,9 +451,9 @@ export async function nativeFollowup({
   });
   await record("crash", async () => {
     await route("/settings/global-game/advanced");
-    const labels = JSON.parse(
-      await readFile(resolve(repo, "src/locales/zh-Hans.json"))
-    ).GameAdvancedSettingsPage.workaround.settings.autoCloseGameCrashWindow;
+    const labels =
+      locale.GameAdvancedSettingsPage.workaround.settings
+        .autoCloseGameCrashWindow;
     await until(
       `document.body.textContent.includes(${JSON.stringify(labels.title)})`
     );
@@ -500,6 +538,7 @@ export async function nativeFollowup({
       page,
       "The actual failing Java process must automatically open the error page"
     );
+    const errorTarget = page.targetId;
     await until(
       `document.body.textContent.includes('秒后自动关闭')`,
       30000,
@@ -521,7 +560,7 @@ export async function nativeFollowup({
     );
     await delay(31000);
     assert.ok(
-      targets().some((t) => t.targetId === page.targetId),
+      targets().some((target) => target.targetId === errorTarget),
       "Click cancellation must keep the error window open beyond its countdown"
     );
     await evaluate(
@@ -567,25 +606,30 @@ export async function nativeFollowup({
     })
   );
   await record("repair", async () => {
-    let instance;
+    let candidate;
     const readyDeadline = Date.now() + 120000;
     while (Date.now() < readyDeadline) {
-      instance = (await invoke("retrieve_instance_list")).find(
+      candidate = (await invoke("retrieve_instance_list")).find(
         (i) => i.name === "NativeCleanroomAcceptance"
       );
-      if (instance?.modLoader.status === "Installed") break;
+      if (candidate?.modLoader.status === "Installed") break;
       await delay(400);
     }
-    assert.equal(instance?.modLoader.status, "Installed");
-    const prior = JSON.parse(
-      await readFile(
-        resolve(
-          repo,
-          "src-tauri/target/native-cleanroom-artifact-receipt.json"
-        ),
-        "utf8"
-      )
-    );
+    assert.equal(candidate?.modLoader.status, "Installed");
+    const instance = candidate;
+    assert.ok(instance);
+    const prior =
+      /** @type {{installerJars: {path: string, sha256: string}[]}} */ (
+        parseValue(
+          await readFile(
+            resolve(
+              repo,
+              "src-tauri/target/native-cleanroom-artifact-receipt.json"
+            ),
+            "utf8"
+          )
+        )
+      );
     const clientPath = resolve(instance.versionPath, `${instance.name}.jar`);
     const beforeClient = createHash("sha256")
       .update(await readFile(clientPath))
@@ -616,6 +660,7 @@ export async function nativeFollowup({
       )
     );
     const deadline = Date.now() + 240000;
+    /** @type {import("../../src/models/task").TaskGroupDesc[]} */
     let groups = [];
     let installed;
     while (Date.now() < deadline) {
@@ -646,18 +691,23 @@ export async function nativeFollowup({
         groups.map(({ taskGroup, status }) => ({ taskGroup, status }))
       )
     );
-    const manifest = JSON.parse(
+    /** @type {unknown} */
+    const manifestValue = JSON.parse(
       await readFile(
         resolve(instance.versionPath, `${instance.name}.json`),
         "utf8"
       )
+    );
+    const manifest = /** @type {import("./types").NativeManifest} */ (
+      manifestValue
     );
     const nativeRows = manifest.libraries.filter(
       (l) => l.natives && l.downloads?.classifiers
     );
     assert.ok(
       nativeRows.some(
-        (l) => l.name.startsWith("org.lwjgl:") && l.natives.linux
+        (library) =>
+          library.name.startsWith("org.lwjgl:") && library.natives?.linux
       ),
       "Actual installer processing must preserve the missing native rows"
     );
@@ -675,8 +725,8 @@ export async function nativeFollowup({
     const downloads = [];
     for (const file of await readdir(resolve(temp, "downloads"))) {
       if (!/^task-\d+\.json$/.test(file)) continue;
-      const task = JSON.parse(
-        await readFile(resolve(temp, "downloads", file), "utf8")
+      const task = /** @type {import("../../src/models/task").TaskDesc} */ (
+        parseValue(await readFile(resolve(temp, "downloads", file), "utf8"))
       );
       if (groups.some((group) => group.taskGroup === task.taskGroup))
         downloads.push({
@@ -692,13 +742,16 @@ export async function nativeFollowup({
     for (const library of nativeRows.filter(
       (row) =>
         row.name.startsWith("org.lwjgl:") &&
-        row.natives.linux === "natives-linux"
+        row.natives?.linux === "natives-linux"
     )) {
       const [group, name, version] = library.name.split(":");
       const path = `${group.replaceAll(".", "/")}/${name}/${version}/${name}-${version}-natives-linux.jar`;
       const bytes = await readFile(resolve(fixture.runtime, "libraries", path));
       const sha1 = createHash("sha1").update(bytes).digest("hex");
-      assert.equal(sha1, library.downloads.classifiers["natives-linux"].sha1);
+      assert.equal(
+        sha1,
+        library.downloads?.classifiers?.["natives-linux"].sha1
+      );
       nativeArtifacts.push({ path, sha1, bytes: bytes.length });
     }
     assert.ok(nativeArtifacts.length);
@@ -881,15 +934,17 @@ export async function nativeFollowup({
     );
     const players = await invoke("retrieve_player_list");
     assert.ok(players.some((p) => p.name === "NativeAcceptance"));
-    const device = previous.checks.find(
+    const device = previous?.checks?.find(
       (c) => c.name === "device" && c.status === "passed"
     );
     if (device) {
       assert.notEqual(device.nativeProcessPid, appPid);
+      assert.ok(isRecord(device.detail));
+      const playerId = device.detail.playerId;
       assert.ok(
         players.some(
           (p) =>
-            p.id === device.detail.playerId &&
+            p.id === playerId &&
             p.name === "NativeDevice" &&
             p.playerType === "3rdparty"
         )
@@ -942,11 +997,14 @@ export async function nativeFollowup({
   });
   await record("download", async () => {
     const bytes = Buffer.alloc(4 * 1024 * 1024, 83);
+    /** @type {{method?: string, range: string | null}[]} */
     const requests = [];
+    /** @type {Set<ReturnType<typeof setInterval>>} */
     const intervals = new Set();
     const server = createServer((req, res) => {
       const start = Number(req.headers.range?.match(/bytes=(\d+)-/)?.[1] || 0);
       requests.push({ method: req.method, range: req.headers.range || null });
+      /** @type {import("node:http").OutgoingHttpHeaders} */
       const headers = {
         "Content-Length": bytes.length - start,
         "Accept-Ranges": "bytes",
@@ -977,7 +1035,10 @@ export async function nativeFollowup({
         intervals.delete(timer);
       });
     });
-    await new Promise((r) => server.listen(0, "127.0.0.1", r));
+    await new Promise((r) => server.listen(0, "127.0.0.1", () => r(undefined)));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const port = address.port;
     const group = "native-followup-download";
     const destination = resolve(temp, "paused-download.bin");
     const schedule = () =>
@@ -987,7 +1048,7 @@ export async function nativeFollowup({
         params: [
           {
             taskType: "download",
-            src: `http://127.0.0.1:${server.address().port}/fixture`,
+            src: `http://127.0.0.1:${port}/fixture`,
             dest: destination,
             sha1: createHash("sha1").update(bytes).digest("hex"),
           },
@@ -1009,11 +1070,12 @@ export async function nativeFollowup({
       await invoke("stop_progressive_task_group", { taskGroup: group });
       await delay(350);
       const paused = await state();
+      assert.ok(paused);
       assert.equal(paused.status, "Stopped");
       const progress = paused.taskDescs.map((t) => t.current);
       await delay(600);
       assert.deepEqual(
-        (await state()).taskDescs.map((t) => t.current),
+        (await state())?.taskDescs.map((t) => t.current),
         progress
       );
       await route("/downloads");
@@ -1024,7 +1086,7 @@ export async function nativeFollowup({
       await invoke("resume_progressive_task_group", { taskGroup: group });
       for (let i = 0; i < 200; i++) {
         item = await state();
-        if (["Completed", "Failed"].includes(item?.status)) break;
+        if (item && ["Completed", "Failed"].includes(item.status)) break;
         await delay(100);
       }
       assert.equal(item?.status, "Completed", JSON.stringify(item));
@@ -1037,7 +1099,7 @@ export async function nativeFollowup({
         params: [
           {
             taskType: "download",
-            src: `http://127.0.0.1:${server.address().port}/cancel`,
+            src: `http://127.0.0.1:${port}/cancel`,
             dest: resolve(temp, "cancel-download.bin"),
           },
         ],
@@ -1106,7 +1168,7 @@ export async function nativeFollowup({
       90000
     );
     assert.ok(
-      response.list?.length || response.resources?.length || response.total > 0,
+      response.list.length || response.total > 0,
       JSON.stringify(response)
     );
     await route("/discover/resource?type=mod");
@@ -1136,7 +1198,7 @@ export async function nativeFollowup({
     return {
       query,
       total: response.total,
-      resources: (response.list || response.resources || [])
+      resources: response.list
         .slice(0, 5)
         .map((r) => ({ id: r.id, name: r.name })),
     };
@@ -1199,13 +1261,16 @@ export async function nativeFollowup({
           "Native loader installation failed"
         );
         if (instance?.modLoader.status === "Installed") {
-          const saved = JSON.parse(
+          const saved = parseRecord(
             await readFile(
-              resolve(fixture.runtime, "versions", name, "sjmclcfg.json")
+              resolve(fixture.runtime, "versions", name, "sjmclcfg.json"),
+              "utf8"
             )
           );
-          assert.equal(saved.modLoader.status, "Installed");
-          assert.equal(saved.modLoader.loaderType, "Cleanroom");
+          const modLoader = saved.modLoader;
+          assert.ok(isRecord(modLoader));
+          assert.equal(modLoader.status, "Installed");
+          assert.equal(modLoader.loaderType, "Cleanroom");
           const profile = await stat(
             resolve(fixture.runtime, "versions", name, "install_profile.json")
           );

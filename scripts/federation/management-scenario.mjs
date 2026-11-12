@@ -6,9 +6,11 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { promisify } from "node:util";
+import { parseRecord, objectValue } from "../json.cjs";
 
 const exec = promisify(execFile);
 
+/** @param {import("../launcher/types").CaptureContext} context */
 export async function managementScenario({
   evaluate,
   delay,
@@ -34,16 +36,22 @@ export async function managementScenario({
     repo,
     "../federated-server/target/debug/federated-server"
   );
-  const locale = JSON.parse(
-    await readFile(resolve(repo, "src/locales/zh-Hans.json"), "utf8")
-  );
+  const locale =
+    /** @type {typeof import("../../src/locales/zh-Hans.json")} */ (
+      parseRecord(
+        await readFile(resolve(repo, "src/locales/zh-Hans.json"), "utf8")
+      )
+    );
+  /** @param {string[]} args */
   const run = async (args) =>
     (await exec(driver, args, { timeout: 30_000 })).stdout.trim();
+  /** @param {string} name @param {unknown} value */
   const save = async (name, value) => {
     const file = resolve(temp, name);
     await writeFile(file, JSON.stringify(value), { mode: 0o600 });
     return file;
   };
+  /** @param {string} expression @param {string} description */
   async function until(expression, description) {
     for (let i = 0; i < 100; i++) {
       if (await evaluate(`Boolean(${expression})`)) return;
@@ -60,22 +68,27 @@ export async function managementScenario({
     throw new Error(`Timed out: ${description}`);
   }
   let invocation = 0;
+  /** @param {string} command @param {object} [args] */
   async function native(command, args = {}) {
     const key = `__managementResult${++invocation}`;
     await evaluate(
       `void (async()=>{try {window[${JSON.stringify(key)}]={value:await window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)},${JSON.stringify(args)})}}catch(error){window[${JSON.stringify(key)}]={error:String(error)}}})()`
     );
     await until(`Boolean(window[${JSON.stringify(key)}])`, command);
-    const result = await evaluate(`window[${JSON.stringify(key)}]`);
-    assert.ok(!result.error, result.error);
-    return result.value;
+    const result = objectValue(
+      await evaluate(`window[${JSON.stringify(key)}]`)
+    );
+    assert.ok(!result.error, String(result.error));
+    return objectValue(result.value);
   }
+  /** @param {string} label @param {boolean} [last] */
   async function button(label, last = false) {
     const expression = `Array.from(document.querySelectorAll('button')).filter(b=>b.textContent.trim()===${JSON.stringify(label)} && b.getClientRects().length && !b.disabled)`;
     await until(`${expression}.length > 0`, `button ${label}`);
     await evaluate(`${expression}.${last ? "at(-1)" : "at(0)"}.click()`);
     await delay(250);
   }
+  /** @param {string} label */
   async function expand(label) {
     const expression = `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.trim()===${JSON.stringify(label)} && b.getAttribute('aria-expanded')==='false')`;
     await evaluate(`${expression}?.click()`);
@@ -87,6 +100,7 @@ export async function managementScenario({
       "submitted record"
     );
   }
+  /** @param {string} id @param {unknown} value */
   async function input(id, value) {
     await until(`!!document.getElementById(${JSON.stringify(id)})`, id);
     await evaluate(
@@ -98,6 +112,7 @@ export async function managementScenario({
     evaluate(
       `Array.from(document.querySelectorAll('textarea')).find(e=>e.getAttribute('aria-label')===${JSON.stringify(locale.IdentityFlow.export)})?.value || ''`
     );
+  /** @param {string} action @param {Record<string, string | string[]>} fields */
   async function draft(action, fields) {
     await input("identity-action-kind", action);
     if (action === "register_service" && !fields.service) {
@@ -109,8 +124,12 @@ export async function managementScenario({
     }
     for (const [key, value] of Object.entries(fields)) {
       if (key === "evidence") {
+        assert.ok(Array.isArray(value));
         for (const choice of value) {
-          const label = locale.IdentityManagement.evidence[choice];
+          const label = Object.entries(locale.IdentityManagement.evidence).find(
+            ([key]) => key === choice
+          )?.[1];
+          assert.ok(label);
           await evaluate(
             `Array.from(document.querySelectorAll('label')).find(el=>el.textContent.trim()===${JSON.stringify(label)})?.click()`
           );
@@ -124,10 +143,15 @@ export async function managementScenario({
       `Array.from(document.querySelectorAll('textarea')).some(e=>e.getAttribute('aria-label')===${JSON.stringify(locale.IdentityFlow.export)} && JSON.parse(e.value).signatures.length>0)`,
       "signed record export"
     );
-    const record = JSON.parse(await exported());
-    assert.ok(record.signatures.length > 0);
+    const exportedValue = await exported();
+    assert.equal(typeof exportedValue, "string");
+    if (typeof exportedValue !== "string")
+      throw new Error("Exported record required");
+    const record = parseRecord(exportedValue);
+    assert.ok(Array.isArray(record.signatures) && record.signatures.length > 0);
     return record;
   }
+  /** @type {import("node:child_process").ChildProcess | undefined} */
   let host;
   async function stopHost() {
     if (host && host.exitCode === null) {
@@ -136,16 +160,18 @@ export async function managementScenario({
       await exited;
     }
   }
+  /** @param {object} config @returns {Promise<{addresses: string[]}>} */
   async function start(config) {
     const path = await save("node.json", config);
-    host = spawn(driver, ["run", "--config", path], {
+    const child = spawn(driver, ["run", "--config", path], {
       stdio: ["ignore", "pipe", "pipe"],
     });
+    host = child;
     let diagnostics = "";
-    host.stderr.on("data", (bytes) => {
+    child.stderr.on("data", (bytes) => {
       diagnostics = (diagnostics + bytes).slice(-4096);
     });
-    const lines = createInterface({ input: host.stdout });
+    const lines = createInterface({ input: child.stdout });
     return new Promise((resolve, reject) => {
       const timer = setTimeout(
         () => reject(new Error(`Host startup timeout: ${diagnostics}`)),
@@ -153,14 +179,20 @@ export async function managementScenario({
       );
       lines.on("line", (line) => {
         try {
-          const value = JSON.parse(line);
-          if (value.peer) {
+          const value = parseRecord(line);
+          if (value.peer && Array.isArray(value.addresses)) {
             clearTimeout(timer);
-            resolve(value);
+            /** @type {unknown[]} */
+            const addresses = value.addresses;
+            resolve({
+              addresses: addresses.filter(
+                (address) => typeof address === "string"
+              ),
+            });
           }
         } catch {}
       });
-      host.once("exit", () => {
+      child.once("exit", () => {
         clearTimeout(timer);
         reject(new Error(`Host exited: ${diagnostics}`));
       });
@@ -187,6 +219,7 @@ export async function managementScenario({
     const genesis = await save("identity-genesis.json", root.genesis);
     const key = resolve(temp, "node.key");
     const peer = await run(["keygen", "--out", key]);
+    /** @type {{node: {key: string, listen: string[]}, services: Record<string, unknown>}} */
     const config = {
       node: { key, listen: ["/ip4/127.0.0.1/tcp/0"] },
       services: {
@@ -216,7 +249,8 @@ export async function managementScenario({
       audience: peer,
       club: "school",
     });
-    const service = registration.action.service;
+    const service = objectValue(registration.action).service;
+    assert.ok(typeof service === "string");
     const unsigned = await save("registration.json", registration);
     const signedPath = resolve(temp, "registration-signed.json");
     await run([
@@ -245,7 +279,10 @@ export async function managementScenario({
     const facts = await native("union_identity_action", {
       operation: { operation: "sync" },
     });
-    assert.equal(facts.permissions["desktop-admin"].permission, "admin");
+    assert.equal(
+      objectValue(objectValue(facts.permissions)["desktop-admin"]).permission,
+      "admin"
+    );
     await draft("authorize_verifier", {
       id: "desktop-verifier",
       club: "school",
@@ -257,9 +294,11 @@ export async function managementScenario({
     const verifiedFacts = await native("union_identity_action", {
       operation: { operation: "sync" },
     });
-    assert.deepEqual(verifiedFacts.verifiers["desktop-verifier"].evidence, [
-      "institutional_email",
-    ]);
+    assert.deepEqual(
+      objectValue(objectValue(verifiedFacts.verifiers)["desktop-verifier"])
+        .evidence,
+      ["institutional_email"]
+    );
     await shot(
       "management-identity",
       "真实表单登记服务、合签、授权；通过真实身份节点提交"
@@ -324,7 +363,10 @@ export async function managementScenario({
       ],
       { timeout: 30_000 }
     );
-    const anchor = JSON.parse(await readFile(actionFile, "utf8"));
+    const anchor = parseRecord(await readFile(actionFile, "utf8"));
+    assert.ok(
+      typeof anchor.id === "string" && typeof anchor.digest === "string"
+    );
     await input("anchor-id", anchor.id);
     await input("anchor-digest", anchor.digest);
     await button(locale.IdentityFlow.review);
@@ -333,7 +375,9 @@ export async function managementScenario({
       input: { address, peer, genesis_hash: pin },
     });
     assert.equal(
-      snapshot.state.digest_anchors[anchor.id].digest,
+      objectValue(
+        objectValue(objectValue(snapshot.state).digest_anchors)[anchor.id]
+      ).digest,
       anchor.digest
     );
     await exec(
@@ -346,7 +390,11 @@ export async function managementScenario({
         "--summary",
         summary,
         "--digest",
-        snapshot.state.digest_anchors[anchor.id].digest,
+        String(
+          objectValue(
+            objectValue(objectValue(snapshot.state).digest_anchors)[anchor.id]
+          ).digest
+        ),
       ],
       { timeout: 30_000 }
     );
@@ -358,7 +406,11 @@ export async function managementScenario({
     const updated = await native("union_governance", {
       input: { address, peer, genesis_hash: pin },
     });
-    assert.deepEqual(updated.state.members.founder.roles, ["reviewer"]);
+    assert.deepEqual(
+      objectValue(objectValue(objectValue(updated.state).members).founder)
+        .roles,
+      ["reviewer"]
+    );
     await button(locale.BusinessAdmin.add);
     for (const [label, value] of [
       [locale.BusinessAdmin.nodeId, "1"],
@@ -375,7 +427,12 @@ export async function managementScenario({
     const withReplicas = await native("union_governance", {
       input: { address, peer, genesis_hash: pin },
     });
-    assert.equal(withReplicas.state.consensus_members["1"].peer, peer);
+    assert.equal(
+      objectValue(
+        objectValue(objectValue(withReplicas.state).consensus_members)["1"]
+      ).peer,
+      peer
+    );
     await shot("management-business", "真实联赛治理提交审计摘要与成员业务角色");
     await stopHost();
     await evaluate("window.next.router.push('/settings/federation')");

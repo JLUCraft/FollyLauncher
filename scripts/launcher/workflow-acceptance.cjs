@@ -1,9 +1,10 @@
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
-const { mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
+const { mkdirSync, rmSync, writeFileSync } = require("node:fs");
 const path = require("node:path");
-const { chromium } = require(
-  process.env.PLAYWRIGHT_MODULE || "playwright-core"
+const { loadResults } = require("./results.cjs");
+const { chromium } = /** @type {typeof import("playwright-core")} */ (
+  require(process.env.PLAYWRIGHT_MODULE || "playwright-core")
 );
 const repo = path.resolve(__dirname, "../..");
 const output = path.resolve(
@@ -11,9 +12,7 @@ const output = path.resolve(
 );
 const base = process.env.LAUNCHER_TEST_URL || "http://localhost:3000";
 const fixture = path.join(repo, "out/launcher-workflow-mock.js");
-const locale = JSON.parse(
-  readFileSync(path.join(repo, "src/locales/zh-Hans.json"))
-);
+const locale = require("../../src/locales/zh-Hans.json");
 mkdirSync(output, { recursive: true });
 execFileSync("bun", [
   "build",
@@ -27,7 +26,7 @@ execFileSync("bun", [
 ]);
 const results =
   process.env.LAUNCHER_TEST_RESUME === "1"
-    ? JSON.parse(readFileSync(path.join(output, "results.json"))).filter(
+    ? loadResults(path.join(output, "results.json")).filter(
         (result) => result.status === "passed"
       )
     : [];
@@ -39,6 +38,7 @@ const results =
     headless: true,
     args: ["--no-sandbox"],
   });
+  /** @param {string} name @param {string} scenario @param {string} route @param {(page: import("playwright-core").Page) => Promise<void>} action */
   async function run(name, scenario, route, action) {
     if (
       results.some(
@@ -49,6 +49,7 @@ const results =
     const page = await browser.newPage({
       viewport: { width: 1100, height: 750 },
     });
+    /** @type {string[]} */
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     let consoleErrors = 0;
@@ -61,7 +62,7 @@ const results =
       const response = await page.goto(
         `${base}${route}?test-scenario=${scenario}`
       );
-      assert.ok(response.ok());
+      assert.ok(response?.ok());
       await page.getByRole("button").first().waitFor();
       await action(page);
       assert.deepEqual(errors, []);
@@ -96,6 +97,7 @@ const results =
       await page.close();
     }
   }
+  /** @param {import("playwright-core").Page} page @param {string} cmd */
   const calls = (page, cmd) =>
     page.evaluate(
       (cmd) => window.calls.filter((call) => call.cmd === cmd),
@@ -104,8 +106,8 @@ const results =
   try {
     await run("home-empty-setup", "empty", "/launch", async (page) => {
       const main = page.locator("#main-launch-button");
-      await page.waitForFunction(
-        () => !document.querySelector("#main-launch-button").disabled
+      await page.waitForFunction(() =>
+        document.querySelector("#main-launch-button")?.matches(":enabled")
       );
       assert.ok(
         (await main.innerText()).includes(
@@ -224,8 +226,8 @@ const results =
       "/launch",
       async (page) => {
         const main = page.locator("#main-launch-button");
-        await page.waitForFunction(
-          () => !document.querySelector("#main-launch-button").disabled
+        await page.waitForFunction(() =>
+          document.querySelector("#main-launch-button")?.matches(":enabled")
         );
         assert.ok(
           (await main.innerText()).includes(
@@ -253,8 +255,8 @@ const results =
       "selection",
       "/launch",
       async (page) => {
-        await page.waitForFunction(
-          () => !document.querySelector("#main-launch-button").disabled
+        await page.waitForFunction(() =>
+          document.querySelector("#main-launch-button")?.matches(":enabled")
         );
         await page.locator("#main-launch-button").click();
         const picker = page.getByRole("dialog", {
@@ -298,8 +300,8 @@ const results =
       "ready",
       "/launch",
       async (page) => {
-        await page.waitForFunction(
-          () => !document.querySelector("#main-launch-button").disabled
+        await page.waitForFunction(() =>
+          document.querySelector("#main-launch-button")?.matches(":enabled")
         );
         await page.locator("#main-launch-button").click();
         await page.waitForFunction(() =>
@@ -337,11 +339,13 @@ const results =
             exact: true,
           })
           .click();
-        await page.waitForFunction(() =>
-          document
-            .querySelector("#identity-setup")
-            ?.value.includes("acceptance")
-        );
+        await page.waitForFunction(() => {
+          const input = document.querySelector("#identity-setup");
+          return (
+            input instanceof HTMLTextAreaElement &&
+            input.value.includes("acceptance")
+          );
+        });
         assert.equal(
           (await calls(page, "union_identity_configuration")).filter(
             (call) => call.args.config !== null

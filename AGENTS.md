@@ -177,7 +177,14 @@ Use Conventional Commits for commit messages and pull request titles. Describe t
 Every batch must pass `bun run check` and `bun run locale diff en` before review
 and commit. Run `bun run format` to apply Oxfmt formatting. `check` runs format
 checking, strict TypeScript checking, type-aware Oxlint with zero warnings, and
-the existing framework ESLint rules. Include authored TypeScript scripts and
-tests in the project. Do not use `any` or suppress unsafe-value rules to make
-checks pass. Keep external values as `unknown` until narrowed. Preserve this
-tooling when rebuilding the launcher from upstream.
+the existing framework ESLint rules. Include all authored JavaScript and
+TypeScript, including configuration, scripts, and tests. JavaScript uses
+`checkJs` and JSDoc types with the same unsafe-value rules. Application and
+Node scripts use their respective TypeScript projects; keep browser fixtures
+scoped to the scripts project. Do not use `any` or suppress unsafe-value rules
+to make checks pass. Keep external values as `unknown` until narrowed.
+Preserve this tooling when rebuilding the launcher from upstream.
+
+Shared native command identifiers belong to `src/services/commands.ts`.
+Service calls and script result types consume the same bindings. Register
+actual invocations; event listeners do not belong in the command bindings.

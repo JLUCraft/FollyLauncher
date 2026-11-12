@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { parseRecord } = require("../json.cjs");
 
 const brandId = process.argv[2];
 
@@ -16,7 +17,9 @@ if (!fs.existsSync(brandPath)) {
   process.exit(1);
 }
 
-const brand = JSON.parse(fs.readFileSync(brandPath, "utf8"));
+const brand = /** @type {typeof import("../../src/brand.gen.json")} */ (
+  parseRecord(fs.readFileSync(brandPath, "utf8"))
+);
 
 if (brand.id !== brandId) {
   console.error(
@@ -40,7 +43,10 @@ if (!/^[a-z][a-z0-9+.-]*$/.test(brand.deeplinkScheme)) {
 
 // Rewrite native identity in tauri.conf.json.
 const tauriConfigPath = path.join(repoRoot, "src-tauri/tauri.conf.json");
-const tauriConfig = JSON.parse(fs.readFileSync(tauriConfigPath, "utf8"));
+const tauriConfig =
+  /** @type {typeof import("../../src-tauri/tauri.conf.json")} */ (
+    parseRecord(fs.readFileSync(tauriConfigPath, "utf8"))
+  );
 tauriConfig.productName = brand.productName;
 tauriConfig.identifier = brand.identifier;
 tauriConfig.bundle.copyright = brand.copyright;
@@ -76,7 +82,10 @@ for (const platform of ["linux", "windows", "macos"]) {
     "src-tauri",
     `tauri.${platform}.conf.json`
   );
-  const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  const config =
+    /** @type {Partial<Omit<typeof tauriConfig, "app">> & {app?: {windows?: {label?: string, title?: string}[]}}} */ (
+      parseRecord(fs.readFileSync(configPath, "utf8"))
+    );
   delete config.identifier;
   for (const window of config.app?.windows || []) {
     if (window.label === "main") window.title = brand.productName;

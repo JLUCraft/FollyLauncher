@@ -1,19 +1,22 @@
 const fs = require("fs");
 const path = require("path");
+const { isRecord, parseRecord } = require("../json.cjs");
 
 // Recursively remove keys from target that don't exist in source
+/** @param {unknown} source @param {unknown} target @returns {unknown} */
 function removeExtraKeys(source, target) {
   // If target is not an object, return it as-is
-  if (typeof target !== "object" || target === null || Array.isArray(target)) {
+  if (!isRecord(target)) {
     return target;
   }
 
   // If source is not an object structure, but target is an object,
   // return empty object to prune all keys in target
-  if (typeof source !== "object" || source === null || Array.isArray(source)) {
+  if (!isRecord(source)) {
     return {};
   }
 
+  /** @type {Record<string, unknown>} */
   const result = {};
 
   // Only keep keys that exist in source
@@ -37,6 +40,7 @@ function removeExtraKeys(source, target) {
   return result;
 }
 
+/** @param {string} source @param {string} target */
 function removeRedundantKeys(source, target) {
   // Define paths for source and target locale files
   const sourceFile = path.join(
@@ -65,7 +69,7 @@ function removeRedundantKeys(source, target) {
 
     let sourceLocaleData;
     try {
-      sourceLocaleData = JSON.parse(sourceData);
+      sourceLocaleData = parseRecord(sourceData);
     } catch (parseErr) {
       console.error(`Error parsing JSON from ${sourceFile}:`, parseErr);
       process.exit(1);
@@ -87,7 +91,7 @@ function removeRedundantKeys(source, target) {
 
         let targetLocaleData;
         try {
-          targetLocaleData = JSON.parse(targetData);
+          targetLocaleData = parseRecord(targetData);
         } catch (parseErr) {
           console.error(`Error parsing JSON from ${targetFile}:`, parseErr);
           process.exit(1);

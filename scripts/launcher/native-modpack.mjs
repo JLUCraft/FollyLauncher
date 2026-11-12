@@ -4,7 +4,9 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
+import { parseRecord } from "../json.cjs";
 
+/** @param {import("./types").ScenarioContext} context */
 export async function modpackScenario({
   fixture,
   temp,
@@ -17,13 +19,20 @@ export async function modpackScenario({
     fixture.runtime,
     "versions/NativeCleanroomAcceptance"
   );
-  const profile = JSON.parse(
-    await readFile(resolve(installed, "NativeCleanroomAcceptance.json"))
-  );
+  const profile =
+    /** @type {{patches: {version: string, downloads?: {client: {sha1: string, url: string}}}[]}} */ (
+      parseRecord(
+        await readFile(
+          resolve(installed, "NativeCleanroomAcceptance.json"),
+          "utf8"
+        )
+      )
+    );
   const base = structuredClone(
-    profile.patches.find((p) => p.downloads?.client)
+    profile.patches.find((patch) => patch.downloads?.client)
   );
   assert.ok(base, "Use the genuine cached Minecraft base profile");
+  assert.ok(base.downloads);
   const version = base.version;
   assert.equal(version, "1.12.2");
   const client = await readFile(
@@ -34,6 +43,7 @@ export async function modpackScenario({
     createHash("sha1").update(client).digest("hex"),
     base.downloads.client.sha1
   );
+  /** @type {{method?: string, path?: string}[]} */
   const requests = [];
   const server = createServer((request, response) => {
     requests.push({ method: request.method, path: request.url });
@@ -44,8 +54,12 @@ export async function modpackScenario({
     response.writeHead(200, { "Content-Length": bytes.length });
     response.end(bytes);
   });
-  await new Promise((done) => server.listen(0, "127.0.0.1", done));
-  const origin = `http://127.0.0.1:${server.address().port}`;
+  await new Promise((done) =>
+    server.listen(0, "127.0.0.1", () => done(undefined))
+  );
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
+  const origin = `http://127.0.0.1:${address.port}`;
   base.downloads.client.url = origin + "/client.jar";
   const archive = resolve(temp, "native-local.mrpack");
   const override = "Controlled native Modrinth override\n";
@@ -101,7 +115,8 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
       },
       90000
     );
-    let tasks;
+    /** @type {import("../../src/models/task").TaskGroupDesc[]} */
+    let tasks = [];
     for (let i = 0; i < 300; i++) {
       tasks = (await invoke("retrieve_progressive_task_list")).filter(
         (t) => !before.has(t.taskGroup)

@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { MemoryInfo, WindowConfig } from "@/models/misc";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -33,7 +34,7 @@ export class UtilsService {
    */
   @responseHandler("utils")
   static async retrieveFontList(): Promise<InvokeResponse<string[]>> {
-    return await invoke("retrieve_truetype_font_list");
+    return await invoke(nativeCommands.utils.retrieveFontList);
   }
 
   /**
@@ -73,7 +74,10 @@ export class UtilsService {
     config: WindowConfig,
     customOverlaid: boolean
   ): Promise<InvokeResponse<void>> {
-    return await invoke("create_window", { config, customOverlaid });
+    return await invoke(nativeCommands.utils.createWindow, {
+      config,
+      customOverlaid,
+    });
   }
 
   /**

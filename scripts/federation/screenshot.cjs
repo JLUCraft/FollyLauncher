@@ -1,7 +1,7 @@
 // Screenshot helper for the union surfaces. Not part of the app.
-const {
-  chromium,
-} = require("/home/yizhou/Fughetta/admin/node_modules/playwright-core");
+const { chromium } = /** @type {typeof import("playwright-core")} */ (
+  require(process.env.PLAYWRIGHT_MODULE || "playwright-core")
+);
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 
@@ -23,6 +23,7 @@ const CHROMIUM =
     viewport: { width: 1280, height: 850 },
   });
   page.on("pageerror", (e) => console.error("PAGEERROR:", e.message));
+  /** @param {string} extra */
   const init = (extra) => `${mock}\nwindow.testHandlers = { ${extra} };`;
 
   if (scenario === "disconnected") {

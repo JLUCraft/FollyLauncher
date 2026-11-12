@@ -7,6 +7,7 @@ import {
   TaskGroupDesc,
   TaskParam,
 } from "@/models/task";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 export const TASK_PROGRESS_UPDATE_EVENT = "task:progress-update";
@@ -30,7 +31,7 @@ export class TaskService {
     params: TaskParam[],
     withTimestamp: boolean = true
   ): Promise<InvokeResponse<TaskGroupDesc>> {
-    return await invoke("schedule_progressive_task_group", {
+    return await invoke(nativeCommands.task.scheduleProgressiveTaskGroup, {
       taskGroup,
       params,
       withTimestamp,
@@ -83,7 +84,9 @@ export class TaskService {
   static async cancelProgressiveTaskGroup(
     taskGroup: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("cancel_progressive_task_group", { taskGroup });
+    return await invoke(nativeCommands.task.cancelProgressiveTaskGroup, {
+      taskGroup,
+    });
   }
 
   /**
@@ -96,7 +99,9 @@ export class TaskService {
   static async stopProgressiveTaskGroup(
     taskGroup: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("stop_progressive_task_group", { taskGroup });
+    return await invoke(nativeCommands.task.stopProgressiveTaskGroup, {
+      taskGroup,
+    });
   }
 
   /**
@@ -108,7 +113,9 @@ export class TaskService {
   static async resumeProgressiveTaskGroup(
     taskGroup: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("resume_progressive_task_group", { taskGroup });
+    return await invoke(nativeCommands.task.resumeProgressiveTaskGroup, {
+      taskGroup,
+    });
   }
 
   /**
@@ -121,7 +128,9 @@ export class TaskService {
   static async deleteProgressiveTaskGroup(
     taskGroup: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("delete_progressive_task_group", { taskGroup });
+    return await invoke(nativeCommands.task.deleteProgressiveTaskGroup, {
+      taskGroup,
+    });
   }
 
   /**
@@ -132,7 +141,7 @@ export class TaskService {
   static async retrieveProgressiveTaskList(): Promise<
     InvokeResponse<TaskGroupDesc[]>
   > {
-    return await invoke("retrieve_progressive_task_list");
+    return await invoke(nativeCommands.task.retrieveProgressiveTaskList);
   }
 
   /**

@@ -68,6 +68,8 @@ Branding is data-driven: it is defined by `brands/<id>/brand.json` and applied w
 
 Builds, CI, and the commit hook run `bun run check`. See
 [AGENTS.md](AGENTS.md#typescript-quality) for the development check policy.
+`bun run typecheck` checks the application and the Node scripts in separate
+TypeScript projects. JavaScript files are checked through `checkJs` and JSDoc.
 
 We welcome contributions and bug reports through [GitHub Issues](https://github.com/JLUCraft/FollyLauncher/issues). More developer notes are available in the [technical documentation](https://www.jlucraft.com/tech/clients).
 

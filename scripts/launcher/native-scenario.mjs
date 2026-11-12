@@ -3,28 +3,36 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
+import { isRecord } from "../json.cjs";
 
 // Run only in capture-tutorial's disposable native profile.
+/** @param {Pick<import("./types").CaptureContext, "evaluate" | "delay" | "temp" | "out">} context */
 export async function launcherScenario({ evaluate, delay, temp, out }) {
+  /** @type {{name: string, status: "passed" | "failed", detail?: unknown, error?: string}[]} */
   const checks = [];
   let serial = 0;
-  async function invoke(command, args = {}, expectError = false) {
+  /** @param {string} command @param {object} [args] @param {boolean} [expectError] @returns {Promise<unknown>} */
+  async function invokeRaw(command, args = {}, expectError = false) {
     const key = `__launcherAcceptance${++serial}`;
     await evaluate(
       `void window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)},${JSON.stringify(args)}).then(value=>window.${key}={value},error=>window.${key}={error:String(error)})`
     );
     for (let attempt = 0; attempt < 150; attempt++) {
       const result = await evaluate(`window.${key}`);
-      if (result) {
+      if (isRecord(result)) {
         await evaluate(`delete window.${key}`);
         if (expectError) assert.ok(result.error, `${command} must reject`);
-        else assert.ok(!result.error, `${command}: ${result.error}`);
+        else assert.ok(!result.error, `${command}: ${String(result.error)}`);
         return expectError ? result.error : result.value;
       }
       await delay(200);
     }
     throw new Error(`Native command timed out: ${command}`);
   }
+  const invoke = /** @type {import("./types").CheckedNativeInvoke} */ (
+    invokeRaw
+  );
+  /** @param {string} name @param {() => Promise<unknown>} action */
   async function record(name, action) {
     try {
       const detail = await action();
@@ -104,6 +112,7 @@ export async function launcherScenario({ evaluate, delay, temp, out }) {
   const bytes = Buffer.from(
     "JLUCraft native download acceptance\n".repeat(2048)
   );
+  /** @type {{method?: string, range?: string}[]} */
   const requests = [];
   const server = createServer((request, response) => {
     requests.push({ method: request.method, range: request.headers.range });
@@ -112,8 +121,10 @@ export async function launcherScenario({ evaluate, delay, temp, out }) {
   });
   await new Promise((done, reject) => {
     server.once("error", reject);
-    server.listen(0, "127.0.0.1", done);
+    server.listen(0, "127.0.0.1", () => done(undefined));
   });
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
   try {
     await record("native download, SHA-1, task list and deletion", async () => {
       const destination = resolve(temp, "acceptance-download.bin");
@@ -124,7 +135,7 @@ export async function launcherScenario({ evaluate, delay, temp, out }) {
         params: [
           {
             taskType: "download",
-            src: `http://127.0.0.1:${server.address().port}/fixture`,
+            src: `http://127.0.0.1:${address.port}/fixture`,
             dest: destination,
             sha1: createHash("sha1").update(bytes).digest("hex"),
           },

@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const { isRecord, parseRecord } = require("../json.cjs");
 
 // Recursively add "%TODO " to all string values
+/** @param {unknown} value @returns {unknown} */
 function addTodoPlaceholder(value) {
   if (typeof value === "string") {
     // Prepend "%TODO " if not already present
@@ -10,7 +12,8 @@ function addTodoPlaceholder(value) {
   if (Array.isArray(value)) {
     return value.map(addTodoPlaceholder);
   }
-  if (typeof value === "object" && value !== null) {
+  if (isRecord(value)) {
+    /** @type {Record<string, unknown>} */
     const result = {};
     for (const key in value) {
       result[key] = addTodoPlaceholder(value[key]);
@@ -21,6 +24,7 @@ function addTodoPlaceholder(value) {
   return value;
 }
 
+/** @param {Record<string, unknown>} source @param {Record<string, unknown>} target @returns {Record<string, unknown>} */
 function mergeWithPlaceholder(source, target) {
   const result = { ...target };
   for (const key in source) {
@@ -29,20 +33,14 @@ function mergeWithPlaceholder(source, target) {
       result[key] = addTodoPlaceholder(source[key]);
     }
     // If both are objects, recursively merge them
-    else if (
-      typeof source[key] === "object" &&
-      source[key] !== null &&
-      !Array.isArray(source[key]) &&
-      typeof target[key] === "object" &&
-      target[key] !== null &&
-      !Array.isArray(target[key])
-    ) {
+    else if (isRecord(source[key]) && isRecord(target[key])) {
       result[key] = mergeWithPlaceholder(source[key], target[key]);
     }
   }
   return result;
 }
 
+/** @param {string} source @param {string} target */
 function generatePlaceholder(source, target) {
   // Define paths for source and target locale files
   const sourceFile = path.join(
@@ -71,7 +69,7 @@ function generatePlaceholder(source, target) {
 
     let sourceLocaleData;
     try {
-      sourceLocaleData = JSON.parse(sourceData);
+      sourceLocaleData = parseRecord(sourceData);
     } catch (parseErr) {
       console.error(`Error parsing JSON from ${sourceFile}:`, parseErr);
       process.exit(1);
@@ -104,7 +102,7 @@ function generatePlaceholder(source, target) {
 
           let targetLocaleData;
           try {
-            targetLocaleData = JSON.parse(targetData);
+            targetLocaleData = parseRecord(targetData);
           } catch (parseErr) {
             console.error(`Error parsing JSON from ${targetFile}:`, parseErr);
             process.exit(1);

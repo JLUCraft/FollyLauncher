@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { ExtensionInfo } from "@/models/extension";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 export const EXTENSION_REFRESH_EVENT = "extension:refresh-list";
@@ -18,7 +19,7 @@ export class ExtensionService {
   static async retrieveExtensionList(): Promise<
     InvokeResponse<ExtensionInfo[]>
   > {
-    return await invoke("retrieve_extension_list");
+    return await invoke(nativeCommands.extension.retrieveExtensionList);
   }
 
   /**
@@ -32,7 +33,10 @@ export class ExtensionService {
     path: string,
     expectedIdentifier?: string
   ): Promise<InvokeResponse<ExtensionInfo>> {
-    return await invoke("add_extension", { path, expectedIdentifier });
+    return await invoke(nativeCommands.extension.addExtension, {
+      path,
+      expectedIdentifier,
+    });
   }
 
   /**

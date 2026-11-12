@@ -18,11 +18,13 @@
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
+const { isRecord, parseRecord } = require("../json.cjs");
 
+let base = "zh-Hans";
 try {
-  const arg = process.argv[3];
+  const arg = process.argv[3] || base;
   if (arg.includes("/") || arg.match(/\.json$/)) {
-    base = arg.split("/").pop().replace(".json", "");
+    base = (arg.split("/").pop() || base).replace(".json", "");
   } else {
     base = arg || "zh-Hans";
   }
@@ -35,7 +37,7 @@ if (targets !== null && targets.length !== 0) {
   for (let i = 0; i < targets.length; i++) {
     let target = targets[i];
     if (target.includes("/") || target.match(/\.json$/)) {
-      target = target.split("/").pop().replace(".json", "");
+      target = (target.split("/").pop() || "").replace(".json", "");
     }
     targets[i] = target;
   }
@@ -50,17 +52,14 @@ if (targets !== null && targets.length !== 0) {
   }
 }
 
+/** @param {Record<string, unknown>} obj @param {string} [parentKey] @returns {string[]} */
 function flattenDict(obj, parentKey = "") {
   const items = [];
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const value = obj[key];
       const newKey = parentKey ? `${parentKey}.${key}` : key;
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        !Array.isArray(value)
-      ) {
+      if (isRecord(value)) {
         items.push(...flattenDict(value, newKey));
       } else {
         items.push(newKey);
@@ -70,10 +69,12 @@ function flattenDict(obj, parentKey = "") {
   return items;
 }
 
+/** @param {string} filePath */
 function loadLocaleFile(filePath) {
   const content = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(content);
+  return parseRecord(content);
 }
+/** @param {string[]} baseKeys @param {string[]} targetKeys */
 function compareKeys(baseKeys, targetKeys) {
   const baseSet = new Set(baseKeys);
   const targetSet = new Set(targetKeys);
@@ -85,9 +86,12 @@ function compareKeys(baseKeys, targetKeys) {
     .sort((left, right) => left.localeCompare(right));
   return [missing, extra];
 }
+/** @param {Record<string, unknown>} locale @param {string} localeName */
 function checkTodoValues(locale, localeName) {
+  /** @type {string[]} */
   const todoValues = [];
 
+  /** @param {Record<string, unknown>} obj @param {string} [parentKey] */
   function recursiveCheck(obj, parentKey = "") {
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -96,11 +100,7 @@ function checkTodoValues(locale, localeName) {
 
         if (typeof value === "string" && value.startsWith("%TODO")) {
           todoValues.push(fullKey);
-        } else if (
-          typeof value === "object" &&
-          value !== null &&
-          !Array.isArray(value)
-        ) {
+        } else if (isRecord(value)) {
           recursiveCheck(value, fullKey);
         }
       }
@@ -122,6 +122,7 @@ function checkTodoValues(locale, localeName) {
   }
 }
 
+/** @param {string} base @param {string} target */
 function compareLocales(base, target) {
   const localesPath = path.join(path.resolve(__dirname), `../../src/locales/`);
 
@@ -162,6 +163,7 @@ function compareLocales(base, target) {
   console.log("-".repeat(40));
 }
 
+/** @param {string} baseLocaleName */
 function compareAll(baseLocaleName) {
   const localesPath = path.join(path.resolve(__dirname), `../../src/locales/`);
   const baseLocalePath = path.join(localesPath, `${baseLocaleName}.json`);

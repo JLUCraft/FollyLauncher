@@ -17,6 +17,7 @@
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
+const { isRecord, parseRecord } = require("../json.cjs");
 
 const keyPath = process.argv[3];
 if (!keyPath) {
@@ -34,7 +35,7 @@ if (rawLocales.length > 0) {
     .map((locale) => {
       // Extract pure locale code if path is provided
       if (locale.includes("/") || locale.endsWith(".json")) {
-        return locale.split("/").pop().replace(".json", "");
+        return (locale.split("/").pop() || "").replace(".json", "");
       }
       return locale;
     })
@@ -53,7 +54,7 @@ if (targetLocales.length === 0) {
 
 /**
  * Removes a key path from an object and prunes empty parent objects
- * @param {Object} obj - Target object to modify
+ * @param {Record<string, unknown>} obj - Target object to modify
  * @param {string} path - Dot-separated key path (e.g. 'a.b.c')
  * @returns {boolean} True if any changes were made
  */
@@ -65,11 +66,12 @@ function removeKeyPath(obj, path) {
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
-    if (!current[key] || typeof current[key] !== "object") {
+    const value = current[key];
+    if (!isRecord(value)) {
       return false;
     }
     stack.push({ obj: current, key });
-    current = current[key];
+    current = value;
   }
 
   const lastKey = keys[keys.length - 1];
@@ -78,8 +80,11 @@ function removeKeyPath(obj, path) {
     changed = true;
 
     while (stack.length > 0) {
-      const { obj, key } = stack.pop();
-      if (Object.keys(obj[key]).length === 0) {
+      const entry = stack.pop();
+      if (!entry) break;
+      const { obj, key } = entry;
+      const value = obj[key];
+      if (isRecord(value) && Object.keys(value).length === 0) {
         delete obj[key];
       } else {
         break;
@@ -104,7 +109,7 @@ function processLocale(locale) {
 
   try {
     const content = fs.readFileSync(filePath, "utf8");
-    const localeObj = JSON.parse(content);
+    const localeObj = parseRecord(content);
 
     const changed = removeKeyPath(localeObj, keyPath);
 
@@ -115,7 +120,7 @@ function processLocale(locale) {
       console.log(chalk.dim(`- Key '${keyPath}' not found in ${locale}.json`));
     }
   } catch (error) {
-    console.error(chalk.red(`Error processing ${locale}.json:`), error.message);
+    console.error(chalk.red(`Error processing ${locale}.json:`), String(error));
   }
 }
 

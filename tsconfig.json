@@ -2,6 +2,8 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "checkJs": true,
+    "types": ["node", "next", "next/image-types/global"],
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -25,11 +27,16 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "next.config.ts",
+    "*.js",
+    "*.mjs",
+    "*.cjs",
+    "src/**/*.js",
     ".next/types/**/*.ts",
     "src/locales/index.ts"
   ],
-  "exclude": ["node_modules", "tools", "src-tauri"]
+  "exclude": ["node_modules", "tools", "src-tauri", "out"]
 }

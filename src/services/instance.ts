@@ -20,6 +20,7 @@ import {
   OptiFineResourceInfo,
 } from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -34,7 +35,7 @@ export class InstanceService {
   static async retrieveInstanceList(): Promise<
     InvokeResponse<InstanceSummary[]>
   > {
-    return await invoke("retrieve_instance_list");
+    return await invoke(nativeCommands.instance.retrieveInstanceList);
   }
 
   /**
@@ -66,7 +67,7 @@ export class InstanceService {
     isInstallQfApi?: boolean,
     modpackVersion?: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("create_instance", {
+    return await invoke(nativeCommands.instance.createInstance, {
       directory,
       name,
       description,
@@ -427,7 +428,7 @@ export class InstanceService {
     instanceId: string,
     worldName: string
   ): Promise<InvokeResponse<WorldDetails>> {
-    return await invoke("retrieve_world_details", {
+    return await invoke(nativeCommands.instance.retrieveWorldDetails, {
       instanceId,
       worldName,
     });
@@ -507,7 +508,7 @@ export class InstanceService {
     isInstallFabricApi?: boolean,
     isInstallQfApi?: boolean
   ): Promise<InvokeResponse<void>> {
-    return await invoke("change_mod_loader", {
+    return await invoke(nativeCommands.instance.changeModLoader, {
       instanceId,
       newModLoader,
       isInstallFabricApi,
@@ -569,7 +570,7 @@ export class InstanceService {
   static async retrieveModpackMetaInfo(
     path: string
   ): Promise<InvokeResponse<ModpackMetaInfo>> {
-    return await invoke("retrieve_modpack_meta_info", {
+    return await invoke(nativeCommands.instance.retrieveModpackMetaInfo, {
       path,
     });
   }

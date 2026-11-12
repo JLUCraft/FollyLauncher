@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { LaunchingState } from "@/models/launch";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 export const GAME_PROCESS_OUTPUT_EVENT = "launch:game-process-output";
@@ -20,7 +21,9 @@ export class LaunchService {
   static async selectSuitableJRE(
     instanceId: string
   ): Promise<InvokeResponse<void>> {
-    return await invoke("select_suitable_jre", { instanceId });
+    return await invoke(nativeCommands.launch.selectSuitableJRE, {
+      instanceId,
+    });
   }
 
   /**
@@ -29,7 +32,7 @@ export class LaunchService {
    */
   @responseHandler("launch")
   static async validateGameFiles(): Promise<InvokeResponse<void>> {
-    return await invoke("validate_game_files");
+    return await invoke(nativeCommands.launch.validateGameFiles);
   }
 
   /**
@@ -39,7 +42,7 @@ export class LaunchService {
    */
   @responseHandler("launch")
   static async validateSelectedPlayer(): Promise<InvokeResponse<boolean>> {
-    return await invoke("validate_selected_player");
+    return await invoke(nativeCommands.launch.validateSelectedPlayer);
   }
 
   /**
@@ -53,7 +56,7 @@ export class LaunchService {
     quickPlaySingleplayer?: string,
     quickPlayMultiplayer?: string
   ): Promise<InvokeResponse<void>> {
-    return await invoke("launch_game", {
+    return await invoke(nativeCommands.launch.launchGame, {
       quickPlaySingleplayer,
       quickPlayMultiplayer,
     });
@@ -65,7 +68,7 @@ export class LaunchService {
    */
   @responseHandler("launch")
   static async cancelLaunchProcess(): Promise<InvokeResponse<void>> {
-    return await invoke("cancel_launch_process");
+    return await invoke(nativeCommands.launch.cancelLaunchProcess);
   }
 
   /**
@@ -90,7 +93,7 @@ export class LaunchService {
   static async retrieveGameLog(
     launchingId: number
   ): Promise<InvokeResponse<string[]>> {
-    return await invoke("retrieve_game_log", { launchingId });
+    return await invoke(nativeCommands.launch.retrieveGameLog, { launchingId });
   }
 
   /**
@@ -103,7 +106,9 @@ export class LaunchService {
   static async retrieveGameLaunchingState(
     launchingId: number
   ): Promise<InvokeResponse<LaunchingState>> {
-    return await invoke("retrieve_game_launching_state", { launchingId });
+    return await invoke(nativeCommands.launch.retrieveGameLaunchingState, {
+      launchingId,
+    });
   }
 
   /**

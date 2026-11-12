@@ -1,14 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
+const { parseRecord } = require("../json.cjs");
 
 // Read package.json
-const packageJson = JSON.parse(
+const packageJson = parseRecord(
   fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8")
 );
 
 // Read tauri.conf.json
-const tauriConfig = JSON.parse(
+const tauriConfig = parseRecord(
   fs.readFileSync(
     path.join(__dirname, "../../src-tauri/tauri.conf.json"),
     "utf8"
@@ -20,7 +21,9 @@ const cargoToml = fs.readFileSync(
   path.join(__dirname, "../../src-tauri/Cargo.toml"),
   "utf8"
 );
-const cargoVersion = cargoToml.match(/version\s*=\s*"([^"]+)"/)[1];
+const cargoMatch = cargoToml.match(/version\s*=\s*"([^"]+)"/);
+if (!cargoMatch) throw new Error("Cargo package version required");
+const cargoVersion = cargoMatch[1];
 
 const versions = {
   "package.json": packageJson.version,
@@ -30,7 +33,7 @@ const versions = {
 
 console.log("Found versions:");
 Object.entries(versions).forEach(([file, version]) => {
-  console.log(`${file}: ${version}`);
+  console.log(`${file}: ${String(version)}`);
 });
 
 // Check if all versions are the same

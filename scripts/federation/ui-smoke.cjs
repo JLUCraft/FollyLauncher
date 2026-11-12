@@ -1,11 +1,12 @@
 // Requires a running Next development server and an available Playwright installation.
-const { chromium } = require(
-  process.env.PLAYWRIGHT_MODULE || "playwright-core"
+const { chromium } = /** @type {typeof import("playwright-core")} */ (
+  require(process.env.PLAYWRIGHT_MODULE || "playwright-core")
 );
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const { readFileSync, rmSync } = require("node:fs");
 const path = require("node:path");
+const { parseRecord, objectValue } = require("../json.cjs");
 const output = path.resolve(__dirname, "../../out");
 const bootstrap = path.join(output, "federation-ui-mock.js");
 execFileSync("bun", [
@@ -31,6 +32,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     const page = await browser.newPage({
       viewport: { width: 1280, height: 850 },
     });
+    /** @type {string[]} */
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.addInitScript({
@@ -54,6 +56,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       );
       await openGameLink();
     };
+    /** @param {"连接" | "联赛" | "服务器与房间" | "联盟" | "联盟管理"} name */
     const nav = async (name) => {
       const paths = {
         连接: "/settings/federation",
@@ -119,11 +122,13 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       discoveries
     );
     assert.equal(
-      await page.evaluate(
-        () =>
-          window.calls.filter((c) => c.cmd === "union_proxy_start").at(-1).args
-            .input.service
-      ),
+      objectValue(
+        await page.evaluate(
+          () =>
+            window.calls.filter((c) => c.cmd === "union_proxy_start").at(-1)
+              ?.args.input
+        )
+      ).service,
       "room-b"
     );
     await page.getByRole("button", { name: "断开连接", exact: true }).click();
@@ -167,9 +172,11 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       governanceCalls
     );
     assert.equal(
-      await page.evaluate(
-        () => JSON.parse(localStorage.getItem("federation-connection")).peer
-      ),
+      parseRecord(
+        (await page.evaluate(() =>
+          localStorage.getItem("federation-connection")
+        )) || "null"
+      ).peer,
       "test"
     );
     await nav("联盟管理");
@@ -179,10 +186,12 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
       .waitFor();
     // A full reload restores confirmed targets, not the unfinished edit.
     assert.equal(
-      await page.evaluate(
-        () =>
-          window.calls.find((c) => c.cmd === "union_governance").args.input.peer
-      ),
+      objectValue(
+        await page.evaluate(
+          () =>
+            window.calls.find((c) => c.cmd === "union_governance")?.args.input
+        )
+      ).peer,
       "test"
     );
     await openCompetition();
@@ -215,7 +224,7 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await page.waitForURL("**/instances/activities");
     await openCompetition();
     assert.equal(await page.locator("#game-link").inputValue(), link);
-    assert.deepEqual(errors, []);
+    assert.deepEqual([...errors], []);
     // LAN auto-discovery: a pinned server connects with no manual input at all.
     const autoServer = {
       peer: "auto-peer",
@@ -240,8 +249,9 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     const autoCalls = await autoPage.evaluate(() =>
       window.calls.filter((c) => c.cmd === "union_governance")
     );
-    assert.equal(autoCalls.at(-1).args.input.peer, "auto-peer");
-    assert.equal(autoCalls.at(-1).args.input.address, autoServer.address);
+    const autoInput = objectValue(autoCalls.at(-1)?.args.input);
+    assert.equal(autoInput.peer, "auto-peer");
+    assert.equal(autoInput.address, autoServer.address);
     await autoContext.close();
     // Auto identity setup: discovery also adopts the identity configuration.
     const setupContext = await browser.newContext({
@@ -255,6 +265,12 @@ const base = process.env.FEDERATION_TEST_URL || "http://localhost:3000";
     await setupPage.goto(`${base}/settings/federation`);
     await setupPage.getByText("已连接", { exact: true }).waitFor();
     const saved = await setupPage.evaluate(() => window.savedIdentity);
+    assert.ok(
+      saved &&
+        typeof saved === "object" &&
+        "peer" in saved &&
+        "genesis_hash" in saved
+    );
     assert.equal(saved.peer, "auto-peer");
     assert.equal(saved.genesis_hash, autoServer.genesis_hash);
     await setupContext.close();

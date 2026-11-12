@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
+const { parseRecord } = require("../json.cjs");
 
 const newVersion = process.argv[3];
 
@@ -11,13 +12,13 @@ if (!newVersion) {
 
 // Update package.json
 const packageJsonPath = path.join(__dirname, "../../package.json");
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+const packageJson = parseRecord(fs.readFileSync(packageJsonPath, "utf8"));
 packageJson.version = newVersion;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
 
 // Update tauri.conf.json
 const tauriConfigPath = path.join(__dirname, "../../src-tauri/tauri.conf.json");
-const tauriConfig = JSON.parse(fs.readFileSync(tauriConfigPath, "utf8"));
+const tauriConfig = parseRecord(fs.readFileSync(tauriConfigPath, "utf8"));
 tauriConfig.version = newVersion;
 fs.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, 2) + "\n");
 
@@ -41,6 +42,6 @@ try {
   });
   console.log("✅ bun.lock synced successfully!");
 } catch (error) {
-  console.error("❌ Failed to sync bun.lock:", error.message);
+  console.error("❌ Failed to sync bun.lock:", String(error));
   process.exit(1);
 }

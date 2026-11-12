@@ -1,9 +1,11 @@
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
-const { mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
+const { mkdirSync, rmSync, writeFileSync } = require("node:fs");
 const path = require("node:path");
-const { chromium } = require(
-  process.env.PLAYWRIGHT_MODULE || "playwright-core"
+const { loadResults } = require("./results.cjs");
+const { parseRecord } = require("../json.cjs");
+const { chromium } = /** @type {typeof import("playwright-core")} */ (
+  require(process.env.PLAYWRIGHT_MODULE || "playwright-core")
 );
 const repo = path.resolve(__dirname, "../..");
 const output = path.resolve(
@@ -11,9 +13,7 @@ const output = path.resolve(
 );
 const base = process.env.LAUNCHER_TEST_URL || "http://localhost:3000";
 const fixture = path.join(repo, "out/launcher-navigation-mock.js");
-const locale = JSON.parse(
-  readFileSync(path.join(repo, "src/locales/zh-Hans.json"))
-);
+const locale = require("../../src/locales/zh-Hans.json");
 mkdirSync(output, { recursive: true });
 execFileSync("bun", [
   "build",
@@ -27,7 +27,7 @@ execFileSync("bun", [
 ]);
 const results =
   process.env.LAUNCHER_TEST_RESUME === "1"
-    ? JSON.parse(readFileSync(path.join(output, "results.json"))).filter(
+    ? loadResults(path.join(output, "results.json")).filter(
         (result) => result.status === "passed"
       )
     : [];
@@ -40,11 +40,13 @@ const results =
     headless: true,
     args: ["--no-sandbox"],
   });
+  /** @param {string} name @param {string} route @param {boolean} configured @param {(page: import("playwright-core").Page) => Promise<void>} action */
   async function run(name, route, configured, action) {
     if (results.some((result) => result.name === name)) return;
     const page = await browser.newPage({
       viewport: { width: 1100, height: 750 },
     });
+    /** @type {string[]} */
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript({ path: fixture });
@@ -52,7 +54,7 @@ const results =
     url.searchParams.set("test-scenario", configured ? "configured" : "empty");
     try {
       const response = await page.goto(url.href);
-      assert.ok(response.ok());
+      assert.ok(response?.ok());
       await page.getByRole("tab").first().waitFor();
       await action(page);
       assert.deepEqual(errors, []);
@@ -76,11 +78,13 @@ const results =
       await page.close();
     }
   }
+  /** @param {import("playwright-core").Page} page @param {string} cmd */
   const calls = (page, cmd) =>
     page.evaluate(
       (cmd) => window.calls.filter((call) => call.cmd === cmd),
       cmd
     );
+  /** @param {import("playwright-core").Page} page @param {string} pathname */
   const go = async (page, pathname) => {
     await page.waitForURL((url) => url.pathname === pathname);
     const navLabel = pathname.startsWith("/settings/")
@@ -90,8 +94,10 @@ const results =
       .getByRole("tab", { name: navLabel, exact: true, selected: true })
       .waitFor();
   };
+  /** @param {string} peer */
   const linkFor = (peer) =>
     `folly://federation?${new URLSearchParams({ address: `/ip4/127.0.0.1/tcp/4001/p2p/${peer}`, peer, genesis: "a".repeat(64) })}`;
+  /** @param {import("playwright-core").Page} page @param {string} link */
   const emitLink = (page, link) =>
     page.evaluate(
       (link) =>
@@ -279,10 +285,16 @@ const results =
         await page.goBack();
         await go(page, "/instances/rooms");
         assert.ok(
-          (await calls(page, "union_rooms")).every(
-            (call) =>
-              !call.args.seeds.some((seed) => seed.includes("requested-peer"))
-          )
+          (await calls(page, "union_rooms")).every((call) => {
+            const seeds = call.args.seeds;
+            return (
+              Array.isArray(seeds) &&
+              !seeds.some(
+                (seed) =>
+                  typeof seed === "string" && seed.includes("requested-peer")
+              )
+            );
+          })
         );
         await page
           .getByRole("tab", {
@@ -300,11 +312,13 @@ const results =
             exact: true,
           })
           .click();
-        await page.waitForFunction(() =>
-          document
-            .querySelector("#identity-setup")
-            ?.value.includes("acceptance")
-        );
+        await page.waitForFunction(() => {
+          const input = document.querySelector("#identity-setup");
+          return (
+            input instanceof HTMLTextAreaElement &&
+            input.value.includes("acceptance")
+          );
+        });
         assert.equal(
           (await calls(page, "union_identity_configuration")).filter(
             (call) => call.args.config !== null
@@ -327,10 +341,10 @@ const results =
           .waitFor();
         assert.equal((await calls(page, "union_governance")).length, 1);
         assert.equal(
-          JSON.parse(
-            await page.evaluate(() =>
+          parseRecord(
+            (await page.evaluate(() =>
               localStorage.getItem("federation-connection")
-            )
+            )) || "null"
           ).peer,
           "requested-peer"
         );
@@ -343,10 +357,10 @@ const results =
         );
         assert.equal((await calls(page, "union_governance")).length, 1);
         assert.equal(
-          JSON.parse(
-            await page.evaluate(() =>
+          parseRecord(
+            (await page.evaluate(() =>
               localStorage.getItem("federation-connection")
-            )
+            )) || "null"
           ).peer,
           "requested-peer"
         );

@@ -1,10 +1,11 @@
 // Requires the current Next development server; native behavior is checked separately.
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
-const { mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
+const { mkdirSync, rmSync, writeFileSync } = require("node:fs");
 const path = require("node:path");
-const { chromium } = require(
-  process.env.PLAYWRIGHT_MODULE || "playwright-core"
+const { loadResults } = require("./results.cjs");
+const { chromium } = /** @type {typeof import("playwright-core")} */ (
+  require(process.env.PLAYWRIGHT_MODULE || "playwright-core")
 );
 const repo = path.resolve(__dirname, "../..");
 const output = path.resolve(
@@ -23,14 +24,12 @@ execFileSync("bun", [
   "--format",
   "iife",
 ]);
-const locale = JSON.parse(
-  readFileSync(path.join(repo, "src/locales/zh-Hans.json"))
-);
+const locale = require("../../src/locales/zh-Hans.json");
 const base = process.env.LAUNCHER_TEST_URL || "http://localhost:3000";
 // Resume only after confirming that successful ranges have unchanged inputs.
 const results =
   process.env.LAUNCHER_TEST_RESUME === "1"
-    ? JSON.parse(readFileSync(path.join(output, "results.json")))
+    ? loadResults(path.join(output, "results.json"))
     : [];
 const routes = [
   "/launch",
@@ -54,17 +53,20 @@ const routes = [
   "/instances/activities",
 ];
 
+/** @param {string} foreground @param {string} background */
 function contrast(foreground, background) {
+  /** @param {string} color */
   const luminance = (color) => {
-    const values = color
-      .match(/[\d.]+/g)
+    const values = color.match(/[\d.]+/g);
+    if (!values || values.length < 3) throw new Error("Expected an RGB color");
+    const channels = values
       .slice(0, 3)
       .map(Number)
       .map((n) => {
         const s = n / 255;
         return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
       });
-    return values[0] * 0.2126 + values[1] * 0.7152 + values[2] * 0.0722;
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
   };
   const a = luminance(foreground);
   const b = luminance(background);
@@ -85,6 +87,7 @@ function contrast(foreground, background) {
         viewport: { width: 1100, height: 750 },
       });
       await page.addInitScript({ path: fixture });
+      /** @type {string[]} */
       const errors = [];
       page.on("pageerror", (error) => errors.push(error.message));
       page.on("console", (message) => {
@@ -105,7 +108,7 @@ function contrast(foreground, background) {
         const response = await page.goto(
           `${base}${route}?test-color-mode=${mode}`
         );
-        assert.ok(response.ok(), `${route}: HTTP ${response.status()}`);
+        assert.ok(response?.ok(), `${route}: HTTP ${response?.status()}`);
         await page.waitForFunction(() => window.next?.router?.isReady);
         await page.waitForFunction(
           (mode) => document.documentElement.dataset.theme === mode,
@@ -158,6 +161,7 @@ function contrast(foreground, background) {
             getComputedStyle(parent).backgroundColor === "rgba(0, 0, 0, 0)"
           )
             parent = parent.parentElement;
+          if (!parent) throw new Error("Opaque background required");
           return {
             foreground: getComputedStyle(element).color,
             background: getComputedStyle(parent).backgroundColor,
@@ -199,7 +203,10 @@ function contrast(foreground, background) {
             .filter((item) => item.cmd === "update_launcher_config")
             .at(-1)
         );
-        assert.equal(JSON.parse(call.args.value), !checked);
+        assert.ok(call && typeof call.args.value === "string");
+        /** @type {unknown} */
+        const value = JSON.parse(call.args.value);
+        assert.equal(value, !checked);
         results.push({
           mode,
           name: "contrast, sidebar selection, keyboard focus and setting update",
@@ -287,7 +294,10 @@ function contrast(foreground, background) {
     rmSync(fixture, { force: true });
   }
 })().catch((error) => {
-  writeFileSync(path.join(output, "failure.txt"), String(error.stack));
+  writeFileSync(
+    path.join(output, "failure.txt"),
+    error instanceof Error ? error.stack || error.message : String(error)
+  );
   console.error(error);
   process.exitCode = 1;
 });

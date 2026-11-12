@@ -12,6 +12,7 @@ import {
   Player,
 } from "@/models/account";
 import { InvokeResponse } from "@/models/response";
+import { nativeCommands } from "@/services/commands";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -24,7 +25,7 @@ export class AccountService {
    */
   @responseHandler("account")
   static async retrievePlayerList(): Promise<InvokeResponse<Player[]>> {
-    return await invoke("retrieve_player_list");
+    return await invoke(nativeCommands.account.retrievePlayerList);
   }
 
   /**
@@ -38,7 +39,7 @@ export class AccountService {
     username: string,
     uuid?: string
   ): Promise<InvokeResponse<void>> {
-    return await invoke("add_player_offline", {
+    return await invoke(nativeCommands.account.addPlayerOffline, {
       username,
       uuid: uuid || "",
     });
@@ -55,7 +56,7 @@ export class AccountService {
     serverType: "3rdparty" | "microsoft",
     authServerUrl?: string
   ): Promise<InvokeResponse<DeviceAuthResponseInfo>> {
-    return await invoke("fetch_oauth_code", {
+    return await invoke(nativeCommands.account.fetchOAuthCode, {
       serverType,
       authServerUrl: authServerUrl || "",
     });
@@ -257,7 +258,7 @@ export class AccountService {
    */
   @responseHandler("account")
   static async retrieveAuthServerList(): Promise<InvokeResponse<AuthServer[]>> {
-    return await invoke("retrieve_auth_server_list");
+    return await invoke(nativeCommands.account.retrieveAuthServerList);
   }
 
   /**

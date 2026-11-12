@@ -12,7 +12,11 @@ if (!subCommand) {
 try {
   require(path.join(__dirname, `${subCommand}.js`));
 } catch (error) {
-  if (error.code === "MODULE_NOT_FOUND") {
+  if (
+    error instanceof Error &&
+    "code" in error &&
+    error.code === "MODULE_NOT_FOUND"
+  ) {
     console.error(`Unknown subcommand: ${subCommand}`);
     console.error(
       "Available subcommands: diff, rm, gen_placeholder, rm_redundancy"

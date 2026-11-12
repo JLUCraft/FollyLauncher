@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdir, open, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { parseRecord, objectValue, arrayValue } from "../json.cjs";
 
+/** @param {{temp: string, repo: string}} options @returns {Promise<import("./types").DeviceFixture>} */
 export async function prepareDeviceFixture({ temp, repo }) {
   const directory = resolve(temp, "station");
   await mkdir(directory, { recursive: true, mode: 0o700 });
@@ -46,7 +48,12 @@ printf '%s' "$value" > "$NATIVE_BROWSER_REQUEST"
   try {
     for (let i = 0; i < 200; i++) {
       const ready = await readFile(resolve(directory, "ready.json"), "utf8")
-        .then(JSON.parse)
+        .then(
+          (text) =>
+            /** @type {import("./types").DeviceFixture["station"]} */ (
+              parseRecord(text)
+            )
+        )
         .catch(() => null);
       if (ready)
         return {
@@ -69,6 +76,7 @@ printf '%s' "$value" > "$NATIVE_BROWSER_REQUEST"
   }
 }
 
+/** @param {import("./types").DeviceContext} context */
 export async function deviceScenario({
   fixture,
   invoke,
@@ -83,6 +91,7 @@ export async function deviceScenario({
 }) {
   const { station } = fixture;
   assert.ok(station, "Real isolated station must be running");
+  /** @param {string} text */
   const clickText = async (text) => {
     await until(
       `Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()===${JSON.stringify(text)})`
@@ -112,15 +121,20 @@ export async function deviceScenario({
   );
   await clickText("完成");
   await until("document.querySelectorAll('[aria-modal=true]').length===0");
-  const stored = JSON.parse(
+  const stored = parseRecord(
     await readFile(resolve(fixture.profile, "sjmcl.account.json"), "utf8")
   );
-  const server = stored.authServers.find((s) =>
-    s.authUrl.startsWith(station.origin)
-  );
+  const server = arrayValue(stored.authServers)
+    .map(objectValue)
+    .find(
+      (server) =>
+        typeof server.authUrl === "string" &&
+        server.authUrl.startsWith(station.origin)
+    );
   assert.ok(server?.clientId);
-  assert.ok(server.metadata.meta["feature.openid_configuration_url"]);
-  assert.ok(server.metadata.skinDomains.includes("127.0.0.1"));
+  const metadata = objectValue(server.metadata);
+  assert.ok(objectValue(metadata.meta)["feature.openid_configuration_url"]);
+  assert.ok(arrayValue(metadata.skinDomains).includes("127.0.0.1"));
   assert.equal(
     (await stat(resolve(fixture.profile, "sjmcl.account.json"))).mode & 0o777,
     0o600
@@ -149,6 +163,7 @@ export async function deviceScenario({
   );
   await clickText("继续登录");
   let verification;
+  assert.ok(fixture.browserRequest);
   for (let i = 0; i < 100; i++) {
     verification = await readFile(fixture.browserRequest, "utf8").catch(
       () => null
@@ -235,13 +250,13 @@ export async function deviceScenario({
     "document.querySelectorAll('[aria-modal=true]').length===0",
     30000
   );
-  const account = JSON.parse(
+  const account = parseRecord(
     await readFile(resolve(fixture.profile, "sjmcl.account.json"), "utf8")
   );
   assert.ok(
-    account.players.some(
-      (p) => p.name === "NativeDevice" && p.playerType === "3rdparty"
-    )
+    arrayValue(account.players)
+      .map(objectValue)
+      .some((p) => p.name === "NativeDevice" && p.playerType === "3rdparty")
   );
   assert.equal(
     (await stat(resolve(fixture.profile, "sjmcl.account.json"))).mode & 0o777,
