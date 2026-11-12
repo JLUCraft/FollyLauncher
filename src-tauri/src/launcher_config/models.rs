@@ -343,9 +343,6 @@ structstruck::strike! {
         pub auto_purge_launcher_logs: bool,
       }
     },
-    pub federation: struct FederationConfig {
-      pub relay_enabled: bool,
-    },
     pub intelligence: struct IntelligenceConfig {
       pub mcp_server: struct {
         pub launcher: struct LauncherMcpServerConfig{

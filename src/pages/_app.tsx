@@ -11,10 +11,7 @@ import { GuidedTourProvider } from "@/components/special/guided-tour-provider";
 import SharedModalsProvider from "@/components/special/shared-modals-provider";
 import { LauncherConfigContextProvider } from "@/contexts/config";
 import { ExtensionHostContextProvider } from "@/contexts/extension/host";
-import { FederationProvider } from "@/contexts/federation";
-import { GameConnectionProvider } from "@/contexts/game-connection";
 import { GlobalDataContextProvider } from "@/contexts/global-data";
-import { RoomsProvider } from "@/contexts/rooms";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { TaskContextProvider } from "@/contexts/task";
 import { ToastContextProvider } from "@/contexts/toast";
@@ -132,22 +129,13 @@ export default function App({ Component, pageProps }: AppProps) {
                   <TaskContextProvider>
                     <ExtensionHostContextProvider>
                       <GlobalEventHandler>
-                        <GameConnectionProvider>
-                          <FederationProvider>
-                            <RoomsProvider>
-                              <MainLayout>
-                                <Fade
-                                  key={router.pathname.split("/")[1] || ""}
-                                  in
-                                >
-                                  <SpecLayout>
-                                    <Component {...pageProps} />
-                                  </SpecLayout>
-                                </Fade>
-                              </MainLayout>
-                            </RoomsProvider>
-                          </FederationProvider>
-                        </GameConnectionProvider>
+                        <MainLayout>
+                          <Fade key={router.pathname.split("/")[1] || ""} in>
+                            <SpecLayout>
+                              <Component {...pageProps} />
+                            </SpecLayout>
+                          </Fade>
+                        </MainLayout>
                       </GlobalEventHandler>
                     </ExtensionHostContextProvider>
                   </TaskContextProvider>

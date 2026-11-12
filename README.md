@@ -2,18 +2,16 @@
 
 > **Folly Launcher** is the official Minecraft launcher of JLUCraft, the Minecraft club of Jilin University. It is built for club members: accounts use the club's skin station ([skin.jlucraft.com](https://skin.jlucraft.com), registered with a school email), interconnecting across Jilin universities through the JLMUA provincial union and, beyond the province, following the national MUA conventions.
 >
-> This project is based on [SJMCL](https://github.com/UNIkeEN/SJMCL) (SJTU Minecraft Club) and is licensed under GPLv3 with additional terms in [`LICENSE.EXTRA`](./LICENSE.EXTRA). For the federation and branding architecture, see the [technical documentation](https://www.jlucraft.com/tech/clients).
+> This project is based on [SJMCL](https://github.com/UNIkeEN/SJMCL) (SJTU Minecraft Club) and is licensed under GPLv3 with additional terms in [`LICENSE.EXTRA`](./LICENSE.EXTRA). For the launcher and branding architecture, see the [technical documentation](https://www.jlucraft.com/tech/clients).
 
 **English** · [简体中文](docs/README.zh-Hans.md) · [繁體中文](docs/README.zh-Hant.md)
 
 ## Features
 
-Folly Launcher keeps the essentials of a modern launcher and adds capabilities built for the club and its federation:
+Folly Launcher keeps the essentials of a modern launcher with club branding, its preset skin station, and minecraftd integration:
 
-* **Union Federation**: Connects to the club's authority node and binds identity to devices, so members interoperate across the Jilin provincial union (JLMUA) and the national MUA conventions.
-* **Member Rooms**: Server and room listings for club members, with per-room network settings.
-* **Seasons and Competitions**: Sign-up, teams, scoring, points and AI-request settlement for club leagues and events.
-* **Unified Identity**: A skin-station account plus device identity, using Yggdrasil third-party authentication.
+* **Club Accounts**: Presets the central skin station at `https://skin.jlucraft.com` for Yggdrasil account login. Club membership, league administration, events, and points are managed by the skin station.
+* **minecraftd Integration**: Uses the shared game library for installation, resources, launch planning, Java, worlds, and process management.
 * **Multiple Directories and Instances**: Manages multiple game directories and instances, keeping every instance's resources (saves, mods, resource packs, shaders, screenshots, etc.) and settings in one place.
 * **Resource Download**: Downloads game clients, mod loaders, various game resources and modpacks from CurseForge and Modrinth.
 * **Multi-Account Support**: Built-in support for multiple accounts and third-party authentication servers, following the OAuth login flow of the Yggdrasil Connect proposal.
@@ -50,6 +48,8 @@ git clone git@github.com:JLUCraft/FollyLauncher.git
 bun install
 ```
 
+Keep a sibling checkout of `JLUCraft/minecraftd` next to this repository for the native path dependency.
+
 Run the project in development mode:
 
 ```bash
@@ -77,7 +77,7 @@ We welcome contributions and bug reports through [GitHub Issues](https://github.
 
 Use Bun, Node.js, Rust, and the Tauri platform dependencies declared by the repository configuration. Configure the variables documented in `.env.template` in your local environment; keep credentials outside source control. `bun run tauri build` creates application bundles in the existing build directories.
 
-Device credentials are loaded on blocking worker threads so OS credential prompts and storage locks do not occupy the UI thread. Federation pages show a waiting state until the device identity is available and offer retry after a storage error. Java discovery also runs on blocking workers and releases the launcher configuration lock before probing executables.
+Java discovery runs on blocking workers and releases the launcher configuration lock before inspecting executables.
 
 Development builds use `debug = "line-tables-only"` in the Cargo `dev` profile. This retains source locations in backtraces while reducing debug data and link work; full variable/type inspection requires overriding `CARGO_PROFILE_DEV_DEBUG=2`. Incremental compilation remains enabled. The first build after changing this setting rebuilds affected dependencies. Release and CI `test-build` profiles are unchanged.
 

@@ -66,11 +66,6 @@ const IntelligenceSettingsPage = () => {
           prefixElement: <SparklesIconBox />,
           title: t("IntelligenceSettingsPage.title"),
           description: t("IntelligenceSettingsPage.description"),
-          children: (
-            <Text fontSize="sm" className="secondary-text">
-              {t("IntelligenceSettingsPage.federationNotice")}
-            </Text>
-          ),
         },
       ],
     },

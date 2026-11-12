@@ -126,7 +126,7 @@ pub struct YggdrasilServer {
   pub root_url: String,
   pub port: u16,
   pub players: Arc<Mutex<Vec<PlayerInfo>>>,
-  /// Hosts of federation skin sites whose texture URLs the game may load, next to loopback.
+  /// Hosts of configured skin sites whose texture URLs the game may load, next to loopback.
   pub skin_domains: Arc<Mutex<Vec<String>>>,
 }
 

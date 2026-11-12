@@ -234,33 +234,6 @@
       "usePasswordLogin": "以戶簿符節登入"
     }
   },
-  "AdminConsole": {
-    "title": "賽季之治",
-    "description": "立賽季、定賽程、覆賽果、答申請",
-    "createSeason": "立賽季",
-    "seasonId": "賽季之號",
-    "seasonTitle": "賽季之名",
-    "create": "立",
-    "schedule": "定賽程",
-    "scheduleSeason": "賽季",
-    "scheduleLeague": "聯賽",
-    "selectSeason": "擇賽季",
-    "selectLeague": "擇聯賽",
-    "opensAt": "報名之始",
-    "closesAt": "報名之訖",
-    "startsAt": "開賽之時",
-    "submit": "呈",
-    "review": "賽果之覆",
-    "reviewSelect": "覆核之請",
-    "reviewPlaceholder": "擇待覆之請",
-    "reviewResponse": "覆核之語",
-    "playerDeltas": "員積分之調",
-    "teamDeltas": "隊積分之調",
-    "deltasPlaceholder": "每行一條：名 增減分",
-    "resolve": "呈覆核",
-    "empty": "今無可理之事。",
-    "invalidDeltas": "積分有誤或編號重複。每行書成員或隊伍編號及整數。"
-  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "有先資"
@@ -387,41 +360,6 @@
       }
     }
   },
-  "AuditAnchor": {
-    "title": "稽核指紋",
-    "description": "先自伺服器匯出稽核報告，核之，乃記其指紋於此，後不可改。惟管理者可為。",
-    "existing": "已錄之指紋",
-    "empty": "尚無已錄之指紋",
-    "id": "報告編號",
-    "digest": "報告指紋（六十四位，限 0–9 與 a–f）",
-    "invalid": "請核報告編號與指紋。",
-    "confirm": "請核編號與指紋，一經記錄，不可更改。",
-    "review": "錄前審閱",
-    "submit": "錄指紋"
-  },
-  "BusinessAdmin": {
-    "title": "職分與備援伺服器",
-    "description": "惟施於今所連之社群。會籍、服務權限與職分各別而治。",
-    "roles": "角色之名，每行一名",
-    "rolesHint": "全替角色集合；留空則盡去其角色。",
-    "reviewRoles": "審角色之變",
-    "replicas": "備援伺服器",
-    "replicasHint": "備援伺服器須一、三、五或七臺，各有相異之正整數編號。已退之號不可復用，位址須屬相應之伺服器識別。",
-    "current": "已錄之備援伺服器",
-    "empty": "尚無已錄之備援伺服器",
-    "load": "載入現行備援伺服器",
-    "nodeId": "備援伺服器編號",
-    "addresses": "位址，每行一則",
-    "remove": "除此備援伺服器",
-    "add": "增備援伺服器",
-    "reviewReplicas": "審備援伺服器之更動",
-    "invalid": "職分、編號、識別或位址有誤，請核之再試。",
-    "confirm": "請核全部更動。職分將盡易之，已除之編號不可復用。",
-    "preview": "擬呈之更動",
-    "submit": "確認呈送",
-    "currentRoles": "現業務角色：{{roles}}",
-    "loadRoles": "載入現角色"
-  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -476,25 +414,6 @@
   },
   "ComingSoonSign": {
     "text": "此頁暫未啟，姑俟其後。"
-  },
-  "ConnectionFlow": {
-    "connecting": "正連線…",
-    "setup": "往連線設定",
-    "origin": {
-      "match": "賽事",
-      "room": "房間"
-    },
-    "currentGame": "當前遊戲連線",
-    "disconnectFirst": "欲入別房或賽事，請先斷此服務。",
-    "defaultSeed": "用已連節點",
-    "linkStaged": "連線連結已收，備妥後於此確認連線。",
-    "searching": "方覓近旁聯盟之伺服器…",
-    "searchEmpty": "近旁未見聯盟伺服器。",
-    "searchRetry": "再覓",
-    "membershipTitle": "已見聯盟",
-    "membershipBody": "伺服器近在咫尺，然汝尚未入。驗其身分則自連。",
-    "membershipAction": "驗身而入",
-    "joinFailed": "驗身未過。請確認已登於皮膚站，或詢於主事者。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -968,235 +887,6 @@
   "ExtensionUpdateConfirmDialog": {
     "title": "迭更擴充套件",
     "body": "擴充套件 {{identifier}} 已自 {{src}} 得新版本 {{version}}，然否確認安之？"
-  },
-  "FederationNav": {
-    "title": "聯盟",
-    "overview": "聯盟連線",
-    "activities": "聯賽與組隊",
-    "rooms": "伺服器與房間",
-    "identity": "聯盟身分",
-    "manage": "管理",
-    "connected": "已連",
-    "restricted": "請以管理員之身分連線以管理應用。",
-    "advanced": "進階設定",
-    "disconnected": "尚未連線"
-  },
-  "FederationPage": {
-    "points": {
-      "title": "積分",
-      "balance": "積分餘額",
-      "account": "{{club}} · {{member}}",
-      "revision": "修訂 {{revision}}",
-      "available": "可用：{{available}} 分",
-      "frozen": "凍結中：{{frozen}} 分",
-      "today": "本計分日：{{earned}} / {{cap}} 分",
-      "todayProgress": "本計分日活躍之進",
-      "todayNoCap": "本計分日已得 {{earned}} 分；未設每日之限。",
-      "resetAt": "重置於 {{time}}",
-      "slices": "有效之片 {{active}}，休憩之片 {{afk}}",
-      "asOf": "對帳單止於 {{time}}",
-      "exportStatement": "出積分對帳單",
-      "exportDone": "積分對帳單已存",
-      "exportFailed": "積分對帳單出之不成",
-      "historyTitle": "近廿四時入帳與 AI 之流",
-      "activityTitle": "近廿四時入帳",
-      "activityEmpty": "近廿四時未有入帳。",
-      "activityRow": "有效 {{active}} · 休憩 {{afk}} · {{time}}",
-      "aiTitle": "AI 之扣與退",
-      "aiEmpty": "尚無 AI 之請。",
-      "aiRow": "預凍 {{frozen}} · 實扣 {{charged}} · 退還 {{refunded}} · {{time}}",
-      "pointsValue": "{{points}} 分",
-      "requestTitle": "發 AI 之請",
-      "requestHelp": "文先上傳於組織；惟用已登記之算力節點與今之費率。",
-      "requestText": "付 AI 之文",
-      "requestSize": "{{size}} 位元組",
-      "next": "次",
-      "back": "返",
-      "noWorker": "今無在線且已登記之算力節點，請告伺服器主。",
-      "worker": "已登記算力節點",
-      "model": "模型",
-      "maxTokens": "最大輸出 Tokens",
-      "maxTokensHelp": "填一至四二九四九六七二九五之整數。",
-      "length": "出文長短",
-      "lengthShort": "簡",
-      "lengthStandard": "常",
-      "lengthDetailed": "詳",
-      "lengthTokens": "{{label}} · 至多 {{tokens}} Tokens",
-      "lengthUnavailable": "無合於伺服器出文之限者，請於進階設定填 Tokens。",
-      "maxTokensNativeHelp": "一至 {{max}} 之整數。",
-      "advancedShow": "進階設定",
-      "advancedHide": "收進階設定",
-      "reviewPayer": "納分者：{{payer}}",
-      "reviewMaxPoints": "本次至多凍 {{maxPoints}} 分",
-      "reviewWorker": "節點 {{worker}} · 模型 {{model}}",
-      "quote": "起步 {{base}} + 用量 {{variable}} = 凍結 {{total}} 分",
-      "maxPoints": "max_points：{{maxPoints}}",
-      "insufficient": "可用積分不足以覆此凍結。請先得活躍積分，或請主复核費率。",
-      "automaticBudget": "自動之流別用活動或報告之預算；此請直用爾可用之積分。",
-      "confirm": "確認其費",
-      "confirmTitle": "確認凍結積分",
-      "confirmBody": "此請至多凍結 {{maxPoints}} 分。推理不成則全退；成則依實用結算而退其差。",
-      "confirmAction": "確認凍結而發",
-      "requestAccepted": "AI 之請已受",
-      "budgetTitle": "自動流程之預算",
-      "budgetHelp": "預算由 {{club}} 之 {{member}} 出，惟用於所選活動或報告。今可用 {{available}} 分。",
-      "budgetEmpty": "今無可授權之活動或報告。",
-      "budgetScope": "活動或報告",
-      "budgetChoose": "擇真實活動或報告",
-      "budgetEvent": "活動：{{title}}（{{club}}）",
-      "budgetReport": "報告：{{title}}（{{club}}）",
-      "budgetAmount": "預算積分",
-      "budgetLimit": "不得逾今可用 {{available}} 分。",
-      "budgetSubmit": "授其預算",
-      "budgetAccepted": "已授作用域之預算",
-      "aiStagePurpose": "第 {{stage}} 步 · {{purpose}}",
-      "aiStatusQueued": "待中",
-      "aiStatusRunning": "行中",
-      "aiStatusCompleted": "已成",
-      "aiStatusFailed": "敗",
-      "aiStatusRefunded": "已退",
-      "aiStatusCancelled": "已止",
-      "aiStatusUnknown": "未知",
-      "purposeMemberAssist": "成員之助",
-      "purposeEventsDraft": "活動文稿",
-      "purposeEventsReview": "材料之審",
-      "purposeEventsSummary": "活動之結",
-      "purposeOther": "他用途",
-      "openResult": "觀其果",
-      "aiRetry": "復試敗階",
-      "aiCancel": "罷此請",
-      "aiRetryConfirmTitle": "確認復試",
-      "aiRetryConfirmBody": "第 {{stage}} 步初凍 {{quote}} 分；復試仍凍此數，非今模之價。付者：{{payer}}。今可用 {{available}} 分。",
-      "aiRetryConfirmAction": "依原價復試",
-      "resultTitle": "AI 之果 · {{model}} · 第 {{stage}} 步",
-      "resultLoading": "正讀其果…",
-      "resultFailed": "讀果不成，請再試。",
-      "resultRetry": "再讀",
-      "previousPage": "前頁",
-      "nextPage": "後頁",
-      "page": "第 {{page}} / {{pages}} 頁"
-    },
-    "gameConnection": {
-      "title": "對局連接",
-      "description": "請粘主辦者所授之比賽連接",
-      "linkLabel": "連接之鏈",
-      "connect": "立連接",
-      "error": "戲連接未成，請覈其鏈，或問主辦者"
-    },
-    "settings": {
-      "addressLabel": "連盟之址",
-      "peerLabel": "伺服器識別",
-      "genesisLabel": "聯盟驗證碼（詢於主辦者）",
-      "genesisInvalid": "請填主辦者所授六十四位驗證碼（限 0–9 與 a–f）。",
-      "linkLabel": "連線之鏈",
-      "linkHelp": "貼主辦者所予連結，確認後連線。於本機開啟連結，將填於此候確認。",
-      "linkConnect": "連線",
-      "linkInvalid": "此非有效之連線鏈，請完整錄主辦所授。",
-      "relay": {
-        "title": "為中繼服務",
-        "description": "助直連未通之聯盟成員相連。",
-        "updateFailed": "未能更新中繼服務。"
-      },
-      "manualTitle": "手填連線資訊",
-      "connect": "連接 / 新",
-      "myDevice": "吾之機：{{id}}",
-      "myMember": "吾之號：{{id}}",
-      "myClub": "（{{club}}）",
-      "myGameProfile": "遊戲身分：{{id}}",
-      "linkPlaceholder": "貼主辦者所授之連結",
-      "shareAction": "複邀請之鏈",
-      "disconnect": "斷連",
-      "serverPeer": "伺服者 {{peer}}"
-    },
-    "error": "事未成，請覈連接與報名之況，而後復試",
-    "identityRequired": "連線前，先於設定備妥聯盟身分。",
-    "openIdentity": "往聯盟身分設定",
-    "empty": {
-      "noActivities": "今尚無活動或競賽。"
-    },
-    "phase": {
-      "Registration": "報名中",
-      "Playing": "行局中",
-      "Finished": "已訖"
-    },
-    "activities": {
-      "description": "覽活動與聯賽，察報名及賽程。",
-      "linkedCompetitions": "競賽",
-      "competitionsEmpty": "此活動尚無所屬競賽。",
-      "standaloneTitle": "獨立競賽",
-      "competitionMissing": "此競賽不在當前應用之中。",
-      "eventMissing": "此活動不在當前應用之中。",
-      "organizer": "主辦社團",
-      "opens": "報名始",
-      "closes": "報名止",
-      "starts": "開賽",
-      "signupCount": "已報名 {{count}} 人",
-      "signup": "報名",
-      "cancelSignup": "取消報名",
-      "noBrief": "此活動尚無說明。",
-      "competitionTitle": "競賽"
-    },
-    "activityPhase": {
-      "draft": "草稿",
-      "review": "審閱中",
-      "approved": "已准",
-      "open": "報名中",
-      "done": "已畢",
-      "cancelled": "已罷"
-    },
-    "league": {
-      "seatsPerTeam": "每隊 {{seats}} 人",
-      "crossClub": "許跨校",
-      "sameClubOnly": "限同校",
-      "teamNamePlaceholder": "新隊之名",
-      "createTeam": "立隊",
-      "teamsTitle": "與賽諸隊",
-      "teamsEmpty": "尚無隊。報名之際，連盟之士可立隊。",
-      "memberCount": "{{count}} 人",
-      "registered": "已呈報",
-      "notRegistered": "未呈報",
-      "acceptInvite": "受邀",
-      "register": "呈報名",
-      "inviteePlaceholder": "擇欲邀之成員",
-      "invite": "邀員",
-      "teamScoreboard": "隊積分榜",
-      "playerScoreboard": "員積分榜",
-      "teamScoreboardEmpty": "隊積分榜尚無據。",
-      "playerScoreboardEmpty": "員積分榜尚無據。",
-      "points": "{{score}} 分",
-      "start": "鎖名單而開賽",
-      "pause": "暫停",
-      "resume": "復行"
-    },
-    "identity": {
-      "storagePending": "待系统凭据",
-      "storageError": "系统凭据不可取，请解锁重试",
-      "configuration": "主辦者所授之設定",
-      "save": "存設定",
-      "loading": "方核君之身分…",
-      "unavailable": "暫不能確認君之會籍。請察網路後重新整理，會籍未嘗逾期。",
-      "empty": "尚無身分之資，請重新整理以載入。",
-      "saveInvalid": "此設定不可讀。請盡錄主辦者所授之文再試。"
-    },
-    "errors": {
-      "network": "不能連伺服器。請察網路與連結，再試。",
-      "membership": "不能確認君之會籍。請開「吾之身分」重新整理，再試。",
-      "invalid": "請求無效。請核主辦者所授之連結與資料。"
-    },
-    "guide": {
-      "title": "始用",
-      "setup": "增主辦者所授之設定",
-      "connect": "自連汝之聯盟",
-      "verify": "驗君之會籍",
-      "done": "已畢",
-      "next": "續行"
-    },
-    "organizer": {
-      "areaTitle": "主會之事",
-      "areaHint": "此諸事惟主會可行，且及於眾，故每事先請確認。",
-      "startConfirmTitle": "鎖其報名而始賽乎？",
-      "startConfirmBody": "報名永閉，賽程依已報之隊抽定，不可復也。"
-    }
   },
   "FileDnDProvider": {
     "fileName": "{{fileName}} 等（凡 {{count}} 個）"
@@ -1813,143 +1503,6 @@
       "settings": "置此擴充套件"
     }
   },
-  "IdentifierDisplay": {
-    "copy": "複製全號",
-    "copied": "已複製"
-  },
-  "IdentityFlow": {
-    "intro": "驗明社員身分，管理所繫裝置。",
-    "setup": "請於下方貼主辦者所授之設定並存之，方可使用。",
-    "sync": "更新身分",
-    "automatic": "以皮膚站驗證",
-    "host": "繫開房裝置",
-    "device": "裝置編號",
-    "unbound": "尚未繫定",
-    "position": "已同步至第 {{sequence}} 版",
-    "review": "核對變更",
-    "reviewHint": "署之即認下列更動。連二器或須各署，可於進階設定中相傳。",
-    "technicalDetails": "技術詳情",
-    "signatureCount": "已有 {{count}} 署",
-    "unknownAction": "未知之操作：{{type}}",
-    "sign": "確認簽署",
-    "submit": "提交已署變更",
-    "import": "匯入待共署之更動",
-    "importFile": "自檔案導入",
-    "importFailed": "所選檔案讀取不成",
-    "export": "已署之更動（送予共署者）",
-    "exportFile": "導出已署之錄",
-    "exportDone": "已導出此錄",
-    "exportFailed": "導出此錄不成",
-    "fields": {
-      "federation": "聯盟",
-      "genesis": "聯盟之設定",
-      "sequence": "版號",
-      "previous": "前一版",
-      "action": "變更",
-      "signatures": "簽署",
-      "public_key": "公鑰",
-      "signature": "簽署",
-      "member": "社員",
-      "device": "裝置",
-      "club": "社團",
-      "kind": "屬類",
-      "value": "屬值",
-      "evidence": "驗證依據",
-      "verifier": "驗證者",
-      "type": "操作",
-      "id": "請求編號",
-      "service": "服務 ID",
-      "audience": "主機識別",
-      "permission": "權名",
-      "quorum": "須署之數",
-      "chairs": "新任社長席",
-      "digest": "內容之指紋",
-      "roles": "職掌",
-      "members": "後備伺服器",
-      "peer": "主機識別",
-      "addresses": "位址",
-      "checkpoint": "已存關口",
-      "head": "版本之哈希",
-      "devices": "已繫裝置",
-      "revoked_devices": "已撤裝置",
-      "memberships": "社籍",
-      "attributes": "已繫之屬"
-    },
-    "permissions": {
-      "read": "閱",
-      "write": "書",
-      "admin": "掌理",
-      "use": "用",
-      "manage": "治"
-    },
-    "services": {
-      "application": "應用之服務"
-    },
-    "attributeKinds": {
-      "game_profile": "遊戲身分"
-    },
-    "unnamedField": "未名之欄",
-    "before": "變更前",
-    "after": "變更後",
-    "unknown": "更新身分以見今所繫",
-    "inspect": "觀已存之資（離線）",
-    "hint": "多數人惟按首鍵可矣。",
-    "importSetup": "自檔載入主辦設定",
-    "setupLoaded": "設定已載。核其內容，存之以續。"
-  },
-  "IdentityManagement": {
-    "title": "主辦者之具",
-    "action": "所行",
-    "invalid": "或有缺漏或誤，請逐項核之再試。",
-    "optional": "確認既有社員而不增設備者，可留空。",
-    "addChair": "增社長席",
-    "removeChair": "去此席",
-    "actions": {
-      "confirm_member": "定社員籍",
-      "revoke_membership": "除社員籍",
-      "bind_device": "繫設備",
-      "bind_attribute": "繫成員之屬",
-      "unbind_attribute": "解成員之屬",
-      "revoke_device": "撤設備",
-      "register_service": "錄服務",
-      "grant_permission": "授服務權",
-      "revoke_permission": "撤服務權",
-      "authorize_verifier": "授驗者權",
-      "revoke_verifier": "撤驗者權",
-      "propose_succession": "議易社長",
-      "approve_succession": "贊易社長",
-      "execute_succession": "行易社長",
-      "cancel_succession": "罷易社長",
-      "replace_chairs": "合署易社長"
-    },
-    "fields": {
-      "member": "社員恆定 ID",
-      "club": "社團 ID",
-      "device": "器識別",
-      "kind": "屬類",
-      "value": "屬值",
-      "service": "服務 ID",
-      "audience": "主機識別",
-      "id": "請求編號",
-      "permission": "權名",
-      "quorum": "須署之數",
-      "chairs": "新任社長席",
-      "evidence": "驗證之域"
-    },
-    "evidence": {
-      "institutional_email": "學府郵箱",
-      "game_profile": "遊戲身份"
-    },
-    "signOffline": "離線而署（呈送時復核）",
-    "publicTitle": "本機公開身份",
-    "publicHint": "授予主辦者以登記或連器，不含私鑰。",
-    "copy": "複製",
-    "cached": "今示已存之資，重新整理可見最新會籍。",
-    "gameProfileHint": "書 Minecraft 玩家三十二位識別。",
-    "generateId": "生新 ID",
-    "facts": "身分全詳（技術之資）",
-    "organizerHint": "惟主辦者與社長用之，常會員無須為。"
-  },
   "ImportAccountInfoModal": {
     "header": {
       "title": "自他啟者匯入戶簿資訊"
@@ -2171,7 +1724,6 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} 智慧",
     "description": "將人工智慧形整合進您的啟者使用與 礦藝 遊玩體驗",
-    "federationNotice": "鏈上智能，俟後版乃上；下方 MCP 服務屬上游 SJMCL 之獨立功能。",
     "mcpServer": {
       "title": "MCP 服務",
       "headExtra": "以下置設復啟而效",
@@ -2737,8 +2289,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "啟者迭更",
-    "body": "上游 SJMCL 更新已得。重啟將以此包代今程式，或無 {{productName}} 聯盟之用。",
-    "bodyWinInstaller": "上游 SJMCL 安裝包已得。安裝將閉 {{productName}} 而行上游安裝程式，或無本版聯盟之用。",
+    "body": "上游 SJMCL 更新已得。重啟將以此包代今程式，或無 {{productName}} 社團定製。",
+    "bodyWinInstaller": "上游 SJMCL 安裝包已得。安裝將閉 {{productName}} 而行上游安裝程式，或無本版社團定製。",
     "button": {
       "restart": "復啟",
       "install": "置",
@@ -2748,66 +2300,9 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎改啟者原始置設案，謬的格式或致原有置設丟失或啟者不能正常工作"
   },
-  "RoomSearch": {
-    "search": "尋房間、社團或版本",
-    "school": "學校／社團",
-    "all": "諸校諸社",
-    "noMatches": "未見相符房間。"
-  },
-  "Rooms": {
-    "manualHint": "先定統一身份。皮膚站皆停，社長猶可手簽認籍、綁遊戲身份；既錄則長效，明撤乃止。",
-    "showIdentities": "示署名所需裝置之識",
-    "hostIdentity": "建室裝置之識",
-    "playerIdentity": "入室裝置之識",
-    "title": "伺服器與房間",
-    "description": "尋伺服器、入聯機房間，亦可自建房間。",
-    "seeds": "尋房位址（每行一則）",
-    "refresh": "重查居室及狀態",
-    "partial": "有節點或居室未可達，所列或未全。",
-    "seedsChanged": "覈索之節自前覓後已更，請復覈以於新節覓房。",
-    "empty": "未見可達之室。",
-    "initial": "重查以尋居室。",
-    "option": "{{name}} · {{school}} · {{version}} · 至多 {{max}} 人",
-    "join": "入室",
-    "disconnect": "斷連",
-    "connected": "已連 {{address}}。請以綁於社籍之遊戲身份啟 Minecraft。",
-    "host": "自建居室",
-    "configuration": "本機伺服之設",
-    "pick": "選設定檔",
-    "relays": "中繼位址（每行一則）",
-    "hostHint": "用此機之伺服器設定。若友人不能直連，請增中繼位址。",
-    "start": "啟室",
-    "stop": "閉室",
-    "hosting": "正託管 {{name}}",
-    "error": "不能成事。請核身分、伺服器設定與網路，再試。",
-    "networkSettings": "伺服器與房間網路設定",
-    "setupHint": "可先瀏覽；欲入或建房，先於設定備妥聯盟身分。",
-    "setupToJoin": "設定後加入",
-    "setupToHost": "設定後建房",
-    "maxPlayers": "至多 {{max}} 人"
-  },
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "置設為啟者繪景"
-    }
-  },
-  "SeasonPanel": {
-    "title": "賽程與往績",
-    "description": "賽季之日程與合積分",
-    "empty": "今無賽季",
-    "noRecords": "尚無積分",
-    "pendingSchedule": "未定",
-    "paused": "暫停",
-    "review": {
-      "leagueLabel": "請覆核之局",
-      "leaguePlaceholder": "擇已與之局",
-      "reasonLabel": "覆核之由",
-      "submit": "呈覆核"
-    },
-    "dispute": {
-      "resolved": "已覆",
-      "pending": "候覆",
-      "resolution": "覆核之果：{{response}}"
     }
   },
   "SelectInstanceModal": {
@@ -3660,9 +3155,7 @@
       "intelligence": "智慧",
       "extension": "擴充套件",
       "help": "案文與助",
-      "about": "有涉",
-      "federation": "聯盟",
-      "federation-management": "聯盟管理"
+      "about": "有涉"
     }
   },
   "SkinPreview": {

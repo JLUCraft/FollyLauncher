@@ -234,33 +234,6 @@
       "usePasswordLogin": "アカウントとパスワードでログイン"
     }
   },
-  "AdminConsole": {
-    "title": "シーズン運営",
-    "description": "シーズン作成、日程設定、結果再審査、申請への返答",
-    "createSeason": "シーズン作成",
-    "seasonId": "シーズンID",
-    "seasonTitle": "シーズン名",
-    "create": "作成",
-    "schedule": "日程設定",
-    "scheduleSeason": "シーズン",
-    "scheduleLeague": "リーグ",
-    "selectSeason": "シーズンを選択",
-    "selectLeague": "リーグを選択",
-    "opensAt": "エントリー開始",
-    "closesAt": "エントリー締切",
-    "startsAt": "開催日時",
-    "submit": "送信",
-    "review": "結果の再審査",
-    "reviewSelect": "再審査申請",
-    "reviewPlaceholder": "保留中の申請を選択",
-    "reviewResponse": "再審査コメント",
-    "playerDeltas": "プレイヤースコア調整",
-    "teamDeltas": "チームスコア調整",
-    "deltasPlaceholder": "1行につき1件：名前 増減点",
-    "resolve": "再審査を送信",
-    "empty": "現在対応すべき事項はありません。",
-    "invalidDeltas": "スコア行が無効、または重複しています。各行にメンバーまたはチームIDと整数を入力してください。"
-  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "前提リソースが存在"
@@ -387,41 +360,6 @@
       }
     }
   },
-  "AuditAnchor": {
-    "title": "監査フィンガープリント",
-    "description": "サーバーから監査レポートを書き出して確認し、ここにそのフィンガープリントを記録すると、以後は改ざんできません。管理者専用です。",
-    "existing": "記録済みのフィンガープリント",
-    "empty": "記録済みのフィンガープリントはありません",
-    "id": "レポート ID",
-    "digest": "レポートのフィンガープリント（64 文字、数字 0–9 と英字 a–f）",
-    "invalid": "レポート ID とフィンガープリントを確認してください。",
-    "confirm": "ID とフィンガープリントを確認してください。記録後は変更できません。",
-    "review": "記録前の確認",
-    "submit": "フィンガープリントを記録"
-  },
-  "BusinessAdmin": {
-    "title": "役割とバックアップサーバー",
-    "description": "変更は接続中のコミュニティにのみ反映されます。メンバー資格・サービス権限・役割は別々に管理されます。",
-    "roles": "ロール名（1行に1つ）",
-    "rolesHint": "ロール全体を置き換えます。空欄にすると全ロールが削除されます。",
-    "reviewRoles": "ロール変更を確認",
-    "replicas": "バックアップサーバー",
-    "replicasHint": "バックアップサーバーは 1・3・5・7 台のいずれかで、それぞれ異なる正の番号を付けます。廃止した番号は再利用できません。各アドレスは対応するサーバー ID のものにしてください。",
-    "current": "登録済みのバックアップサーバー",
-    "empty": "登録済みのバックアップサーバーはありません",
-    "load": "現在のバックアップサーバーを読み込む",
-    "nodeId": "バックアップサーバー番号",
-    "addresses": "アドレス（1 行に 1 つ）",
-    "remove": "このバックアップサーバーを削除",
-    "add": "バックアップサーバーを追加",
-    "reviewReplicas": "バックアップサーバーの変更を確認",
-    "invalid": "役割・番号・ID・アドレスに誤りがあります。確認してもう一度お試しください。",
-    "confirm": "変更内容をすべて確認してください。役割は置き換えられ、削除したバックアップサーバーの番号は再利用できません。",
-    "preview": "送信予定の変更",
-    "submit": "変更を確定",
-    "currentRoles": "現在の業務ロール：{{roles}}",
-    "loadRoles": "現在のロールを読み込む"
-  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -476,25 +414,6 @@
   },
   "ComingSoonSign": {
     "text": "このページは今準備中で、しばらくお待ちしてください。"
-  },
-  "ConnectionFlow": {
-    "connecting": "接続中…",
-    "setup": "接続設定を開く",
-    "origin": {
-      "match": "試合",
-      "room": "ルーム"
-    },
-    "currentGame": "現在のゲーム接続",
-    "disconnectFirst": "別のルームや試合に参加する前に、現在の接続を切断してください。",
-    "defaultSeed": "接続済みノードを使用",
-    "linkStaged": "接続リンクを受信しました。準備が整ったら、ここで内容を確認して接続してください。",
-    "searching": "近くのユニオンサーバーを検索中…",
-    "searchEmpty": "近くにユニオンサーバーが見つかりません。",
-    "searchRetry": "再検索",
-    "membershipTitle": "ユニオンを検出",
-    "membershipBody": "サーバーは近くにありますが、まだ参加していません。メンバー確認が通ると自動で接続します。",
-    "membershipAction": "確認して参加",
-    "joinFailed": "確認に失敗しました。スキンサイトにログインしているか確認するか、主催者に連絡してください。"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -968,235 +887,6 @@
   "ExtensionUpdateConfirmDialog": {
     "title": "拡張機能を更新",
     "body": "拡張機能 {{identifier}} は {{src}} から新しいバージョン {{version}} をダウンロードしました。インストールを確認しますか？"
-  },
-  "FederationNav": {
-    "title": "連盟",
-    "overview": "連盟の接続",
-    "activities": "リーグ戦とチーム",
-    "rooms": "サーバーとルーム",
-    "identity": "連盟の身元情報",
-    "manage": "管理",
-    "connected": "接続済み",
-    "restricted": "管理者アカウントで接続するとアプリケーションを管理できます。",
-    "advanced": "詳細設定",
-    "disconnected": "未接続"
-  },
-  "FederationPage": {
-    "points": {
-      "title": "ポイント",
-      "balance": "ポイント残高",
-      "account": "{{club}} · {{member}}",
-      "revision": "リビジョン {{revision}}",
-      "available": "利用可能：{{available}} ポイント",
-      "frozen": "凍結中：{{frozen}} ポイント",
-      "today": "現在の集計日：{{earned}} / {{cap}} ポイント",
-      "todayProgress": "現在の集計日の活動進捗",
-      "todayNoCap": "現在の集計日は {{earned}} ポイント獲得済み。1日の上限は未設定です。",
-      "resetAt": "リセット：{{time}}",
-      "slices": "有効スライス {{active}}、休憩スライス {{afk}}",
-      "asOf": "{{time}} 時点の明細",
-      "exportStatement": "ポイント明細を書き出す",
-      "exportDone": "ポイント明細を保存しました",
-      "exportFailed": "ポイント明細を書き出せませんでした",
-      "historyTitle": "直近24時間の入帳と AI の履歴",
-      "activityTitle": "直近24時間の入帳",
-      "activityEmpty": "直近24時間の入帳はありません。",
-      "activityRow": "有効 {{active}} · 休憩 {{afk}} · {{time}}",
-      "aiTitle": "AI の請求と返金",
-      "aiEmpty": "AI リクエストはまだありません。",
-      "aiRow": "凍結 {{frozen}} · 実費 {{charged}} · 返金 {{refunded}} · {{time}}",
-      "pointsValue": "{{points}} ポイント",
-      "requestTitle": "AI をリクエスト",
-      "requestHelp": "本文はまず組織にアップロードされます。登録済みワーカーと現在の料金だけを使用します。",
-      "requestText": "AI に渡す本文",
-      "requestSize": "{{size}} バイト",
-      "next": "次へ",
-      "back": "戻る",
-      "noWorker": "登録済みで稼働中のワーカーがありません。サーバー管理者に連絡してください。",
-      "worker": "登録済みワーカー",
-      "model": "モデル",
-      "maxTokens": "最大出力トークン",
-      "maxTokensHelp": "1 から 4294967295 までの整数。",
-      "length": "出力の長さ",
-      "lengthShort": "短め",
-      "lengthStandard": "標準",
-      "lengthDetailed": "詳細",
-      "lengthTokens": "{{label}} · 最大 {{tokens}} トークン",
-      "lengthUnavailable": "サーバーの出力上限に合うプリセットがありません。詳細設定でトークン数を入力してください。",
-      "maxTokensNativeHelp": "1 から {{max}} までの整数。",
-      "advancedShow": "詳細設定",
-      "advancedHide": "詳細設定を閉じる",
-      "reviewPayer": "支払元：{{payer}}",
-      "reviewMaxPoints": "今回の最大凍結：{{maxPoints}} ポイント",
-      "reviewWorker": "ワーカー {{worker}} · モデル {{model}}",
-      "quote": "基本 {{base}} + 使用量 {{variable}} = 凍結 {{total}} ポイント",
-      "maxPoints": "max_points：{{maxPoints}}",
-      "insufficient": "利用可能ポイントが今回の凍結額に足りません。活動ポイントを獲得するか、管理者に料金の確認を依頼してください。",
-      "automaticBudget": "自動ワークフローは別のイベントまたは報告書の予算を使います。このリクエストは自分の利用可能ポイントを使います。",
-      "confirm": "料金を確認",
-      "confirmTitle": "凍結ポイントの確認",
-      "confirmBody": "最大 {{maxPoints}} ポイントを凍結します。失敗時は全額返金され、成功時は実使用量で精算し差額を返金します。",
-      "confirmAction": "凍結してリクエスト",
-      "requestAccepted": "AI リクエストを受け付けました",
-      "budgetTitle": "自動ワークフロー予算",
-      "budgetHelp": "予算は {{club}} の {{member}} が支払い、選択したイベントまたは報告書だけに使えます。現在の利用可能額は {{available}} ポイントです。",
-      "budgetEmpty": "現在承認できるイベントまたは報告書がありません。",
-      "budgetScope": "イベントまたは報告書",
-      "budgetChoose": "実際のイベントまたは報告書を選択",
-      "budgetEvent": "イベント：{{title}}（{{club}}）",
-      "budgetReport": "報告書：{{title}}（{{club}}）",
-      "budgetAmount": "予算ポイント",
-      "budgetLimit": "利用可能な {{available}} ポイントを超えられません。",
-      "budgetSubmit": "予算を承認",
-      "budgetAccepted": "スコープ予算を承認しました",
-      "aiStagePurpose": "第 {{stage}} 段階 · {{purpose}}",
-      "aiStatusQueued": "待機中",
-      "aiStatusRunning": "実行中",
-      "aiStatusCompleted": "完了",
-      "aiStatusFailed": "失敗",
-      "aiStatusRefunded": "返金済み",
-      "aiStatusCancelled": "キャンセル済み",
-      "aiStatusUnknown": "不明",
-      "purposeMemberAssist": "メンバー支援",
-      "purposeEventsDraft": "活動文書の下書き",
-      "purposeEventsReview": "資料レビュー",
-      "purposeEventsSummary": "活動まとめ",
-      "purposeOther": "その他の用途",
-      "openResult": "結果を見る",
-      "aiRetry": "失敗した段階を再試行",
-      "aiCancel": "リクエストを取り消す",
-      "aiRetryConfirmTitle": "再試行の確認",
-      "aiRetryConfirmBody": "第 {{stage}} 段階は当初 {{quote}} ポイントで凍結されました。再試行では現在のモデル料金ではなく同じ金額を再度凍結します。支払者：{{payer}}。利用可能：{{available}} ポイント。",
-      "aiRetryConfirmAction": "元の見積額で再試行",
-      "resultTitle": "AI 結果 · {{model}} · 第 {{stage}} 段階",
-      "resultLoading": "結果を読み込み中…",
-      "resultFailed": "結果を読み込めませんでした。再試行してください。",
-      "resultRetry": "再試行",
-      "previousPage": "前へ",
-      "nextPage": "次へ",
-      "page": "{{page}} / {{pages}} ページ"
-    },
-    "gameConnection": {
-      "title": "マッチ接続",
-      "description": "主催者から提供されたマッチ接続リンクを貼り付けてください",
-      "linkLabel": "接続リンク",
-      "connect": "接続",
-      "error": "ゲーム接続が完了しませんでした。リンクを確認するか、主催者に連絡してください"
-    },
-    "settings": {
-      "addressLabel": "ユニオン接続アドレス",
-      "peerLabel": "サーバー ID",
-      "genesisLabel": "連盟の確認コード（主催者に確認してください）",
-      "genesisInvalid": "主催者から届いた 64 文字のコード（数字 0–9 と英字 a–f）を入力してください。",
-      "linkLabel": "接続リンク",
-      "linkHelp": "主催者のリンクを貼り付けて接続を選択してください。この端末でリンクを開くと、確認用にここへ入力されます。",
-      "linkConnect": "接続",
-      "linkInvalid": "有効な接続リンクではありません。主催者から届いたリンク全体をコピーしてください。",
-      "relay": {
-        "title": "リレーサービスとして実行",
-        "description": "直接接続できない連盟メンバー同士の接続を支援します。",
-        "updateFailed": "リレーサービスを更新できませんでした。"
-      },
-      "manualTitle": "接続情報を手動で入力",
-      "connect": "接続 / 更新",
-      "myDevice": "自分のデバイス：{{id}}",
-      "myMember": "自分のメンバー番号：{{id}}",
-      "myClub": "（{{club}}）",
-      "myGameProfile": "ゲームプロフィール：{{id}}",
-      "linkPlaceholder": "主催者から届いたリンクを貼り付け",
-      "shareAction": "招待リンクをコピー",
-      "disconnect": "切断",
-      "serverPeer": "サーバー {{peer}}"
-    },
-    "error": "操作が完了しませんでした。接続とエントリーの状態を確認して再試行してください",
-    "identityRequired": "接続する前に、設定で連盟の身元情報を設定してください。",
-    "openIdentity": "連盟の身元情報の設定を開く",
-    "empty": {
-      "noActivities": "まだ活動や競技はありません。"
-    },
-    "phase": {
-      "Registration": "エントリー受付中",
-      "Playing": "開催中",
-      "Finished": "終了"
-    },
-    "activities": {
-      "description": "活動とリーグ戦を閲覧し、参加登録や試合の状況を確認できます。",
-      "linkedCompetitions": "競技",
-      "competitionsEmpty": "この活動にはまだ競技が紐付いていません。",
-      "standaloneTitle": "単独の競技",
-      "competitionMissing": "この競技は現在のアプリケーションに含まれていません。",
-      "eventMissing": "この活動は現在のアプリケーションに含まれていません。",
-      "organizer": "主催クラブ",
-      "opens": "受付開始",
-      "closes": "受付終了",
-      "starts": "開始",
-      "signupCount": "{{count}} 名が参加登録済み",
-      "signup": "参加登録",
-      "cancelSignup": "参加登録をキャンセル",
-      "noBrief": "この活動の説明はまだ登録されていません。",
-      "competitionTitle": "競技"
-    },
-    "activityPhase": {
-      "draft": "下書き",
-      "review": "審査中",
-      "approved": "承認済み",
-      "open": "受付中",
-      "done": "完了",
-      "cancelled": "中止"
-    },
-    "league": {
-      "seatsPerTeam": "1チーム {{seats}} 人",
-      "crossClub": "クロークラブ可",
-      "sameClubOnly": "同じクラブのみ",
-      "teamNamePlaceholder": "新しいチーム名",
-      "createTeam": "チーム作成",
-      "teamsTitle": "参加チーム",
-      "teamsEmpty": "チームはまだありません。エントリー期間中は、ユニオンメンバーがチームを作成できます。",
-      "memberCount": "{{count}} 人",
-      "registered": "エントリー済み",
-      "notRegistered": "未エントリー",
-      "acceptInvite": "招待を受ける",
-      "register": "エントリーする",
-      "inviteePlaceholder": "招待するメンバーを選択",
-      "invite": "メンバーを招待",
-      "teamScoreboard": "チームスコア",
-      "playerScoreboard": "プレイヤースコア",
-      "teamScoreboardEmpty": "チームスコアはまだありません。",
-      "playerScoreboardEmpty": "プレイヤースコアはまだありません。",
-      "points": "{{score}} 点",
-      "start": "エントリーを締めて開始",
-      "pause": "一時停止",
-      "resume": "再開"
-    },
-    "identity": {
-      "storagePending": "システムの資格情報ストアを待っています",
-      "storageError": "システムの資格情報ストアにアクセスできません。ロックを解除して再試行してください。",
-      "configuration": "主催者から提供された設定内容",
-      "save": "設定を保存",
-      "loading": "身元を確認しています…",
-      "unavailable": "現在、メンバー資格を確認できませんでした。接続を確認して更新してください。資格が失効したわけではありません。",
-      "empty": "まだ身元情報がありません。更新して読み込んでください。",
-      "saveInvalid": "この設定を読み取れませんでした。主催者から届いた内容をすべてコピーして、もう一度お試しください。"
-    },
-    "errors": {
-      "network": "サーバーに接続できません。インターネット接続とリンクを確認して、もう一度お試しください。",
-      "membership": "メンバー資格を確認できませんでした。「自分の身元」を開いて更新してから、もう一度お試しください。",
-      "invalid": "リクエストが無効です。主催者から届いたリンクと情報を確認してください。"
-    },
-    "guide": {
-      "title": "はじめに",
-      "setup": "主催者から提供された設定を追加",
-      "connect": "ユニオンに自動接続",
-      "verify": "メンバー資格を確認",
-      "done": "完了",
-      "next": "続ける"
-    },
-    "organizer": {
-      "areaTitle": "主催者向け操作",
-      "areaHint": "これらの操作は主催クラブのみが使用でき、全参加者に影響するため、実行前に確認を求めます。",
-      "startConfirmTitle": "参加受付を締め切って試合を開始しますか？",
-      "startConfirmBody": "参加受付は完全に締め切られ、現時点で登録済みのチームから対戦表が抽選されます。この操作は取り消せません。"
-    }
   },
   "FileDnDProvider": {
     "fileName": "{{fileName}} など（全{{count}}件）"
@@ -1813,143 +1503,6 @@
       "settings": "拡張機能の設定を開く"
     }
   },
-  "IdentifierDisplay": {
-    "copy": "識別子をコピー",
-    "copied": "コピー済み"
-  },
-  "IdentityFlow": {
-    "intro": "メンバー資格と紐付けられた端末を管理します。",
-    "setup": "下に主催者から提供された設定を貼り付けて保存すると、利用を開始できます。",
-    "sync": "身元を更新",
-    "automatic": "スキンサイトで認証",
-    "host": "ホスト端末を紐付け",
-    "device": "端末 ID",
-    "unbound": "未連携",
-    "position": "バージョン {{sequence}} まで反映済み",
-    "review": "変更を確認",
-    "reviewHint": "署名すると以下の変更を確定します。2 台のデバイスを関連付ける場合は、それぞれの署名が必要なことがあります。変更のやり取りは詳細設定で行えます。",
-    "technicalDetails": "技術的な詳細",
-    "signatureCount": "署名数: {{count}}",
-    "unknownAction": "不明な操作: {{type}}",
-    "sign": "確認して署名",
-    "submit": "署名済み変更を適用",
-    "import": "共同署名する変更を読み込む",
-    "importFile": "ファイルから読み込み",
-    "importFailed": "選択したファイルの読み込みに失敗しました",
-    "export": "署名済みの変更（共同署名者に送ってください）",
-    "exportFile": "署名済みレコードを書き出し",
-    "exportDone": "レコードを書き出しました",
-    "exportFailed": "レコードの書き出しに失敗しました",
-    "fields": {
-      "federation": "連盟",
-      "genesis": "連盟の設定",
-      "sequence": "バージョン番号",
-      "previous": "前のバージョン",
-      "action": "変更",
-      "signatures": "署名",
-      "public_key": "公開鍵",
-      "signature": "署名",
-      "member": "メンバー",
-      "device": "端末",
-      "club": "クラブ",
-      "kind": "属性の種類",
-      "value": "属性の値",
-      "evidence": "検証の根拠",
-      "verifier": "検証者",
-      "type": "操作",
-      "id": "申請 ID",
-      "service": "サービスID",
-      "audience": "ホストサーバー ID",
-      "permission": "権限名",
-      "quorum": "必要な署名数",
-      "chairs": "新しい代表",
-      "digest": "内容のフィンガープリント",
-      "roles": "役割",
-      "members": "バックアップサーバー",
-      "peer": "ホストサーバー ID",
-      "addresses": "アドレス",
-      "checkpoint": "保存済みチェックポイント",
-      "head": "バージョンハッシュ",
-      "devices": "リンク済み端末",
-      "revoked_devices": "取り消された端末",
-      "memberships": "所属",
-      "attributes": "リンク済み属性"
-    },
-    "permissions": {
-      "read": "読み取り",
-      "write": "書き込み",
-      "admin": "管理者",
-      "use": "使用",
-      "manage": "管理"
-    },
-    "services": {
-      "application": "アプリケーションサービス"
-    },
-    "attributeKinds": {
-      "game_profile": "ゲームプロフィール"
-    },
-    "unnamedField": "名前のない項目",
-    "before": "変更前",
-    "after": "変更後",
-    "unknown": "身元を更新すると現在の紐付けを確認できます",
-    "inspect": "保存済みの情報を表示（オフライン）",
-    "hint": "ほとんどの場合、最初のボタンだけで足ります。",
-    "importSetup": "主催者の設定をファイルから読み込む",
-    "setupLoaded": "設定を読み込みました。内容を確認して保存すると続行できます。"
-  },
-  "IdentityManagement": {
-    "title": "主催者ツール",
-    "action": "操作",
-    "invalid": "未入力または無効な項目があります。内容を確認してもう一度お試しください。",
-    "optional": "既存メンバーの資格を確認し、デバイスを追加しない場合は空欄にできます。",
-    "addChair": "代表を追加",
-    "removeChair": "代表を削除",
-    "actions": {
-      "confirm_member": "メンバー資格を確認",
-      "revoke_membership": "メンバー資格を取り消す",
-      "bind_device": "デバイスを登録",
-      "bind_attribute": "属性を登録",
-      "unbind_attribute": "属性の登録を解除",
-      "revoke_device": "デバイスを失効",
-      "register_service": "サービスを登録",
-      "grant_permission": "サービス権限を付与",
-      "revoke_permission": "サービス権限を取り消す",
-      "authorize_verifier": "検証者を承認",
-      "revoke_verifier": "検証者を取り消す",
-      "propose_succession": "代表交代を提案",
-      "approve_succession": "代表交代に同意",
-      "execute_succession": "代表交代を実行",
-      "cancel_succession": "代表交代を中止",
-      "replace_chairs": "共同署名で代表を交代"
-    },
-    "fields": {
-      "member": "固定メンバーID",
-      "club": "団体ID",
-      "device": "デバイス ID",
-      "kind": "属性の種類",
-      "value": "属性の値",
-      "service": "サービスID",
-      "audience": "ホストサーバー ID",
-      "id": "申請 ID",
-      "permission": "権限名",
-      "quorum": "必要な署名数",
-      "chairs": "新しい代表",
-      "evidence": "検証対象"
-    },
-    "evidence": {
-      "institutional_email": "学校メール",
-      "game_profile": "ゲームID"
-    },
-    "signOffline": "オフラインで署名（送信時に権限を再確認します）",
-    "publicTitle": "デバイスの公開ID",
-    "publicHint": "主催者への登録やデバイスの関連付けに使います。秘密鍵は含まれません。",
-    "copy": "コピー",
-    "cached": "保存済みの情報を表示しています。更新すると最新のメンバー資格を確認できます。",
-    "gameProfileHint": "32 文字の Minecraft プレイヤー UUID を入力してください。",
-    "generateId": "新しいIDを生成",
-    "facts": "身元情報の詳細（技術情報）",
-    "organizerHint": "主催者と部長向けです。一般のメンバーは操作不要です。"
-  },
   "ImportAccountInfoModal": {
     "header": {
       "title": "他のランチャーからアカウント情報をインポート"
@@ -2171,7 +1724,6 @@
   "IntelligenceSettingsPage": {
     "title": "{{productName}} AI",
     "description": "AI モデルをランチャーと Minecraft の体験に統合します。",
-    "federationNotice": "オンチェーン AI は今後のリリースで提供予定です。以下の MCP サービスは上流 SJMCL の独立した機能です。",
     "mcpServer": {
       "title": "MCP サービス",
       "headExtra": "再起動が必要",
@@ -2737,8 +2289,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "ランチャー更新",
-    "body": "上流 SJMCL の更新をダウンロードしました。再起動すると現在のプログラムが置き換わります。{{productName}} の連盟機能が含まれない可能性があります。",
-    "bodyWinInstaller": "上流 SJMCL のインストーラーをダウンロードしました。インストールすると {{productName}} が終了し、上流のインストーラーを起動します。本版の連盟機能が含まれない可能性があります。",
+    "body": "上流 SJMCL の更新をダウンロードしました。再起動すると現在のプログラムが置き換わります。{{productName}} のカスタマイズが含まれない可能性があります。",
+    "bodyWinInstaller": "上流 SJMCL のインストーラーをダウンロードしました。インストールすると {{productName}} が終了し、上流のインストーラーを起動します。本版のカスタマイズが含まれない可能性があります。",
     "button": {
       "restart": "再起動",
       "install": "インストール",
@@ -2748,66 +2300,9 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "原始設定ファイルの編集には注意してください。誤った形式は既存の設定が失われたり、ランチャーが正常に動作しなくなる可能性があります"
   },
-  "RoomSearch": {
-    "search": "ルーム・クラブ・バージョンを検索",
-    "school": "学校・クラブ",
-    "all": "すべての学校・クラブ",
-    "noMatches": "一致するルームはありません。"
-  },
-  "Rooms": {
-    "manualHint": "先に統一IDを設定してください。すべてのスキンサイトが停止しても、代表者は手動署名でメンバーとゲームIDを確認できます。資格は明示的に取り消されるまで有効です。",
-    "showIdentities": "署名用のデバイス ID を表示",
-    "hostIdentity": "ホスト用デバイス ID",
-    "playerIdentity": "参加用デバイス ID",
-    "title": "サーバーとルーム",
-    "description": "サーバーを探す、マルチプレイルームに参加する、または自分のルームを作成できます。",
-    "seeds": "ルーム検索用アドレス（1 行に 1 つ）",
-    "refresh": "ルームと状態を更新",
-    "partial": "一部のノードやルームに接続できません。一覧が不完全な場合があります。",
-    "seedsChanged": "検索ノードが前回の検索から変更されました。新しいノードでルームを検索するには更新してください。",
-    "empty": "接続可能なルームがありません。",
-    "initial": "更新してルームを探索してください。",
-    "option": "{{name}} · {{school}} · {{version}} · 最大 {{max}} 人",
-    "join": "参加",
-    "disconnect": "切断",
-    "connected": "{{address}} に接続しました。メンバーIDに登録したゲームプロフィールで Minecraft を起動してください。",
-    "host": "自分のルームを作成",
-    "configuration": "ローカルサーバー設定",
-    "pick": "設定ファイルを選択",
-    "relays": "中継アドレス（1 行に 1 つ）",
-    "hostHint": "このコンピューターのサーバー設定を使用します。友達が直接接続できない場合は、中継アドレスを追加してください。",
-    "start": "ルームを開始",
-    "stop": "ルームを閉じる",
-    "hosting": "{{name}} をホスト中",
-    "error": "操作を完了できませんでした。身元・サーバー設定・ネットワークを確認してもう一度お試しください。",
-    "networkSettings": "サーバーとルームのネットワーク設定",
-    "setupHint": "閲覧は可能です。参加またはルーム作成の前に、設定で連盟の身元情報を設定してください。",
-    "setupToJoin": "設定して参加",
-    "setupToHost": "設定してルームを作成",
-    "maxPlayers": "最大 {{max}} 人"
-  },
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "これをランチャーのバックグラウンドにする"
-    }
-  },
-  "SeasonPanel": {
-    "title": "日程と履歴",
-    "description": "シーズンの日程と集計スコア",
-    "empty": "シーズンはまだありません",
-    "noRecords": "まだスコアはありません",
-    "pendingSchedule": "未定",
-    "paused": "一時停止中",
-    "review": {
-      "leagueLabel": "再審査する試合",
-      "leaguePlaceholder": "参加した試合を選択",
-      "reasonLabel": "再審査の理由",
-      "submit": "再審査を送信"
-    },
-    "dispute": {
-      "resolved": "再審査済み",
-      "pending": "再審査待ち",
-      "resolution": "再審査結果：{{response}}"
     }
   },
   "SelectInstanceModal": {
@@ -3660,9 +3155,7 @@
       "intelligence": "AI",
       "extension": "拡張機能",
       "help": "マニュアルとヘルプ",
-      "about": "バージョン情報",
-      "federation": "ユニオン",
-      "federation-management": "連盟の管理"
+      "about": "バージョン情報"
     }
   },
   "SkinPreview": {

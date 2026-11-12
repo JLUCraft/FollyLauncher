@@ -5,7 +5,7 @@ pub static PRESET_AUTH_SERVERS: [&str; 1] = ["https://skin.jlucraft.com"];
 pub static SCOPE: &str =
   "openid offline_access Yggdrasil.PlayerProfiles.Select Yggdrasil.Server.Join";
 
-/// Client ids of MUA federation members a user may add by hand
+/// Client ids of MUA member schools a user may add by hand
 /// (ref: https://github.com/SJMC-Dev/SJMCL-client-ids).
 pub static CLIENT_IDS: [(&str, &str); 6] = [
   ("skin.mc.sjtu.cn", "6"),

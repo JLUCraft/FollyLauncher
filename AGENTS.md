@@ -76,14 +76,19 @@ SJMCL/
 
 ## 品牌系统（多社团分发）
 
-本 fork 由多个社团共享 union-core 基础设施，每个社团使用自己的品牌分发。品牌身份是数据驱动的：
+FollyLauncher is a thin SJMCL customization with club branding, the preset central
+skin station, and minecraftd integration. It has no federation runtime or management
+surface. Accounts and club governance belong to the skin station.
 
-- 品牌定义位于 `brands/<id>/brand.json`（productName、shortName、identifier、deeplinkScheme、copyright、federation 默认值、可选 icons/）。
-- `bun run brand <id>`（`scripts/brand/apply.js`）将品牌写入 `src-tauri/tauri.conf.json`（原生身份）并重新生成 `src/brand.gen.json`；前端通过 `src/brand.ts` 在运行时读取品牌。
-- `src/brand.gen.json` 是生成文件，不要手改；其提交默认值保持上游 SJMCL 身份，仅在构建社团分发时运行品牌脚本。
-- 不要在页面组件中硬编码产品名或深链 scheme，一律取自 `brand`。
+- Brand definitions live at `brands/<id>/brand.json`: product name, short name,
+  identifier, deep-link scheme, copyright, statistics prefix, and optional icons.
+- `bun run brand <id>` applies native identity and generates `src/brand.gen.json`
+  and `src-tauri/src/brand_meta.rs`. The committed brand is Folly Launcher.
+- Frontend components read product names and deep-link schemes from `src/brand.ts`.
+- The native build needs only the sibling minecraftd repository.
 
-Federation implementation and evidence are recorded in the machine-local workspace files `../TODO.md`; open work is tracked in `../PROBLEMS.md`. These files are not part of this repository.
+Machine-local execution records live in `../TODO.md`; unresolved work belongs to
+`../PROBLEMS.md`. Neither file is part of this repository.
 
 ## 扩展开发规范
 

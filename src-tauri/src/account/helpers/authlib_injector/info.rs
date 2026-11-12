@@ -187,7 +187,7 @@ fn skin_domains(servers: &[AuthServerInfo]) -> Vec<String> {
   domains.into_iter().collect()
 }
 
-pub fn federation_skin_domains(app: &AppHandle) -> SJMCLResult<Vec<String>> {
+pub fn configured_skin_domains(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let account_state = account_binding.lock()?;
   Ok(skin_domains(&account_state.auth_servers))

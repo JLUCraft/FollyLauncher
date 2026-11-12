@@ -18,15 +18,12 @@ import {
   LuGamepad2,
   LuGrid2X2Plus,
   LuInfo,
-  LuNetwork,
   LuPalette,
   LuSettings,
-  LuShieldCheck,
   LuSparkles,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useFederation } from "@/contexts/federation";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -37,18 +34,11 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   const { t } = useTranslation();
   const { config, newerVersion } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { isAdmin } = useFederation();
 
   const settingsDomainList: { key: string; icon: IconType }[][] = [
     [
       { key: "global-game", icon: LuGamepad2 },
       { key: "java", icon: LuCoffee },
-    ],
-    [
-      { key: "federation", icon: LuNetwork },
-      ...(isAdmin
-        ? [{ key: "federation-management", icon: LuShieldCheck }]
-        : []),
     ],
     [
       { key: "general", icon: LuSettings },

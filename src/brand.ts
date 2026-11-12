@@ -1,12 +1,5 @@
 import brandGen from "@/brand.gen.json";
 
-export interface BrandFederationConfig {
-  defaultAddress: string;
-  defaultPeer: string;
-  /** Built-in identity genesis pin: LAN auto-discovery only connects to this union. */
-  genesisHash: string;
-}
-
 export interface BrandConfig {
   id: string;
   productName: string;
@@ -14,7 +7,6 @@ export interface BrandConfig {
   identifier: string;
   deeplinkScheme: string;
   copyright: string;
-  federation: BrandFederationConfig;
 }
 
 /**

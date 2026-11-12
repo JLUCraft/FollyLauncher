@@ -21,30 +21,7 @@ function objectValue(value) {
   return value;
 }
 
-/** @param {string} text @returns {unknown[]} */
-function parseArray(text) {
-  /** @type {unknown} */
-  const value = JSON.parse(text);
-  return arrayValue(value);
-}
-
-/** @param {unknown} value @returns {unknown[]} */
-function arrayValue(value) {
-  if (!Array.isArray(value)) throw new Error("Expected a JSON array");
-  return value;
-}
-
-/** @param {unknown} value @returns {value is (...args: unknown[]) => unknown} */
-function isCallable(value) {
-  return typeof value === "function";
-}
-
 module.exports = {
   isRecord,
   parseRecord,
-  parseArray,
-  parseValue,
-  isCallable,
-  objectValue,
-  arrayValue,
 };

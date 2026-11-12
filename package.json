@@ -76,7 +76,6 @@
     "oxfmt": "^0.78.0",
     "oxlint": "^1.93.0",
     "oxlint-tsgolint": "^7.0.2006",
-    "playwright-core": "^1.65.0",
     "typescript": "^5"
   },
   "overrides": {

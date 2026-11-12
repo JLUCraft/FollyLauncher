@@ -152,9 +152,6 @@ export interface LauncherConfig {
       autoPurgeLauncherLogs: boolean;
     };
   };
-  federation: {
-    relayEnabled: boolean;
-  };
   intelligence: {
     mcpServer: {
       launcher: {
@@ -346,9 +343,6 @@ export const defaultConfig: LauncherConfig = {
     advanced: {
       autoPurgeLauncherLogs: true,
     },
-  },
-  federation: {
-    relayEnabled: false,
   },
   intelligence: {
     mcpServer: {

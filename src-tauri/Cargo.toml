@@ -162,17 +162,8 @@ lto = false
 expat-sys = { git = "https://github.com/SJMC-dev/libexpat.git" }
 
 [dependencies]
-keyring = { version = "=3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
-zeroize = "1"
 
-client = { package = "federation-client", version = "0.2.0", path = "../../union-core/crates/client", features = ["rooms"] }
-league = { path = "../../federated-server/game/league" }
-node = { package = "federation-node", version = "0.2.0", path = "../../union-core/crates/node" }
-identity = { package = "federation-identity", version = "0.2.0", path = "../../union-core/crates/identity" }
-protocol = { package = "federation-protocol", version = "0.2.0", path = "../../union-core/crates/protocol" }
-terminal-runtime = { package = "federation-terminal-runtime", version = "0.2.0", path = "../../union-core/crates/terminal-runtime" }
 minecraftd = { path = "../../minecraftd" }
-federated-server = { path = "../../federated-server", default-features = false }
 async-speed-limit.workspace = true
 async-trait.workspace = true
 axum.workspace = true

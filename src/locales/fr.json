@@ -234,33 +234,6 @@
       "usePasswordLogin": "Connexion par mot de passe"
     }
   },
-  "AdminConsole": {
-    "title": "Opérations des saisons",
-    "description": "Créer des saisons, planifier des matchs, réviser les résultats et répondre aux demandes",
-    "createSeason": "Créer une saison",
-    "seasonId": "ID de la saison",
-    "seasonTitle": "Titre de la saison",
-    "create": "Créer",
-    "schedule": "Planifier un match",
-    "scheduleSeason": "Saison",
-    "scheduleLeague": "Ligue",
-    "selectSeason": "Sélectionnez une saison",
-    "selectLeague": "Sélectionnez une ligue",
-    "opensAt": "Ouverture des inscriptions",
-    "closesAt": "Clôture des inscriptions",
-    "startsAt": "Début du match",
-    "submit": "Soumettre",
-    "review": "Révisions des résultats",
-    "reviewSelect": "Demande de révision",
-    "reviewPlaceholder": "Sélectionnez une révision en attente",
-    "reviewResponse": "Commentaire de révision",
-    "playerDeltas": "Ajustements des scores joueurs",
-    "teamDeltas": "Ajustements des scores équipes",
-    "deltasPlaceholder": "Une entrée par ligne : nom +/-points",
-    "resolve": "Soumettre la révision",
-    "empty": "Rien à traiter pour le moment.",
-    "invalidDeltas": "Certaines lignes sont invalides ou dupliquées. Indiquez un identifiant de membre ou d’équipe suivi d’un entier par ligne."
-  },
   "AlertResourceDependencyModal": {
     "header": {
       "title": "Des ressources prérequises sont manquantes"
@@ -387,41 +360,6 @@
       }
     }
   },
-  "AuditAnchor": {
-    "title": "Empreintes d’audit",
-    "description": "Exportez un rapport d’audit depuis le serveur, vérifiez-le, puis enregistrez ici son empreinte pour qu’il ne puisse plus être modifié. Réservé aux administrateurs.",
-    "existing": "Empreintes enregistrées",
-    "empty": "Aucune empreinte enregistrée",
-    "id": "ID du rapport",
-    "digest": "Empreinte du rapport (64 caractères, chiffres 0–9 et lettres a–f)",
-    "invalid": "Vérifiez l’ID et l’empreinte du rapport.",
-    "confirm": "Vérifiez l’ID et l’empreinte. Une fois enregistrés, ils ne peuvent plus être modifiés.",
-    "review": "À vérifier avant l’enregistrement",
-    "submit": "Enregistrer l’empreinte"
-  },
-  "BusinessAdmin": {
-    "title": "Rôles et serveurs de secours",
-    "description": "Les changements ne s’appliquent qu’à la communauté connectée. Adhésion, accès aux services et rôles sont gérés séparément.",
-    "roles": "Rôles, un par ligne",
-    "rolesHint": "Remplace tous les rôles. Une liste vide supprime tous les rôles.",
-    "reviewRoles": "Vérifier les rôles",
-    "replicas": "Serveurs de secours",
-    "replicasHint": "Utilisez 1, 3, 5 ou 7 serveurs de secours, chacun avec un numéro positif distinct. Les numéros retirés ne peuvent pas être réutilisés. Chaque adresse doit appartenir à l’ID de serveur associé.",
-    "current": "Serveurs de secours enregistrés",
-    "empty": "Aucun serveur de secours enregistré",
-    "load": "Charger les serveurs de secours actuels",
-    "nodeId": "Numéro du serveur de secours",
-    "addresses": "Adresses, une par ligne",
-    "remove": "Supprimer ce serveur de secours",
-    "add": "Ajouter un serveur de secours",
-    "reviewReplicas": "Vérifier le changement de serveurs de secours",
-    "invalid": "Certains rôles, numéros, ID ou adresses sont invalides. Vérifiez-les et réessayez.",
-    "confirm": "Vérifiez l’ensemble du changement. Les rôles sont remplacés et les numéros de serveurs supprimés ne peuvent pas être réutilisés.",
-    "preview": "Modification proposée",
-    "submit": "Confirmer la modification",
-    "currentRoles": "Rôles actuels : {{roles}}",
-    "loadRoles": "Charger les rôles actuels"
-  },
   "ChangeLoaderModal": {
     "header": {
       "modloader": {
@@ -476,25 +414,6 @@
   },
   "ComingSoonSign": {
     "text": "Cette page n'est pas encore disponible, restez à l'écoute."
-  },
-  "ConnectionFlow": {
-    "connecting": "Connexion…",
-    "setup": "Ouvrir les paramètres de connexion",
-    "origin": {
-      "match": "Match",
-      "room": "Salon"
-    },
-    "currentGame": "Connexion de jeu actuelle",
-    "disconnectFirst": "Déconnectez ce service avant de rejoindre un autre salon ou match.",
-    "defaultSeed": "Utiliser le nœud connecté",
-    "linkStaged": "Lien reçu. Vérifiez-le et confirmez la connexion ici lorsque la configuration sera prête.",
-    "searching": "Recherche de serveurs de l'union à proximité…",
-    "searchEmpty": "Aucun serveur de l'union trouvé à proximité.",
-    "searchRetry": "Relancer la recherche",
-    "membershipTitle": "Union trouvée",
-    "membershipBody": "Le serveur est à proximité, mais vous n'avez pas encore rejoint. Vérifiez votre adhésion et la connexion se fera automatiquement.",
-    "membershipAction": "Vérifier et rejoindre",
-    "joinFailed": "La vérification a échoué. Vérifiez que vous êtes connecté au site de skins, ou contactez l'organisateur."
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -968,235 +887,6 @@
   "ExtensionUpdateConfirmDialog": {
     "title": "Mettre à jour l'extension",
     "body": "L'extension {{identifier}} a téléchargé la nouvelle version {{version}} depuis {{src}}. Confirmer l'installation ?"
-  },
-  "FederationNav": {
-    "title": "Fédération",
-    "overview": "Connexion à l’alliance",
-    "activities": "Ligues et équipes",
-    "rooms": "Serveurs et salons",
-    "identity": "Identité de l’alliance",
-    "manage": "Administration",
-    "connected": "Connecté",
-    "restricted": "Connectez-vous avec un compte administrateur pour gérer l’application.",
-    "advanced": "Paramètres avancés",
-    "disconnected": "Non connecté"
-  },
-  "FederationPage": {
-    "points": {
-      "title": "Points",
-      "balance": "Solde de points",
-      "account": "{{club}} · {{member}}",
-      "revision": "Révision {{revision}}",
-      "available": "Disponible : {{available}} points",
-      "frozen": "Gelé : {{frozen}} points",
-      "today": "Jour de calcul en cours : {{earned}} / {{cap}} points",
-      "todayProgress": "Progression d'activité du jour de calcul en cours",
-      "todayNoCap": "Jour de calcul en cours : {{earned}} points ; aucun plafond quotidien.",
-      "resetAt": "Réinitialisation à {{time}}",
-      "slices": "Tranches actives {{active}}, tranches de repos {{afk}}",
-      "asOf": "Relevé au {{time}}",
-      "exportStatement": "Exporter le relevé de points",
-      "exportDone": "Relevé de points enregistré",
-      "exportFailed": "Impossible d'exporter le relevé de points",
-      "historyTitle": "Crédits des 24 dernières heures et historique IA",
-      "activityTitle": "Crédits d’activité des 24 dernières heures",
-      "activityEmpty": "Aucun crédit d'activité au cours des 24 dernières heures.",
-      "activityRow": "Actives {{active}} · repos {{afk}} · {{time}}",
-      "aiTitle": "Débits et remboursements IA",
-      "aiEmpty": "Aucune requête IA pour le moment.",
-      "aiRow": "Gelé {{frozen}} · débité {{charged}} · remboursé {{refunded}} · {{time}}",
-      "pointsValue": "{{points}} points",
-      "requestTitle": "Demander une IA",
-      "requestHelp": "Le texte est d'abord téléversé vers l'organisation. Seuls les workers enregistrés et leurs tarifs actuels sont utilisés.",
-      "requestText": "Texte destiné à l'IA",
-      "requestSize": "{{size}} octets",
-      "next": "Suivant",
-      "back": "Retour",
-      "noWorker": "Aucun worker enregistré n'est actif. Contactez un administrateur du serveur.",
-      "worker": "Worker enregistré",
-      "model": "Modèle",
-      "maxTokens": "Tokens de sortie maximum",
-      "maxTokensHelp": "Un entier de 1 à 4294967295.",
-      "length": "Longueur de sortie",
-      "lengthShort": "Courte",
-      "lengthStandard": "Standard",
-      "lengthDetailed": "Détaillée",
-      "lengthTokens": "{{label}} · jusqu’à {{tokens}} tokens",
-      "lengthUnavailable": "Aucun préréglage ne respecte la limite de sortie du serveur. Saisissez un nombre de tokens dans les paramètres avancés.",
-      "maxTokensNativeHelp": "Un entier de 1 à {{max}} tokens.",
-      "advancedShow": "Paramètres avancés",
-      "advancedHide": "Masquer les paramètres avancés",
-      "reviewPayer": "Payeur : {{payer}}",
-      "reviewMaxPoints": "Gel maximal : {{maxPoints}} points",
-      "reviewWorker": "Worker {{worker}} · modèle {{model}}",
-      "quote": "Base {{base}} + usage {{variable}} = gelé {{total}} points",
-      "maxPoints": "max_points : {{maxPoints}}",
-      "insufficient": "Les points disponibles ne couvrent pas ce gel. Gagnez des points d’activité ou demandez à un administrateur de revoir les tarifs.",
-      "automaticBudget": "Les workflows automatiques utilisent un budget séparé d'événement ou de rapport. Cette requête dépense vos propres points disponibles.",
-      "confirm": "Confirmer le coût",
-      "confirmTitle": "Confirmer les points gelés",
-      "confirmBody": "Au plus {{maxPoints}} points seront gelés. Un échec rembourse tout ; un succès règle l’usage réel et rembourse la différence.",
-      "confirmAction": "Geler et demander",
-      "requestAccepted": "Requête IA acceptée",
-      "budgetTitle": "Budget des workflows automatiques",
-      "budgetHelp": "Le budget est payé par {{member}} de {{club}} et ne finance que l’événement ou le rapport choisi. Disponible : {{available}} points.",
-      "budgetEmpty": "Aucun événement ou rapport que vous pouvez autoriser pour le moment.",
-      "budgetScope": "Événement ou rapport",
-      "budgetChoose": "Choisir un événement ou rapport réel",
-      "budgetEvent": "Événement : {{title}} ({{club}})",
-      "budgetReport": "Rapport : {{title}} ({{club}})",
-      "budgetAmount": "Points de budget",
-      "budgetLimit": "Ne peut pas dépasser vos {{available}} points disponibles.",
-      "budgetSubmit": "Autoriser le budget",
-      "budgetAccepted": "Budget limité au périmètre autorisé",
-      "aiStagePurpose": "Étape {{stage}} · {{purpose}}",
-      "aiStatusQueued": "En attente",
-      "aiStatusRunning": "En cours",
-      "aiStatusCompleted": "Terminé",
-      "aiStatusFailed": "Échec",
-      "aiStatusRefunded": "Remboursé",
-      "aiStatusCancelled": "Annulé",
-      "aiStatusUnknown": "Inconnu",
-      "purposeMemberAssist": "Assistance membre",
-      "purposeEventsDraft": "Rédaction du document d’activité",
-      "purposeEventsReview": "Révision des documents",
-      "purposeEventsSummary": "Résumé d’activité",
-      "purposeOther": "Autre usage",
-      "openResult": "Voir le résultat",
-      "aiRetry": "Réessayer l’étape échouée",
-      "aiCancel": "Annuler la demande",
-      "aiRetryConfirmTitle": "Confirmer la nouvelle tentative",
-      "aiRetryConfirmBody": "L’étape {{stage}} avait été estimée à {{quote}} points. La nouvelle tentative gèle à nouveau ce montant, et non le tarif actuel du modèle. Payeur : {{payer}}. Disponible : {{available}} points.",
-      "aiRetryConfirmAction": "Réessayer au tarif initial",
-      "resultTitle": "Résultat IA · {{model}} · étape {{stage}}",
-      "resultLoading": "Lecture du résultat…",
-      "resultFailed": "Impossible de lire le résultat. Réessayez.",
-      "resultRetry": "Réessayer",
-      "previousPage": "Précédent",
-      "nextPage": "Suivant",
-      "page": "Page {{page}} / {{pages}}"
-    },
-    "gameConnection": {
-      "title": "Connexion au match",
-      "description": "Collez le lien de connexion fourni par l'organisateur",
-      "linkLabel": "Lien de connexion",
-      "connect": "Connecter",
-      "error": "Connexion au jeu impossible ; vérifiez le lien ou contactez l'organisateur"
-    },
-    "settings": {
-      "addressLabel": "Adresse de l'union",
-      "peerLabel": "Identifiant du serveur",
-      "genesisLabel": "Code de vérification de la ligue (demandez à votre organisateur)",
-      "genesisInvalid": "Saisissez le code de 64 caractères fourni par votre organisateur (chiffres 0–9 et lettres a–f).",
-      "linkLabel": "Lien de connexion",
-      "linkHelp": "Collez le lien de l’organisateur et choisissez Connexion. Ouvrir un lien sur cet ordinateur le renseigne ici pour confirmation.",
-      "linkConnect": "Se connecter",
-      "linkInvalid": "Ce n’est pas un lien de connexion valide. Copiez le lien complet de votre organisateur.",
-      "relay": {
-        "title": "Exécuter comme service de relais",
-        "description": "Aidez les membres de la fédération à se connecter lorsqu’une connexion directe est indisponible.",
-        "updateFailed": "Impossible de mettre à jour le service de relais."
-      },
-      "manualTitle": "Saisir les informations manuellement",
-      "connect": "Connecter / Actualiser",
-      "myDevice": "Mon appareil : {{id}}",
-      "myMember": "Mon numéro de membre : {{id}}",
-      "myClub": "({{club}})",
-      "myGameProfile": "Profil de jeu : {{id}}",
-      "linkPlaceholder": "Collez le lien de votre organisateur",
-      "shareAction": "Copier le lien d'invitation",
-      "disconnect": "Se déconnecter",
-      "serverPeer": "Serveur {{peer}}"
-    },
-    "error": "Échec de l'opération ; vérifiez la connexion et l'inscription, puis réessayez",
-    "identityRequired": "Configurez votre identité d’alliance dans les paramètres avant de vous connecter.",
-    "openIdentity": "Ouvrir les paramètres d’identité de l’alliance",
-    "empty": {
-      "noActivities": "Aucune activité ni compétition pour le moment."
-    },
-    "phase": {
-      "Registration": "Inscription",
-      "Playing": "En cours",
-      "Finished": "Terminé"
-    },
-    "activities": {
-      "description": "Parcourez les activités et les ligues et suivez leur état.",
-      "linkedCompetitions": "Compétitions",
-      "competitionsEmpty": "Aucune compétition n’est encore liée à cette activité.",
-      "standaloneTitle": "Compétitions indépendantes",
-      "competitionMissing": "Cette compétition ne fait pas partie de l’application actuelle.",
-      "eventMissing": "Cette activité ne fait pas partie de l’application actuelle.",
-      "organizer": "Club organisateur",
-      "opens": "Ouverture des inscriptions",
-      "closes": "Clôture des inscriptions",
-      "starts": "Début",
-      "signupCount": "{{count}} inscrit(s)",
-      "signup": "S’inscrire",
-      "cancelSignup": "Annuler l’inscription",
-      "noBrief": "Aucune description n’a été fournie pour cette activité.",
-      "competitionTitle": "Compétition"
-    },
-    "activityPhase": {
-      "draft": "Brouillon",
-      "review": "En révision",
-      "approved": "Approuvée",
-      "open": "Inscriptions ouvertes",
-      "done": "Terminée",
-      "cancelled": "Annulée"
-    },
-    "league": {
-      "seatsPerTeam": "{{seats}} par équipe",
-      "crossClub": "Équipes inter-clubs autorisées",
-      "sameClubOnly": "Même club uniquement",
-      "teamNamePlaceholder": "Nom de la nouvelle équipe",
-      "createTeam": "Créer l'équipe",
-      "teamsTitle": "Équipes participantes",
-      "teamsEmpty": "Aucune équipe. Pendant la phase d'inscription, les membres de l'union peuvent créer des équipes.",
-      "memberCount": "{{count}} membres",
-      "registered": "Inscrite",
-      "notRegistered": "Non inscrite",
-      "acceptInvite": "Accepter l'invitation",
-      "register": "Soumettre l'inscription",
-      "inviteePlaceholder": "Choisissez un membre à inviter",
-      "invite": "Inviter un membre",
-      "teamScoreboard": "Classement des équipes",
-      "playerScoreboard": "Classement des joueurs",
-      "teamScoreboardEmpty": "Aucune donnée pour le classement des équipes.",
-      "playerScoreboardEmpty": "Aucune donnée pour le classement des joueurs.",
-      "points": "{{score}} pts",
-      "start": "Verrouiller & lancer",
-      "pause": "Suspendre",
-      "resume": "Reprendre"
-    },
-    "identity": {
-      "storagePending": "En attente du stockage des identifiants du système",
-      "storageError": "Impossible d’accéder au stockage des identifiants du système. Déverrouillez-le et réessayez.",
-      "configuration": "Configuration fournie par votre organisateur",
-      "save": "Enregistrer la configuration",
-      "loading": "Vérification de votre identité…",
-      "unavailable": "Impossible de confirmer votre adhésion pour le moment. Vérifiez votre connexion, puis actualisez. Votre adhésion n’a pas expiré.",
-      "empty": "Aucune information d’identité pour l’instant. Actualisez pour la charger.",
-      "saveInvalid": "Cette configuration est illisible. Copiez tout le texte de votre organisateur et réessayez."
-    },
-    "errors": {
-      "network": "Impossible de joindre le serveur. Vérifiez votre connexion Internet et le lien, puis réessayez.",
-      "membership": "Impossible de confirmer votre adhésion. Ouvrez « Mon identité », actualisez-le, puis réessayez.",
-      "invalid": "Cette demande n’est pas valide. Vérifiez le lien et les informations de votre organisateur."
-    },
-    "guide": {
-      "title": "Pour commencer",
-      "setup": "Ajouter la configuration de votre organisateur",
-      "connect": "Se connecter automatiquement à votre union",
-      "verify": "Vérifier votre adhésion",
-      "done": "Terminé",
-      "next": "Continuer"
-    },
-    "organizer": {
-      "areaTitle": "Actions de l'organisateur",
-      "areaHint": "Seul le club organisateur peut utiliser ces actions, et elles concernent tous les participants : chacune demande donc une confirmation.",
-      "startConfirmTitle": "Verrouiller les inscriptions et démarrer la compétition ?",
-      "startConfirmBody": "Les inscriptions ferment définitivement et le calendrier est tiré au sort parmi les équipes déjà inscrites. Cette action est irréversible."
-    }
   },
   "FileDnDProvider": {
     "fileName": "{{fileName}} et autres ({{count}} au total)"
@@ -1813,143 +1503,6 @@
       "settings": "Ouvrir les paramètres de l'extension"
     }
   },
-  "IdentifierDisplay": {
-    "copy": "Copier l’identifiant",
-    "copied": "Copié"
-  },
-  "IdentityFlow": {
-    "intro": "Vérifiez votre adhésion et gérez vos appareils associés.",
-    "setup": "Collez ci-dessous la configuration fournie par votre organisateur et enregistrez-la pour commencer.",
-    "sync": "Actualiser l’identité",
-    "automatic": "Vérifier via le site de skins",
-    "host": "Associer l’appareil hôte",
-    "device": "Identifiant de l’appareil",
-    "unbound": "Non associé",
-    "position": "À jour à la version {{sequence}}",
-    "review": "Vérifier les modifications",
-    "reviewHint": "Signer confirme les modifications ci-dessous. Lier deux appareils peut demander une signature de chacun ; échangez la modification dans les paramètres avancés.",
-    "technicalDetails": "Détails techniques",
-    "signatureCount": "Signatures : {{count}}",
-    "unknownAction": "Action inconnue : {{type}}",
-    "sign": "Confirmer et signer",
-    "submit": "Appliquer les modifications signées",
-    "import": "Importer une modification à cosigner",
-    "importFile": "Importer depuis un fichier",
-    "importFailed": "Échec de la lecture du fichier sélectionné",
-    "export": "Modification signée (à envoyer à votre cosignataire)",
-    "exportFile": "Exporter le registre signé",
-    "exportDone": "Registre exporté",
-    "exportFailed": "Échec de l’exportation du registre",
-    "fields": {
-      "federation": "Fédération",
-      "genesis": "Configuration de la fédération",
-      "sequence": "Numéro de version",
-      "previous": "Version précédente",
-      "action": "Modification",
-      "signatures": "Signatures",
-      "public_key": "Clé publique",
-      "signature": "Signature",
-      "member": "Membre",
-      "device": "Appareil",
-      "club": "Club",
-      "kind": "Type d'attribut",
-      "value": "Valeur de l'attribut",
-      "evidence": "Preuve de vérification",
-      "verifier": "Vérificateur",
-      "type": "Action",
-      "id": "ID de la demande",
-      "service": "ID du service",
-      "audience": "ID du serveur hôte",
-      "permission": "Permission",
-      "quorum": "Signatures requises",
-      "chairs": "Nouveaux représentants",
-      "digest": "Empreinte du contenu",
-      "roles": "Rôles",
-      "members": "Serveurs de sauvegarde",
-      "peer": "ID du serveur hôte",
-      "addresses": "Adresses",
-      "checkpoint": "Point de contrôle enregistré",
-      "head": "Hachage de la version",
-      "devices": "Appareils liés",
-      "revoked_devices": "Appareils révoqués",
-      "memberships": "Adhésions",
-      "attributes": "Attributs liés"
-    },
-    "permissions": {
-      "read": "Lecture",
-      "write": "Écriture",
-      "admin": "Administration",
-      "use": "Utilisation",
-      "manage": "Gestion"
-    },
-    "services": {
-      "application": "Service d'application"
-    },
-    "attributeKinds": {
-      "game_profile": "Profil de jeu"
-    },
-    "unnamedField": "Champ sans nom",
-    "before": "Avant",
-    "after": "Après",
-    "unknown": "Actualisez l’identité pour voir l’association actuelle",
-    "inspect": "Afficher les informations enregistrées (hors ligne)",
-    "hint": "La plupart des gens n’ont besoin que du premier bouton.",
-    "importSetup": "Charger la configuration de l’organisateur depuis un fichier",
-    "setupLoaded": "Configuration chargée. Vérifiez-la, puis enregistrez-la pour continuer."
-  },
-  "IdentityManagement": {
-    "title": "Outils d’organisation",
-    "action": "Action",
-    "invalid": "Certains champs sont manquants ou invalides. Vérifiez-les et réessayez.",
-    "optional": "Facultatif pour confirmer un membre existant sans ajouter d’appareil.",
-    "addChair": "Ajouter un représentant",
-    "removeChair": "Retirer ce représentant",
-    "actions": {
-      "confirm_member": "Confirmer l’adhésion",
-      "revoke_membership": "Révoquer l’adhésion",
-      "bind_device": "Associer un appareil",
-      "bind_attribute": "Associer un attribut",
-      "unbind_attribute": "Dissocier un attribut",
-      "revoke_device": "Révoquer un appareil",
-      "register_service": "Enregistrer un service",
-      "grant_permission": "Accorder une permission",
-      "revoke_permission": "Révoquer une permission",
-      "authorize_verifier": "Autoriser un vérificateur",
-      "revoke_verifier": "Révoquer un vérificateur",
-      "propose_succession": "Proposer une succession",
-      "approve_succession": "Approuver une succession",
-      "execute_succession": "Exécuter une succession",
-      "cancel_succession": "Annuler une succession",
-      "replace_chairs": "Remplacer les représentants par cosignature"
-    },
-    "fields": {
-      "member": "ID permanent du membre",
-      "club": "ID du club",
-      "device": "ID de l’appareil",
-      "kind": "Type d'attribut",
-      "value": "Valeur de l'attribut",
-      "service": "ID du service",
-      "audience": "ID du serveur hôte",
-      "id": "ID de la demande",
-      "permission": "Permission",
-      "quorum": "Signatures requises",
-      "chairs": "Nouveaux représentants",
-      "evidence": "Portée de vérification"
-    },
-    "evidence": {
-      "institutional_email": "Adresse institutionnelle",
-      "game_profile": "Profil de jeu"
-    },
-    "signOffline": "Signer hors ligne (revérifié à l’envoi)",
-    "publicTitle": "Identité publique de l’appareil",
-    "publicHint": "À transmettre à un organisateur pour vous inscrire ou lier un appareil. Aucune clé privée n’est incluse.",
-    "copy": "Copier",
-    "cached": "Informations enregistrées affichées. Actualisez pour voir votre adhésion à jour.",
-    "gameProfileHint": "Saisissez l'UUID de joueur Minecraft à 32 caractères.",
-    "generateId": "Générer un nouvel ID",
-    "facts": "Détails complets de l’identité (technique)",
-    "organizerHint": "Réservé aux organisateurs et aux présidents. Les membres n’en ont pas besoin."
-  },
   "ImportAccountInfoModal": {
     "header": {
       "title": "Importer des comptes depuis d'autres launchers"
@@ -2171,7 +1724,6 @@
   "IntelligenceSettingsPage": {
     "title": "Intelligence {{productName}}",
     "description": "Intégrez des modèles d'IA à votre lanceur et à votre expérience de jeu Minecraft.",
-    "federationNotice": "L’intelligence sur la chaîne sera disponible dans une version ultérieure ; le service MCP ci-dessous est une fonctionnalité distincte du projet upstream SJMCL.",
     "mcpServer": {
       "title": "Service MCP",
       "headExtra": "Redémarrage requis",
@@ -2737,8 +2289,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "Mise à jour du lanceur",
-    "body": "Une mise à jour de SJMCL en amont a été téléchargée. Le redémarrage remplacera le programme actuel ; les fonctions de fédération de {{productName}} peuvent être absentes.",
-    "bodyWinInstaller": "Un installateur de SJMCL en amont a été téléchargé. L’installation fermera {{productName}} et exécutera cet installateur, qui peut ne pas inclure les fonctions de fédération de cette version.",
+    "body": "Une mise à jour de SJMCL en amont a été téléchargée. Le redémarrage remplacera le programme actuel ; les personnalisations de {{productName}} peuvent être absentes.",
+    "bodyWinInstaller": "Un installateur de SJMCL en amont a été téléchargé. L’installation fermera {{productName}} et exécutera cet installateur, qui peut ne pas inclure les personnalisations de cette version.",
     "button": {
       "restart": "Redémarrer",
       "install": "Installer",
@@ -2748,66 +2300,9 @@
   "RevealConfigJsonConfirmDialog": {
     "body": "Veuillez éditer le fichier de configuration original du lanceur avec précaution. Un format incorrect peut entraîner la perte des paramètres existants ou un dysfonctionnement du lanceur"
   },
-  "RoomSearch": {
-    "search": "Rechercher un salon, club ou une version",
-    "school": "Établissement / club",
-    "all": "Tous les établissements / clubs",
-    "noMatches": "Aucun salon correspondant."
-  },
-  "Rooms": {
-    "manualHint": "Configurez d’abord l’identité unifiée. La présidence peut confirmer les membres et leur profil de jeu par signature même si tous les sites de skins sont hors ligne. L’adhésion reste valide jusqu’à sa révocation explicite.",
-    "showIdentities": "Afficher les identifiants à signer",
-    "hostIdentity": "Identifiant de l’appareil hôte",
-    "playerIdentity": "Identifiant de l’appareil participant",
-    "title": "Serveurs et salons",
-    "description": "Trouvez un serveur, rejoignez un salon multijoueur ou créez le vôtre.",
-    "seeds": "Adresses de recherche de salons (une par ligne)",
-    "refresh": "Actualiser les salons et leur état",
-    "partial": "Certains nœuds ou salons sont indisponibles. Cette liste peut être incomplète.",
-    "seedsChanged": "Les nœuds de découverte ont changé depuis la dernière recherche. Actualisez pour découvrir les salons sur les nouveaux nœuds.",
-    "empty": "Aucun salon accessible trouvé.",
-    "initial": "Actualisez pour découvrir les salons.",
-    "option": "{{name}} · {{school}} · {{version}} · {{max}} joueurs maximum",
-    "join": "Rejoindre",
-    "disconnect": "Déconnecter",
-    "connected": "Connecté à {{address}}. Lancez Minecraft avec le profil de jeu lié à votre identité de membre.",
-    "host": "Créer votre salon",
-    "configuration": "Configuration du serveur local",
-    "pick": "Choisir un fichier de configuration",
-    "relays": "Adresses de relais (une par ligne)",
-    "hostHint": "Utilise les paramètres de serveur de cet ordinateur. Si vos amis ne peuvent pas se connecter directement, ajoutez une adresse de relais.",
-    "start": "Ouvrir le salon",
-    "stop": "Fermer le salon",
-    "hosting": "Hébergement de {{name}}",
-    "error": "Opération impossible. Vérifiez votre identité, les paramètres du serveur et votre réseau, puis réessayez.",
-    "networkSettings": "Réseau des serveurs et salons",
-    "setupHint": "Vous pouvez parcourir la liste. Configurez votre identité dans les paramètres avant de rejoindre ou créer un salon.",
-    "setupToJoin": "Configurer pour rejoindre",
-    "setupToHost": "Configurer pour héberger",
-    "maxPlayers": "Jusqu'à {{max}} joueurs"
-  },
   "ScreenshotPreviewModal": {
     "menu": {
       "setAsBg": "Définir comme fond du lanceur"
-    }
-  },
-  "SeasonPanel": {
-    "title": "Calendrier et historique",
-    "description": "Calendriers des saisons et classements agrégés",
-    "empty": "Aucune saison pour le moment",
-    "noRecords": "Aucun classement pour le moment",
-    "pendingSchedule": "À planifier",
-    "paused": "En pause",
-    "review": {
-      "leagueLabel": "Match à réviser",
-      "leaguePlaceholder": "Sélectionnez un match disputé",
-      "reasonLabel": "Motif de la révision",
-      "submit": "Soumettre la révision"
-    },
-    "dispute": {
-      "resolved": "Révisé",
-      "pending": "En attente de révision",
-      "resolution": "Résultat de la révision : {{response}}"
     }
   },
   "SelectInstanceModal": {
@@ -3660,9 +3155,7 @@
       "intelligence": "IA",
       "extension": "Extensions",
       "help": "Aide & Doc",
-      "about": "À propos",
-      "federation": "Union",
-      "federation-management": "Administration de l’alliance"
+      "about": "À propos"
     }
   },
   "SkinPreview": {

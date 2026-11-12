@@ -20,9 +20,7 @@ import {
   LuBoxes,
   LuCirclePlus,
   LuFolder,
-  LuNetwork,
   LuSettings,
-  LuTrophy,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
@@ -71,16 +69,6 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
         value: "/instances/list",
         icon: <Icon as={LuBoxes} />,
         label: t("AllInstancesPage.title"),
-      },
-      {
-        value: "/instances/rooms",
-        icon: <Icon as={LuNetwork} />,
-        label: t("FederationNav.rooms"),
-      },
-      {
-        value: "/instances/activities",
-        icon: <Icon as={LuTrophy} />,
-        label: t("FederationNav.activities"),
       },
       ...(navBarType === "instance"
         ? installTasks
@@ -146,7 +134,6 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
     if (parts[2] === "details" && parts[3]) {
       return decodeURIComponent(parts[3]);
     }
-    if (parts[2] === "activities") return "/instances/activities";
     return router.asPath;
   }, [router.asPath]);
 

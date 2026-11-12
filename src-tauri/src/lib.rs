@@ -8,7 +8,6 @@ mod launch;
 mod launcher_config;
 mod resource;
 mod tasks;
-mod union;
 mod utils;
 
 use account::helpers::authlib_injector::info::{
@@ -90,30 +89,7 @@ pub async fn run() {
 
     builder
       .manage(minecraftd::process::client::ClientProcesses::default())
-      .manage(union::ProxyState::default())
-      .manage(union::relay::RelayState::default())
-      .manage(union::rooms::RoomState::default())
       .invoke_handler(tauri::generate_handler![
-        union::relay::union_set_relay_enabled,
-        union::rooms::union_rooms,
-        union::rooms::union_room_host,
-        union::rooms::union_room_identity,
-        union::rooms::union_room_stop,
-        union::rooms::union_room_status,
-        union::union_identity,
-        union::trust::union_identity_configuration,
-        union::trust::union_identity_action,
-        union::trust::union_management,
-        union::trust::union_public_identity,
-        union::trust::union_sign_identity_offline,
-        union::trust::union_bind_host_device,
-        union::trust::union_automated_identity,
-        union::union_proxy_start,
-        union::union_proxy_stop,
-        union::union_proxy_status,
-        union::union_governance,
-        union::union_discover,
-        union::union_points_output,
         launcher_config::commands::retrieve_launcher_config,
         launcher_config::commands::update_launcher_config,
         launcher_config::commands::reset_launcher_config,
@@ -255,15 +231,7 @@ pub async fn run() {
         let exe_sha256 = launcher_config.basic_info.exe_sha256.clone();
         let auto_purge_launcher_logs = launcher_config.general.advanced.auto_purge_launcher_logs;
         let launcher_mcp_config = launcher_config.intelligence.mcp_server.launcher.clone();
-        let relay_enabled = launcher_config.federation.relay_enabled;
         app.manage(Mutex::new(launcher_config));
-
-        if relay_enabled {
-          let app_handle = app.handle().clone();
-          tauri::async_runtime::spawn(async move {
-            union::relay::start_configured(&app_handle).await;
-          });
-        }
 
         let account_info = AccountInfo::load().unwrap_or_default();
         app.manage(Mutex::new(account_info));
@@ -429,25 +397,6 @@ pub async fn run() {
               {
                 open_modpack_deeplink(app_handle, path_str);
               }
-            }
-          }
-          tauri::RunEvent::ExitRequested { api, .. } => {
-            if !app_handle
-              .state::<union::rooms::RoomState>()
-              .1
-              .swap(true, std::sync::atomic::Ordering::SeqCst)
-            {
-              api.prevent_exit();
-              let app = app_handle.clone();
-              tauri::async_runtime::spawn(async move {
-                let room = app.state::<union::rooms::RoomState>().0.lock().await.take();
-                if let Some(room) = room
-                  && let Err(error) = room.stop().await
-                {
-                  log::error!("Room cleanup failed: {error}");
-                }
-                app.exit(0);
-              });
             }
           }
           // set normal exit flag.

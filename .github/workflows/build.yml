@@ -69,8 +69,7 @@ jobs:
         working-directory: workspace/FollyLauncher
 
     steps:
-      # The launcher links the shared library crates, the game daemon and the
-      # server through sibling paths, so CI reproduces the local workspace layout.
+      # The native launcher links minecraftd through a sibling path.
       - uses: actions/checkout@v7
         with:
           repository: JLUCraft/FollyLauncher
@@ -79,24 +78,8 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          repository: JLUCraft/union-core
-          path: workspace/union-core
-
-      - uses: actions/checkout@v7
-        with:
           repository: JLUCraft/minecraftd
           path: workspace/minecraftd
-
-      - uses: actions/checkout@v7
-        with:
-          repository: JLUCraft/federated-server
-          path: workspace/federated-server
-
-      - uses: actions/checkout@v7
-        with:
-          repository: JLUCraft/federated-skinstation
-          ref: refactor/central-skinstation-p0
-          path: workspace/federated-skinstation
 
       - name: Resolve build metadata
         id: build_metadata
