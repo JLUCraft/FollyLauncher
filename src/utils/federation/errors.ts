@@ -1,5 +1,8 @@
 export type FederationErrorKind =
-  "network" | "membership" | "invalid" | "generic";
+  | "network"
+  | "membership"
+  | "invalid"
+  | "generic";
 
 // Codes come from the native core's stable ClientErrorCode set; messages are diagnostic only.
 const KIND_BY_CODE: Record<string, FederationErrorKind> = {

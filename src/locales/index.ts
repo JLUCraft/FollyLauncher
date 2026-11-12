@@ -8,7 +8,7 @@ import zh_Hant from "./zh-Hant.json";
 
 type LocaleResources = {
   [key: string]: {
-    translation: Record<string, any>;
+    translation: Record<string, unknown>;
     display_name: string;
     htmlLang: string;
   };

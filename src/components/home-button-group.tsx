@@ -28,11 +28,11 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { PlayerType } from "@/enums/account";
-import styles from "@/styles/launch.module.css";
 import {
   LAUNCH_ACCOUNT_SETUP_PATH,
   LAUNCH_INSTANCE_SETUP_PATH,
 } from "@/utils/launch-flow";
+import styles from "@/styles/launch.module.css";
 
 interface CustomButtonProps extends Omit<
   IconButtonProps,

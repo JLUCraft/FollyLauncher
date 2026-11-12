@@ -19,7 +19,8 @@ type OptionValue = string;
 type OptionLabel = React.ReactNode | { title: string; desc: string };
 
 type MenuSelectorOption =
-  OptionValue | { value: OptionValue; label: OptionLabel; disabled?: boolean };
+  | OptionValue
+  | { value: OptionValue; label: OptionLabel; disabled?: boolean };
 
 export interface MenuSelectorProps extends Omit<MenuProps, "children"> {
   options: MenuSelectorOption[];
@@ -88,7 +89,12 @@ export const MenuSelector: React.FC<MenuSelectorProps> = ({
 
     if (multiple && Array.isArray(value)) {
       return value.length <= 3
-        ? value.map(getLabel).join(", ")
+        ? value.map((item, index) => (
+            <React.Fragment key={item}>
+              {index > 0 ? ", " : ""}
+              {getLabel(item)}
+            </React.Fragment>
+          ))
         : t("MenuSelector.selectedCount", { count: value.length });
     }
 

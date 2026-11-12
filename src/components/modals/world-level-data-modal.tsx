@@ -23,6 +23,7 @@ import TreeView, {
 import { useToast } from "@/contexts/toast";
 import { WorldDetails } from "@/models/instance/world";
 import { InstanceService } from "@/services/instance";
+import { displayValue } from "@/utils/string";
 
 interface WorldLevelDataModalProps extends Omit<ModalProps, "children"> {
   instanceId: string | undefined;
@@ -112,7 +113,7 @@ const WorldLevelDataModal: React.FC<WorldLevelDataModalProps> = ({
                     {isPrimitive ? ": " : ""}
                     {isPrimitive ? (
                       <Text as="span" fontWeight="normal" fontSize="sm">
-                        {String(value)}
+                        {displayValue(value)}
                       </Text>
                     ) : null}
                   </Text>

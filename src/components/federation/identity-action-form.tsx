@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
 import { GAME_PROFILE, UnionService } from "@/services/union";
+import { displayValue } from "@/utils/string";
 
 type Field = {
   name: string;
@@ -154,7 +155,7 @@ export function IdentityActionForm({
                       isDisabled={locked}
                       type={field.kind === "number" ? "number" : "text"}
                       min={field.kind === "number" ? 1 : undefined}
-                      value={String(values[field.name] ?? "")}
+                      value={displayValue(values[field.name] ?? "")}
                       onChange={(e) =>
                         update(
                           field.name,
@@ -171,7 +172,8 @@ export function IdentityActionForm({
                             key={suggestion}
                             size="xs"
                             variant={
-                              String(values[field.name] ?? "") === suggestion
+                              displayValue(values[field.name] ?? "") ===
+                              suggestion
                                 ? "solid"
                                 : "outline"
                             }

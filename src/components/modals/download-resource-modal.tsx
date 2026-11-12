@@ -81,7 +81,7 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
         <ModalHeader>
           <HStack w="100%" justify="flex-start" align="center">
             <Text>{t("DownloadResourceModal.header.title")}</Text>
-            <NavMenu
+            <NavMenu<OtherResourceType>
               className="no-scrollbar"
               overflowX="auto"
               selectedKeys={[selectedResourceType]}

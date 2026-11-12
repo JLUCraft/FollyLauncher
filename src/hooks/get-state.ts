@@ -22,7 +22,7 @@ export function useGetState<T>(
 export function usePromisedGetState<T>(
   state: T | undefined,
   versionRef: React.MutableRefObject<string | undefined>,
-  retrieveHandler: () => Promise<any>
+  retrieveHandler: () => Promise<NoInfer<T> | GetStateFlag | undefined>
 ): [(sync?: boolean) => Promise<T | GetStateFlag | undefined>, boolean] {
   const [isLoading, setIsLoading] = useState(false);
   const validVersion = useRef<string | undefined>(undefined);

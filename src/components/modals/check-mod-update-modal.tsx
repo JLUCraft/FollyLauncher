@@ -240,7 +240,7 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
         }
       });
 
-      const results: any[] = [];
+      const results: Awaited<(typeof updatePromises)[number]>[] = [];
 
       await Promise.allSettled(
         updatePromises.map(async (p) => {

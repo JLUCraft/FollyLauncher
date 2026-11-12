@@ -20,6 +20,10 @@ import {
   LuRotateCw,
   LuX,
 } from "react-icons/lu";
+import {
+  sharedModals,
+  type SharedModalArguments,
+} from "@/components/modals/registry";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { emitDeepLink } from "@/hooks/deep-link";
 import { isProd } from "@/utils/env";
@@ -100,12 +104,19 @@ const DevToolbarContent: React.FC = () => {
           const key = match[1];
           const paramString = match[2];
           try {
-            const params = paramString ? JSON.parse(`${paramString}`) : {};
+            const params: unknown = paramString ? JSON.parse(paramString) : {};
+            if (!params || typeof params !== "object" || Array.isArray(params))
+              throw new Error("Parameters must be an object");
             if (inputType === "modal") {
-              openSharedModal(key, params);
+              if (!Object.hasOwn(sharedModals, key))
+                throw new Error("Unknown shared modal");
+              openSharedModal(...([key, params] as SharedModalArguments));
             } else if (inputType === "invoke") {
               try {
-                const res = await invoke(key, params);
+                const res = await invoke(
+                  key,
+                  params as Record<string, unknown>
+                );
                 logger.info("Invoke result:", res);
               } catch (err) {
                 logger.error("Invoke error:", err);

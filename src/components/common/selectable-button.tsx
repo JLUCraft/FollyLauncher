@@ -18,12 +18,12 @@ const SelectableButton: React.FC<SelectableButtonProps> = ({
   children,
   ...props
 }) => {
-  const theme = useTheme();
+  const theme = useTheme<{ colors: Record<string, Record<number, string>> }>();
 
   const _bgColorScheme = useColorModeValue("blackAlpha", "whiteAlpha");
   bgColorScheme = bgColorScheme || _bgColorScheme;
 
-  let selectedBg = theme.colors[bgColorScheme][200];
+  const selectedBg = theme.colors[bgColorScheme][200];
   const selectedColor = theme.colors[colorScheme][useColorModeValue(900, 100)];
   const defaultColor = theme.colors[colorScheme][useColorModeValue(600, 400)];
 

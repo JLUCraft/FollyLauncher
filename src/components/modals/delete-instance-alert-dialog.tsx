@@ -8,7 +8,10 @@ import { useToast } from "@/contexts/toast";
 import { InstanceSummary } from "@/models/instance/misc";
 import { InstanceService } from "@/services/instance";
 
-interface DeleteInstanceDialogProps extends Omit<AlertDialogProps, "children"> {
+interface DeleteInstanceDialogProps extends Omit<
+  AlertDialogProps,
+  "children" | "leastDestructiveRef"
+> {
   instance: InstanceSummary;
 }
 

@@ -326,13 +326,10 @@ const results =
           path: path.join(output, "federation-prerequisite.png"),
         });
         await page.getByRole("button", { name: next, exact: true }).click();
-        await page
-          .locator("#identity-setup")
-          .waitFor({ state: "visible" });
+        await page.locator("#identity-setup").waitFor({ state: "visible" });
         await page.waitForFunction(
           () =>
-            document.getElementById("identity-setup") ===
-            document.activeElement
+            document.getElementById("identity-setup") === document.activeElement
         );
         await page
           .getByRole("button", {

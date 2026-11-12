@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Button, VStack } from "@chakra-ui/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import SkinPreview from "@/components/skin-preview";
 import { DownloadTaskParam, TaskParam, TaskTypeEnums } from "@/models/task";
 import { TaskService } from "@/services/task";
@@ -20,8 +20,6 @@ const DevTestPage = () => {
       router.push("/launch");
     }
   }, [router]);
-
-  const [task_id, setTaskId] = useState<number | null>(null);
 
   return (
     <VStack align="start" spacing={4}>

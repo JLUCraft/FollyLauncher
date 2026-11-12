@@ -28,7 +28,7 @@ import { UtilsService } from "@/services/utils";
 
 export interface GameSettingsGroupsProps {
   gameConfig: GameConfig;
-  updateGameConfig: (key: string, value: any) => void;
+  updateGameConfig: (key: string, value: unknown) => void;
 }
 
 const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({

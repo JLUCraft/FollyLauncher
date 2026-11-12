@@ -268,7 +268,7 @@ const GlobalGameSettingsPage = () => {
       {/* Game config option-items */}
       <GameSettingsGroups
         gameConfig={globalGameConfigs}
-        updateGameConfig={(key: string, value: any) => {
+        updateGameConfig={(key: string, value: unknown) => {
           update(`globalGameConfig.${key}`, value);
         }}
       />

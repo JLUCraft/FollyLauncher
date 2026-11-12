@@ -16,7 +16,10 @@ export const getResourceCompatibleModLoader = (
 ): ModLoaderType | "All" =>
   modLoader === ModLoaderType.Cleanroom ? ModLoaderType.Forge : modLoader;
 
-const tagLists: Record<string, any> = {
+export const tagLists: Record<
+  OtherResourceType,
+  Record<OtherResourceSource, Record<string, string[]> | string[]>
+> = {
   mod: modTagList,
   world: worldTagList,
   resourcepack: resourcePackTagList,

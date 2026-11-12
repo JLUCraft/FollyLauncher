@@ -8,7 +8,6 @@ if (!subCommand) {
 }
 
 try {
-  const args = process.argv.slice(4); // Get any additional arguments
   require(path.join(__dirname, `${subCommand}.js`));
 } catch (error) {
   if (error.code === "MODULE_NOT_FOUND") {

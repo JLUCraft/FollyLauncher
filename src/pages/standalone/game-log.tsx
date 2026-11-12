@@ -26,9 +26,9 @@ import "react-virtualized/styles.css";
 import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
 import { LaunchService } from "@/services/launch";
-import styles from "@/styles/game-log.module.css";
 import { clamp } from "@/utils/math";
 import { parseIdFromWindowLabel } from "@/utils/window";
+import styles from "@/styles/game-log.module.css";
 
 type LogLevel = "FATAL" | "ERROR" | "WARN" | "INFO" | "DEBUG";
 type LogSelectionRange = { start: number; end: number };

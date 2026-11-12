@@ -1,6 +1,6 @@
 // Reject malformed, fractional, unsafe or duplicate deltas as a whole.
 export function parseDeltas(input: string): Record<string, number> | null {
-  const deltas: Record<string, number> = Object.create(null);
+  const deltas = Object.create(null) as Record<string, number>;
   for (const line of input.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed) continue;

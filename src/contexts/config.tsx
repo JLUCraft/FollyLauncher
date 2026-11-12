@@ -23,7 +23,7 @@ import { updateByKeyPath } from "@/utils/partial";
 interface LauncherConfigContextType {
   config: LauncherConfig;
   setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
-  update: (path: string, value: any) => void;
+  update: (path: string, value: unknown) => void;
   isZh: boolean; // value shortcut, true if language is zh-Hans / zh-Hant / lzh
   newerVersion: VersionMetaInfo;
   // other shared data associated with the launcher config.
@@ -67,7 +67,7 @@ export const LauncherConfigContextProvider: React.FC<{
   }, [setConfig, toast]);
 
   // from frontend to call backend update
-  const handleUpdateLauncherConfig = (path: string, value: any) => {
+  const handleUpdateLauncherConfig = (path: string, value: unknown) => {
     // save to the backend
     ConfigService.updateLauncherConfig(path, value).then((response) => {
       // if success, backend will emit signal, the logic below will be executed
@@ -82,14 +82,17 @@ export const LauncherConfigContextProvider: React.FC<{
   };
 
   // listen from backend to update frontend's config state
-  const handleConfigPartialUpdate = useCallback((payload: any) => {
-    const { path, value } = payload;
-    setConfig((prevConfig) => {
-      const newConfig = { ...prevConfig };
-      updateByKeyPath(newConfig, path, JSON.parse(value));
-      return newConfig;
-    });
-  }, []);
+  const handleConfigPartialUpdate = useCallback(
+    (payload: { path: string; value: string }) => {
+      const { path, value } = payload;
+      setConfig((prevConfig) => {
+        const newConfig = { ...prevConfig };
+        updateByKeyPath(newConfig, path, JSON.parse(value));
+        return newConfig;
+      });
+    },
+    []
+  );
 
   // retrieve config after partial update listener is set, to avoid missing updates during the initial loading phase. (#1615)
   useEffect(() => {

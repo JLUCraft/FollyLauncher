@@ -66,10 +66,10 @@ import { TaskParam, TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
 import { TaskService } from "@/services/task";
-import cardStyles from "@/styles/card.module.css";
 import { ISOToDate } from "@/utils/datetime";
 import { getResourceCompatibleModLoader, translateTag } from "@/utils/resource";
 import { formatDisplayCount, sanitizeFileName } from "@/utils/string";
+import cardStyles from "@/styles/card.module.css";
 
 interface DownloadSpecificResourceModalProps extends Omit<
   ModalProps,
@@ -108,7 +108,6 @@ const DownloadSpecificResourceModal: React.FC<
     ? getResourceCompatibleModLoader(curInstanceModLoader)
     : undefined;
 
-  const [gameVersionList, setGameVersionList] = useState<string[]>([]);
   const [versionLabels, setVersionLabels] = useState<string[]>([]);
   const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>("");
   const [selectedModLoader, setSelectedModLoader] = useState<
@@ -451,7 +450,6 @@ const DownloadSpecificResourceModal: React.FC<
             (version: GameClientResourceInfo) => version.gameType === "release"
           )
           .map((version: GameClientResourceInfo) => version.id);
-        setGameVersionList(versionList);
         const majorVersions = [
           ...new Set(
             versionList.map((v) => v.split(".").slice(0, 2).join("."))
@@ -787,7 +785,9 @@ const DownloadSpecificResourceModal: React.FC<
                   <NavMenu
                     className="no-scrollbar"
                     selectedKeys={[selectedModLoader]}
-                    onClick={setSelectedModLoader}
+                    onClick={(value) =>
+                      setSelectedModLoader(value as ModLoaderType | "All")
+                    }
                     direction="row"
                     size="xs"
                     spacing={2}

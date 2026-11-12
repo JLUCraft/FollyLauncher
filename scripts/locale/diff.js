@@ -77,8 +77,12 @@ function loadLocaleFile(filePath) {
 function compareKeys(baseKeys, targetKeys) {
   const baseSet = new Set(baseKeys);
   const targetSet = new Set(targetKeys);
-  const missing = [...baseSet].filter((k) => !targetSet.has(k)).sort();
-  const extra = [...targetSet].filter((k) => !baseSet.has(k)).sort();
+  const missing = [...baseSet]
+    .filter((k) => !targetSet.has(k))
+    .sort((left, right) => left.localeCompare(right));
+  const extra = [...targetSet]
+    .filter((k) => !baseSet.has(k))
+    .sort((left, right) => left.localeCompare(right));
   return [missing, extra];
 }
 function checkTodoValues(locale, localeName) {

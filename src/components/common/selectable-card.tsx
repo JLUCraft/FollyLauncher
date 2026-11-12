@@ -8,9 +8,11 @@ import {
   Image,
   Text,
   VStack,
+  useTheme,
 } from "@chakra-ui/react";
 import { LuChevronRight, LuX } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
+import { insetCardPadding } from "@/styles/card";
 import cardStyles from "@/styles/card.module.css";
 
 export interface SelectableCardProps extends CardProps {
@@ -41,9 +43,10 @@ const SelectableCard: React.FC<SelectableCardProps> = ({
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { space } = useTheme<{ space: Record<string, string> }>();
   const borderWidth = "1px";
   const basePadding = boxProps.padding || "12px";
-  const selectedPadding = `calc(${basePadding} - ${borderWidth})`;
+  const selectedPadding = insetCardPadding(basePadding, borderWidth, space);
 
   return (
     <Card

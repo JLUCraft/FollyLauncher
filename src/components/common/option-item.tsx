@@ -54,8 +54,8 @@ export const OptionItem: React.FC<OptionItemProps> = ({
   children,
   childrenOnHover = false,
   isChildrenIndependent = false,
-  maxTitleLines = undefined,
-  maxDescriptionLines = undefined,
+  maxTitleLines,
+  maxDescriptionLines,
   ...boxProps
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -213,7 +213,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   const limit = maxFirstVisibleItems ?? items.length;
   const [visibleCount, setVisibleCount] = useState(limit);
 
-  function isOptionItemProps(item: any): item is OptionItemProps {
+  function isOptionItemProps(item: unknown): item is OptionItemProps {
     return (
       (item as OptionItemProps)?.title != null &&
       (item as OptionItemProps)?.children != null

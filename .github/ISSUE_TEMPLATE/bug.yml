@@ -29,7 +29,7 @@ body:
       placeholder: "e.g. Windows 11 23H2 / macOS Sequoia 15.2 / Ubuntu 24.04.1"
     validations:
       required: true
-  
+
   - type: input
     id: launcherVersion
     attributes:

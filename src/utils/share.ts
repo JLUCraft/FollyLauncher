@@ -20,12 +20,11 @@ export async function shareFile(
 
   // use navigator.share
   try {
-    // @ts-ignore
-    if (navigator.canShare && !(navigator as any).canShare({ files: [file] })) {
+    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
       throw new Error("Cannot share this file");
     }
 
-    await (navigator as any).share({
+    await navigator.share({
       files: [file],
       title,
       text,
@@ -34,8 +33,8 @@ export async function shareFile(
     //   title: t("General.share.toast.success"),
     //   status: "success",
     // });
-  } catch (error: any) {
-    if (error?.name === "AbortError") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "AbortError") {
       // user cancelled the share action
       return;
     }

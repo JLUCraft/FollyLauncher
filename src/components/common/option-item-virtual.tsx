@@ -9,8 +9,8 @@ import {
 } from "react-virtualized";
 import { OptionItem, OptionItemProps } from "@/components/common/option-item";
 import { Section, SectionProps } from "@/components/common/section";
-import cardStyles from "@/styles/card.module.css";
 import { debounce } from "@/utils/debounce";
+import cardStyles from "@/styles/card.module.css";
 
 export { OptionItem };
 export type { OptionItemProps };
@@ -71,7 +71,7 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
     [debouncedLoadMore]
   );
 
-  function isOptionItemProps(item: any): item is OptionItemProps {
+  function isOptionItemProps(item: unknown): item is OptionItemProps {
     return (
       (item as OptionItemProps)?.title != null &&
       (item as OptionItemProps)?.children != null

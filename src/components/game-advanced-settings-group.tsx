@@ -76,7 +76,7 @@ const GameAdvancedSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
     "thirtySeconds",
   ];
   const updateGameAdvancedConfig = useCallback(
-    (key: string, value: any) => {
+    (key: string, value: unknown) => {
       updateGameConfig(`advanced.${key}`, value);
     },
     [updateGameConfig]

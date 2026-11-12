@@ -1,42 +1,70 @@
+import type { InvokeArgs } from "@tauri-apps/api/core";
 // Browser test fixtures only. Never imported by the application.
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
 import { brand } from "@/brand";
 import { defaultConfig } from "@/models/config";
+import type { LauncherConfig } from "@/models/config";
+import type { GameConnection } from "@/services/union";
+
+interface BrowserFixtureState {
+  calls: { cmd: string; args?: InvokeArgs }[];
+  admin: boolean;
+  proxy: GameConnection | null;
+  scheme: string;
+  application: Record<string, unknown>;
+  discoverServers?: unknown[];
+  testHandlers?: Record<string, (args: Record<string, unknown>) => unknown>;
+  testConfig?: LauncherConfig;
+  testFilePath?: string;
+  testFileContent?: string;
+  testIdentityConfiguration?: unknown;
+}
 
 export const config = structuredClone(defaultConfig);
 config.mocked = false;
 config.runCount = 10;
-const w = window as any;
-w.calls = [];
-w.admin = false;
-w.proxy = null;
-w.scheme = brand.deeplinkScheme;
 const member = {
   club: "club-a",
   device: "device-a",
   additional_devices: [],
   roles: [],
 };
-w.application = {
-  revision: 1,
-  clock_ms: 1000,
-  leagues: {},
-  seasons: {},
-  disputes: {},
-  events: {},
-  tasks: {},
-  signups: {},
-  checkins: {},
-  organization: {},
-  flow_templates: {},
-  flows: {},
-  files: { branches: {} },
+const initialState: BrowserFixtureState = {
+  calls: [],
+  admin: false,
+  proxy: null,
+  scheme: brand.deeplinkScheme,
+  application: {
+    revision: 1,
+    clock_ms: 1000,
+    leagues: {},
+    seasons: {},
+    disputes: {},
+    events: {},
+    tasks: {},
+    signups: {},
+    checkins: {},
+    organization: {},
+    flow_templates: {},
+    flows: {},
+    files: { branches: {} },
+  },
 };
+export const fixtureWindow = Object.assign(window, initialState);
+const w = fixtureWindow;
 mockWindows("main");
 mockIPC(
-  async (cmd, args: any) => {
-    w.calls.push({ cmd, args });
-    if (w.testHandlers?.[cmd]) return await w.testHandlers[cmd](args);
+  async (cmd, payload) => {
+    w.calls.push({ cmd, args: payload });
+    const args =
+      payload &&
+      !Array.isArray(payload) &&
+      !(payload instanceof ArrayBuffer) &&
+      !(payload instanceof Uint8Array)
+        ? payload
+        : {};
+    const handler = w.testHandlers?.[cmd];
+    if (handler) return await handler(args);
     if (cmd === "update_launcher_config") return;
     if (cmd === "retrieve_launcher_config") return config;
     if (cmd === "union_identity") return "device-a";
@@ -55,10 +83,20 @@ mockIPC(
       };
     if (cmd === "union_proxy_status") return w.proxy;
     if (cmd === "union_proxy_start") {
+      const input = args.input;
+      if (
+        !input ||
+        typeof input !== "object" ||
+        !("peer" in input) ||
+        typeof input.peer !== "string" ||
+        !("service" in input) ||
+        typeof input.service !== "string"
+      )
+        throw new Error("Proxy input requires peer and service");
       w.proxy = {
         address: "127.0.0.1:12345",
-        peer: args.input.peer,
-        service: args.input.service,
+        peer: input.peer,
+        service: input.service,
       };
       return w.proxy;
     }

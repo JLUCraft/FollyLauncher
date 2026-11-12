@@ -611,7 +611,9 @@ export async function nativeFollowup({
     );
     const concurrentRefreshCalls = 4;
     await Promise.all(
-      Array.from({ length: concurrentRefreshCalls }, () => invoke("retrieve_instance_list"))
+      Array.from({ length: concurrentRefreshCalls }, () =>
+        invoke("retrieve_instance_list")
+      )
     );
     const deadline = Date.now() + 240000;
     let groups = [];
@@ -640,7 +642,9 @@ export async function nativeFollowup({
     assert.equal(
       installed?.modLoader.status,
       "Installed",
-      JSON.stringify(groups.map(({ taskGroup, status }) => ({ taskGroup, status })))
+      JSON.stringify(
+        groups.map(({ taskGroup, status }) => ({ taskGroup, status }))
+      )
     );
     const manifest = JSON.parse(
       await readFile(
@@ -663,7 +667,11 @@ export async function nativeFollowup({
     const libraryGroups = groups.filter((group) =>
       group.taskGroup.startsWith(`cleanroom-libraries?${instance.id}@`)
     );
-    assert.equal(libraryGroups.length, 1, "Concurrent refresh must plan one library group");
+    assert.equal(
+      libraryGroups.length,
+      1,
+      "Concurrent refresh must plan one library group"
+    );
     const downloads = [];
     for (const file of await readdir(resolve(temp, "downloads"))) {
       if (!/^task-\d+\.json$/.test(file)) continue;
@@ -819,7 +827,10 @@ export async function nativeFollowup({
       await delay(300);
       nativeKey(gameWindow, "space");
       await delay(15000);
-      assert.ok(findChildWindow(running.pid), "Game must remain alive after continuing");
+      assert.ok(
+        findChildWindow(running.pid),
+        "Game must remain alive after continuing"
+      );
       const logs = await invoke("retrieve_game_log", {
         launchingId: launching.id,
       });

@@ -165,7 +165,7 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
             status: "error",
           });
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         logger.error("Failed to upload skin or cape file", e);
       } finally {
         setIsLoading(false);

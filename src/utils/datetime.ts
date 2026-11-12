@@ -32,7 +32,7 @@ export interface FormatRelativeTimeOptions {
 
 export const formatRelativeTime = (
   isoString: string,
-  t: (key: string, options?: any) => string,
+  t: (key: string, options?: Record<string, unknown>) => string,
   options?: FormatRelativeTimeOptions
 ): string => {
   const date = new Date(isoString);

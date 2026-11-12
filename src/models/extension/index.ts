@@ -45,14 +45,14 @@ export interface ExtensionAbilityActions {
   // internal context-specific
   getPlayerList: (sync?: boolean) => Player[] | undefined;
   getInstanceList: (sync?: boolean) => InstanceSummary[] | undefined;
-  updateConfig: (path: string, value: any) => void;
+  updateConfig: (path: string, value: unknown) => void;
   // navigation and window management
   navigate: (route: string) => Promise<void>;
   navBack: () => void;
   openWindow: (route: string, title: string) => void;
   openExternalLink: (url: string) => Promise<void>;
-  openSharedModal: (key: string, params?: any) => void;
-  openCustomModal: (key: string, params?: any) => void;
+  openSharedModal: import("@/components/modals/registry").OpenSharedModal;
+  openCustomModal: (key: string, params?: unknown) => void;
   setHomeWidgetTitle: (title: string, key?: string) => void;
   // file system and request
   readFile: (path: string, mode?: "string" | "base64") => Promise<string>;

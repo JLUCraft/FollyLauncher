@@ -38,10 +38,10 @@ import { OtherResourceInfo } from "@/models/resource";
 import { MC_NEWS_SOURCE_URL } from "@/pages/discover/minecraft-news";
 import { DiscoverService } from "@/services/discover";
 import { ResourceService } from "@/services/resource";
-import cardStyles from "@/styles/card.module.css";
 import { ISOToDate, formatRelativeTime } from "@/utils/datetime";
 import { translateTag } from "@/utils/resource";
 import { cleanHtmlText, formatDisplayCount } from "@/utils/string";
+import cardStyles from "@/styles/card.module.css";
 
 // Number of items to display in HotModpackGrid and NewsCarousel
 const MAX_MODPACK_NUM = 6;

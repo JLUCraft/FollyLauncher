@@ -171,3 +171,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Keep newly authored project documentation in the root `AGENTS.md` and `README.md`. Existing documentation and agent tooling inherited from SJMCL are explicitly allowed to remain in their original locations. Product content and required license files retain their existing locations. Workspace progress and evidence belong in `../TODO.md`; unresolved issues belong in `../PROBLEMS.md`. These workspace records are machine-local and are not published.
 
 Use Conventional Commits for commit messages and pull request titles. Describe the concrete problem, resulting behavior, and validation evidence in each pull request. Maintain the inherited release tooling and changelogs in their existing locations; do not add extra project documentation files.
+
+## TypeScript quality
+
+Every batch must pass `bun run check` and `bun run locale diff en` before review
+and commit. Run `bun run format` to apply Oxfmt formatting. `check` runs format
+checking, strict TypeScript checking, type-aware Oxlint with zero warnings, and
+the existing framework ESLint rules. Include authored TypeScript scripts and
+tests in the project. Do not use `any` or suppress unsafe-value rules to make
+checks pass. Keep external values as `unknown` until narrowed. Preserve this
+tooling when rebuilding the launcher from upstream.

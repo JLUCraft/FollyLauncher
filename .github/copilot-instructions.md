@@ -168,7 +168,7 @@ bun run tauri build
 ```
 
 ### Key Configuration Files
-- **Frontend**: `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `.prettierrc`
+- **Frontend**: `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `.oxfmtrc.json`, `.oxlintrc.json`
 - **Backend**: `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, `src-tauri/rustfmt.toml`
 - **Environment**: `.env.template` (copy to `.env`)
 - **CI/CD**: `.github/workflows/test.yml`, `.github/workflows/build.yml`

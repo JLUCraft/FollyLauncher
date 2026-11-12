@@ -1,4 +1,5 @@
 import { t } from "i18next";
+import { Children, isValidElement, type ReactNode } from "react";
 import { BuildType } from "@/enums/misc";
 
 export const base64ImgSrc = (base64: string): string => {
@@ -10,8 +11,9 @@ export const capitalizeFirstLetter = (str: string): string => {
 };
 
 export const cleanHtmlText = (input: string): string => {
-  const unicodeDecoded = input.replace(/\\u([\dA-F]{4})/gi, (_, code) =>
-    String.fromCharCode(parseInt(code, 16))
+  const unicodeDecoded = input.replace(
+    /\\u([\dA-F]{4})/gi,
+    (_match: string, code: string) => String.fromCharCode(parseInt(code, 16))
   );
 
   const container = document.createElement("div");
@@ -22,6 +24,26 @@ export const cleanHtmlText = (input: string): string => {
 export const removeFileExt = (filename: string): string => {
   return filename.split(".").slice(0, -1).join(".");
 };
+
+export function displayValue(value: unknown): string {
+  if (value === null || typeof value !== "object") {
+    if (typeof value === "function") return value.name;
+    return String(value);
+  }
+  return JSON.stringify(value);
+}
+
+export function reactText(value: ReactNode): string {
+  return Children.toArray(value)
+    .map((child) => {
+      if (isValidElement<{ children?: ReactNode }>(child))
+        return reactText(child.props.children);
+      return typeof child === "string" || typeof child === "number"
+        ? String(child)
+        : "";
+    })
+    .join("");
+}
 
 export const formatByteSize = (bytes: number) => {
   bytes = Math.max(0, bytes);

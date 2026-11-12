@@ -241,10 +241,7 @@ function contrast(foreground, background) {
         )
       ) {
         await page.setViewportSize({ width: 800, height: 550 });
-        for (const route of [
-          "/settings/general",
-          "/settings/intelligence",
-                ]) {
+        for (const route of ["/settings/general", "/settings/intelligence"]) {
           await page.goto(`${base}${route}?test-color-mode=${mode}`);
           await page.getByRole("button").first().waitFor();
           await page.waitForTimeout(250);

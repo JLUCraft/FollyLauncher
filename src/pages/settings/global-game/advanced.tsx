@@ -8,7 +8,7 @@ const GlobalGameAdvancedSettingsPage = () => {
   return (
     <GameAdvancedSettingsGroups
       gameConfig={globalGameConfigs}
-      updateGameConfig={(key: string, value: any) => {
+      updateGameConfig={(key: string, value: unknown) => {
         update(`globalGameConfig.${key}`, value);
       }}
     />

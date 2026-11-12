@@ -197,7 +197,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       }
     );
   };
-  const afterLogin = (response: ResponseSuccess<any>) => {
+  const afterLogin = (response: ResponseSuccess<unknown>) => {
     getPlayerList(true);
     // selectedPlayer in LauncherConfig will be updated by IPC.
     toast({
@@ -237,7 +237,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         }
       });
     } else {
-      let loginServiceFunction: () => Promise<InvokeResponse<any>>;
+      let loginServiceFunction: () => Promise<InvokeResponse<void>>;
       if (playerType === PlayerType.Offline) {
         loginServiceFunction = () =>
           AccountService.addPlayerOffline(

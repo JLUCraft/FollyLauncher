@@ -13,6 +13,7 @@ import {
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Section, SectionProps } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
+import { insetCardPadding } from "@/styles/card";
 import cardStyles from "@/styles/card.module.css";
 
 type WrapCardContentObject = {
@@ -51,9 +52,10 @@ export const WrapCard: React.FC<WrapCardProps> = ({
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { space } = useTheme<{ space: Record<string, string> }>();
   const borderWidth = "1px";
   const basePadding = cardProps.padding || "12px";
-  const selectedPadding = `calc(${basePadding} - ${borderWidth})`;
+  const selectedPadding = insetCardPadding(basePadding, borderWidth, space);
 
   const renderContent = () => {
     if (!cardContent) return null;
@@ -135,7 +137,10 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   ...props
 }) => {
   const boxRef = useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const theme = useTheme<{
+    space: Record<number, string>;
+    fontSizes: Record<string, string>;
+  }>();
   const spacingScale = theme.space[1] || "0.25rem";
   const baseFontSize = theme.fontSizes.base || "16px";
   const numberToPx = parseFloat(spacingScale) * parseInt(baseFontSize);

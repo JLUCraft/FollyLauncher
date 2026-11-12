@@ -3,24 +3,27 @@ import { InvokeResponse } from "@/models/response";
 import { isDev } from "@/utils/env";
 import { logger } from "@/utils/logging";
 
-export function responseHandler(serviceDomain: string): MethodDecorator {
-  return function (
-    target: any,
+export function responseHandler(serviceDomain: string) {
+  return function <Method>(
+    _target: object,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<any>
-  ): TypedPropertyDescriptor<any> | void {
-    const originalMethod = descriptor.value;
+    descriptor: TypedPropertyDescriptor<Method>
+  ): TypedPropertyDescriptor<Method> {
+    const originalMethod = descriptor.value as (
+      ...args: unknown[]
+    ) => Promise<unknown>;
 
     descriptor.value = async function (
-      ...args: any[]
-    ): Promise<InvokeResponse<any>> {
+      this: unknown,
+      ...args: unknown[]
+    ): Promise<InvokeResponse<unknown>> {
       try {
         const data = await originalMethod.apply(this, args);
         const message = t(
           `Services.${serviceDomain}.${String(propertyKey)}.success`
         );
         return { status: "success", message, data };
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = t(
           `Services.${serviceDomain}.${String(propertyKey)}.error.title`
         );
@@ -48,9 +51,9 @@ export function responseHandler(serviceDomain: string): MethodDecorator {
           `Invoke ${String(propertyKey)} failed: ${message} - ${details}`
         );
 
-        return { status: "error", message, details, raw_error: error };
+        return { status: "error", message, details, raw_error: String(error) };
       }
-    };
+    } as Method;
 
     return descriptor;
   };

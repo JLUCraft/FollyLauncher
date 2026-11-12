@@ -100,7 +100,7 @@ interface ActiveExtensionRecord {
 
 interface ExtensionCustomModalState {
   isOpen: boolean;
-  params: any;
+  params: unknown;
 }
 
 interface PendingRegistration {
@@ -136,8 +136,8 @@ interface ExtensionHostActionRefs {
   getInstanceList: (
     sync?: boolean
   ) => ExtensionAbilityData["instanceList"] | undefined;
-  updateConfig: (path: string, value: any) => void;
-  openSharedModal: (key: string, params?: any) => void;
+  updateConfig: (path: string, value: unknown) => void;
+  openSharedModal: import("@/components/modals/registry").OpenSharedModal;
 }
 
 interface ExtensionHostContextType {
@@ -795,7 +795,7 @@ const ActiveExtensionHostContextProvider: React.FC<{
   );
 
   const handleOpenCustomModal = useCallback(
-    (extension: ExtensionInfo, key: string, params?: any) => {
+    (extension: ExtensionInfo, key: string, params?: unknown) => {
       const normalizedKey = key.trim();
       if (!normalizedKey || normalizedKey.includes(":")) {
         throw new Error(`Invalid custom modal key: ${key}`);
@@ -1060,8 +1060,8 @@ const ActiveExtensionHostContextProvider: React.FC<{
         openWindow(extension, route, title),
       openExternalLink: async (url: string) =>
         await openExternalLink(extension, url),
-      openSharedModal: (key, params) =>
-        hostActionRefs.current.openSharedModal(key, params),
+      openSharedModal: (...args) =>
+        hostActionRefs.current.openSharedModal(...args),
       openCustomModal: (key, params) =>
         handleOpenCustomModalRef.current(extension, key, params),
       setHomeWidgetTitle: (title, key) =>
@@ -1083,13 +1083,13 @@ const ActiveExtensionHostContextProvider: React.FC<{
         );
       },
       deleteFile: async (path: string) => {
-        await runExtensionFileCommand(extension, path, UtilsService.deleteFile);
+        await runExtensionFileCommand(extension, path, (fullPath) =>
+          UtilsService.deleteFile(fullPath)
+        );
       },
       deleteDirectory: async (path: string) => {
-        await runExtensionFileCommand(
-          extension,
-          path,
-          UtilsService.deleteDirectory
+        await runExtensionFileCommand(extension, path, (fullPath) =>
+          UtilsService.deleteDirectory(fullPath)
         );
       },
       toast,

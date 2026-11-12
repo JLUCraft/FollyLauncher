@@ -28,12 +28,12 @@ export interface ExtensionModalDefinition
   extends
     Omit<ModalProps, "children" | "isOpen">,
     ExtensionBaseDefinition<{
-      params?: any;
+      params?: unknown;
       close: () => void;
     }> {
   key: string;
   title: string;
-  params?: any;
+  params?: unknown;
 }
 
 export interface ExtensionContributionRegistration {

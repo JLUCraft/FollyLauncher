@@ -9,8 +9,8 @@ export interface LaunchingState {
   selectedJava: JavaInfo;
   selectedInstance: InstanceSummary;
   gameConfig: GameConfig;
-  clientInfo: any;
-  assetIndex: any;
+  clientInfo: unknown;
+  assetIndex: unknown;
   selectedPlayer?: PlayerInfo;
   authServerMeta: string;
   pid: number;

@@ -1,8 +1,9 @@
 import { extendTheme } from "@chakra-ui/react";
+import type { StyleFunctionProps, Theme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 import { brandColors, brandSemantic } from "@/styles/brand-theme.gen";
 
-const subtleButtonVariant = (props: any) => ({
+const subtleButtonVariant = (props: StyleFunctionProps) => ({
   bg: mode(`${props.colorScheme}.100`, `${props.colorScheme}.700`)(props),
   color: mode(`${props.colorScheme}.700`, `${props.colorScheme}.100`)(props),
   _hover: {
@@ -101,7 +102,7 @@ const chakraExtendTheme = extendTheme({
       },
       variants: {
         subtle: subtleButtonVariant,
-        solid: (props: any) => {
+        solid: (props: StyleFunctionProps) => {
           return props.colorScheme === "gray" ? customGraySolidButtonTheme : {};
         },
       },
@@ -228,6 +229,6 @@ const chakraExtendTheme = extendTheme({
   semanticTokens: {
     colors: brandSemanticTokens,
   },
-});
+}) as Theme;
 
 export default chakraExtendTheme;

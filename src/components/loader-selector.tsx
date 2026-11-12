@@ -243,7 +243,7 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
       },
       onCancel: () => {
         if (selectedType === type) {
-          if (!!selectedOptiFine) {
+          if (selectedOptiFine) {
             setSelectedType("OptiFine");
             setSelectedId(selectedOptiFine!.filename);
           } else {

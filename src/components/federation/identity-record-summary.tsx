@@ -3,6 +3,7 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { RecordFields } from "@/components/federation/record-fields";
 import { encodeHex } from "@/utils/federation/hex";
+import { displayValue } from "@/utils/string";
 
 function translatedValue(
   t: TFunction,
@@ -62,7 +63,7 @@ function SummaryValue({ field, value }: { field: string; value: unknown }) {
       );
     return <RecordFields value={record} />;
   }
-  return <Text overflowWrap="anywhere">{String(value)}</Text>;
+  return <Text overflowWrap="anywhere">{displayValue(value)}</Text>;
 }
 
 /** Readable signing review: the action, every affected field and the current signature count. */

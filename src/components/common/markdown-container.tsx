@@ -38,7 +38,7 @@ const MarkdownContainer: React.FC<MarkdownContainerProps> = ({
   // process GitHub-style mentions and issue / PR references
   const processGitHubMarks = (children: React.ReactNode): React.ReactNode => {
     if (typeof children === "string") {
-      const parts = children.split(/(\#[0-9]+|\@[a-zA-Z0-9_-]+)/g);
+      const parts = children.split(/(#[0-9]+|@[a-zA-Z0-9_-]+)/g);
       return parts.map((part, idx) => {
         if (/^#[0-9]+$/.test(part)) {
           const issueNumber = part.substring(1);
@@ -75,12 +75,12 @@ const MarkdownContainer: React.FC<MarkdownContainerProps> = ({
     }
 
     if (Array.isArray(children)) {
-      return children.map((child, i) => (
+      return children.map((child: React.ReactNode, i) => (
         <React.Fragment key={i}>{processGitHubMarks(child)}</React.Fragment>
       ));
     }
 
-    if (React.isValidElement(children)) {
+    if (React.isValidElement<{ children?: React.ReactNode }>(children)) {
       const childProps = children.props?.children ?? null;
       return React.cloneElement(children, {
         ...children.props,

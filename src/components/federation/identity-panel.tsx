@@ -99,7 +99,7 @@ export function IdentityPanel() {
         setFacts(null);
         setProposal(null);
       } else if (operation === "import") {
-        const config = JSON.parse(configuration);
+        const config = JSON.parse(configuration) as Record<string, unknown>;
         setProposal(
           await UnionService.management({
             operation: "review_record",

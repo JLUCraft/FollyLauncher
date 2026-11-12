@@ -8,6 +8,9 @@ export interface WorldInfo {
 }
 
 export type WorldDataValue =
-  string | number | WorldDataValue[] | { [key: string]: WorldDataValue };
+  | string
+  | number
+  | WorldDataValue[]
+  | { [key: string]: WorldDataValue };
 
 export type WorldDetails = Record<string, WorldDataValue>;

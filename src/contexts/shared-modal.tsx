@@ -1,11 +1,18 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
+import {
+  sharedModals,
+  type OpenSharedModal,
+  type SharedModalParams,
+} from "@/components/modals/registry";
 import { useLauncherConfig } from "@/contexts/config";
 
 interface SharedModalContextType {
-  openSharedModal: (key: string, params?: any) => void;
+  openSharedModal: OpenSharedModal;
   closeSharedModal: (key: string) => void;
-  openGenericConfirmDialog: (params?: any) => void;
-  modalStates: Record<string, { isOpen: boolean; params: any }>;
+  openGenericConfirmDialog: (
+    params: SharedModalParams<"generic-confirm">
+  ) => void;
+  modalStates: Record<string, React.ReactElement>;
 }
 
 export const SharedModalContext = createContext<
@@ -16,17 +23,9 @@ export const SharedModalContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [modalStates, setModalStates] = useState<
-    Record<string, { isOpen: boolean; params: any }>
+    Record<string, React.ReactElement>
   >({});
   const { config } = useLauncherConfig();
-
-  const openSharedModal = useCallback((key: string, params: any = {}) => {
-    setModalStates((prev) => ({
-      ...prev,
-      [key]: { isOpen: true, ...params },
-    }));
-    logger.info("Opened shared modal:", key, params);
-  }, []);
 
   const closeSharedModal = useCallback((key: string) => {
     setModalStates((prev) => {
@@ -35,8 +34,30 @@ export const SharedModalContextProvider: React.FC<{
     });
   }, []);
 
+  const openSharedModal = useCallback<OpenSharedModal>(
+    (...args) => {
+      const [key, params] = args;
+      type Props = SharedModalParams<typeof key> & {
+        isOpen: boolean;
+        onClose: () => void;
+      };
+      const Modal = sharedModals[key] as React.ComponentType<Props>;
+      const props = {
+        ...params,
+        isOpen: true,
+        onClose: () => closeSharedModal(key),
+      } as Props;
+      setModalStates((prev) => ({
+        ...prev,
+        [key]: React.createElement(Modal, { ...props, key }),
+      }));
+      logger.info("Opened shared modal:", key, params);
+    },
+    [closeSharedModal]
+  );
+
   const openGenericConfirmDialog = useCallback(
-    (params?: any) => {
+    (params: SharedModalParams<"generic-confirm">) => {
       // If the user has previously selected "Don't show again", skip the dialog and call the OK callback directly
       if (
         params.suppressKey &&

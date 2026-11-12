@@ -59,12 +59,15 @@ bun run tauri dev
 Before committing, make sure the standard checks pass:
 
 ```bash
-eslint src --max-warnings=0
-tsc --noEmit
+bun run format
+bun run check
 node scripts/locale/index.js diff en
 ```
 
 Branding is data-driven: it is defined by `brands/<id>/brand.json` and applied with `bun run brand <id>`. Adding a school means adding data, not code.
+
+Builds, CI, and the commit hook run `bun run check`. See
+[AGENTS.md](AGENTS.md#typescript-quality) for the development check policy.
 
 We welcome contributions and bug reports through [GitHub Issues](https://github.com/JLUCraft/FollyLauncher/issues). More developer notes are available in the [technical documentation](https://www.jlucraft.com/tech/clients).
 

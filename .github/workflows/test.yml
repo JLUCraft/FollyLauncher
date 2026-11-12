@@ -10,7 +10,15 @@ on:
     paths:
       - src/**
       - src-tauri/**
-      - scripts/game/check_minecraft_boundary.py
+      - scripts/**
+      - package.json
+      - bun.lock
+      - tsconfig.json
+      - next.config.ts
+      - eslint.config.mjs
+      - .oxfmtrc.json
+      - .oxlintrc.json
+      - .husky/**
       - .github/workflows/**
   pull_request:
     branches:
@@ -19,7 +27,15 @@ on:
     paths:
       - src/**
       - src-tauri/**
-      - scripts/game/check_minecraft_boundary.py
+      - scripts/**
+      - package.json
+      - bun.lock
+      - tsconfig.json
+      - next.config.ts
+      - eslint.config.mjs
+      - .oxfmtrc.json
+      - .oxlintrc.json
+      - .husky/**
       - .github/workflows/**
 
 # Cancel prev CI if new commit come (learned from ant-design repo)
@@ -47,6 +63,15 @@ jobs:
           filters: |
             src:
               - 'src/**'
+              - 'scripts/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'tsconfig.json'
+              - 'next.config.ts'
+              - 'eslint.config.mjs'
+              - '.oxfmtrc.json'
+              - '.oxlintrc.json'
+              - '.husky/**'
               - '.github/workflows/**'
             src-non-locales:
               - 'src/**'
@@ -122,11 +147,8 @@ jobs:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile
 
-      - name: Lint JavaScript/TypeScript Frontend
-        run: bunx eslint src --no-fix --max-warnings=0
-
-      - name: Type-check Frontend
-        run: bunx tsc --noEmit
+      - name: Check TypeScript quality
+        run: bun run check
 
       - name: Check Locale Keys
         run: node scripts/locale/index.js diff en
@@ -201,8 +223,8 @@ jobs:
         include:
           # - platform: macos-latest
           #   args: '--target aarch64-apple-darwin'
-          - platform: 'ubuntu-latest'
-          - platform: 'windows-latest'
+          - platform: "ubuntu-latest"
+          - platform: "windows-latest"
 
     steps:
       - uses: actions/checkout@v7

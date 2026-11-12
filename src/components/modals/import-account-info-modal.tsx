@@ -126,7 +126,7 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
             // default: select all players that are allowed
             const nextPlayerChecked: Record<string, boolean> = {};
             players.forEach((p) => {
-              const pid = String((p as any).id);
+              const pid = p.id;
               if (isThirdParty(p)) {
                 nextPlayerChecked[pid] =
                   !!nextServerChecked[p.authServer!.authUrl] && !isExpired(p);
@@ -164,7 +164,7 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
       const next = { ...prev };
 
       newPlayers.forEach((p) => {
-        const pid = String((p as any).id);
+        const pid = p.id;
         if (
           isThirdParty(p) &&
           !serverChecked[p.authServer!.authUrl] &&
@@ -184,7 +184,7 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
   );
 
   const selectedPlayers = newPlayers.filter((p) => {
-    const pid = String((p as any).id);
+    const pid = p.id;
     if (!playerChecked[pid]) return false;
     if (isExpired(p)) return false;
 

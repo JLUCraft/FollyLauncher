@@ -1,8 +1,9 @@
 // Explicit browser fixtures only; never imported by the application.
 import { emit } from "@tauri-apps/api/event";
-import { config } from "../federation/mock-ipc";
+import { updateByKeyPath } from "@/utils/partial";
+import { config, fixtureWindow } from "../federation/mock-ipc";
 
-const w = window as any;
+const w = fixtureWindow;
 const scenario = new URL(location.href).searchParams.get("test-scenario");
 const instance = {
   id: "acceptance:1.21",
@@ -40,7 +41,7 @@ w.testFileContent = JSON.stringify({
   genesis_hash: "a".repeat(64),
 });
 w.testIdentityConfiguration =
-  scenario === "configured" ? JSON.parse(w.testFileContent) : null;
+  scenario === "configured" ? (JSON.parse(w.testFileContent) as unknown) : null;
 w.testHandlers = {
   retrieve_launcher_config: () => structuredClone(config),
   retrieve_player_list: () => (hasPlayers ? [player] : []),
@@ -71,17 +72,16 @@ w.testHandlers = {
     throw "ACCEPTANCE_PREFLIGHT_STOP";
   },
   union_public_identity: () => ({ peer: "acceptance-device" }),
-  union_identity_configuration: (args: any) => {
+  union_identity_configuration: (args) => {
     if (args.config !== null) w.testIdentityConfiguration = args.config;
     return w.testIdentityConfiguration;
   },
   "plugin:dialog|open": () => w.testFilePath,
   read_file: () => w.testFileContent,
-  update_launcher_config: async (args: any) => {
-    const keys = args.keyPath.split(".");
-    let node: any = config;
-    for (const key of keys.slice(0, -1)) node = node[key];
-    node[keys.at(-1)] = JSON.parse(args.value);
+  update_launcher_config: async (args) => {
+    if (typeof args.keyPath !== "string" || typeof args.value !== "string")
+      throw new Error("Config update requires a path and encoded value");
+    updateByKeyPath(config, args.keyPath, JSON.parse(args.value) as unknown);
     await emit("config:partial-update", {
       path: args.keyPath,
       value: args.value,

@@ -155,9 +155,11 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
 
   const launchProcessSteps: Array<{
     label: string;
-    function: () => Promise<any>;
-    isOK: (data: any) => boolean;
-    onResCallback: (data: any) => void; // TODO: change return type to bool? so we can back to process after some operations.
+    function: () => Promise<
+      import("@/models/response").InvokeResponse<unknown>
+    >;
+    isOK: (data: unknown) => boolean;
+    onResCallback: (data: unknown) => void;
     onErrCallback: (error: ResponseError) => void;
   }> = useMemo(
     () => [
@@ -165,8 +167,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
         label: "selectSuitableJRE",
         function: () =>
           LaunchService.selectSuitableJRE(effectiveInstance?.id || ""),
-        isOK: (data: any) => true,
-        onResCallback: (data: any) => {},
+        isOK: () => true,
+        onResCallback: () => {},
         onErrCallback: (error: ResponseError) => {
           if (error.raw_error === LaunchServiceError.NoSuitableJava) {
             openGenericConfirmDialog({
@@ -183,8 +185,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
       {
         label: "validateGameFiles",
         function: () => LaunchService.validateGameFiles(),
-        isOK: (data: any) => true,
-        onResCallback: (data: any) => {}, // TODO
+        isOK: () => true,
+        onResCallback: () => {},
         onErrCallback: (error: ResponseError) => {
           toast({
             title: error.message,
@@ -200,8 +202,13 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
       {
         label: "validateSelectedPlayer",
         function: () => LaunchService.validateSelectedPlayer(),
-        isOK: (data: boolean) => data,
-        onResCallback: (data: boolean) => {
+        isOK: (data: unknown) => data === true,
+        onResCallback: () => {
+          const player = effectiveSelectedPlayer;
+          if (!player) {
+            handleCloseModalWithCancel();
+            return;
+          }
           const reValidate = () =>
             LaunchService.validateSelectedPlayer().then((response) => {
               if (response.status === "success") {
@@ -211,35 +218,33 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
                 setErrorDesc(response.details);
               }
             });
-          AccountService.refreshPlayer(effectiveSelectedPlayer?.id || "").then(
-            (response) => {
-              if (response.status !== "success") {
-                openSharedModal("relogin", {
-                  player: effectiveSelectedPlayer,
-                  onSuccess: () => {
-                    reValidate();
-                  },
-                  onError: () => {
-                    setErrorPaused(true);
-                    setErrorDesc(response.details);
-                    logger.error(response.details);
-                  },
-                });
-              } else {
-                reValidate();
-              }
+          AccountService.refreshPlayer(player.id).then((response) => {
+            if (response.status !== "success") {
+              openSharedModal("relogin", {
+                player,
+                onSuccess: () => {
+                  reValidate();
+                },
+                onError: () => {
+                  setErrorPaused(true);
+                  setErrorDesc(response.details);
+                  logger.error(response.details);
+                },
+              });
+            } else {
+              reValidate();
             }
-          );
+          });
         },
-        onErrCallback: (error: ResponseError) => {},
+        onErrCallback: () => {},
       },
       {
         label: "launchGame",
         function: () =>
           LaunchService.launchGame(quickPlaySingleplayer, quickPlayMultiplayer),
-        isOK: (data: any) => true,
-        onResCallback: (data: any) => {},
-        onErrCallback: (error: ResponseError) => {},
+        isOK: () => true,
+        onResCallback: () => {},
+        onErrCallback: () => {},
       },
     ],
     [

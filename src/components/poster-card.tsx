@@ -18,9 +18,9 @@ import { useTranslation } from "react-i18next";
 import { LuCalendar } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { NewsPostSummary, NewsSourceInfo } from "@/models/news-post";
-import cardStyles from "@/styles/card.module.css";
 import { formatRelativeTime } from "@/utils/datetime";
 import { cleanHtmlText } from "@/utils/string";
+import cardStyles from "@/styles/card.module.css";
 
 interface PosterCardProps extends CardProps {
   data: NewsPostSummary;

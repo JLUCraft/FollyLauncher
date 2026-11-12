@@ -42,20 +42,15 @@ import { ModLoaderType } from "@/enums/instance";
 import {
   OtherResourceSource,
   OtherResourceType,
-  datapackTagList,
-  modTagList,
   modpackTagList,
-  resourcePackTagList,
-  shaderPackTagList,
   sortByLists,
-  worldTagList,
 } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
-import { translateTag } from "@/utils/resource";
+import { tagLists, translateTag } from "@/utils/resource";
 import { formatDisplayCount } from "@/utils/string";
 
 interface ResourceDownloaderProps {
@@ -82,15 +77,6 @@ interface ResourceDownloaderListProps {
   hasMore: boolean;
   loadMore: () => void;
 }
-
-const tagLists: Record<string, any> = {
-  mod: modTagList,
-  world: worldTagList,
-  resourcepack: resourcePackTagList,
-  shader: shaderPackTagList,
-  modpack: modpackTagList,
-  datapack: datapackTagList,
-};
 
 const downloadSourceLists: Record<string, OtherResourceSource[]> = {
   mod: [OtherResourceSource.CurseForge, OtherResourceSource.Modrinth],
@@ -312,7 +298,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   // retry action stay where the missing data is instead of covering the sidebar.
   const [listError, setListError] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const pageSize = 20;
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
   const [gameVersion, setGameVersion] = useState<string>("");
@@ -511,7 +497,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         ...(Array.isArray(tags)
           ? tags
               .filter((item) => item !== "All")
-              .map((item) => (
+              .map((item: string) => (
                 <MenuItemOption
                   key={`tag-${group}-${item}`}
                   value={item}

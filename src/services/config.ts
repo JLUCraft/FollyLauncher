@@ -25,13 +25,13 @@ export class ConfigService {
   /**
    * UPDATE the launcher configs.
    * @param {string} keyPath The key path to update.
-   * @param {any} value The new value.
+   * @param {unknown} value The new value.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("config")
   static async updateLauncherConfig(
     keyPath: string,
-    value: any
+    value: unknown
   ): Promise<InvokeResponse<void>> {
     return await invoke("update_launcher_config", {
       keyPath,
@@ -220,11 +220,11 @@ export class ConfigService {
    * @param callback - Callback function invoked whenever the config is updated by the backend.
    */
   static async onConfigPartialUpdate(
-    callback: (payload: { path: string; value: any }) => void
+    callback: (payload: { path: string; value: string }) => void
   ) {
     const unlisten = await getCurrentWebview().listen<{
       path: string;
-      value: any;
+      value: string;
     }>(CONFIG_PARTIAL_UPDATE_EVENT, (event) => {
       callback(event.payload);
     });

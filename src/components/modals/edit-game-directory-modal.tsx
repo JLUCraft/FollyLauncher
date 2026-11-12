@@ -333,7 +333,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
                         .map((dir) => dir.name)
                         .includes(dirName) && dirName !== currentName
                     );
-                    setIsDirNameInvalid(/[\/:\\?#&%]/.test(dirName));
+                    setIsDirNameInvalid(/[/:\\?#&%]/.test(dirName));
                   }}
                   onFocus={() => {
                     setIsDirNameEmpty(false);

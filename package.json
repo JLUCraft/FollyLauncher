@@ -8,9 +8,13 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "bun run check && next build --webpack",
     "start": "next start",
-    "lint": "eslint",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint --deny-warnings . && eslint src scripts --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run format:check && bun run typecheck && bun run lint",
     "tauri": "tauri",
     "lint-staged": "lint-staged",
     "prepare": "husky",
@@ -19,14 +23,8 @@
     "brand": "node scripts/brand/apply.js"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
-      "eslint --no-fix --max-warnings=0"
-    ],
     "{src-tauri/src/**/*.rs,src-tauri/crates/**/*.rs,src-tauri/build.rs}": [
       "rustfmt --check"
-    ],
-    "scripts/**/*.js": [
-      "eslint --no-fix --max-warnings=0"
     ],
     "src/locales/*.json": [
       "bun run locale diff en",
@@ -65,7 +63,6 @@
   "devDependencies": {
     "@next/bundle-analyzer": "16.3.8",
     "@tauri-apps/cli": "^2.12.1",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -73,12 +70,12 @@
     "chalk": "^4.1.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.3.8",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.4.1",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0",
+    "oxlint-tsgolint": "^7.0.2006",
     "typescript": "^5"
   },
   "overrides": {

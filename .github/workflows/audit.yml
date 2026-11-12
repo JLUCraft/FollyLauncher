@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
-      - '.cargo/audit.toml'
-      - '.github/workflows/audit.yml'
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - ".cargo/audit.toml"
+      - ".github/workflows/audit.yml"
 
 permissions:
   contents: read

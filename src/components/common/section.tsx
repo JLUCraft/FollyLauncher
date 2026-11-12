@@ -40,7 +40,7 @@ export const Section: React.FC<SectionProps> = ({
   initialIsOpen = true,
   onAccordionToggle,
   withBackButton = false,
-  maxTitleLines = undefined,
+  maxTitleLines,
   backRoutePath = "",
   children,
   ...props

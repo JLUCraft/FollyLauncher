@@ -38,7 +38,7 @@ const InstanceGameAdvancedSettingsPage = () => {
       {instanceGameConfig && (
         <GameAdvancedSettingsGroups
           gameConfig={instanceGameConfig}
-          updateGameConfig={(key: string, value: any) => {
+          updateGameConfig={(key: string, value: unknown) => {
             handleUpdateInstanceConfig(`specGameConfig.${key}`, value);
           }}
         />

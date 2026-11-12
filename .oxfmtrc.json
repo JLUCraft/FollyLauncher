@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "trailingComma": "es5",
+  "sortPackageJson": false,
+  "sortImports": {
+    "groups": [
+      ["builtin", "external"],
+      ["internal", "subpath"],
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown"
+    ],
+    "internalPattern": ["@/"],
+    "newlinesBetween": false
+  },
+  "ignorePatterns": [
+    "**/*.md",
+    "bun.lock",
+    "src-tauri/**",
+    "cli/**",
+    "tools/**",
+    "out/**",
+    ".next/**",
+    "next-env.d.ts"
+  ]
+}

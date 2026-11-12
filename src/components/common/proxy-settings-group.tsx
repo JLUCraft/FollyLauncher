@@ -21,7 +21,7 @@ interface ProxyConfig {
 export function useProxySettingsItems(
   rootKey: string,
   config: ProxyConfig,
-  onUpdate: (key: string, value: any) => void
+  onUpdate: (key: string, value: unknown) => void
 ): OptionItemProps[] {
   const { t } = useTranslation();
   const { config: launcherConfig } = useLauncherConfig();

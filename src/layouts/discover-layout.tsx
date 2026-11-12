@@ -123,7 +123,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
     }));
   };
 
-  const handleMenuClick = (value: any, item: any) => {
+  const handleMenuClick = (item: { route?: string; onClick?: () => void }) => {
     if (item.onClick) {
       item.onClick();
     } else if (item.route) {
@@ -151,7 +151,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
                 onClick={(value) => {
                   const item = itemsWithMetadata.find((i) => i.value === value);
                   if (item) {
-                    handleMenuClick(value, item);
+                    handleMenuClick(item);
                   }
                 }}
                 items={menuItems}

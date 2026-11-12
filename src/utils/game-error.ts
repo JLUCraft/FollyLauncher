@@ -95,7 +95,7 @@ const crashRules: { key: string; pattern: RegExp }[] = [
   },
   {
     key: "FORGE_FOUND_DUPLICATE_MODS",
-    pattern: /Found duplicate mods:((.*)\R*(\t(.*)\R*)+)/,
+    pattern: /Found duplicate mods:((.*)R*(\t(.*)R*)+)/,
   },
   {
     key: "MOD_RESOLUTION_CONFLICT",
@@ -191,7 +191,7 @@ const crashRules: { key: string; pattern: RegExp }[] = [
   {
     key: "FORGE_ERROR",
     pattern:
-      /An exception was thrown, the game will display an error screen and halt\.\R*(.*\R*(\s*at .*\R)+)/,
+      /An exception was thrown, the game will display an error screen and halt\.R*(.*R*(\s*at .*R)+)/,
   },
   {
     key: "MOD_RESOLUTION0",
@@ -224,7 +224,7 @@ const crashRules: { key: string; pattern: RegExp }[] = [
   {
     key: "INCOMPLETE_FORGE_INSTALLATION",
     pattern:
-      /(java\.io\.UncheckedIOException: java\.io\.IOException: Invalid paths argument, contained no existing paths: \[(.*?)(forge\-(.*?)-client\.jar|fmlcore\-(.*?)\.jar)\]|Failed to find Minecraft resource version (.*?) at (.*?)forge\-(.*?)-client\.jar|Cannot find launch target fmlclient, unable to launch|java\.lang\.IllegalStateException: Could not find net\/minecraft\/client\/Minecraft\.class in classloader SecureModuleClassLoader)/,
+      /(java\.io\.UncheckedIOException: java\.io\.IOException: Invalid paths argument, contained no existing paths: \[(.*?)(forge-(.*?)-client\.jar|fmlcore-(.*?)\.jar)\]|Failed to find Minecraft resource version (.*?) at (.*?)forge-(.*?)-client\.jar|Cannot find launch target fmlclient, unable to launch|java\.lang\.IllegalStateException: Could not find net\/minecraft\/client\/Minecraft\.class in classloader SecureModuleClassLoader)/,
   },
   {
     key: "NIGHT_CONFIG_FIXES",

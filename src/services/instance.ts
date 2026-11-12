@@ -92,7 +92,7 @@ export class InstanceService {
   static async updateInstanceConfig(
     instanceId: string,
     keyPath: string,
-    value: any
+    value: unknown
   ): Promise<InvokeResponse<void>> {
     return await invoke("update_instance_config", {
       instanceId,

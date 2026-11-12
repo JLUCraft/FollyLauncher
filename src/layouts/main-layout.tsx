@@ -258,7 +258,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   }, [config.appearance.font.fontSize]);
 
-  const getGlobalExtraStyle = (config: any) => {
+  const getGlobalExtraStyle = (
+    config: import("@/models/config").LauncherConfig
+  ) => {
     const isInvertColors = config.appearance.accessibility.invertColors;
     const enhanceContrast = config.appearance.accessibility.enhanceContrast;
 

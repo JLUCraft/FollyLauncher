@@ -12,6 +12,7 @@ import React, {
   useContext,
 } from "react";
 import { BeatLoader } from "react-spinners";
+import { reactText } from "@/utils/string";
 
 interface ToastContextProviderProps {
   children: ReactNode;
@@ -27,7 +28,7 @@ const ToastContext = createContext<ToastContextType | null>(null);
 // collapse into a single toast instead of stacking up the same message.
 const getToastDedupeKey = (options: UseToastOptions): string | undefined => {
   if (options.status !== "error") return undefined;
-  return `toast-error:${String(options.title ?? "")}:${String(
+  return `toast-error:${reactText(options.title ?? "")}:${reactText(
     options.description ?? ""
   )}`;
 };

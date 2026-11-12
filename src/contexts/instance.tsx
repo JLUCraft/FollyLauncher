@@ -38,7 +38,7 @@ type ImportResourcesOptions = {
 export interface InstanceContextType {
   instanceId: string | undefined;
   summary: InstanceSummary | undefined;
-  updateSummaryInContext: (path: string, value: any) => void;
+  updateSummaryInContext: (path: string, value: unknown) => void;
   gameConfig: GameConfig | undefined;
   openInstanceSubdir: (dirType: InstanceSubdirType) => void;
   // retrieve instance resource data with frontend cache
@@ -76,7 +76,7 @@ export interface InstanceContextType {
     dirType: InstanceSubdirType
   ) => Promise<string | null>;
   handleImportResources: (options: ImportResourcesOptions) => void;
-  handleUpdateInstanceConfig: (path: string, value: any) => void;
+  handleUpdateInstanceConfig: (path: string, value: unknown) => void;
   handleResetInstanceGameConfig: () => void;
 }
 
@@ -131,7 +131,7 @@ export const InstanceContextProvider: React.FC<{
   }, []);
 
   const updateSummaryInContext = useCallback(
-    (path: string, value: any) => {
+    (path: string, value: unknown) => {
       // for frontend-only state update to sync with backend if needed.
       setInstanceSummary((prevSummary) => {
         if (!prevSummary) return prevSummary;
@@ -283,7 +283,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       const sorted = [...response.data].sort(
@@ -311,7 +311,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       setLocalMods(response.data);
@@ -336,7 +336,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       setResourcePacks(response.data);
@@ -361,7 +361,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       setServerResourcePacks(response.data);
@@ -386,7 +386,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       setSchematics(response.data);
@@ -411,7 +411,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       setShaderPacks(response.data);
@@ -436,7 +436,7 @@ export const InstanceContextProvider: React.FC<{
       summaryIdRef.current
     );
     if (lastSummaryIdRef !== summaryIdRef.current) {
-      return "%CANCELLED%"; // to avoid state update after unmount
+      return GetStateFlag.Cancelled;
     }
     if (response.status === "success") {
       const sorted = [...response.data].sort((a, b) => b.time - a.time);
@@ -454,7 +454,7 @@ export const InstanceContextProvider: React.FC<{
   }, [setScreenshots, toast]);
 
   const handleUpdateInstanceConfig = useCallback(
-    (path: string, value: any) => {
+    (path: string, value: unknown) => {
       if (instanceId !== undefined) {
         InstanceService.updateInstanceConfig(instanceId, path, value).then(
           (response) => {
