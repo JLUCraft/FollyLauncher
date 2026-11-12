@@ -92,6 +92,12 @@ jobs:
           repository: JLUCraft/federated-server
           path: workspace/federated-server
 
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-skinstation
+          ref: refactor/central-skinstation-p0
+          path: workspace/federated-skinstation
+
       - name: Resolve build metadata
         id: build_metadata
         shell: bash

@@ -108,6 +108,12 @@ jobs:
           repository: JLUCraft/federated-server
           path: workspace/federated-server
 
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-skinstation
+          ref: refactor/central-skinstation-p0
+          path: workspace/federated-skinstation
+
       - uses: actions/setup-node@v7
         with:
           node-version: lts/*
@@ -164,6 +170,12 @@ jobs:
           repository: JLUCraft/federated-server
           path: workspace/federated-server
 
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-skinstation
+          ref: refactor/central-skinstation-p0
+          path: workspace/federated-skinstation
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: swatinem/rust-cache@v2
@@ -211,6 +223,12 @@ jobs:
         with:
           repository: JLUCraft/federated-server
           path: workspace/federated-server
+
+      - uses: actions/checkout@v7
+        with:
+          repository: JLUCraft/federated-skinstation
+          ref: refactor/central-skinstation-p0
+          path: workspace/federated-skinstation
 
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
