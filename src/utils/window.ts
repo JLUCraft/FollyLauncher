@@ -37,9 +37,11 @@ export const createWindow = (
       true
     );
     if (response.status === "success") {
-      logger.info(`Child window ${windowLabel} successfully created`);
+      logger
+        .info(`Child window ${windowLabel} successfully created`)
+        .catch((error: unknown) => console.error(error));
     }
-  })();
+  })().catch((error: unknown) => console.error(error));
 };
 
 export const parseIdFromWindowLabel = (label: string): number => {

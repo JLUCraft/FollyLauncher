@@ -1,4 +1,6 @@
 import { ColorModeScript, useColorMode } from "@chakra-ui/react";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
 import i18n from "i18next";
 import React, {
   createContext,
@@ -25,8 +27,11 @@ interface LauncherConfigContextType {
   setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
   update: (path: string, value: unknown) => void;
   isZh: boolean; // value shortcut, true if language is zh-Hans / zh-Hant / lzh
+  bgImageSrc: string;
+  isBgDarken: boolean;
   newerVersion: VersionMetaInfo;
   // other shared data associated with the launcher config.
+  javaInfos: JavaInfo[] | undefined;
   getJavaInfos: (sync?: boolean) => JavaInfo[] | undefined;
   // shared service handlers
   handleCheckLauncherUpdate: () => Promise<VersionMetaInfo>;
@@ -47,38 +52,46 @@ export const LauncherConfigContextProvider: React.FC<{
   const isZh = language.startsWith("zh") || language === "lzh";
   const userSelectedColorMode = config.appearance.theme.colorMode;
 
+  const [bgImageSrc, setBgImageSrc] = useState("");
+  const isBgDarken =
+    colorMode === "dark" && config.appearance.background.autoDarken;
+
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>();
   const [newerVersion, setNewerVersion] = useState<VersionMetaInfo>(
     defaultVersionMetaInfo
   );
 
   const handleRetrieveLauncherConfig = useCallback(() => {
-    ConfigService.retrieveLauncherConfig().then((response) => {
-      if (response.status === "success") {
-        setConfig(response.data);
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    ConfigService.retrieveLauncherConfig()
+      .then((response) => {
+        if (response.status === "success") {
+          setConfig(response.data);
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [setConfig, toast]);
 
   // from frontend to call backend update
   const handleUpdateLauncherConfig = (path: string, value: unknown) => {
     // save to the backend
-    ConfigService.updateLauncherConfig(path, value).then((response) => {
-      // if success, backend will emit signal, the logic below will be executed
-      if (response.status !== "success") {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    ConfigService.updateLauncherConfig(path, value)
+      .then((response) => {
+        // if success, backend will emit signal, the logic below will be executed
+        if (response.status !== "success") {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   // listen from backend to update frontend's config state
@@ -99,7 +112,7 @@ export const LauncherConfigContextProvider: React.FC<{
     let cancelled = false;
     let unlisten: (() => void) | undefined;
 
-    void ConfigService.onConfigPartialUpdate(handleConfigPartialUpdate)
+    ConfigService.onConfigPartialUpdate(handleConfigPartialUpdate)
       .then((cleanup) => {
         unlisten = cleanup;
         if (cancelled) {
@@ -120,7 +133,9 @@ export const LauncherConfigContextProvider: React.FC<{
   }, [handleConfigPartialUpdate, handleRetrieveLauncherConfig]);
 
   useEffect(() => {
-    i18n.changeLanguage(language);
+    i18n
+      .changeLanguage(language)
+      .catch((error: unknown) => console.error(error));
     document.documentElement.lang =
       localeResources[language]?.htmlLang || language;
   }, [language]);
@@ -145,41 +160,68 @@ export const LauncherConfigContextProvider: React.FC<{
     }
   }, [userSelectedColorMode, colorMode, toggleColorMode]);
 
+  // Resolve the same wallpaper for the layout and liquid glass sampling.
+  useEffect(() => {
+    let cancelled = false;
+    const constructBgImageSrc = async () => {
+      const choice = config.appearance.background.choice;
+      let src: string;
+      if (choice.startsWith("%built-in:")) {
+        const builtInKey = choice.replace("%built-in:", "");
+        src = `/images/backgrounds/${builtInKey}-${colorMode}.jpg`;
+      } else {
+        const directory = await appDataDir();
+        src =
+          convertFileSrc(`${directory}/UserContent/Backgrounds/${choice}`) +
+          `?t=${Date.now()}`;
+      }
+      if (!cancelled) setBgImageSrc(src);
+    };
+    constructBgImageSrc().catch((error: unknown) => console.error(error));
+    return () => {
+      cancelled = true;
+    };
+  }, [config.appearance.background.choice, colorMode]);
+
   // java list cache and retriever
   const handleRetrieveJavaList = useCallback(() => {
-    ConfigService.retrieveJavaList().then((response) => {
-      if (response.status === "success") {
-        setJavaInfos(response.data);
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-        setJavaInfos([]);
-      }
-    });
+    ConfigService.retrieveJavaList()
+      .then((response) => {
+        if (response.status === "success") {
+          setJavaInfos(response.data);
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+          setJavaInfos([]);
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [toast]);
 
   const getJavaInfos = useGetState(javaInfos, handleRetrieveJavaList);
 
   // check launcher update
-  const handleCheckLauncherUpdate =
-    useCallback(async (): Promise<VersionMetaInfo> => {
-      const response = await ConfigService.checkLauncherUpdate();
-      if (response.status === "success") {
-        setNewerVersion(
-          response.data.version == "up2date"
-            ? defaultVersionMetaInfo
-            : response.data
-        );
-        return response.data;
-      }
-      return defaultVersionMetaInfo;
-    }, []);
+  const handleCheckLauncherUpdate = useCallback(
+    (): Promise<VersionMetaInfo> =>
+      ConfigService.checkLauncherUpdate().then((response) => {
+        if (response.status === "success") {
+          setNewerVersion(
+            response.data.version == "up2date"
+              ? defaultVersionMetaInfo
+              : response.data
+          );
+          return response.data;
+        }
+        return defaultVersionMetaInfo;
+      }),
+    []
+  );
 
   useEffect(() => {
-    handleCheckLauncherUpdate();
+    handleCheckLauncherUpdate().catch((error: unknown) => console.error(error));
   }, [handleCheckLauncherUpdate]);
 
   return (
@@ -189,7 +231,10 @@ export const LauncherConfigContextProvider: React.FC<{
         setConfig,
         update: handleUpdateLauncherConfig,
         isZh,
+        bgImageSrc,
+        isBgDarken,
         newerVersion,
+        javaInfos,
         getJavaInfos,
         handleCheckLauncherUpdate,
       }}

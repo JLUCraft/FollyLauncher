@@ -13,6 +13,7 @@ import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
 import { useLauncherConfig } from "@/contexts/config";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { NewsPostRequest, NewsPostSummary } from "@/models/news-post";
 import { DiscoverService } from "@/services/discover";
 
@@ -21,17 +22,20 @@ export const CommunityNewsPage = () => {
   const { config } = useLauncherConfig();
   const router = useRouter();
 
-  const [visiblePosts, setVisiblePosts] = useState<NewsPostSummary[]>([]);
-  const [sourceCursors, setSourceCursors] = useState<
+  const [visiblePosts, setVisiblePosts] = useKeyedState<NewsPostSummary[]>(
+    [],
+    [config.discoverSourceEndpoints]
+  );
+  const [sourceCursors, setSourceCursors] = useKeyedState<
     Record<string, number | null>
-  >({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  >({}, [config.discoverSourceEndpoints]);
+  const [isLoading, setIsLoading] = useKeyedState<boolean>(true, [
+    config.discoverSourceEndpoints,
+  ]);
   const [masonryKey, setMasonryKey] = useState<number>(0);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const fetchFirstPage = useCallback(async () => {
-    setVisiblePosts([]);
-    setIsLoading(true);
     try {
       const sources: NewsPostRequest[] = config.discoverSourceEndpoints
         .filter(([, enabled]) => enabled)
@@ -49,7 +53,12 @@ export const CommunityNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [config.discoverSourceEndpoints]);
+  }, [
+    config.discoverSourceEndpoints,
+    setIsLoading,
+    setSourceCursors,
+    setVisiblePosts,
+  ]);
 
   const loadMore = useCallback(async () => {
     if (isLoading) return;
@@ -77,7 +86,14 @@ export const CommunityNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, sourceCursors, config.discoverSourceEndpoints]);
+  }, [
+    isLoading,
+    config.discoverSourceEndpoints,
+    sourceCursors,
+    setIsLoading,
+    setVisiblePosts,
+    setSourceCursors,
+  ]);
 
   const hasMore = config.discoverSourceEndpoints.some(
     ([url, enabled]) =>
@@ -89,24 +105,30 @@ export const CommunityNewsPage = () => {
       icon: LuNewspaper,
       label: t("DiscoverCommunityNewsPage.sources"),
       onClick: () => {
-        router.push("/discover/sources");
+        router
+          .push("/discover/sources")
+          .catch((error: unknown) => console.error(error));
       },
     },
     {
       icon: "refresh",
-      onClick: fetchFirstPage,
+      onClick: () => {
+        setVisiblePosts([]);
+        setIsLoading(true);
+        return fetchFirstPage();
+      },
     },
   ];
 
   useEffect(() => {
-    fetchFirstPage();
+    fetchFirstPage().catch((error: unknown) => console.error(error));
   }, [fetchFirstPage]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isLoading) {
-          loadMore();
+          loadMore().catch((error: unknown) => console.error(error));
         }
       },
       { threshold: 1.0 }

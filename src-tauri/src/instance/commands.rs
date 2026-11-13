@@ -15,19 +15,19 @@ use tokio::sync::Semaphore;
 use url::Url;
 use zip::read::ZipArchive;
 
+use crate::brand_meta::DEEPLINK_PREFIX;
+use crate::download::DownloadTask;
+use crate::download::submit_instance_download_group;
 use crate::instance::helpers::client_json::{
   McClientInfo, remove_mod_loader_from_client_info, remove_optifine_from_client_info,
   replace_native_libraries,
 };
 use crate::instance::helpers::game_version::{build_game_version_cmp_fn, compare_game_versions};
-use crate::instance::helpers::loader::common::{execute_processors, install_mod_loader};
+use crate::instance::helpers::loader::common::install_mod_loader;
 use crate::instance::helpers::loader::fabric::remove_fabric_api_mods;
-use crate::instance::helpers::loader::forge::InstallProfile;
-use crate::instance::helpers::loader::optifine::{
-  download_optifine_installer, finish_optifine_install,
-};
+use crate::instance::helpers::loader::optifine::download_optifine_installer;
 use crate::instance::helpers::misc::{
-  InstanceRefresh, get_instance_game_config, get_instance_subdir_path_by_id,
+  InstanceRefreshLock, get_instance_game_config, get_instance_subdir_path_by_id,
   get_instance_subdir_paths, refresh_and_update_instances, unify_instance_name,
 };
 use crate::instance::helpers::modpack::export::{
@@ -62,17 +62,14 @@ use crate::launch::models::LaunchError;
 use crate::launcher_config::helpers::java::build_mojang_java_download_params;
 use crate::launcher_config::helpers::misc::get_global_game_config;
 use crate::launcher_config::models::{GameConfig, GameDirectory, LauncherConfig};
-use crate::resource::helpers::misc::get_source_priority_list;
+use crate::resource::helpers::misc::{get_download_urls, get_source_priority_list};
 use crate::resource::helpers::translation::{
   LOCAL_MOD_TRANSLATION_CACHE_EXPIRY_HOURS, LocalModTranslationEntry, LocalModTranslationsCache,
   add_local_mod_translations,
 };
 use crate::resource::models::{
-  GameClientResourceInfo, ModLoaderResourceInfo, OptiFineResourceInfo,
+  GameClientResourceInfo, ModLoaderResourceInfo, OptiFineResourceInfo, ResourceType,
 };
-use crate::tasks::PTaskParam;
-use crate::tasks::commands::schedule_progressive_task_group;
-use crate::tasks::download::DownloadParam;
 use crate::utils::fs::{
   RemoveDirGuard, copy_whole_dir, create_url_shortcut, generate_unique_filename,
   get_files_with_regex, get_files_with_regex_recursive, get_subdirectories,
@@ -497,8 +494,9 @@ pub async fn retrieve_world_list(
     };
   if let Ok(world_paths) = get_subdirectories(worlds_dir) {
     for path in world_paths {
-      if let Ok(info) = load_world_info_from_dir(&path, has_difficulty_support).await {
-        world_list.push(info);
+      match load_world_info_from_dir(&path, has_difficulty_support).await {
+        Ok(info) => world_list.push(info),
+        Err(err) => log::warn!("Failed to read world at {}: {:?}", path.display(), err),
       }
     }
   }
@@ -975,7 +973,7 @@ pub fn create_launch_desktop_shortcut(
     .append_pair("id", &instance.id)
     .finish()
     .replace("+", "%20");
-  let url = format!("sjmcl://launch?{}", encoded_id);
+  let url = format!("{DEEPLINK_PREFIX}launch?{encoded_id}");
 
   #[cfg(any(target_os = "windows", target_os = "linux"))]
   let icon_path = {
@@ -1008,7 +1006,7 @@ pub async fn create_instance(
   mut is_install_fabric_api: Option<bool>,
   mut is_install_qf_api: Option<bool>,
   modpack_version: Option<String>,
-) -> SJMCLResult<()> {
+) -> SJMCLResult<String> {
   let client = app.state::<reqwest::Client>();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
   // Get priority list
@@ -1043,13 +1041,10 @@ pub async fn create_instance(
     version_path: version_path.clone(),
     mod_loader: ModLoader {
       loader_type: mod_loader.loader_type,
-      status: if matches!(
-        mod_loader.loader_type,
-        ModLoaderType::Unknown | ModLoaderType::Fabric | ModLoaderType::Quilt
-      ) {
-        ModLoaderStatus::Installed
-      } else {
-        ModLoaderStatus::NotDownloaded
+      status: match mod_loader.loader_type {
+        ModLoaderType::Unknown => ModLoaderStatus::Installed,
+        ModLoaderType::Fabric | ModLoaderType::Quilt => ModLoaderStatus::Downloading,
+        _ => ModLoaderStatus::NotDownloaded,
       },
       version: mod_loader.version.clone(),
       branch: mod_loader.branch.clone(),
@@ -1075,9 +1070,18 @@ pub async fn create_instance(
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 
-  version_info.initialize_client(&name, &game.id);
+  version_info.id = name.clone();
+  version_info.jar = Some(name.clone());
 
-  let mut task_params = Vec::<PTaskParam>::new();
+  // convert vanilla version info to vanilla patch
+  let mut vanilla_patch = version_info.clone();
+  vanilla_patch.id = "game".to_string();
+  vanilla_patch.version = Some(game.id.clone());
+  vanilla_patch.inherits_from = None;
+  vanilla_patch.priority = Some(0);
+  version_info.patches.push(vanilla_patch);
+
+  let mut task_params = Vec::<DownloadTask>::new();
 
   // auto download recommended java if needed
   let mut java_version_to_download: Option<String> = None;
@@ -1104,13 +1108,17 @@ pub async fn create_instance(
     .get("client")
     .ok_or(InstanceError::ClientJsonParseError)?;
 
-  task_params.push(PTaskParam::Download(DownloadParam {
-    src: Url::parse(&client_download_info.url.clone())
-      .map_err(|_| InstanceError::ClientJsonParseError)?,
+  task_params.push(DownloadTask {
+    sources: get_download_urls(
+      &Url::parse(&client_download_info.url).map_err(|_| InstanceError::ClientJsonParseError)?,
+      &[ResourceType::Launcher],
+      &priority_list,
+    )?,
     dest: instance.version_path.join(format!("{}.jar", name)),
     filename: None,
+    size: Some(client_download_info.size),
     sha1: Some(client_download_info.sha1.clone()),
-  }));
+  });
   let subdirs = get_instance_subdir_paths(
     &app,
     &instance,
@@ -1180,17 +1188,6 @@ pub async fn create_instance(
     extract_overrides(&file, &version_path)?;
   }
 
-  schedule_progressive_task_group(
-    app.clone(),
-    match java_version_to_download {
-      Some(java_version) => format!("game-client-w-java?{}&{}", name, java_version),
-      None => format!("game-client?{}", name),
-    },
-    task_params,
-    true,
-  )
-  .await?;
-
   // Optionally skip first-screen options by adding options.txt.
   let (language, skip_first_screen_options) = {
     let launcher_config = launcher_config_state.lock()?;
@@ -1222,123 +1219,20 @@ pub async fn create_instance(
     .await
     .map_err(|_| InstanceError::FileCreationFailed)?;
 
+  let group_id = submit_instance_download_group(
+    app.clone(),
+    match java_version_to_download {
+      Some(java_version) => format!("game-client-w-java?{}&{}", name, java_version),
+      None => format!("game-client?{}", name),
+    },
+    task_params,
+    &instance,
+    true,
+  )
+  .await?;
+
   dir_guard.commit();
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
-  let refresh = app.state::<InstanceRefresh>();
-  let _guard = refresh.0.lock().await;
-  let instance = {
-    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let state = binding.lock()?;
-    state
-      .get(&instance_id)
-      .ok_or(InstanceError::InstanceNotFoundByID)?
-      .clone()
-  };
-  let client_info_dir = instance
-    .version_path
-    .join(format!("{}.json", instance.name));
-  let client_info = load_json_async::<McClientInfo>(&client_info_dir).await?;
-
-  match instance.mod_loader.status {
-    // prevent duplicated installation
-    ModLoaderStatus::DownloadFailed => {
-      return Err(InstanceError::ProcessorExecutionFailed.into());
-    }
-    ModLoaderStatus::Installing => {
-      return Err(InstanceError::InstallationDuplicated.into());
-    }
-    ModLoaderStatus::Downloading => {
-      {
-        let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-        let mut state = binding.lock()?;
-        let instance = state
-          .get_mut(&instance_id)
-          .ok_or(InstanceError::InstanceNotFoundByID)?;
-        instance.mod_loader.status = ModLoaderStatus::Installing;
-      };
-
-      let install_profile_dir = instance.version_path.join("install_profile.json");
-      if install_profile_dir.exists() {
-        let install_profile = load_json_async::<InstallProfile>(&install_profile_dir).await?;
-        execute_processors(&app, &instance, &client_info, &install_profile).await?;
-      }
-    }
-    _ => {}
-  }
-
-  let instance = {
-    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let mut state = binding.lock()?;
-    let instance = state
-      .get_mut(&instance_id)
-      .ok_or(InstanceError::InstanceNotFoundByID)?;
-    instance.mod_loader.status = ModLoaderStatus::Installed;
-    instance.clone()
-  };
-  instance.save_json_cfg().await?;
-
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn finish_optifine_loader_install(
-  app: AppHandle,
-  instance_id: String,
-) -> SJMCLResult<()> {
-  let instance = {
-    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let state = binding.lock()?;
-    state
-      .get(&instance_id)
-      .ok_or(InstanceError::InstanceNotFoundByID)?
-      .clone()
-  };
-  let client_info_dir = instance
-    .version_path
-    .join(format!("{}.json", instance.name));
-  let client_info = load_json_async::<McClientInfo>(&client_info_dir).await?;
-
-  if let Some(optifine) = &instance.optifine {
-    match optifine.status {
-      // prevent duplicated installation
-      ModLoaderStatus::DownloadFailed => {
-        return Err(InstanceError::ProcessorExecutionFailed.into());
-      }
-      ModLoaderStatus::Installing => {
-        return Err(InstanceError::InstallationDuplicated.into());
-      }
-      ModLoaderStatus::Downloading => {
-        {
-          let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-          let mut state = binding.lock()?;
-          let instance = state
-            .get_mut(&instance_id)
-            .ok_or(InstanceError::InstanceNotFoundByID)?;
-          instance.optifine.as_mut().unwrap().status = ModLoaderStatus::Installing;
-        };
-        finish_optifine_install(&app, &instance, &client_info).await?;
-      }
-      _ => {}
-    }
-  }
-  let instance = {
-    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let mut state = binding.lock()?;
-    let instance = state
-      .get_mut(&instance_id)
-      .ok_or(InstanceError::InstanceNotFoundByID)?;
-    if let Some(optifine) = &mut instance.optifine {
-      optifine.status = ModLoaderStatus::Installed;
-    }
-    instance.clone()
-  };
-  instance.save_json_cfg().await?;
-
-  Ok(())
+  Ok(group_id)
 }
 
 #[tauri::command]
@@ -1381,8 +1275,6 @@ pub async fn change_mod_loader(
   is_install_fabric_api: Option<bool>,
   is_install_qf_api: Option<bool>,
 ) -> SJMCLResult<()> {
-  let refresh = app.state::<InstanceRefresh>();
-  let _guard = refresh.0.lock().await;
   let mut instance = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
     let state = binding.lock()?;
@@ -1426,18 +1318,15 @@ pub async fn change_mod_loader(
   let mut version_info = current_info.clone();
   remove_mod_loader_from_client_info(&mut version_info, instance.mod_loader.loader_type);
 
-  let mut modloader_task_params: Vec<PTaskParam> = Vec::new();
+  let mut modloader_task_params: Vec<DownloadTask> = Vec::new();
 
   let mod_loader = ModLoader {
     loader_type: new_mod_loader.loader_type,
     version: new_mod_loader.version.clone(),
-    status: if matches!(
-      new_mod_loader.loader_type,
-      ModLoaderType::Unknown | ModLoaderType::Fabric | ModLoaderType::Quilt
-    ) {
-      ModLoaderStatus::Installed
-    } else {
-      ModLoaderStatus::NotDownloaded
+    status: match new_mod_loader.loader_type {
+      ModLoaderType::Unknown => ModLoaderStatus::Installed,
+      ModLoaderType::Fabric | ModLoaderType::Quilt => ModLoaderStatus::Downloading,
+      _ => ModLoaderStatus::NotDownloaded,
     },
     branch: new_mod_loader.branch.clone(),
   };
@@ -1460,24 +1349,32 @@ pub async fn change_mod_loader(
     .await?;
   }
 
-  if !modloader_task_params.is_empty() {
-    schedule_progressive_task_group(
-      app.clone(),
-      format!(
-        "change-mod-loader?{} {}",
-        instance.mod_loader.loader_type, instance.mod_loader.version
-      ),
-      modloader_task_params,
-      true,
-    )
-    .await?;
+  save_json_async(&version_info, &json_path).await?;
+  {
+    let binding = app.state::<InstanceRefreshLock>();
+    let _refresh_guard = binding.0.lock().await;
+    instance
+      .save_json_cfg()
+      .await
+      .map_err(|_| InstanceError::FileCreationFailed)?;
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    if let Some(current) = binding.lock()?.get_mut(&instance_id) {
+      current.mod_loader = instance.mod_loader.clone();
+    }
   }
 
-  save_json_async(&version_info, &json_path).await?;
-  instance
-    .save_json_cfg()
-    .await
-    .map_err(|_| InstanceError::FileCreationFailed)?;
+  // Keep the completion event that refreshes instance data even when all files are cached.
+  submit_instance_download_group(
+    app.clone(),
+    format!(
+      "change-mod-loader?{} {}",
+      instance.mod_loader.loader_type, instance.mod_loader.version
+    ),
+    modloader_task_params,
+    &instance,
+    true,
+  )
+  .await?;
 
   Ok(())
 }
@@ -1557,7 +1454,7 @@ pub async fn change_optifine(
 
   instance.optifine = Some(optifine_info);
 
-  let mut optifine_task_params: Vec<PTaskParam> = Vec::new();
+  let mut optifine_task_params: Vec<DownloadTask> = Vec::new();
   download_optifine_installer(
     &instance.version,
     &new_optifine,
@@ -1566,20 +1463,29 @@ pub async fn change_optifine(
   )
   .await?;
 
+  {
+    let binding = app.state::<InstanceRefreshLock>();
+    let _refresh_guard = binding.0.lock().await;
+    instance
+      .save_json_cfg()
+      .await
+      .map_err(|_| InstanceError::FileCreationFailed)?;
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    if let Some(current) = binding.lock()?.get_mut(&instance_id) {
+      current.optifine = instance.optifine.clone();
+    }
+  }
+
   if !optifine_task_params.is_empty() {
-    schedule_progressive_task_group(
+    submit_instance_download_group(
       app.clone(),
       format!("change-optifine?{}", new_optifine.filename),
       optifine_task_params,
-      true,
+      &instance,
+      false,
     )
     .await?;
   }
-
-  instance
-    .save_json_cfg()
-    .await
-    .map_err(|_| InstanceError::FileCreationFailed)?;
 
   Ok(())
 }

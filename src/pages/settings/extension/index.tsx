@@ -162,7 +162,9 @@ const ExtensionSettingsPage = () => {
               icon: "settings",
               danger: false,
               onClick: () => {
-                router.push(`/settings/extension/${extension.identifier}`);
+                router
+                  .push(`/settings/extension/${extension.identifier}`)
+                  .catch((error: unknown) => console.error(error));
               },
             },
           ]
@@ -172,14 +174,18 @@ const ExtensionSettingsPage = () => {
         icon: isEnabled ? LuCircleMinus : LuCircleCheck,
         danger: false,
         onClick: () => {
-          handleToggleExtension(extension, !isEnabled);
+          handleToggleExtension(extension, !isEnabled).catch((error: unknown) =>
+            console.error(error)
+          );
         },
       },
       {
         icon: "revealFile",
         danger: false,
         onClick: () => {
-          revealItemInDir(extension.path);
+          revealItemInDir(extension.path).catch((error: unknown) =>
+            console.error(error)
+          );
         },
       },
       {

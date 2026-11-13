@@ -22,6 +22,7 @@ import {
 } from "@/components/common/option-item";
 import MemoryStatusProgress from "@/components/memory-status-progress";
 import { useLauncherConfig } from "@/contexts/config";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { GameConfig } from "@/models/config";
 import { JavaInfo, MemoryInfo } from "@/models/misc";
 import { UtilsService } from "@/services/utils";
@@ -36,31 +37,45 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   updateGameConfig,
 }) => {
   const { t } = useTranslation();
-  const { config, getJavaInfos } = useLauncherConfig();
+  const {
+    config,
+    javaInfos: knownJavaInfos,
+    getJavaInfos,
+  } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const router = useRouter();
 
-  const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
+  const javaInfos = knownJavaInfos || [];
 
   // use state and useEffect to track and render
-  const [gameWindowWidth, setGameWindowWidth] = useState<number>(400);
-  const [gameWindowHeight, setGameWindowHeight] = useState<number>(300);
-  const [maxMemAllocation, setMaxMemAllocation] = useState<number>(0);
+  const [gameWindowWidth, setGameWindowWidth] = useKeyedState<number>(
+    gameConfig.gameWindow.resolution.width,
+    [gameConfig]
+  );
+  const [gameWindowHeight, setGameWindowHeight] = useKeyedState<number>(
+    gameConfig.gameWindow.resolution.height,
+    [gameConfig]
+  );
+  const [maxMemAllocation, setMaxMemAllocation] = useKeyedState<number>(
+    gameConfig.performance.maxMemAllocation,
+    [gameConfig]
+  );
   const [sliderMaxMemAllocation, setSliderMaxMemAllocation] =
-    useState<number>(0);
-  const [customTitle, setCustomTitle] = useState<string>("");
-  const [customInfo, setCustomInfo] = useState<string>("");
-  const [serverUrl, setServerUrl] = useState<string>("");
-
-  useEffect(() => {
-    setGameWindowWidth(gameConfig.gameWindow.resolution.width);
-    setGameWindowHeight(gameConfig.gameWindow.resolution.height);
-    setMaxMemAllocation(gameConfig.performance.maxMemAllocation);
-    setSliderMaxMemAllocation(gameConfig.performance.maxMemAllocation);
-    setCustomTitle(gameConfig.gameWindow.customTitle);
-    setCustomInfo(gameConfig.gameWindow.customInfo);
-    setServerUrl(gameConfig.gameServer.serverUrl);
-  }, [gameConfig]);
+    useKeyedState<number>(gameConfig.performance.maxMemAllocation, [
+      gameConfig,
+    ]);
+  const [customTitle, setCustomTitle] = useKeyedState<string>(
+    gameConfig.gameWindow.customTitle,
+    [gameConfig]
+  );
+  const [customInfo, setCustomInfo] = useKeyedState<string>(
+    gameConfig.gameWindow.customInfo,
+    [gameConfig]
+  );
+  const [serverUrl, setServerUrl] = useKeyedState<string>(
+    gameConfig.gameServer.serverUrl,
+    [gameConfig]
+  );
 
   const buildJavaMenuLabel = (java: JavaInfo | undefined) => {
     if (!java) return "";
@@ -71,7 +86,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   };
 
   useEffect(() => {
-    setJavaInfos(getJavaInfos() || []);
+    getJavaInfos();
   }, [getJavaInfos]);
 
   const launcherVisibilityStrategy = ["startHidden", "runningHidden", "always"];
@@ -90,15 +105,15 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   });
   const maxMemCanAllocated = Math.floor(memoryInfo.total / 1024 / 1024);
 
-  const handleRetrieveMemoryInfo = async () => {
-    const res = await UtilsService.retrieveMemoryInfo();
-    if (res.status === "success") {
-      setMemoryInfo(res.data);
-    }
-  };
+  const handleRetrieveMemoryInfo = () =>
+    UtilsService.retrieveMemoryInfo().then((res) => {
+      if (res.status === "success") {
+        setMemoryInfo(res.data);
+      }
+    });
 
   useEffect(() => {
-    handleRetrieveMemoryInfo();
+    handleRetrieveMemoryInfo().catch((error: unknown) => console.error(error));
     const interval = setInterval(handleRetrieveMemoryInfo, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -108,18 +123,20 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
     height: number;
   } | null>(null);
 
-  const handleRetrieveResolutionUpbound = async () => {
-    const res = await UtilsService.retrieveResolutionUpbound();
-    if (res.status === "success") {
-      setResolutionUpbound({
-        width: res.data[0],
-        height: res.data[1],
-      });
-    }
-  };
+  const handleRetrieveResolutionUpbound = () =>
+    UtilsService.retrieveResolutionUpbound().then((res) => {
+      if (res.status === "success") {
+        setResolutionUpbound({
+          width: res.data[0],
+          height: res.data[1],
+        });
+      }
+    });
 
   useEffect(() => {
-    handleRetrieveResolutionUpbound();
+    handleRetrieveResolutionUpbound().catch((error: unknown) =>
+      console.error(error)
+    );
   }, []);
 
   const resolutionPresets = [
@@ -170,6 +187,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       label: buildJavaMenuLabel(java),
                     }))}
                     placeholder={""}
+                    menuListProps={{ maxH: "40vh", overflowY: "auto" }}
                   />
                 ),
               },
@@ -522,7 +540,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
               variant="subtle"
               justifyContent="flex-start"
               onClick={() => {
-                router.push(`${router.asPath}/advanced`);
+                router
+                  .push(`${router.asPath}/advanced`)
+                  .catch((error: unknown) => console.error(error));
               }}
             >
               <Text>

@@ -113,6 +113,10 @@ pub const STATS_VERSION_PREFIX: &str = "${statsPrefix}";
 /// Display name reported to local auth servers (e.g. the loopback
 /// Yggdrasil metadata serverName).
 pub const PRODUCT_NAME: &str = "${brand.productName}";
+
+pub const DEEPLINK_PREFIX: &str = "${brand.deeplinkScheme}://";
+pub const RELEASES_API_URL: &str = "https://api.github.com/repos/${brand.repository}/releases/latest";
+pub const RELEASES_DOWNLOAD_URL: &str = "https://github.com/${brand.repository}/releases/download";
 `;
 fs.writeFileSync(metaPath, metaSource);
 

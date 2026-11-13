@@ -41,7 +41,6 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { PlayerType } from "@/enums/account";
-import { AuthServer, Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
@@ -54,12 +53,18 @@ const AccountsPage = () => {
   const { openSharedModal, closeSharedModal, openGenericConfirmDialog } =
     useSharedModals();
 
-  const { getPlayerList, getAuthServerList, selectedPlayer } = useGlobalData();
+  const {
+    getPlayerList,
+    getAuthServerList,
+    playerList: knownPlayerList,
+    authServerList: knownAuthServers,
+    selectedPlayer,
+  } = useGlobalData();
   const returnToLaunch = router.query.returnTo === "launch";
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
-  const [playerList, setPlayerList] = useState<Player[]>([]);
-  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  const playerList = knownPlayerList || [];
+  const authServerList = knownAuthServers || [];
 
   const {
     isOpen: isAddPlayerModalOpen,
@@ -74,25 +79,27 @@ const AccountsPage = () => {
   } = useDisclosure();
 
   useEffect(() => {
-    setPlayerList(getPlayerList() || []);
+    getPlayerList();
   }, [getPlayerList]);
 
   useEffect(() => {
-    setAuthServerList(getAuthServerList() || []);
+    getAuthServerList();
   }, [getAuthServerList]);
 
   useEffect(() => {
     const { add } = router.query;
     if (add) {
       onAddPlayerModalOpen();
-      void router.replace(
-        {
-          pathname: "/accounts",
-          query: returnToLaunch ? { returnTo: "launch" } : {},
-        },
-        undefined,
-        { shallow: true }
-      );
+      router
+        .replace(
+          {
+            pathname: "/accounts",
+            query: returnToLaunch ? { returnTo: "launch" } : {},
+          },
+          undefined,
+          { shallow: true }
+        )
+        .catch((error: unknown) => console.error(error));
     }
   }, [onAddPlayerModalOpen, returnToLaunch, router]);
 
@@ -167,24 +174,26 @@ const AccountsPage = () => {
       (server) => server.authUrl === selectedPlayerType
     );
     if (servers.length > 0) {
-      AccountService.deleteAuthServer(servers[0].authUrl).then((response) => {
-        if (response.status === "success") {
-          getAuthServerList(true);
-          getPlayerList(true);
-          // redirect the selected player type to "all" to avoid display error
-          setSelectedPlayerType("all");
-          toast({
-            title: response.message,
-            status: "success",
-          });
-        } else {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
-        }
-      });
+      AccountService.deleteAuthServer(servers[0].authUrl)
+        .then((response) => {
+          if (response.status === "success") {
+            getAuthServerList(true);
+            getPlayerList(true);
+            // redirect the selected player type to "all" to avoid display error
+            setSelectedPlayerType("all");
+            toast({
+              title: response.message,
+              status: "success",
+            });
+          } else {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        })
+        .catch((error: unknown) => console.error(error));
     }
     closeSharedModal("generic-confirm");
   };
@@ -266,7 +275,9 @@ const AccountsPage = () => {
                           (server) => server.authUrl === selectedPlayerType
                         )?.homepageUrl;
                         if (homepageUrl) {
-                          openUrl(homepageUrl);
+                          openUrl(homepageUrl).catch((error: unknown) =>
+                            console.error(error)
+                          );
                         }
                       }}
                     />

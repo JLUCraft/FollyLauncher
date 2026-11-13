@@ -5,7 +5,7 @@ const IndexPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/launch");
+    router.push("/launch").catch((error: unknown) => console.error(error));
   }, [router]);
 
   return null;

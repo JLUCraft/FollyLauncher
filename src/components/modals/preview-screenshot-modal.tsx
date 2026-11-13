@@ -38,22 +38,24 @@ const PreviewScreenshotModal: React.FC<PreviewScreenshotModalProps> = ({
   const toast = useToast();
 
   const handleSetAsBackground = () => {
-    ConfigService.addCustomBackground(screenshot.filePath).then((response) => {
-      if (response.status === "success") {
-        // set selected background to the new added one.
-        update("appearance.background.choice", response.data);
-        toast({
-          title: response.message,
-          status: "success",
-        });
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    ConfigService.addCustomBackground(screenshot.filePath)
+      .then((response) => {
+        if (response.status === "success") {
+          // set selected background to the new added one.
+          update("appearance.background.choice", response.data);
+          toast({
+            title: response.message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   const screenshotMenuOperations = [
@@ -65,7 +67,7 @@ const PreviewScreenshotModal: React.FC<PreviewScreenshotModalProps> = ({
               await shareFile(
                 screenshot.filePath,
                 "image/png",
-                t("ScreenshotPreviewModal.menu.share"),
+                t("General.share.text"),
                 { toast }
               );
             },
@@ -87,7 +89,9 @@ const PreviewScreenshotModal: React.FC<PreviewScreenshotModalProps> = ({
     {
       icon: "revealFile",
       onClick: () => {
-        revealItemInDir(screenshot.filePath);
+        revealItemInDir(screenshot.filePath).catch((error: unknown) =>
+          console.error(error)
+        );
       },
     },
   ];

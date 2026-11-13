@@ -96,7 +96,7 @@ const GameAdvancedSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
         updateGameAdvancedConfig("graphics.renderer", "default");
       }
     };
-    fetchRenderers();
+    fetchRenderers().catch((error: unknown) => console.error(error));
   }, [gameConfig.advanced.graphics, updateGameAdvancedConfig]);
 
   const handleSelectAuthlibJar = async () => {
@@ -350,7 +350,7 @@ const GameAdvancedSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                     onSelect={(val) => {
                       updateGameAdvancedConfig("graphics.renderer", val);
                     }}
-                    menuListProps={{ maxH: 72, overflowY: "auto" }}
+                    menuListProps={{ maxH: "40vh", overflowY: "auto" }}
                   />
                 ),
               },
@@ -484,7 +484,7 @@ const GameAdvancedSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       onClick={() => {
                         openUrl(
                           "https://github.com/HMCL-dev/lwjgl-unsafe-agent"
-                        );
+                        ).catch((error: unknown) => console.error(error));
                       }}
                     />
                   ),

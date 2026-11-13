@@ -30,6 +30,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { ImportLauncherType, PlayerType } from "@/enums/account";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { AuthServer, Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 import {
@@ -57,23 +58,32 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const { getPlayerList } = useGlobalData();
 
-  const [isRetrieving, setIsRetrieving] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [selectedType, setSelectedType] = useState<ImportLauncherType>(
     ImportLauncherType.HMCL
   );
+  const [isRetrieving, setIsRetrieving] = useKeyedState(true, [
+    props.isOpen,
+    selectedType,
+  ]);
 
   // new players and auth servers to be imported
-  const [newAuthServers, setNewAuthServers] = useState<AuthServer[]>([]);
-  const [newPlayers, setNewPlayers] = useState<Player[]>([]);
+  const [newAuthServers, setNewAuthServers] = useKeyedState<AuthServer[]>(
+    [],
+    [props.isOpen, selectedType]
+  );
+  const [newPlayers, setNewPlayers] = useKeyedState<Player[]>(
+    [],
+    [props.isOpen, selectedType]
+  );
 
   // checkbox state
-  const [serverChecked, setServerChecked] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [playerChecked, setPlayerChecked] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [serverChecked, setServerChecked] = useKeyedState<
+    Record<string, boolean>
+  >({}, [props.isOpen, selectedType]);
+  const [playerChecked, setPlayerChecked] = useKeyedState<
+    Record<string, boolean>
+  >({}, [props.isOpen, selectedType]);
 
   const importLauncherTypes: Partial<
     Record<ImportLauncherType, ImportLauncherOption>
@@ -108,7 +118,6 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
 
   const handleRetrieveOtherLauncherAccountInfo = useCallback(
     (type: ImportLauncherType) => {
-      setIsRetrieving(true);
       AccountService.retrieveOtherLauncherAccountInfo(type)
         .then((res) => {
           if (res.status === "success") {
@@ -147,9 +156,17 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
             });
           }
         })
-        .finally(() => setIsRetrieving(false));
+        .finally(() => setIsRetrieving(false))
+        .catch((error: unknown) => console.error(error));
     },
-    [toast]
+    [
+      setIsRetrieving,
+      setNewAuthServers,
+      setNewPlayers,
+      setPlayerChecked,
+      setServerChecked,
+      toast,
+    ]
   );
 
   useEffect(() => {
@@ -157,27 +174,18 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
     handleRetrieveOtherLauncherAccountInfo(selectedType);
   }, [selectedType, handleRetrieveOtherLauncherAccountInfo, props.isOpen]);
 
-  // if a server is unchecked, all its players MUST be unchecked
-  useEffect(() => {
-    setPlayerChecked((prev) => {
-      let changed = false;
-      const next = { ...prev };
-
-      newPlayers.forEach((p) => {
-        const pid = p.id;
-        if (
-          isThirdParty(p) &&
-          !serverChecked[p.authServer!.authUrl] &&
-          next[pid]
-        ) {
-          next[pid] = false;
-          changed = true;
-        }
+  const handleServerChecked = (url: string, checked: boolean) => {
+    setServerChecked((previous) => ({ ...previous, [url]: checked }));
+    if (!checked)
+      setPlayerChecked((previous) => {
+        const next = { ...previous };
+        newPlayers.forEach((player) => {
+          if (isThirdParty(player) && player.authServer?.authUrl === url)
+            next[player.id] = false;
+        });
+        return next;
       });
-
-      return changed ? next : prev;
-    });
-  }, [serverChecked, newPlayers]);
+  };
 
   const selectedAuthServers = newAuthServers.filter(
     (s) => serverChecked[s.authUrl]
@@ -207,7 +215,9 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
             status: "success",
             title: res.message,
           });
-          props.onClose && props.onClose();
+          if (props.onClose) {
+            props.onClose();
+          }
         } else {
           toast({
             status: "error",
@@ -216,7 +226,8 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
           });
         }
       })
-      .finally(() => setIsImporting(false));
+      .finally(() => setIsImporting(false))
+      .catch((error: unknown) => console.error(error));
   }, [props, toast, getPlayerList, selectedPlayers, selectedAuthServers]);
 
   // check if auth server in curAuthServers
@@ -269,7 +280,9 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
                   displayMode="selector"
                   isSelected={selectedType === type}
                   onSelect={() => {
-                    selectedType !== type && setSelectedType(type);
+                    if (selectedType !== type) {
+                      setSelectedType(type);
+                    }
                   }}
                 />
               ))}
@@ -297,10 +310,10 @@ const ImportAccountInfoModal: React.FC<ImportAccountInfoModalProps> = ({
                                 colorScheme={primaryColor}
                                 isChecked={!!serverChecked[s.authUrl]}
                                 onChange={(e) =>
-                                  setServerChecked((prev) => ({
-                                    ...prev,
-                                    [s.authUrl]: e.target.checked,
-                                  }))
+                                  handleServerChecked(
+                                    s.authUrl,
+                                    e.target.checked
+                                  )
                                 }
                               />
                             ),

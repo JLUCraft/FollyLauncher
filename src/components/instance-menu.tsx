@@ -47,10 +47,12 @@ export const InstanceMenu: React.FC<InstanceMenuProps> = ({
       icon: LuLayoutList,
       label: t("InstanceMenu.label.details"),
       onClick: () => {
-        router.push({
-          pathname: "/instances/details/[id]",
-          query: { id: instance.id },
-        });
+        router
+          .push({
+            pathname: "/instances/details/[id]",
+            query: { id: instance.id },
+          })
+          .catch((error: unknown) => console.error(error));
       },
     },
     {

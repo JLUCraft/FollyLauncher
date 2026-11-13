@@ -1,8 +1,15 @@
 import { Box, VStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import HomeWidget from "@/components/extension/home-widget";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
+import { useKeyedState } from "@/hooks/keyed-state";
 import {
   ExtensionHomeWidgetContribution,
   type HomeWidgetStateTuple,
@@ -66,60 +73,9 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
     );
   }, [persistedState]);
 
-  const [widgetOrder, setWidgetOrder] = useState<string[]>([]);
-  const [widgetWidthMap, setWidgetWidthMap] = useState<Record<string, number>>(
-    {}
-  );
-  const [widgetCollapsedMap, setWidgetCollapsedMap] = useState<
-    Record<string, boolean>
-  >({});
-  // True once widget order/width/collapsed state has been rebuilt from real config.
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  const widgetOrderRef = useRef<string[]>([]);
-  const widgetWidthMapRef = useRef<Record<string, number>>({});
-  const widgetCollapsedMapRef = useRef<Record<string, boolean>>({});
-
-  const persistHomeWidgetStateRef = useRef<PersistHomeWidgetState>(
-    () => undefined
-  );
-
-  // Keep refs aligned with the next hydrated snapshot before any persistence runs.
-  const syncWidgetStateRefs = useCallback(
-    (
-      nextOrder: string[],
-      nextWidthMap: Record<string, number>,
-      nextCollapsedMap: Record<string, boolean>
-    ) => {
-      widgetOrderRef.current = nextOrder;
-      widgetWidthMapRef.current = nextWidthMap;
-      widgetCollapsedMapRef.current = nextCollapsedMap;
-    },
-    []
-  );
-
-  useEffect(() => {
-    widgetOrderRef.current = widgetOrder;
-  }, [widgetOrder]);
-
-  useEffect(() => {
-    widgetWidthMapRef.current = widgetWidthMap;
-  }, [widgetWidthMap]);
-
-  useEffect(() => {
-    widgetCollapsedMapRef.current = widgetCollapsedMap;
-  }, [widgetCollapsedMap]);
-
-  useEffect(() => {
-    if (config.mocked || visibleWidgetIdentifiers.length === 0) {
-      syncWidgetStateRefs([], {}, {});
-      setWidgetOrder([]);
-      setWidgetWidthMap({});
-      setWidgetCollapsedMap({});
-      setIsHydrated(false);
-      return;
-    }
-
+  const isHydrated = !config.mocked && visibleWidgetIdentifiers.length > 0;
+  const widgetSnapshot = useMemo(() => {
+    if (!isHydrated) return { order: [], widths: {}, collapsed: {} };
     const visibleWidgetSet = new Set(visibleWidgetIdentifiers);
     const nextOrder: string[] = [];
     const seenIdentifiers = new Set<string>();
@@ -141,7 +97,7 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
       }
     }
 
-    const nextWidthMap = Object.fromEntries(
+    const nextWidthMap = Object.fromEntries<number>(
       homeWidgets.map((widget) => [
         widget.identifier,
         persistedStateMap.get(widget.identifier)?.width ??
@@ -149,34 +105,64 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
           DEFAULT_WIDGET_WIDTH,
       ])
     );
-    const nextCollapsedMap = Object.fromEntries(
+    const nextCollapsedMap = Object.fromEntries<boolean>(
       homeWidgets.map((widget) => [
         widget.identifier,
         persistedStateMap.get(widget.identifier)?.collapsed ?? false,
       ])
     );
 
-    syncWidgetStateRefs(nextOrder, nextWidthMap, nextCollapsedMap);
-    setWidgetOrder((prev) =>
-      areArraysEqual(prev, nextOrder) ? prev : nextOrder
-    );
-    setWidgetWidthMap(nextWidthMap);
-    setWidgetCollapsedMap(nextCollapsedMap);
-    setIsHydrated(true);
-
-    persistHomeWidgetStateRef.current(
-      nextOrder,
-      nextWidthMap,
-      nextCollapsedMap
-    );
+    return {
+      order: nextOrder,
+      widths: nextWidthMap,
+      collapsed: nextCollapsedMap,
+    };
   }, [
-    config.mocked,
+    isHydrated,
     homeWidgets,
     persistedState,
     persistedStateMap,
-    syncWidgetStateRefs,
     visibleWidgetIdentifiers,
   ]);
+  const [widgetOrder, setWidgetOrder] = useKeyedState<string[]>(
+    widgetSnapshot.order,
+    [widgetSnapshot]
+  );
+  const [widgetWidthMap, setWidgetWidthMap] = useKeyedState<
+    Record<string, number>
+  >(widgetSnapshot.widths, [widgetSnapshot]);
+  const [widgetCollapsedMap, setWidgetCollapsedMap] = useKeyedState<
+    Record<string, boolean>
+  >(widgetSnapshot.collapsed, [widgetSnapshot]);
+
+  const widgetOrderRef = useRef<string[]>([]);
+  const widgetWidthMapRef = useRef<Record<string, number>>({});
+  const widgetCollapsedMapRef = useRef<Record<string, boolean>>({});
+
+  const persistHomeWidgetStateRef = useRef<PersistHomeWidgetState>(
+    () => undefined
+  );
+
+  useLayoutEffect(() => {
+    widgetOrderRef.current = widgetOrder;
+  }, [widgetOrder]);
+
+  useLayoutEffect(() => {
+    widgetWidthMapRef.current = widgetWidthMap;
+  }, [widgetWidthMap]);
+
+  useLayoutEffect(() => {
+    widgetCollapsedMapRef.current = widgetCollapsedMap;
+  }, [widgetCollapsedMap]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    persistHomeWidgetStateRef.current(
+      widgetSnapshot.order,
+      widgetSnapshot.widths,
+      widgetSnapshot.collapsed
+    );
+  }, [isHydrated, widgetSnapshot]);
 
   const getWidgetWidthBounds = useCallback(
     (widget: ExtensionHomeWidgetContribution): WidthBounds => {
@@ -272,7 +258,9 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
     ]
   );
 
-  persistHomeWidgetStateRef.current = persistHomeWidgetState;
+  useLayoutEffect(() => {
+    persistHomeWidgetStateRef.current = persistHomeWidgetState;
+  }, [persistHomeWidgetState]);
 
   const widgetLayouts = useMemo(() => {
     return orderedWidgetIdentifiers
@@ -310,7 +298,7 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
         };
       });
     },
-    []
+    [setWidgetWidthMap]
   );
 
   // Commit the final width on mouse up so drag updates don't spam config writes.
@@ -324,7 +312,7 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
       setWidgetWidthMap(nextWidthMap);
       persistHomeWidgetState(undefined, nextWidthMap);
     },
-    [persistHomeWidgetState]
+    [persistHomeWidgetState, setWidgetWidthMap]
   );
 
   // Persist collapsed state immediately because this action is discrete and cheap to save.
@@ -338,7 +326,7 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
       setWidgetCollapsedMap(nextCollapsedMap);
       persistHomeWidgetState(undefined, undefined, nextCollapsedMap);
     },
-    [persistHomeWidgetState]
+    [persistHomeWidgetState, setWidgetCollapsedMap]
   );
 
   const handleMoveWidget = useCallback(
@@ -364,7 +352,7 @@ const HomeWidgetContainer = ({ maxWidth }: HomeWidgetContainerProps) => {
       setWidgetOrder(currentOrder);
       persistHomeWidgetState(currentOrder);
     },
-    [orderedWidgetIdentifiers, persistHomeWidgetState]
+    [orderedWidgetIdentifiers, persistHomeWidgetState, setWidgetOrder]
   );
 
   const containerWidth = useMemo(

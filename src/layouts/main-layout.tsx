@@ -6,17 +6,15 @@ import {
   HStack,
   Link,
   Text,
-  useColorMode,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { exit } from "@tauri-apps/api/app";
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { appDataDir, appLogDir, join } from "@tauri-apps/api/path";
+import { appLogDir, join } from "@tauri-apps/api/path";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import { t } from "i18next";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Trans } from "react-i18next";
 import {
   LuGrid2X2Plus,
@@ -25,6 +23,7 @@ import {
   LuScrollText,
 } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
+import { brand } from "@/brand";
 import AdvancedCard from "@/components/common/advanced-card";
 import DevToolbar from "@/components/dev/dev-toolbar";
 import HeadNavBar from "@/components/head-navbar-v2";
@@ -39,6 +38,7 @@ import WindowTitlebar from "@/components/window-titlebar";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { useSharedModals } from "@/contexts/shared-modal";
+import type { LauncherConfig } from "@/models/config";
 import { isDev } from "@/utils/env";
 
 interface MainLayoutProps {
@@ -48,14 +48,10 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const isStandAlone = router.pathname.startsWith("/standalone");
-  const { config, update } = useLauncherConfig();
+  const { config, update, bgImageSrc, isBgDarken } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { colorMode } = useColorMode();
-  const isDarkenBg =
-    colorMode === "dark" && config.appearance.background.autoDarken;
   const { openGenericConfirmDialog } = useSharedModals();
 
-  const [bgImgSrc, setBgImgSrc] = useState<string>("");
   const isStartupFlowStarted = useRef(false);
 
   const {
@@ -120,9 +116,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   <Link
                     color={`${primaryColor}.500`}
                     onClick={() =>
-                      openUrl(
-                        "https://github.com/JLUCraft/FollyLauncher/issues"
-                      )
+                      openUrl(`https://github.com/${brand.repository}/issues`)
                     }
                   />
                 ),
@@ -187,7 +181,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }
     };
 
-    handleStartup();
+    handleStartup().catch((error: unknown) => console.error(error));
   }, [
     config.mocked,
     config.runCount,
@@ -200,25 +194,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     onStarUsModalOpen,
     update,
   ]);
-
-  // construct background img src url from config.
-  useEffect(() => {
-    const constructBgImgSrc = async () => {
-      const bgKey = config.appearance.background.choice;
-      if (bgKey.startsWith("%built-in:")) {
-        const builtInKey = bgKey.replace("%built-in:", "");
-        setBgImgSrc(`/images/backgrounds/${builtInKey}-${colorMode}.jpg`);
-      } else {
-        const _appDataDir = await appDataDir();
-        setBgImgSrc(
-          convertFileSrc(`${_appDataDir}/UserContent/Backgrounds/${bgKey}`) +
-            `?t=${Date.now()}`
-        );
-      }
-    };
-
-    constructBgImgSrc();
-  }, [colorMode, config.appearance.background.choice]);
 
   // update font family to body CSS by config.
   useEffect(() => {
@@ -258,9 +233,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   }, [config.appearance.font.fontSize]);
 
-  const getGlobalExtraStyle = (
-    config: import("@/models/config").LauncherConfig
-  ) => {
+  const getGlobalExtraStyle = (config: LauncherConfig) => {
     const isInvertColors = config.appearance.accessibility.invertColors;
     const enhanceContrast = config.appearance.accessibility.enhanceContrast;
 
@@ -300,6 +273,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <Box flex="1" minH={0} overflow="auto">
           {children}
         </Box>
+        {isDev && <DevToolbar />}
       </Flex>
     );
   }
@@ -307,10 +281,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   if (config.mocked)
     return (
       <Center h="100vh" style={getGlobalExtraStyle(config)}>
-        <BeatLoader
-          size={16}
-          color={`var(--chakra-colors-${primaryColor}-400)`}
-        />
+        <BeatLoader size={16} color="gray" />
       </Center>
     );
 
@@ -318,12 +289,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <Flex
       direction="column"
       h="100vh"
-      bgImg={`url('${bgImgSrc}')`}
+      bgImg={`url('${bgImageSrc}')`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
-      bgColor={isDarkenBg ? "overlay" : "transparent"}
-      bgBlendMode={isDarkenBg ? "darken" : "normal"}
+      bgColor={isBgDarken ? "rgba(0,0,0,0.45)" : "transparent"}
+      bgBlendMode={isBgDarken ? "darken" : "normal"}
       {...(config.basicInfo.osType === "linux" && linuxBorderStyle)}
       overflow="hidden"
       style={getGlobalExtraStyle(config)}

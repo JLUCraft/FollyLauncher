@@ -26,7 +26,7 @@ import {
   useSteps,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GameVersionSelector } from "@/components/game-version-selector";
 import { InstanceBasicSettings } from "@/components/instance-basic-settings";
@@ -34,6 +34,7 @@ import { LoaderSelector } from "@/components/loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { GameDirectory } from "@/models/config";
 import {
   GameClientResourceInfo,
@@ -78,29 +79,30 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameClientResourceInfo>();
   const [selectedModLoader, setSelectedModLoader] =
-    useState<ModLoaderResourceInfo>(defaultModLoaderResourceInfo);
-  const [selectedOptiFine, setSelectedOptiFine] = useState<
+    useKeyedState<ModLoaderResourceInfo>(defaultModLoaderResourceInfo, [
+      selectedGameVersion,
+    ]);
+  const [selectedOptiFine, setSelectedOptiFine] = useKeyedState<
     OptiFineResourceInfo | undefined
-  >(undefined);
-  const [instanceName, setInstanceName] = useState("");
-  const [instanceDescription, setInstanceDescription] = useState("");
-  const [instanceIconSrc, setInstanceIconSrc] = useState("");
+  >(undefined, [selectedGameVersion]);
+  const [instanceName, setInstanceName] = useKeyedState("", [
+    selectedGameVersion,
+  ]);
+  const [instanceDescription, setInstanceDescription] = useKeyedState("", [
+    selectedGameVersion,
+  ]);
+  const [instanceIconSrc, setInstanceIconSrc] = useKeyedState(
+    gameTypesToIcon[selectedGameVersion?.gameType || "release"],
+    [selectedGameVersion]
+  );
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
   const [isLoading, setIsLoading] = useState(false);
-  const [isInstallFabricApi, setIsInstallFabricApi] = useState(true);
-  const [isInstallQfApi, setIsInstallQfApi] = useState(true);
-
-  useEffect(() => {
-    setSelectedModLoader(defaultModLoaderResourceInfo);
-    setSelectedOptiFine(undefined);
-    setInstanceName("");
-    setInstanceDescription("");
-    setInstanceIconSrc(
-      gameTypesToIcon[selectedGameVersion?.gameType || "release"]
-    );
-    setIsInstallFabricApi(true);
-    setIsInstallQfApi(true);
-  }, [selectedGameVersion]);
+  const [isInstallFabricApi, setIsInstallFabricApi] = useKeyedState(true, [
+    selectedGameVersion,
+  ]);
+  const [isInstallQfApi, setIsInstallQfApi] = useKeyedState(true, [
+    selectedGameVersion,
+  ]);
 
   const handleCreateInstance = useCallback(() => {
     if (!selectedGameVersion || !instanceDirectory) return;
@@ -122,7 +124,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         if (res.status === "success") {
           // success toast will now be called by task context group listener
           modalProps.onClose();
-          router.push("/downloads");
+          router
+            .push("/downloads")
+            .catch((error: unknown) => console.error(error));
         } else {
           toast({
             title: res.message,
@@ -131,7 +135,8 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           });
         }
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsLoading(false))
+      .catch((error: unknown) => console.error(error));
   }, [
     selectedGameVersion,
     instanceDirectory,
@@ -265,13 +270,19 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   }, [
     selectedGameVersion,
     selectedModLoader,
+    setSelectedModLoader,
     selectedOptiFine,
+    setSelectedOptiFine,
     primaryColor,
     isInstallFabricApi,
-    isInstallQfApi,
     t,
+    isInstallQfApi,
     modalProps.onClose,
+    setIsInstallFabricApi,
+    setIsInstallQfApi,
     setActiveStep,
+    setInstanceName,
+    setInstanceIconSrc,
   ]);
 
   const step3Content = useMemo(() => {
@@ -317,6 +328,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     modalProps.onClose,
     primaryColor,
     setActiveStep,
+    setInstanceDescription,
+    setInstanceIconSrc,
+    setInstanceName,
     t,
   ]);
 

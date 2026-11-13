@@ -35,10 +35,10 @@ export type SharedModalKey = keyof typeof sharedModals;
 export type SharedModalParams<Key extends SharedModalKey> = Omit<
   ComponentProps<(typeof sharedModals)[Key]>,
   "isOpen" | "onClose"
->;
+> & { onCloseCallback?: () => void };
 export type SharedModalArguments = {
   [Key in SharedModalKey]: {} extends SharedModalParams<Key>
-    ? [key: Key, params?: SharedModalParams<Key>]
-    : [key: Key, params: SharedModalParams<Key>];
+    ? [key: Key, params?: SharedModalParams<Key>, options?: { stack?: boolean }]
+    : [key: Key, params: SharedModalParams<Key>, options?: { stack?: boolean }];
 }[SharedModalKey];
 export type OpenSharedModal = (...args: SharedModalArguments) => void;

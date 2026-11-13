@@ -16,10 +16,11 @@ import {
   ModalProps,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 
 interface ManualAddJavaPathModalProps extends Omit<ModalProps, "children"> {
   onSubmitCallback?: (path: string | null) => void;
@@ -34,13 +35,11 @@ const ManualAddJavaPathModal: React.FC<ManualAddJavaPathModalProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [innerPath, setInnerPath] = useState<string>("");
-
-  useEffect(() => {
-    if (props.isOpen) {
-      setInnerPath("");
-    }
-  }, [props.isOpen]);
+  const [innerPath, setInnerPath] = useKeyedState<string>(
+    "",
+    [props.isOpen],
+    props.isOpen
+  );
 
   const handleSubmit = () => {
     const finalPath = innerPath.trim();
@@ -71,7 +70,7 @@ const ManualAddJavaPathModal: React.FC<ManualAddJavaPathModalProps> = ({
       if (selected && typeof selected === "string") {
         setInnerPath(selected);
       }
-    } catch (error) {
+    } catch {
       setInnerPath("");
       toast({
         title: t("JavaSettingsPage.toast.addFailed.title"),

@@ -288,7 +288,7 @@ class MCModScraper:
                 except (TypeError, ValueError, IndexError):
                     continue
 
-        except Exception as exc:  # pragma: no cover - defensive
+        except Exception as exc:
             print(f"Failed to read existing CSV {filename}: {exc}")
             return 0
 

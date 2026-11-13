@@ -13,15 +13,17 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { LuExternalLink } from "react-icons/lu";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource } from "@/enums/resource";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { LocalModInfo } from "@/models/instance/misc";
 import { ResourceService } from "@/services/resource";
+import { omitFields } from "@/utils/object";
 import { base64ImgSrc } from "@/utils/string";
 
 interface ModInfoModalProps extends Omit<ModalProps, "children"> {
@@ -30,12 +32,11 @@ interface ModInfoModalProps extends Omit<ModalProps, "children"> {
   curInstanceVersion?: string;
 }
 
-const ModInfoModal: React.FC<ModInfoModalProps> = ({
-  mod,
-  curInstanceMajorVersion,
-  curInstanceVersion,
-  ...modalProps
-}) => {
+const ModInfoModal: React.FC<ModInfoModalProps> = (props) => {
+  const { mod, ...modalProps } = omitFields(props, [
+    "curInstanceMajorVersion",
+    "curInstanceVersion",
+  ]);
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -43,9 +44,15 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
     config.general.general.language === "zh-Hans" &&
     config.general.functionality.resourceTranslation;
 
-  const [cfModWebsiteUrl, setCfModWebsiteUrl] = useState<string>("");
-  const [mrModWebsiteUrl, setMrModWebsiteUrl] = useState<string>("");
-  const [MCModWebsiteUrl, setMCModWebsiteUrl] = useState<string>("");
+  const [cfModWebsiteUrl, setCfModWebsiteUrl] = useKeyedState<string>("", [
+    mod.filePath,
+  ]);
+  const [mrModWebsiteUrl, setMrModWebsiteUrl] = useKeyedState<string>("", [
+    mod.filePath,
+  ]);
+  const [MCModWebsiteUrl, setMCModWebsiteUrl] = useKeyedState<string>("", [
+    mod.filePath,
+  ]);
 
   const handleCurseForgeInfo = useCallback(async () => {
     const response = await ResourceService.fetchRemoteResourceByLocal(
@@ -69,7 +76,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
         }
       }
     }
-  }, [mod.filePath]);
+  }, [mod.filePath, setCfModWebsiteUrl, setMCModWebsiteUrl]);
 
   const handleModrinthInfo = useCallback(async () => {
     const response = await ResourceService.fetchRemoteResourceByLocal(
@@ -93,14 +100,11 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
         }
       }
     }
-  }, [mod.filePath]);
+  }, [mod.filePath, setMCModWebsiteUrl, setMrModWebsiteUrl]);
 
   useEffect(() => {
-    setCfModWebsiteUrl("");
-    setMrModWebsiteUrl("");
-    setMCModWebsiteUrl("");
-    handleCurseForgeInfo();
-    handleModrinthInfo();
+    handleCurseForgeInfo().catch((error: unknown) => console.error(error));
+    handleModrinthInfo().catch((error: unknown) => console.error(error));
   }, [handleCurseForgeInfo, handleModrinthInfo]);
 
   return (
@@ -164,7 +168,9 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
               <Button
                 colorScheme={primaryColor}
                 onClick={() => {
-                  openUrl(cfModWebsiteUrl);
+                  openUrl(cfModWebsiteUrl).catch((error: unknown) =>
+                    console.error(error)
+                  );
                 }}
                 fontSize="sm"
                 variant="link"
@@ -178,7 +184,9 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
               <Button
                 colorScheme={primaryColor}
                 onClick={() => {
-                  openUrl(mrModWebsiteUrl);
+                  openUrl(mrModWebsiteUrl).catch((error: unknown) =>
+                    console.error(error)
+                  );
                 }}
                 fontSize="sm"
                 variant="link"
@@ -192,7 +200,9 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
               <Button
                 colorScheme={primaryColor}
                 onClick={() => {
-                  openUrl(MCModWebsiteUrl);
+                  openUrl(MCModWebsiteUrl).catch((error: unknown) =>
+                    console.error(error)
+                  );
                 }}
                 fontSize="sm"
                 variant="link"

@@ -16,11 +16,6 @@ use crate::IS_PORTABLE;
 
 /// Recursively copies the contents of a source directory to a destination directory.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// copy_whole_dir(src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
-/// ```
 pub fn copy_whole_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
   if !dst.exists() {
     fs::create_dir_all(dst)?;
@@ -45,11 +40,6 @@ pub fn copy_whole_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
 /// If a file with the same name already exists, appends `" copy"`, `" copy 2"`, `" copy 3"`
 /// and so on until a non-conflicting name is found.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let dest_path = generate_unique_filename(&tgt_path, base_name);
-/// ```
 pub fn generate_unique_filename(base_path: &Path, filename: &OsStr) -> PathBuf {
   let (name, extension) = split_filename(filename);
   let mut dest_path = base_path.join(filename);
@@ -81,11 +71,6 @@ pub fn generate_unique_filename(base_path: &Path, filename: &OsStr) -> PathBuf {
 
 /// Splits a filename into its base name and extension.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let (name, extension) = split_filename(filename);
-/// ```
 pub fn split_filename(filename: &OsStr) -> (String, String) {
   let filename_str = filename.to_string_lossy();
   if let Some(dot_index) = filename_str.rfind('.') {
@@ -131,12 +116,6 @@ pub fn extract_filename(path_str: &str, with_ext: bool) -> String {
 /// - absolute path prefixes or roots
 /// - empty / current-directory-only paths
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let path = normalize_relative_path(Path::new("./config/options.txt"))?;
-/// assert_eq!(path, PathBuf::from("config/options.txt"));
-/// ```
 pub fn normalize_relative_path(path: &Path) -> SJMCLResult<PathBuf> {
   let mut normalized = PathBuf::new();
 
@@ -157,11 +136,6 @@ pub fn normalize_relative_path(path: &Path) -> SJMCLResult<PathBuf> {
 
 /// Retrieves a list of subdirectories within a given path.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let sub_dirs = get_subdirectories(&directory).unwrap_or_default();
-/// ```
 pub fn get_subdirectories<P: AsRef<Path>>(path: P) -> SJMCLResult<Vec<PathBuf>> {
   fs::read_dir(path)?
     .filter_map(|entry| match entry {
@@ -180,11 +154,6 @@ pub fn get_subdirectories<P: AsRef<Path>>(path: P) -> SJMCLResult<Vec<PathBuf>> 
 
 /// Retrieves a list of files within a given path that match a specified regular expression.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let mod_paths = get_files_with_regex(&mods_dir, &valid_extensions).unwrap_or_default();
-/// ```
 pub fn get_files_with_regex<P: AsRef<Path>>(path: P, pattern: &Regex) -> SJMCLResult<Vec<PathBuf>> {
   get_files_with_regex_recursive(path, pattern, Some(0))
 }
@@ -230,12 +199,6 @@ pub fn get_files_with_regex_recursive<P: AsRef<Path>>(
 /// * `app`: Tauri AppHandle
 /// * `relative_path`: The resource’s relative path
 ///
-/// # Example
-///
-/// ```rust,ignore
-/// let texture_path = get_app_resource(&app, "assets/skins/player.png")?;
-/// println!("Texture will be loaded from: {:?}", texture_path);
-/// ```
 pub fn get_app_resource_filepath(
   app: &AppHandle,
   relative_path: &str,
@@ -276,26 +239,9 @@ pub fn get_app_resource_filepath(
 ///
 /// - `app`: Tauri AppHandle
 /// - `name`: File name (without extension)
-/// - `url`: Target deeplink or custom URL (e.g. `sjmcl://...`)
+/// - `url`: Target deep link or custom URL.
 /// - `icon_path`: Optional icon override
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// create_url_shortcut(
-///     app,
-///     "Add Auth Server".to_string(),
-///     "sjmcl://add-auth-server?url=https%3A%2F%2Fexample.com".to_string(),
-///     None,
-/// )?;
-///
-/// create_url_shortcut(
-///     app,
-///     "Launch".to_string(),
-///     "sjmcl://launch?id=OFFICIAL_DIR:1.20.1".to_string(),
-///     Some(PathBuf::from("/path/to/custom/icon.png")),
-/// )?;
-/// ```
 pub fn create_url_shortcut(
   app: &AppHandle,
   name: String,
@@ -424,6 +370,35 @@ Terminal=false
   Ok(())
 }
 
+/// Checks existence, and verifies SHA-1 only when full validation is requested.
+pub async fn is_local_file_valid(
+  path: &Path,
+  sha1: Option<&str>,
+  check_hash: bool,
+) -> SJMCLResult<bool> {
+  let exists = tokio::fs::try_exists(path).await?;
+  Ok(
+    exists
+      && (!check_hash
+        || sha1.is_some_and(|sha1| validate_sha1(path.to_path_buf(), sha1.to_string()).is_ok())),
+  )
+}
+
+pub(crate) fn hash_reader<D: Digest>(mut reader: impl Read) -> io::Result<String> {
+  const READ_BUFFER_SIZE: usize = 8192;
+  let mut hasher = D::new();
+  let mut buffer = [0; READ_BUFFER_SIZE];
+  loop {
+    match reader.read(&mut buffer) {
+      Ok(0) => break,
+      Ok(length) => hasher.update(&buffer[..length]),
+      Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+      Err(error) => return Err(error),
+    }
+  }
+  Ok(hex::encode(hasher.finalize()))
+}
+
 pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
   let mut f = std::fs::File::options()
     .read(true)
@@ -437,11 +412,8 @@ pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
         e
       ))
     })?;
-  let mut hasher = Sha1::new();
-  std::io::copy(&mut f, &mut hasher)
-    .map_err(|e| SJMCLError(format!("Failed to copy data for SHA1 validation: {}", e)))?;
-
-  let sha1 = hex::encode(hasher.finalize());
+  let sha1 = hash_reader::<Sha1>(&mut f)
+    .map_err(|e| SJMCLError(format!("Failed to read data for SHA1 validation: {}", e)))?;
   if sha1 != truth {
     Err(SJMCLError(format!(
       "SHA1 mismatch for {}: expected {}, got {}",
@@ -463,27 +435,13 @@ pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
 /// - `SJMCLResult<String>`: The SHA256 hash as a hexadecimal string, or an error
 pub fn calculate_sha256(path: &Path) -> SJMCLResult<String> {
   match std::fs::File::open(path) {
-    Ok(mut file) => {
-      let mut hasher = Sha256::new();
-      // Use an 8 KiB buffer as a common compromise between memory usage and I/O throughput.
-      let mut buffer = [0; 8192];
-
-      loop {
-        match file.read(&mut buffer) {
-          Ok(0) => break,
-          Ok(n) => hasher.update(&buffer[..n]),
-          Err(e) => {
-            return Err(SJMCLError(format!(
-              "Error reading file {} for hashing: {}",
-              path.display(),
-              e
-            )));
-          }
-        }
-      }
-
-      Ok(format!("{:x}", hasher.finalize()))
-    }
+    Ok(mut file) => hash_reader::<Sha256>(&mut file).map_err(|error| {
+      SJMCLError(format!(
+        "Error reading file {} for hashing: {}",
+        path.display(),
+        error
+      ))
+    }),
     Err(e) => Err(SJMCLError(format!(
       "Failed to open file {} for hashing: {}",
       path.display(),

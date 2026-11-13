@@ -3,6 +3,25 @@
     "about": {
       "title": "有涉",
       "settings": {
+        "version": {
+          "title": "版",
+          "foundNew": "有新版",
+          "checkUpdate": "驗迭更",
+          "checkToast": {
+            "loading": "甫察其新",
+            "up2date": "今已至新",
+            "error": "驗迭更未成"
+          }
+        },
+        "contributors": {
+          "title": "開發諸君之列"
+        },
+        "sourceCode": {
+          "title": "覽源碼於群碼之匯"
+        },
+        "aboutSJMC": {
+          "title": "有涉上海交通大學礦藝社（SJMC）"
+        },
         "community": {
           "title": "戲者同好"
         },
@@ -17,16 +36,6 @@
         },
         "repository": {
           "title": "源碼之庫"
-        },
-        "version": {
-          "title": "版",
-          "foundNew": "有新版",
-          "checkUpdate": "驗迭更",
-          "checkToast": {
-            "loading": "甫察其新",
-            "up2date": "今已至新",
-            "error": "驗迭更未成"
-          }
         }
       }
     },
@@ -64,23 +73,23 @@
       }
     },
     "legalInfo": {
-      "title": "上游與許可",
+      "title": "律例之訊",
       "settings": {
-        "basedOn": {
-          "title": "基於開源啟動器 SJMCL",
-          "description": "{{productName}} 乃基於 SJMCL 而作。原庫：https://github.com/UNIkeEN/SJMCL"
-        },
         "copyright": {
           "title": "版權",
           "description": "版權所有 © 2026 Folly Launcher 團隊。基於 SJMCL © 2024-2026 SJMCL 開發諸君。"
         },
         "userAgreement": {
-          "title": "上游 SJMCL 使用之約",
+          "title": "客契",
           "url": "https://mc.sjtu.cn/sjmcl/docs/tos"
         },
         "openSourceLicense": {
           "title": "開源之約",
           "description": "此項遵 GNU General Public License v3.0（附增條）"
+        },
+        "basedOn": {
+          "title": "基於開源啟動器 SJMCL",
+          "description": "{{productName}} 乃基於 SJMCL 而作。原庫：https://github.com/UNIkeEN/SJMCL"
         }
       }
     }
@@ -216,7 +225,7 @@
       "description": {
         "start": {
           "3rdparty": "此鑒權之源援 Yggdrasil Connect 規範提案",
-          "microsoft": "{{productName}} 援微軟 OAuth 2.0 裝置授權流"
+          "microsoft": "SJMCL 援微軟 OAuth 2.0 裝置授權流"
         },
         "next": "請擊續登入之鈕以轉登入頁，書上碼（已自鈔）。"
       },
@@ -495,10 +504,10 @@
     }
   },
   "DevToolbar": {
+    "tooltip": "開發之欄",
     "back": "返回",
     "openDevTestPage": "開啟開發測試頁",
-    "reload": "重新載入",
-    "tooltip": "開發之欄"
+    "reload": "重新載入"
   },
   "DiscoverCommunityNewsPage": {
     "title": "發見",
@@ -646,11 +655,11 @@
       "pause": "暫止",
       "begin": "始",
       "retry": "復試",
-      "clearHistory": "清其舊錄",
-      "toggleExpansion": "展開或收合"
+      "clearHistory": "清其舊錄"
     },
     "label": {
       "paused": "已暫止",
+      "finalizing": "安裝將畢",
       "completed": "已畢",
       "error": "未成",
       "cancelled": "已罷"
@@ -678,8 +687,12 @@
       "launcher-update": "迭更啟者",
       "extension-update": "迭更擴充套件 {{param1}} {{param2}}",
       "mojang-java": "爪哇 {{param}} 行時"
-    },
-    "empty": "未有下載之務，所啟者見於此。"
+    }
+  },
+  "Editable": {
+    "edit": "改",
+    "save": "存",
+    "cancel": "罷"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -724,11 +737,6 @@
         "invalid": "夾徑不合法"
       }
     }
-  },
-  "Editable": {
-    "edit": "改",
-    "save": "存",
-    "cancel": "罷"
   },
   "Empty": {
     "noData": "無據"
@@ -1057,6 +1065,7 @@
       "gameLogs": "戲誌",
       "help": "助"
     },
+    "autoCloseCountdown": "此匡將於 {{seconds}} 秒後自闔（擊匡中任意處可止）",
     "bottomAlert": "如需尋求他人助，請錄出並傳送潰報告，而非這個匡的截影",
     "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
@@ -1127,7 +1136,6 @@
       "FORGE_LITELOADER_CONFLICT": "今例以 Forge 與 LiteLoader 衝突，不能續行。請試刪 LiteLoader 或更換 Forge 版。",
       "UNKNOWN": "暫時不能分析該謬，請覽戲誌或錄出謬潰報告。"
     },
-    "autoCloseCountdown": "此匡將於 {{seconds}} 秒後自闔（擊匡中任意處可止）",
     "placeholder": {
       "unknown": "未知"
     }
@@ -1147,13 +1155,15 @@
   },
   "General": {
     "add": "增",
-    "back": "返回",
-    "beta": "公試版",
+    "alert": {
+      "noFullLogin": {
+        "title": "是功暫不可用",
+        "description": "請先登微軟戶簿，而後用是功。"
+      }
+    },
     "browse": "覽",
     "cancel": "罷",
     "close": "閉",
-    "collapse": "摺斂",
-    "color": "顏色",
     "confirm": "然",
     "copy": {
       "text": "鈔",
@@ -1171,8 +1181,7 @@
     "dialog": {
       "filterName": {
         "image": "圖像之案",
-        "modpack": "改囊集",
-        "json": "JSON 之案"
+        "modpack": "改囊集"
       }
     },
     "disable": "禁",
@@ -1181,7 +1190,6 @@
     "edit": "改",
     "enable": "啟",
     "exit": "辭",
-    "expand": "展開",
     "finish": "成",
     "import": "導入",
     "launch": "啟",
@@ -1196,7 +1204,6 @@
     "refresh": "重整",
     "revealFile": "顯於{{opener}}",
     "search": "尋",
-    "select": "選擇",
     "settings": "置設",
     "share": {
       "text": "共之",
@@ -1205,16 +1212,21 @@
       }
     },
     "skip": "跳過",
-    "unselectColor": "取消選擇顏色",
     "version": {
       "dev": "開發版",
       "nightly": "夜間構建版",
       "beta": "測試版",
       "test-build": "測試構建版"
     },
-    "versionNumberingHelp": "版本號規則說明",
     "viewOnWiki": "在 礦藝大典 中覽",
-    "retry": "復試"
+    "back": "返回",
+    "beta": "公試版",
+    "collapse": "摺斂",
+    "color": "顏色",
+    "expand": "展開",
+    "select": "選擇",
+    "unselectColor": "取消選擇顏色",
+    "versionNumberingHelp": "版本號規則說明"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1434,15 +1446,19 @@
     "community": {
       "title": "高校戲者社群",
       "settings": {
-        "JLUCraft": {
-          "title": "吉林大學礦藝同好會（JLUCraft）",
-          "description": "此啟動器所屬之同好會，服務吉林大學及四方戲者",
-          "url": "https://www.jlucraft.com/"
-        },
         "MUA": {
           "title": "礦藝 高校聯盟（MUA）",
           "description": "與天下諸學之戲者同遊。",
           "url": "https://www.mualliance.cn"
+        },
+        "SJMC": {
+          "title": "上海交通大學礦藝社（SJMC）",
+          "url": "https://mc.sjtu.cn"
+        },
+        "JLUCraft": {
+          "title": "吉林大學礦藝同好會（JLUCraft）",
+          "description": "此啟動器所屬之同好會，服務吉林大學及四方戲者",
+          "url": "https://www.jlucraft.com/"
         }
       }
     },
@@ -1475,8 +1491,8 @@
           "url": "https://www.jlucraft.com/docs/"
         },
         "UserGroup": {
-          "title": "戲者同好",
-          "description": "歡迎入群，擧陳疏漏，請益功用，以求襄助",
+          "title": "使用者社群",
+          "description": "歡迎加入 QQ 群或于群碼之匯清談，擧陳疏漏，請益功用，以求襄助",
           "url": "https://www.jlucraft.com/about/"
         }
       }
@@ -1620,11 +1636,6 @@
     },
     "schematicList": {
       "title": "蜃圖"
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "details": "詳"
     }
   },
   "InstanceSettingsPage": {
@@ -1774,6 +1785,7 @@
       "es": "西班牙語",
       "fr": "方司語",
       "ja": "日本語",
+      "ru": "俄罗斯語",
       "lzh": "",
       "zh-Hans": "",
       "zh-Hant": ""
@@ -1827,11 +1839,6 @@
     "notCompatibleWith": "與 {{item}} 不相容",
     "noVersionSelected": "未選擇版"
   },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，礦藝 版號採取新的命名規則，以年份作為版號首位（如 26.1）以取代原有的 1.x 版號規則。",
-    "linkText": "覽官方案文",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
   "MainLayout": {
     "fileDnD": {
       "title": "導入改囊集",
@@ -1862,6 +1869,11 @@
     "placeholder": {
       "javaPath": "請書入或擇爪哇可執行案之徑"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，礦藝 版號採取新的命名規則，以年份作為版號首位（如 26.1）以取代原有的 1.x 版號規則。",
+    "linkText": "覽官方案文",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -2282,9 +2294,6 @@
     },
     "versionList": {
       "All": "一覽無遺"
-    },
-    "listError": {
-      "description": "資源目錄載入不成：{{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2295,7 +2304,8 @@
       "restart": "復啟",
       "install": "置",
       "later": "稍後"
-    }
+    },
+    "bodyLinux": "更新之包已得。啟其所在之夾，手易啟動器。"
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎改啟者原始置設案，謬的格式或致原有置設丟失或啟者不能正常工作"
@@ -2390,7 +2400,10 @@
       },
       "downloadMojangJava": {
         "error": {
-          "title": "Mojang 爪哇行時引之未成"
+          "title": "Mojang 爪哇行時引之未成",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
+          }
         }
       },
       "checkGameDirectory": {
@@ -2408,7 +2421,16 @@
           "title": "清引快取未成",
           "description": {
             "HAS_ACTIVE_DOWNLOAD_TASKS": "今有引任務方進行中，請稍後復試",
-            "FILE_DELETION_FAILED": "不能刪快取案，或然案方被使用"
+            "FILE_DELETION_FAILED": "不能刪快取案，或然案方被使用",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
+          }
+        }
+      },
+      "downloadLauncherUpdate": {
+        "error": {
+          "title": "下載啟動器更新未成",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       }
@@ -2425,6 +2447,7 @@
           "title": "離線戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "INVALID": "UUID 無效",
             "TEXTURE_ERROR": "戲者外觀獲取未成"
           }
@@ -2447,6 +2470,7 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "NOT_FOUND": "鑒權伺服器無",
@@ -2491,6 +2515,7 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "INVALID": "戶簿或符節謬",
@@ -2518,6 +2543,7 @@
           "title": "戲者增未成",
           "description": {
             "DUPLICATE": "戲者已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟戶簿後使用此功用。",
             "NETWORK_ERROR": "不能連線至鑒權伺服器",
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "EXPIRED": "令牌已過期，請復登入"
@@ -2669,9 +2695,11 @@
           "title": "驗證戲案未成",
           "description": {
             "MOD_LOADER_NOT_INSTALLED": "改囊載器未畢置",
+            "OPTIFINE_NOT_INSTALLED": "OptiFine 未畢置",
             "INSTANCE_NOT_FOUND_BY_ID": "例 ID 無",
             "GAME_FILES_INCOMPLETE": "戲案不完整或缺失",
-            "LAUNCHING_STATE_NOT_FOUND": "啟狀態丟失"
+            "LAUNCHING_STATE_NOT_FOUND": "啟狀態丟失",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       },
@@ -2762,7 +2790,8 @@
           "title": "引戲伺服器未成",
           "description": {
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
-            "NETWORK_ERROR": "不能連線到伺服器"
+            "NETWORK_ERROR": "不能連線到伺服器",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       },
@@ -2782,7 +2811,8 @@
           "description": {
             "PARSE_ERROR": "伺服器返回資料正規化謬矣",
             "NETWORK_ERROR": "不能連線到伺服器",
-            "FILE_OPERATION_ERROR": "不能更名舊改囊案"
+            "FILE_OPERATION_ERROR": "不能更名舊改囊案",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       }
@@ -2808,7 +2838,8 @@
             "FILE_CREATION_FAILED": "目標案建立未成",
             "NETWORK_ERROR": "網路謬",
             "CLIENT_JSON_PARSE_ERROR": "例版資訊解析謬",
-            "ASSET_INDEX_PARSE_ERROR": "資源索引案解析謬"
+            "ASSET_INDEX_PARSE_ERROR": "資源索引案解析謬",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       },
@@ -2989,37 +3020,6 @@
           }
         }
       },
-      "finishModLoaderInstall": {
-        "loading": "方為 {{instanceName}} 置改囊載器",
-        "success": "改囊載器置畢",
-        "error": {
-          "title": "改囊載器弗能裝之",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "例 ID 無",
-            "INSTALLATION_DUPLICATED": "檢測到另一個程序已在置中",
-            "MAIN_CLASS_NOT_FOUND": "主類未找到",
-            "PROCESSOR_EXECUTION_FAILED": "置任務執行未成",
-            "LOADER_INSTALLER_NOT_FOUND": "載器置程式無"
-          }
-        }
-      },
-      "finishOptiFineLoaderInstall": {
-        "loading": "方為 {{instanceName}} 置 OptiFine",
-        "success": "OptiFine 置畢",
-        "error": {
-          "title": "OptiFine 弗能裝之",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "例 ID 無",
-            "INSTALLATION_DUPLICATED": "檢測到另一個程序已在置中",
-            "PROCESSOR_EXECUTION_FAILED": "置任務執行未成",
-            "LOADER_INSTALLER_NOT_FOUND": "OptiFine 置程式無",
-            "MOD_LOADER_VERSION_PARSE_ERROR": "OptiFine 版資訊解析未成",
-            "INVALID_SOURCE_PATH": "資源徑無效",
-            "NO_SUITABLE_JAVA": "未得可用之爪哇行時",
-            "SELECTED_JAVA_UNAVAILABLE": "所擇爪哇行時不可用"
-          }
-        }
-      },
       "checkChangeModLoaderAvailablity": {
         "error": {
           "title": "不能更改改囊載器",
@@ -3032,13 +3032,17 @@
         "error": {
           "title": "改改囊載器未成",
           "description": {
-            "NOT_SUPPORT_CHANGE_MOD_LOADER": "由外部置的版，不能解除安裝或更換"
+            "NOT_SUPPORT_CHANGE_MOD_LOADER": "由外部置的版，不能解除安裝或更換",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
           }
         }
       },
       "changeOptiFine": {
         "error": {
-          "title": "改 OptiFine 未成"
+          "title": "改 OptiFine 未成",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能成此操作"
+          }
         }
       },
       "removeModLoader": {
@@ -3122,10 +3126,32 @@
       }
     },
     "task": {
-      "scheduleProgressiveTaskGroup": {
-        "error": "任務建立未成"
+      "common": {
+        "title": "下載未成",
+        "description": {
+          "NETWORK_ERROR": "網路有誤：{{details}}",
+          "HTTP_ERROR": "HTTP 有誤：{{status}}",
+          "IO_ERROR": "檔案操作未成：{{details}}",
+          "CHECKSUM_MISMATCH": "檔案校驗未合：當為 {{expected}}，實為 {{actual}}",
+          "CORRUPT_FILES": "檔案已損：{{paths, list}}",
+          "MISSING_FIELD": "任務缺欄：{{field}}",
+          "UNKNOWN_EXECUTOR": "任務執行器未識：{{executor}}",
+          "INVALID_CONTENT_RANGE": "伺服器所返 Content-Range 無效",
+          "RESUME_OFFSET_MISMATCH": "續傳之位未合：當為 {{expected}}，實為 {{actual}}",
+          "OTHER_ERROR": "任務未成：{{details}}",
+          "EMPTY_GROUP": "任務組至少須有一務",
+          "CHANNEL_CLOSED": "下載引擎之連線已閉",
+          "UNKNOWN_GROUP": "未見任務組 {{groupId}}",
+          "INVALID_STATE": "任務組 {{groupId}} 今態不容此舉",
+          "STORAGE_ERROR": "下載狀態未能存：{{details}}",
+          "ENGINE_NOT_INITIALIZED": "下載引擎尚未備",
+          "INSTALLATION_INSTANCE_MISMATCH": "所裝實例與任務未合",
+          "MOD_LOADER_CHANGED": "裝置之際，模組載入器已易",
+          "OPTIFINE_MISSING": "未見 OptiFine",
+          "OPTIFINE_CHANGED": "裝置之際，OptiFine 已易"
+        }
       },
-      "onTaskGroupUpdate": {
+      "onDownloadGroupUpdate": {
         "status": {
           "Started": "{{param}} 引任務已始",
           "Failed": "{{param}} 部分引之未成，請復試",
@@ -3135,7 +3161,6 @@
         }
       }
     },
-    "unknownError": "遇未知之誤",
     "utils": {
       "deleteFile": {
         "success": "刪案既成",
@@ -3143,7 +3168,8 @@
           "title": "刪案未成"
         }
       }
-    }
+    },
+    "unknownError": "遇未知之誤"
   },
   "SettingsLayout": {
     "settingsDomainList": {
@@ -3211,7 +3237,7 @@
     "header": {
       "title": "於群碼之匯爲我輩點星"
     },
-    "body": "若您喜愛 {{productName}}，並希望支援我輩，可於群碼之匯爲我輩點一星乎？此小舉義甚重，足以勉我輩持續爲君增益其用。",
+    "body": "若您喜愛 SJMCL，並希望支援我輩，可於群碼之匯爲我輩點一星乎？此小舉義甚重，足以勉我輩持續爲君增益其用。",
     "button": {
       "later": "稍後",
       "starUs": "點亮星標"

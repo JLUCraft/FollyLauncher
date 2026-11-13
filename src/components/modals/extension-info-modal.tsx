@@ -24,6 +24,20 @@ interface ExtensionInfoModalProps extends Omit<ModalProps, "children"> {
   extension: ExtensionInfo;
 }
 
+const InfoField: React.FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
+  <Box>
+    <Text fontSize="xs" className="secondary-text">
+      {label}
+    </Text>
+    <Text mt={1} fontSize="sm" wordBreak="break-all">
+      {value}
+    </Text>
+  </Box>
+);
+
 const ExtensionInfoModal: React.FC<ExtensionInfoModalProps> = ({
   extension,
   ...modalProps
@@ -31,20 +45,6 @@ const ExtensionInfoModal: React.FC<ExtensionInfoModalProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-
-  const InfoField: React.FC<{ label: string; value: string }> = ({
-    label,
-    value,
-  }) => (
-    <Box>
-      <Text fontSize="xs" className="secondary-text">
-        {label}
-      </Text>
-      <Text mt={1} fontSize="sm" wordBreak="break-all">
-        {value}
-      </Text>
-    </Box>
-  );
 
   return (
     <Modal

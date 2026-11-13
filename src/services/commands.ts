@@ -1,10 +1,10 @@
 import type { AccountService } from "@/services/account";
 import type { ConfigService } from "@/services/config";
+import type { DownloadService } from "@/services/download";
 import type { ExtensionService } from "@/services/extension";
 import type { InstanceService } from "@/services/instance";
 import type { LaunchService } from "@/services/launch";
 import type { ResourceService } from "@/services/resource";
-import type { TaskService } from "@/services/task";
 import type { UtilsService } from "@/services/utils";
 
 export const nativeCommands = {
@@ -46,13 +46,16 @@ export const nativeCommands = {
     fetchOptiFineVersionList: "fetch_optifine_version_list",
     fetchResourceListByName: "fetch_resource_list_by_name",
   },
-  task: {
-    scheduleProgressiveTaskGroup: "schedule_progressive_task_group",
-    cancelProgressiveTaskGroup: "cancel_progressive_task_group",
-    stopProgressiveTaskGroup: "stop_progressive_task_group",
-    resumeProgressiveTaskGroup: "resume_progressive_task_group",
-    deleteProgressiveTaskGroup: "delete_progressive_task_group",
-    retrieveProgressiveTaskList: "retrieve_progressive_task_list",
+  download: {
+    submitGroup: "plugin:sjmcl-downloader|submit_group",
+    pauseGroup: "plugin:sjmcl-downloader|pause_group",
+    resumeGroup: "plugin:sjmcl-downloader|resume_group",
+    cancelGroup: "plugin:sjmcl-downloader|cancel_group",
+    retryGroup: "plugin:sjmcl-downloader|retry_group",
+    removeGroup: "plugin:sjmcl-downloader|remove_group",
+    acknowledgeCompletion: "plugin:sjmcl-downloader|acknowledge_completion",
+    snapshot: "plugin:sjmcl-downloader|snapshot",
+    listTasks: "plugin:sjmcl-downloader|list_tasks",
   },
   utils: {
     retrieveFontList: "retrieve_truetype_font_list",
@@ -65,6 +68,6 @@ export const nativeCommands = {
   instance: Partial<Record<keyof typeof InstanceService, string>>;
   launch: Partial<Record<keyof typeof LaunchService, string>>;
   resource: Partial<Record<keyof typeof ResourceService, string>>;
-  task: Partial<Record<keyof typeof TaskService, string>>;
+  download: Partial<Record<keyof typeof DownloadService, string>>;
   utils: Partial<Record<keyof typeof UtilsService, string>>;
 };

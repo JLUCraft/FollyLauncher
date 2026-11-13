@@ -1,8 +1,8 @@
+use crate::download::DownloadTask;
 use crate::instance::helpers::client_json::McClientInfo;
-use crate::instance::helpers::loader::common::prepare_libraries;
+use crate::instance::helpers::loader::common::{InstallPlan, prepare_libraries};
 use crate::instance::models::misc::{Instance, ModLoader, ModLoaderType};
 use crate::resource::models::SourceType;
-use crate::tasks::PTaskParam;
 use sjmcl_types::error::SJMCLResult;
 use std::path::PathBuf;
 use tauri::AppHandle;
@@ -10,7 +10,7 @@ pub async fn install_cleanroom_loader(
   priority: &[SourceType],
   loader: &ModLoader,
   lib_dir: PathBuf,
-  task_params: &mut Vec<PTaskParam>,
+  task_params: &mut Vec<DownloadTask>,
 ) -> SJMCLResult<()> {
   let request = minecraftd::minecraft::loader::processors::installer_download(
     priority,
@@ -20,7 +20,7 @@ pub async fn install_cleanroom_loader(
     loader.branch.as_deref(),
     &lib_dir,
   )?;
-  task_params.push(PTaskParam::Download(request));
+  task_params.push(request);
   Ok(())
 }
 pub async fn download_cleanroom_libraries(
@@ -28,7 +28,7 @@ pub async fn download_cleanroom_libraries(
   priority: &[SourceType],
   instance: &Instance,
   client_info: &mut McClientInfo,
-) -> SJMCLResult<()> {
+) -> SJMCLResult<InstallPlan> {
   prepare_libraries(
     app,
     priority,

@@ -3,6 +3,25 @@
     "about": {
       "title": "關於",
       "settings": {
+        "version": {
+          "title": "版本",
+          "foundNew": "有新版本",
+          "checkUpdate": "檢查更新",
+          "checkToast": {
+            "loading": "正在檢查更新",
+            "up2date": "目前已是最新版本",
+            "error": "檢查更新失敗"
+          }
+        },
+        "contributors": {
+          "title": "開發者名單"
+        },
+        "sourceCode": {
+          "title": "在 GitHub 檢視原始碼"
+        },
+        "aboutSJMC": {
+          "title": "關於上海交通大學 Minecraft 社（SJMC）"
+        },
         "community": {
           "title": "玩家社群"
         },
@@ -17,16 +36,6 @@
         },
         "repository": {
           "title": "原始碼倉庫"
-        },
-        "version": {
-          "title": "版本",
-          "foundNew": "有新版本",
-          "checkUpdate": "檢查更新",
-          "checkToast": {
-            "loading": "正在檢查更新",
-            "up2date": "目前已是最新版本",
-            "error": "檢查更新失敗"
-          }
         }
       }
     },
@@ -64,23 +73,23 @@
       }
     },
     "legalInfo": {
-      "title": "上游與許可",
+      "title": "法律資訊",
       "settings": {
-        "basedOn": {
-          "title": "基於開源啟動器 SJMCL",
-          "description": "{{productName}} 基於 SJMCL 開發。原始倉庫：https://github.com/UNIkeEN/SJMCL"
-        },
         "copyright": {
           "title": "版權",
           "description": "版權所有 © 2026 Folly Launcher 團隊。基於 SJMCL © 2024-2026 SJMCL 開發團隊。"
         },
         "userAgreement": {
-          "title": "上游 SJMCL 使用者協議",
+          "title": "使用者協議",
           "url": "https://mc.sjtu.cn/sjmcl/docs/tos"
         },
         "openSourceLicense": {
           "title": "開源協議",
           "description": "本專案遵循 GNU General Public License v3.0 協議（包含附加條款）"
+        },
+        "basedOn": {
+          "title": "基於開源啟動器 SJMCL",
+          "description": "{{productName}} 基於 SJMCL 開發。原始倉庫：https://github.com/UNIkeEN/SJMCL"
         }
       }
     }
@@ -216,7 +225,7 @@
       "description": {
         "start": {
           "3rdparty": "此認證源支援 Yggdrasil Connect 規範提案",
-          "microsoft": "{{productName}} 支援微軟 OAuth 2.0 裝置許可權授予流"
+          "microsoft": "SJMCL 支援微軟 OAuth 2.0 裝置許可權授予流"
         },
         "next": "請點選繼續登入按鈕跳轉登入頁面，輸入以上程式碼（已自動複製）"
       },
@@ -495,10 +504,10 @@
     }
   },
   "DevToolbar": {
+    "tooltip": "開發工具列",
     "back": "返回",
     "openDevTestPage": "開啟開發測試頁",
-    "reload": "重新載入",
-    "tooltip": "開發工具列"
+    "reload": "重新載入"
   },
   "DiscoverCommunityNewsPage": {
     "title": "發現",
@@ -646,11 +655,11 @@
       "pause": "暫停",
       "begin": "開始",
       "retry": "重試",
-      "clearHistory": "清空歷史記錄",
-      "toggleExpansion": "展開或收合"
+      "clearHistory": "清空歷史記錄"
     },
     "label": {
       "paused": "已暫停",
+      "finalizing": "正在完成安裝",
       "completed": "已完成",
       "error": "失敗",
       "cancelled": "已取消"
@@ -678,8 +687,12 @@
       "launcher-update": "更新啟動器",
       "extension-update": "更新擴充套件 {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} 執行時"
-    },
-    "empty": "暫無下載任務。開始下載後會顯示於此處。"
+    }
+  },
+  "Editable": {
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -724,11 +737,6 @@
         "invalid": "目錄路徑不合法"
       }
     }
-  },
-  "Editable": {
-    "edit": "編輯",
-    "save": "儲存",
-    "cancel": "取消"
   },
   "Empty": {
     "noData": "無資料"
@@ -1057,6 +1065,7 @@
       "gameLogs": "遊戲日誌",
       "help": "幫助"
     },
+    "autoCloseCountdown": "視窗將在 {{seconds}} 秒後自動關閉（點擊視窗任意位置可取消）",
     "bottomAlert": "如需尋求他人幫助，請匯出併發送崩潰報告，而非這個視窗的截圖",
     "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
@@ -1127,7 +1136,6 @@
       "FORGE_LITELOADER_CONFLICT": "目前實例由於 Forge 與 LiteLoader 衝突，無法繼續執行。請嘗試刪除 LiteLoader 或更換 Forge 版本。",
       "UNKNOWN": "暫時無法分析該錯誤，請檢視遊戲日誌或匯出錯誤崩潰報告。"
     },
-    "autoCloseCountdown": "視窗將在 {{seconds}} 秒後自動關閉（點擊視窗任意位置可取消）",
     "placeholder": {
       "unknown": "未知"
     }
@@ -1147,13 +1155,15 @@
   },
   "General": {
     "add": "新增",
-    "back": "返回",
-    "beta": "Beta",
+    "alert": {
+      "noFullLogin": {
+        "title": "目前功能暫不可用",
+        "description": "請先登入微軟帳戶後使用此功能。"
+      }
+    },
     "browse": "瀏覽",
     "cancel": "取消",
     "close": "關閉",
-    "collapse": "摺疊",
-    "color": "顏色",
     "confirm": "確定",
     "copy": {
       "text": "複製",
@@ -1171,8 +1181,7 @@
     "dialog": {
       "filterName": {
         "image": "圖片檔案",
-        "modpack": "模組包",
-        "json": "JSON 檔案"
+        "modpack": "模組包"
       }
     },
     "disable": "停用",
@@ -1181,7 +1190,6 @@
     "edit": "編輯",
     "enable": "啟用",
     "exit": "退出",
-    "expand": "展開",
     "finish": "完成",
     "import": "匯入",
     "launch": "啟動",
@@ -1196,7 +1204,6 @@
     "refresh": "重新整理",
     "revealFile": "在{{opener}}中顯示",
     "search": "搜尋",
-    "select": "選擇",
     "settings": "設定",
     "share": {
       "text": "分享",
@@ -1205,16 +1212,21 @@
       }
     },
     "skip": "跳過",
-    "unselectColor": "取消選擇顏色",
     "version": {
       "dev": "開發版本",
       "nightly": "夜間構建版本",
       "beta": "測試版本",
       "test-build": "測試構建版本"
     },
-    "versionNumberingHelp": "版本號規則說明",
     "viewOnWiki": "在 Minecraft Wiki 中檢視",
-    "retry": "重試"
+    "back": "返回",
+    "beta": "Beta",
+    "collapse": "摺疊",
+    "color": "顏色",
+    "expand": "展開",
+    "select": "選擇",
+    "unselectColor": "取消選擇顏色",
+    "versionNumberingHelp": "版本號規則說明"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1434,15 +1446,19 @@
     "community": {
       "title": "高校玩家社群",
       "settings": {
-        "JLUCraft": {
-          "title": "吉林大學 Minecraft 同好會（JLUCraft）",
-          "description": "本啟動器所屬的同好會，服務吉林大學及各地玩家",
-          "url": "https://www.jlucraft.com/"
-        },
         "MUA": {
           "title": "Minecraft 高校聯盟（MUA）",
           "description": "和全國各高校的玩家一起遊玩",
           "url": "https://www.mualliance.cn"
+        },
+        "SJMC": {
+          "title": "上海交通大學 Minecraft 社（SJMC）",
+          "url": "https://mc.sjtu.cn"
+        },
+        "JLUCraft": {
+          "title": "吉林大學 Minecraft 同好會（JLUCraft）",
+          "description": "本啟動器所屬的同好會，服務吉林大學及各地玩家",
+          "url": "https://www.jlucraft.com/"
         }
       }
     },
@@ -1475,8 +1491,8 @@
           "url": "https://www.jlucraft.com/docs/"
         },
         "UserGroup": {
-          "title": "玩家社群",
-          "description": "歡迎加入，回報問題、請求功能或取得協助",
+          "title": "使用者社群",
+          "description": "歡迎加入 QQ 群或 GitHub Discussions，回報問題、請求功能或取得協助",
           "url": "https://www.jlucraft.com/about/"
         }
       }
@@ -1620,11 +1636,6 @@
     },
     "schematicList": {
       "title": "原理圖"
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "details": "詳情"
     }
   },
   "InstanceSettingsPage": {
@@ -1774,6 +1785,7 @@
       "es": "西班牙語",
       "fr": "法語",
       "ja": "日語",
+      "ru": "俄語",
       "lzh": "",
       "zh-Hans": "",
       "zh-Hant": ""
@@ -1827,11 +1839,6 @@
     "notCompatibleWith": "與 {{item}} 不相容",
     "noVersionSelected": "未選擇版本"
   },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
-    "linkText": "閱讀官方文件",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
   "MainLayout": {
     "fileDnD": {
       "title": "匯入模組包",
@@ -1862,6 +1869,11 @@
     "placeholder": {
       "javaPath": "請輸入或選擇 Java 可執行檔案路徑"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
+    "linkText": "閱讀官方文件",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -2282,9 +2294,6 @@
     },
     "versionList": {
       "All": "全部"
-    },
-    "listError": {
-      "description": "資源列表載入失敗：{{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2295,7 +2304,8 @@
       "restart": "重新啟動",
       "install": "安裝",
       "later": "稍後"
-    }
+    },
+    "bodyLinux": "更新壓縮檔已下載。開啟所在資料夾後手動替換啟動器。"
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "請謹慎編輯啟動器原始設定檔案，錯誤的格式可能導致原有設定遺失或啟動器無法正常工作"
@@ -2390,7 +2400,10 @@
       },
       "downloadMojangJava": {
         "error": {
-          "title": "Mojang Java 執行時下載失敗"
+          "title": "Mojang Java 執行時下載失敗",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
+          }
         }
       },
       "checkGameDirectory": {
@@ -2408,7 +2421,16 @@
           "title": "清除下載快取失敗",
           "description": {
             "HAS_ACTIVE_DOWNLOAD_TASKS": "目前有下載任務正在進行中，請稍後再試",
-            "FILE_DELETION_FAILED": "無法刪除快取檔案，可能是檔案正在被使用"
+            "FILE_DELETION_FAILED": "無法刪除快取檔案，可能是檔案正在被使用",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
+          }
+        }
+      },
+      "downloadLauncherUpdate": {
+        "error": {
+          "title": "下載啟動器更新失敗",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       }
@@ -2425,6 +2447,7 @@
           "title": "離線角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "INVALID": "UUID 無效",
             "TEXTURE_ERROR": "角色外觀獲取失敗"
           }
@@ -2447,6 +2470,7 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "NOT_FOUND": "認證伺服器不存在",
@@ -2491,6 +2515,7 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "INVALID": "帳號或密碼錯誤",
@@ -2518,6 +2543,7 @@
           "title": "角色新增失敗",
           "description": {
             "DUPLICATE": "角色已存在",
+            "FULL_LOGIN_UNAVAILABLE": "請先登入微軟帳戶後使用此功能。",
             "NETWORK_ERROR": "無法連線至認證伺服器",
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "EXPIRED": "令牌已過期，請重新登入"
@@ -2669,9 +2695,11 @@
           "title": "驗證遊戲檔案失敗",
           "description": {
             "MOD_LOADER_NOT_INSTALLED": "模組載入器未完成安裝",
+            "OPTIFINE_NOT_INSTALLED": "OptiFine 尚未完成安裝",
             "INSTANCE_NOT_FOUND_BY_ID": "實例 ID 不存在",
             "GAME_FILES_INCOMPLETE": "遊戲檔案不完整或缺失",
-            "LAUNCHING_STATE_NOT_FOUND": "啟動狀態遺失"
+            "LAUNCHING_STATE_NOT_FOUND": "啟動狀態遺失",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       },
@@ -2762,7 +2790,8 @@
           "title": "下載遊戲伺服器失敗",
           "description": {
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
-            "NETWORK_ERROR": "無法連線到伺服器"
+            "NETWORK_ERROR": "無法連線到伺服器",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       },
@@ -2782,7 +2811,8 @@
           "description": {
             "PARSE_ERROR": "伺服器返回資料格式錯誤",
             "NETWORK_ERROR": "無法連線到伺服器",
-            "FILE_OPERATION_ERROR": "無法重新命名舊模組檔案"
+            "FILE_OPERATION_ERROR": "無法重新命名舊模組檔案",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       }
@@ -2808,7 +2838,8 @@
             "FILE_CREATION_FAILED": "目標檔案建立失敗",
             "NETWORK_ERROR": "網路錯誤",
             "CLIENT_JSON_PARSE_ERROR": "實例版本資訊解析錯誤",
-            "ASSET_INDEX_PARSE_ERROR": "資源索引檔案解析錯誤"
+            "ASSET_INDEX_PARSE_ERROR": "資源索引檔案解析錯誤",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       },
@@ -2989,37 +3020,6 @@
           }
         }
       },
-      "finishModLoaderInstall": {
-        "loading": "正在為 {{instanceName}} 安裝模組載入器",
-        "success": "模組載入器安裝完成",
-        "error": {
-          "title": "模組載入器安裝失敗",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "實例 ID 不存在",
-            "INSTALLATION_DUPLICATED": "偵測到另一個程式已在安裝中",
-            "MAIN_CLASS_NOT_FOUND": "主類未找到",
-            "PROCESSOR_EXECUTION_FAILED": "安裝任務執行失敗",
-            "LOADER_INSTALLER_NOT_FOUND": "載入器安裝程式不存在"
-          }
-        }
-      },
-      "finishOptiFineLoaderInstall": {
-        "loading": "正在為 {{instanceName}} 安裝 OptiFine",
-        "success": "OptiFine 安裝完成",
-        "error": {
-          "title": "OptiFine 安裝失敗",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "實例 ID 不存在",
-            "INSTALLATION_DUPLICATED": "偵測到另一個程式已在安裝中",
-            "PROCESSOR_EXECUTION_FAILED": "安裝工作執行失敗",
-            "LOADER_INSTALLER_NOT_FOUND": "找不到 OptiFine 安裝程式",
-            "MOD_LOADER_VERSION_PARSE_ERROR": "OptiFine 版本資訊解析失敗",
-            "INVALID_SOURCE_PATH": "資源路徑無效",
-            "NO_SUITABLE_JAVA": "沒有找到可用的 Java 執行時",
-            "SELECTED_JAVA_UNAVAILABLE": "所選 Java 執行時不可用"
-          }
-        }
-      },
       "checkChangeModLoaderAvailablity": {
         "error": {
           "title": "無法更改模組載入器",
@@ -3032,13 +3032,17 @@
         "error": {
           "title": "修改模組載入器失敗",
           "description": {
-            "NOT_SUPPORT_CHANGE_MOD_LOADER": "由第三者安裝的版本，無法解除安裝或更換"
+            "NOT_SUPPORT_CHANGE_MOD_LOADER": "由第三者安裝的版本，無法解除安裝或更換",
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
           }
         }
       },
       "changeOptiFine": {
         "error": {
-          "title": "修改 OptiFine 失敗"
+          "title": "修改 OptiFine 失敗",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "下載引擎未能完成操作"
+          }
         }
       },
       "removeModLoader": {
@@ -3122,10 +3126,32 @@
       }
     },
     "task": {
-      "scheduleProgressiveTaskGroup": {
-        "error": "任務建立失敗"
+      "common": {
+        "title": "下載操作失敗",
+        "description": {
+          "NETWORK_ERROR": "網路錯誤：{{details}}",
+          "HTTP_ERROR": "HTTP 錯誤：{{status}}",
+          "IO_ERROR": "檔案操作失敗：{{details}}",
+          "CHECKSUM_MISMATCH": "檔案校驗失敗：預期 {{expected}}，實際 {{actual}}",
+          "CORRUPT_FILES": "檔案損壞：{{paths, list}}",
+          "MISSING_FIELD": "任務缺少欄位：{{field}}",
+          "UNKNOWN_EXECUTOR": "未知的任務執行器：{{executor}}",
+          "INVALID_CONTENT_RANGE": "伺服器傳回了無效的 Content-Range",
+          "RESUME_OFFSET_MISMATCH": "續傳位置不符：預期 {{expected}}，實際 {{actual}}",
+          "OTHER_ERROR": "任務失敗：{{details}}",
+          "EMPTY_GROUP": "任務群組至少需要一項任務",
+          "CHANNEL_CLOSED": "與下載引擎的連線已關閉",
+          "UNKNOWN_GROUP": "找不到任務群組 {{groupId}}",
+          "INVALID_STATE": "任務群組 {{groupId}} 目前狀態不允許此操作",
+          "STORAGE_ERROR": "儲存下載狀態失敗：{{details}}",
+          "ENGINE_NOT_INITIALIZED": "下載引擎尚未初始化",
+          "INSTALLATION_INSTANCE_MISMATCH": "安裝實例與任務不符",
+          "MOD_LOADER_CHANGED": "安裝過程中模組載入器已變更",
+          "OPTIFINE_MISSING": "找不到 OptiFine",
+          "OPTIFINE_CHANGED": "安裝過程中 OptiFine 已變更"
+        }
       },
-      "onTaskGroupUpdate": {
+      "onDownloadGroupUpdate": {
         "status": {
           "Started": "{{param}} 下載任務已開始",
           "Failed": "{{param}} 部分下載失敗，請重試",
@@ -3135,7 +3161,6 @@
         }
       }
     },
-    "unknownError": "發生未知錯誤",
     "utils": {
       "deleteFile": {
         "success": "刪除檔案成功",
@@ -3143,7 +3168,8 @@
           "title": "刪除檔案失敗"
         }
       }
-    }
+    },
+    "unknownError": "發生未知錯誤"
   },
   "SettingsLayout": {
     "settingsDomainList": {
@@ -3211,7 +3237,7 @@
     "header": {
       "title": "在 GitHub 為我們點亮星標"
     },
-    "body": "如果您喜愛 {{productName}}，並希望支持我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
+    "body": "如果您喜愛 SJMCL，並希望支援我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
     "button": {
       "later": "稍後",
       "starUs": "點亮星標"

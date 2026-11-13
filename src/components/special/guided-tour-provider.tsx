@@ -498,7 +498,7 @@ const DotStepper: React.FC<DotStepperProps> = ({ total, active }) => {
 
   return (
     <Stepper index={active} size="xs" gap="0" colorScheme={primaryColor}>
-      {Array.from({ length: total }).map((_, i) => (
+      {Array.from({ length: total }).map((...[, i]: [unknown, number]) => (
         <Step key={i}>
           <StepIndicator w="10px" h="10px" p="0" borderRadius="full">
             <StepStatus />

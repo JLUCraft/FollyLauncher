@@ -12,7 +12,7 @@ const InstancesPage = () => {
       "/instances/list";
     if (lastRecord.endsWith("settings/advanced"))
       lastRecord = lastRecord.replace("settings/advanced", "settings");
-    router.replace(lastRecord);
+    router.replace(lastRecord).catch((error: unknown) => console.error(error));
   }, [history, router]);
 
   return null;

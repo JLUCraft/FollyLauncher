@@ -5,7 +5,7 @@ import { logger } from "@/utils/logging";
 
 export function responseHandler(serviceDomain: string) {
   return function <Method>(
-    _target: object,
+    target: object,
     propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<Method>
   ): TypedPropertyDescriptor<Method> {
@@ -14,11 +14,10 @@ export function responseHandler(serviceDomain: string) {
     ) => Promise<unknown>;
 
     descriptor.value = async function (
-      this: unknown,
       ...args: unknown[]
     ): Promise<InvokeResponse<unknown>> {
       try {
-        const data = await originalMethod.apply(this, args);
+        const data = await originalMethod.apply(target, args);
         const message = t(
           `Services.${serviceDomain}.${String(propertyKey)}.success`
         );
@@ -47,9 +46,11 @@ export function responseHandler(serviceDomain: string) {
           };
           console.table(errorSet);
         }
-        logger.error(
-          `Invoke ${String(propertyKey)} failed: ${message} - ${details}`
-        );
+        logger
+          .error(
+            `Invoke ${String(propertyKey)} failed: ${message} - ${details}`
+          )
+          .catch((error: unknown) => console.error(error));
 
         return { status: "error", message, details, raw_error: String(error) };
       }

@@ -5,7 +5,7 @@ import {
   PlacementWithLogical,
   Tooltip,
 } from "@chakra-ui/react";
-import { forwardRef } from "react";
+import { forwardRef, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {

@@ -68,7 +68,11 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
             <NavMenu
               key={group[0].key}
               selectedKeys={[selectedKey]}
-              onClick={(value) => void router.push(value)}
+              onClick={(value) =>
+                router
+                  .push(value)
+                  .catch((error: unknown) => console.error(error))
+              }
               items={group.map((item) => ({
                 label: (
                   <HStack spacing={2} overflow="hidden" w="100%">

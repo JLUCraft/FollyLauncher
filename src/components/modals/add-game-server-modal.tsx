@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { InstanceService } from "@/services/instance";
 
 interface AddGameServerModalProps extends Omit<ModalProps, "children"> {
@@ -38,11 +39,23 @@ const AddGameServerModal: React.FC<AddGameServerModalProps> = ({
   const initialRef = useRef(null);
   const hasAutoPresetRef = useRef(false);
 
-  const [serverAddr, setServerAddr] = useState<string>("");
-  const [serverName, setServerName] = useState<string>("");
+  const [serverAddr, setServerAddr] = useKeyedState<string>(
+    presetAddr,
+    [isOpen, presetAddr],
+    isOpen
+  );
+  const [serverName, setServerName] = useKeyedState<string>(
+    "",
+    [isOpen, presetAddr],
+    isOpen
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [isServerAddrTouched, setIsServerAddrTouched] = useState(false);
+  const [isServerAddrTouched, setIsServerAddrTouched] = useKeyedState(
+    false,
+    [isOpen, presetAddr],
+    isOpen
+  );
   const trimmedServerAddr = serverAddr.trim();
   const isServerAddrInvalid = isServerAddrTouched && !trimmedServerAddr;
   const serverNamePlaceholder = t("AddGameServerModal.placeholder.serverName");
@@ -50,9 +63,6 @@ const AddGameServerModal: React.FC<AddGameServerModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       hasAutoPresetRef.current = false;
-      setServerAddr(presetAddr);
-      setServerName("");
-      setIsServerAddrTouched(false);
     }
   }, [isOpen, presetAddr]);
 
@@ -82,7 +92,8 @@ const AddGameServerModal: React.FC<AddGameServerModalProps> = ({
         })
         .finally(() => {
           setIsLoading(false);
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     },
     [trimmedServerAddr, serverName, serverNamePlaceholder, toast, onClose]
   );

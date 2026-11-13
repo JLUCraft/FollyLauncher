@@ -11,3 +11,9 @@ pub const STATS_VERSION_PREFIX: &str = "folly";
 /// Display name reported to local auth servers (e.g. the loopback
 /// Yggdrasil metadata serverName).
 pub const PRODUCT_NAME: &str = "Folly Launcher";
+
+pub const DEEPLINK_PREFIX: &str = "folly://";
+pub const RELEASES_API_URL: &str =
+  "https://api.github.com/repos/JLUCraft/FollyLauncher/releases/latest";
+pub const RELEASES_DOWNLOAD_URL: &str =
+  "https://github.com/JLUCraft/FollyLauncher/releases/download";

@@ -36,6 +36,7 @@ import TreeView, { TreeNode } from "@/components/common/tree-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ExportModpackFormat } from "@/enums/instance";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { ExportModpackOptions, ModpackFileList } from "@/models/instance/misc";
 import { InstanceService } from "@/services/instance";
 import { isFileNameSanitized, sanitizeFileName } from "@/utils/string";
@@ -140,7 +141,11 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [fileList, setFileList] = useState<ModpackFileList | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
-  const [isFileListLoading, setIsFileListLoading] = useState(false);
+  const [isFileListLoading, setIsFileListLoading] = useKeyedState(
+    true,
+    [instanceId, modalProps.isOpen, t, toast],
+    !!modalProps.isOpen
+  );
   const packWithLauncher = false;
   const [minMemoryInput, setMinMemoryInput] = useState("");
   const [noCreateRemoteFiles, setNoCreateRemoteFiles] = useState(false);
@@ -162,8 +167,6 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
   useEffect(() => {
     if (!modalProps.isOpen) return;
     let isActive = true;
-    setIsFileListLoading(true);
-
     InstanceService.retrieveExportableFileList(instanceId)
       .then((response) => {
         if (!isActive) return;
@@ -192,11 +195,10 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
         if (!isActive) return;
         setIsFileListLoading(false);
       });
-
     return () => {
       isActive = false;
     };
-  }, [instanceId, modalProps.isOpen, t, toast]);
+  }, [instanceId, modalProps.isOpen, setIsFileListLoading, t, toast]);
 
   const fileTree = useMemo(
     () => (fileList ? buildFileTree(fileList.all) : []),

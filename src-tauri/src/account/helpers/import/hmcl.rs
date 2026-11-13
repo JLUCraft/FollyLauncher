@@ -66,13 +66,9 @@ pub struct HmclMicrosoftAccount {
   #[serde(rename = "profileID")]
   pub profile_id: String,
   pub profile_name: String,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  pub token_type: String,
   pub access_token: String,
   pub refresh_token: String,
   pub not_after: Option<i64>,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  pub userid: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -85,8 +81,6 @@ pub struct HmclProfileProperties {
 pub struct HmclThirdPartyAccount {
   #[serde(rename = "serverBaseURL")]
   pub server_base_url: String,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  pub client_token: String,
   pub login_name: Option<String>,
   pub profile_name: Option<String>,
   pub access_token: String,

@@ -106,7 +106,9 @@ const ExtraOperationMenu = ({
             key: "settings",
             icon: LuSettings,
             onClick: () => {
-              router.push(`/settings/extension/${widget.extension.identifier}`);
+              router
+                .push(`/settings/extension/${widget.extension.identifier}`)
+                .catch((error: unknown) => console.error(error));
             },
           },
         ]

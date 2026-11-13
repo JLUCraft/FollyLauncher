@@ -36,7 +36,9 @@ const MCVersionNumberHelper: React.FC<PopoverProps> = (props) => {
             <Link
               color={`${primaryColor}.500`}
               onClick={() => {
-                openUrl(t("MCVersionNumberHelper.url"));
+                openUrl(t("MCVersionNumberHelper.url")).catch(
+                  (error: unknown) => console.error(error)
+                );
               }}
               fontSize="xs"
             >

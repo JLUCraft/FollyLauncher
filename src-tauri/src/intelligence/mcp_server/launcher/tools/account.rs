@@ -158,8 +158,8 @@ pub fn tool_routes() -> Vec<ToolRoute<McpContext>> {
         launcher_type: String,
       } => async move {
         let launcher_type = match params.launcher_type.trim().to_ascii_lowercase().as_str() {
-          "hmcl" => crate::account::helpers::import::ImportLauncherType::HMCL,
-          "multimc" => crate::account::helpers::import::ImportLauncherType::MultiMC,
+          "hmcl" => crate::account::helpers::import::ImportLauncherType::Hmcl,
+          "multimc" => crate::account::helpers::import::ImportLauncherType::MultiMc,
           _ => return Err(AccountError::Invalid.into()),
         };
 

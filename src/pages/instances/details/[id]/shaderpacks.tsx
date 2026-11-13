@@ -66,7 +66,7 @@ const InstanceShaderPacksPage = () => {
           if (data === GetStateFlag.Cancelled) return;
           setShaderPacks(data || []);
         })
-        .catch((e) => setShaderPacks([]));
+        .catch(() => setShaderPacks([]));
     },
     [getShaderPackList]
   );

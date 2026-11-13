@@ -1,27 +1,54 @@
 use sjmcl_types::error::{SJMCLError, SJMCLResult};
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
+use crate::download::DownloadTask;
 use crate::launcher_config::models::{JavaInfo, LauncherConfig};
 use crate::resource::helpers::misc::get_source_priority_list;
-use crate::tasks::PTaskParam;
 use crate::utils::fs::grant_execute_permission;
 
 #[cfg(target_os = "windows")]
 use crate::utils::sys_info::get_all_drive_mount_points;
 
-pub async fn refresh_and_update_javas(app: &AppHandle) {
-  let app = app.clone();
-  if let Err(error) =
-    tauri::async_runtime::spawn_blocking(move || scan_and_update_javas(&app)).await
-  {
-    log::warn!("Java discovery task failed: {error}");
+/// Serializes discovery and distinguishes an empty result from an unfinished scan.
+#[derive(Default)]
+pub struct JavaDiscovery(Arc<tokio::sync::Mutex<bool>>);
+
+impl JavaDiscovery {
+  async fn update(&self, force: bool, discover: impl FnOnce() + Send + 'static) -> SJMCLResult<()> {
+    let mut initialized = self.0.clone().lock_owned().await;
+    if force || !*initialized {
+      // Keep the lock in the blocking job even if its caller pauses or cancels.
+      tokio::task::spawn_blocking(move || {
+        discover();
+        *initialized = true;
+      })
+      .await
+      .map_err(|error| SJMCLError(error.to_string()))?;
+    }
+    Ok(())
   }
 }
 
-fn scan_and_update_javas(app: &AppHandle) {
+pub async fn ensure_java_discovery(app: &AppHandle) -> SJMCLResult<()> {
+  let discovery = app.state::<JavaDiscovery>();
+  let app = app.clone();
+  discovery
+    .update(false, move || discover_and_update_javas(&app))
+    .await
+}
+
+pub async fn refresh_and_update_javas(app: &AppHandle) -> SJMCLResult<()> {
+  let discovery = app.state::<JavaDiscovery>();
+  let app = app.clone();
+  discovery
+    .update(true, move || discover_and_update_javas(&app))
+    .await
+}
+
+fn discover_and_update_javas(app: &AppHandle) {
   // get java paths from system PATH, etc.
   let mut java_paths = get_java_paths(app);
 
@@ -115,7 +142,7 @@ pub fn get_java_paths(app: &AppHandle) -> Vec<String> {
 pub async fn build_mojang_java_download_params(
   app: &AppHandle,
   version: &str,
-) -> SJMCLResult<Vec<PTaskParam>> {
+) -> SJMCLResult<Vec<DownloadTask>> {
   let config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
   let client = app.state::<reqwest::Client>();
 
@@ -132,6 +159,5 @@ pub async fn build_mojang_java_download_params(
     &runtime_dir,
   )
   .await
-  .map(|downloads| downloads.into_iter().map(PTaskParam::Download).collect())
   .map_err(|error| SJMCLError(error.to_string()))
 }

@@ -16,20 +16,25 @@ const RoutingHistoryContext = createContext<
 export const RoutingHistoryContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [history, setHistory] = useState<string[]>([]);
-
   const router = useRouter();
+  const [history, setHistory] = useState<string[]>([]);
+  const [recordedPath, setRecordedPath] = useState<string>();
+
+  if (router.isReady && recordedPath !== router.asPath) {
+    setRecordedPath(router.asPath);
+    setHistory((previous) =>
+      previous[previous.length - 1] === router.asPath
+        ? previous
+        : [...previous.slice(-(MAX_ROUTING_HISTORY - 1)), router.asPath]
+    );
+  }
 
   useEffect(() => {
     if (!router.isReady) return;
-    setHistory((prev) => {
-      if (prev[prev.length - 1] === router.asPath) return prev;
-      if (prev.length < MAX_ROUTING_HISTORY) {
-        return [...prev, router.asPath];
-      }
-      return [...prev.slice(1), router.asPath];
-    });
-    if (window.logger) logger.info("Frontend navigated to:", router.asPath);
+    if (window.logger)
+      logger
+        .info("Frontend navigated to:", router.asPath)
+        .catch((error: unknown) => console.error(error));
   }, [router.isReady, router.asPath]);
 
   const removeHistory = (prefix: string) => {

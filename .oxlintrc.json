@@ -1,8 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "oxc"],
-  "options": { "typeAware": true },
-  "categories": { "correctness": "error" },
+  "options": {
+    "typeAware": true
+  },
+  "categories": {
+    "correctness": "error"
+  },
   "ignorePatterns": [
     "src-tauri/**",
     "tools/**",
@@ -13,18 +17,26 @@
   "rules": {
     "no-unused-vars": [
       "error",
-      { "args": "none", "caughtErrors": "none", "ignoreRestSiblings": true }
+      {
+        "args": "all",
+        "caughtErrors": "all",
+        "ignoreRestSiblings": false
+      }
     ],
-    "no-unused-expressions": [
+    "no-unused-expressions": "error",
+    "typescript/no-floating-promises": [
       "error",
-      { "allowShortCircuit": true, "allowTernary": true }
+      {
+        "ignoreVoid": false,
+        "ignoreIIFE": false
+      }
     ],
-    "typescript/no-floating-promises": "off",
     "typescript/no-explicit-any": "error",
     "typescript/no-unsafe-assignment": "error",
     "typescript/no-unsafe-argument": "error",
     "typescript/no-unsafe-call": "error",
     "typescript/no-unsafe-member-access": "error",
-    "typescript/no-unsafe-return": "error"
+    "typescript/no-unsafe-return": "error",
+    "no-void": "error"
   }
 }

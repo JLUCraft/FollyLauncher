@@ -15,7 +15,7 @@ const MultiLevelProgressBar: React.FC<MultiLevelProgressBarProps> = ({
 
   const baseColorDepths = [500, 400, 300, 200];
   const colorKeys = values.map(
-    (_, index) =>
+    (...[, index]: [unknown, number]) =>
       `${colorScheme}.${baseColorDepths[index * Math.floor(baseColorDepths.length / values.length)] || 200}`
   );
   const colors = useToken("colors", colorKeys);

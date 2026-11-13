@@ -30,6 +30,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType } from "@/enums/instance";
 import { InstanceError } from "@/enums/service-error";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { InstanceSummary } from "@/models/instance/misc";
 import { InstanceService } from "@/services/instance";
 import { generateInstanceDesc, getInstanceIconSrc } from "@/utils/instance";
@@ -49,7 +50,7 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { getInstanceList } = useGlobalData();
+  const { getInstanceList, instanceList: knownInstances } = useGlobalData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const router = useRouter();
@@ -57,54 +58,25 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [operation, setOperation] = useState<"copy" | "move">("copy");
-  const [instanceList, setInstanceList] = useState<InstanceSummary[]>([]);
-  const [selectedInstances, setSelectedInstances] = useState<InstanceSummary[]>(
-    []
-  );
-  const [_tgtDirType, _setTgtDirType] =
-    useState<InstanceSubdirType>(tgtDirType);
-  const [_srcInstanceId, _setSrcInstanceId] = useState<string | undefined>(
-    srcInstanceId
-  );
+  const instanceList = knownInstances || [];
+  const [selectedInstances, setSelectedInstances] = useKeyedState<
+    InstanceSummary[]
+  >([], [operation]);
+  const routeId = router.query.id;
+  const _srcInstanceId =
+    srcInstanceId ?? (Array.isArray(routeId) ? routeId[0] : routeId);
 
-  useEffect(() => {
-    if (srcInstanceId !== undefined) return;
-    if (router === undefined) {
-      toast({
-        title: t("CopyOrMoveModal.error.lackOfArguments"),
-        status: "error",
-      });
-      return;
-    }
-    const { id } = router.query;
-    const instanceId = Array.isArray(id) ? id[0] : id;
-    _setSrcInstanceId(instanceId);
-  }, [router, srcInstanceId, t, toast]);
-
-  useEffect(() => {
-    if (tgtDirType !== InstanceSubdirType.Root) return;
-    if (router === undefined) {
-      toast({
-        title: t("CopyOrMoveModal.error.lackOfArguments"),
-        status: "error",
-      });
-      return;
-    }
-    switch (router.pathname.split("/").pop()) {
-      case "resourcepacks":
-        _setTgtDirType(InstanceSubdirType.ResourcePacks);
-        break;
-      case "shaderpacks":
-        _setTgtDirType(InstanceSubdirType.ShaderPacks);
-        break;
-      case "schematics":
-        _setTgtDirType(InstanceSubdirType.Schematics);
-        break;
-      case "worlds":
-        _setTgtDirType(InstanceSubdirType.Saves);
-        break;
-    }
-  }, [router, tgtDirType, t, toast]);
+  const inferredDirectoryTypes: Record<string, InstanceSubdirType> = {
+    resourcepacks: InstanceSubdirType.ResourcePacks,
+    shaderpacks: InstanceSubdirType.ShaderPacks,
+    schematics: InstanceSubdirType.Schematics,
+    worlds: InstanceSubdirType.Saves,
+  };
+  const _tgtDirType =
+    tgtDirType !== InstanceSubdirType.Root
+      ? tgtDirType
+      : inferredDirectoryTypes[router.pathname.split("/").pop() || ""] ||
+        InstanceSubdirType.Root;
 
   const operationList = [
     {
@@ -135,25 +107,29 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
           [srcFilePath],
           tgtInstId,
           tgtDirType
-        ).then((response) => {
-          if (response.status !== "success") {
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-            if (
-              response.raw_error === InstanceError.InvalidSourcePath ||
-              response.raw_error === InstanceError.InstanceNotFoundById
-            ) {
-              router.push(router.asPath); // meet error, refresh page to get new instance and file list.
-            }
-          } else
-            toast({
-              title: response.message,
-              status: "success",
-            });
-        });
+        )
+          .then((response) => {
+            if (response.status !== "success") {
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+              if (
+                response.raw_error === InstanceError.InvalidSourcePath ||
+                response.raw_error === InstanceError.InstanceNotFoundById
+              ) {
+                router
+                  .push(router.asPath)
+                  .catch((error: unknown) => console.error(error)); // meet error, refresh page to get new instance and file list.
+              }
+            } else
+              toast({
+                title: response.message,
+                status: "success",
+              });
+          })
+          .catch((error: unknown) => console.error(error));
       }
     },
     [toast, router]
@@ -174,19 +150,21 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
           srcFilePath,
           tgtInstId,
           tgtDirType
-        ).then((response) => {
-          if (response.status !== "success")
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-          else
-            toast({
-              title: response.message,
-              status: "success",
-            });
-        });
+        )
+          .then((response) => {
+            if (response.status !== "success")
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+            else
+              toast({
+                title: response.message,
+                status: "success",
+              });
+          })
+          .catch((error: unknown) => console.error(error));
       }
     },
     [toast]
@@ -267,12 +245,8 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
   });
 
   useEffect(() => {
-    setInstanceList(getInstanceList() || []);
+    getInstanceList();
   }, [getInstanceList]);
-
-  useEffect(() => {
-    setSelectedInstances([]);
-  }, [operation]);
 
   return (
     <Modal

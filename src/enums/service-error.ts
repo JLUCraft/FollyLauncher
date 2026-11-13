@@ -51,10 +51,15 @@ export enum InstanceError {
   ProcessorExecutionFailed = "PROCESSOR_EXECUTION_FAILED",
   SemaphoreAcquireFailed = "SEMAPHORE_ACQUIRE_FAILED",
   LoaderInstallerNotFound = "LOADER_INSTALLER_NOT_FOUND",
+  InstallationInstanceMismatch = "INSTALLATION_INSTANCE_MISMATCH",
+  ModLoaderChanged = "MOD_LOADER_CHANGED",
+  OptifineMissing = "OPTIFINE_MISSING",
+  OptifineChanged = "OPTIFINE_CHANGED",
 }
 
 export enum LaunchServiceError {
   ModLoaderNotInstalled = "MOD_LOADER_NOT_INSTALLED",
+  OptifineNotInstalled = "OPTIFINE_NOT_INSTALLED",
   NoSuitableJava = "NO_SUITABLE_JAVA",
   SelectedJavaUnavailable = "SELECTED_JAVA_UNAVAILABLE",
   GameFilesIncomplete = "GAME_FILES_INCOMPLETE",

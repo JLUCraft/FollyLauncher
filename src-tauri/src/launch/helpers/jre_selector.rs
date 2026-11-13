@@ -6,6 +6,7 @@ use tauri::{AppHandle, Manager};
 use crate::instance::helpers::game_version::compare_game_versions;
 use crate::instance::models::misc::Instance;
 use crate::launch::models::LaunchError;
+use crate::launcher_config::helpers::java::ensure_java_discovery;
 use crate::launcher_config::models::{GameJava, JavaInfo};
 
 pub async fn select_java_runtime(
@@ -16,6 +17,7 @@ pub async fn select_java_runtime(
   // TODO: pass client and mod loader info to calculate version with more rules, instead of passing require version
   // ref: https://github.com/Hex-Dragon/PCL2/blob/16e09c792ce8c13435fc6827e6da54170aaa3bc0/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModLaunch.vb#L1130
 ) -> SJMCLResult<JavaInfo> {
+  ensure_java_discovery(app).await?;
   let java_list = app.state::<Mutex<Vec<JavaInfo>>>().lock()?.clone();
 
   let preferred = game_java

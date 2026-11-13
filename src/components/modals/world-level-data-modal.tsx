@@ -12,7 +12,7 @@ import {
   ModalProps,
   Text,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
@@ -21,6 +21,7 @@ import TreeView, {
   buildStructTreeNodes,
 } from "@/components/common/tree-view";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { WorldDetails } from "@/models/instance/world";
 import { InstanceService } from "@/services/instance";
 import { displayValue } from "@/utils/string";
@@ -37,8 +38,15 @@ const WorldLevelDataModal: React.FC<WorldLevelDataModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const toast = useToast();
-  const [levelData, setLevelData] = useState<WorldDetails>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [levelData, setLevelData] = useKeyedState<WorldDetails | undefined>(
+    undefined,
+    [props.isOpen, instanceId, worldName]
+  );
+  const [isLoading, setIsLoading] = useKeyedState<boolean>(true, [
+    props.isOpen,
+    instanceId,
+    worldName,
+  ]);
   const { isOpen, onClose } = props;
 
   const treeNodes = useMemo(() => {
@@ -49,7 +57,6 @@ const WorldLevelDataModal: React.FC<WorldLevelDataModalProps> = ({
 
   const handleRetrieveWorldDetails = useCallback(
     async (instanceId: string, worldName: string) => {
-      setIsLoading(true);
       try {
         const response = await InstanceService.retrieveWorldDetails(
           instanceId,
@@ -69,14 +76,16 @@ const WorldLevelDataModal: React.FC<WorldLevelDataModalProps> = ({
         setIsLoading(false);
       }
     },
-    [toast]
+    [setIsLoading, setLevelData, toast]
   );
 
   useEffect(() => {
     if (isOpen) {
       if (!worldName) onClose();
       else if (instanceId !== undefined)
-        handleRetrieveWorldDetails(instanceId, worldName);
+        handleRetrieveWorldDetails(instanceId, worldName).catch(
+          (error: unknown) => console.error(error)
+        );
     }
   }, [handleRetrieveWorldDetails, instanceId, worldName, isOpen, onClose]);
 

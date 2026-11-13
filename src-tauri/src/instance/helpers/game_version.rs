@@ -30,13 +30,6 @@ fn load_versions(app: &AppHandle, path: &str, from_cache: bool) -> Vec<String> {
 ///
 /// Ordering is supplied by minecraftd's manifest-based VersionOrder.
 ///
-/// # Examples
-/// ```rust,ignore
-/// if compare_game_versions(&app, version, "1.19", true).await.le(&Ordering::Equal) {
-///     println!("{} <= 1.19", version);
-/// }
-/// ```
-///
 /// # Parameters
 /// - `fallback_fetch_remote`: Whether to refresh the version list from remote if not found in built-in or cache.
 ///   ⚠️ If enabled, this may take extra time due to network request.
@@ -79,12 +72,6 @@ pub async fn compare_game_versions(app: &AppHandle, a: &str, b: &str, refresh: b
 ///
 /// The returned comparator can be used directly in sorting operations, e.g.:
 ///
-/// # Examples
-/// ```rust,ignore
-/// let cmp_fn = build_game_version_cmp_fn(&app);
-/// summary_list.sort_by(|a, b| cmp_fn(&a.version, &b.version));
-/// ```
-///
 /// # Returns
 /// A closure suitable for `.sort_by()` or `.sort_by_key()` usage.
 ///
@@ -106,18 +93,6 @@ pub fn build_game_version_cmp_fn(app: &AppHandle) -> impl Fn(&str, &str) -> Orde
 ///
 /// It is noted that the version number system of Minecraft has a breaking change starting in 2026 ("1.x" to "YY.x")
 /// ref: https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system
-///
-/// # Examples
-/// ```rust,ignore
-/// let version = get_major_game_version(&app, "1.18-pre1", true).await;
-/// println!("Major version of 1.18-pre1: {}", version); // => "1.18"
-///
-/// let version = get_major_game_version(&app, "26.1.1", false).await;
-/// println!("Major version of 26.1.1: {}", version); // => "26.1"
-///
-/// let version = get_major_game_version(&app, "24w09a", false).await;
-/// println!("Major version of 24w09a: {}", version); // => "1.20.4" => "1.20"
-/// ```
 ///
 /// # Parameters
 /// - `fallback_fetch_remote`: Whether to refresh the version list from remote if not found in built-in or cache.

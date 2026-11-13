@@ -93,7 +93,7 @@ const PingTestPage = () => {
         allEntries.map(([id, url]) => handleCheckServiceAvailability(id, url))
       );
     } catch (error) {
-      logger.error(error);
+      logger.error(error).catch((error: unknown) => console.error(error));
     }
   }, [handleCheckServiceAvailability, services]);
 
@@ -101,7 +101,7 @@ const PingTestPage = () => {
     const initialCheck = async () => {
       await checkAllServices();
     };
-    initialCheck();
+    initialCheck().catch((error: unknown) => console.error(error));
   }, [checkAllServices]);
 
   return (

@@ -3,8 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import SkinPreview from "@/components/skin-preview";
-import { DownloadTaskParam, TaskParam, TaskTypeEnums } from "@/models/task";
-import { TaskService } from "@/services/task";
+import { DownloadService } from "@/services/download";
 import { isProd } from "@/utils/env";
 import { createWindow } from "@/utils/window";
 
@@ -17,7 +16,7 @@ const DevTestPage = () => {
   const router = useRouter();
   useEffect(() => {
     if (isProd) {
-      router.push("/launch");
+      router.push("/launch").catch((error: unknown) => console.error(error));
     }
   }, [router]);
 
@@ -51,7 +50,9 @@ const DevTestPage = () => {
           try {
             await invoke("launch_game", { instanceId: 4 });
           } catch (error) {
-            logger.error("Error invoking launch_game:", error);
+            logger
+              .error("Error invoking launch_game:", error)
+              .catch((error: unknown) => console.error(error));
             alert(
               "An error occurred while launching the game. Please try again."
             );
@@ -62,15 +63,23 @@ const DevTestPage = () => {
       </Button>
       <Button
         onClick={() => {
-          logger.info("Download button clicked");
-          let dl: DownloadTaskParam[] = [
-            {
-              src: "https://edge.forgecdn.net/files/3045/381/%5B___MixinCompat-0.8___%5D.jar",
-              dest: "D:\\mods\\[___MixinCompat-0.8___].jar",
-              taskType: TaskTypeEnums.Download,
-            },
-          ];
-          TaskService.scheduleProgressiveTaskGroup("group1", dl as TaskParam[]);
+          logger
+            .info("Download button clicked")
+            .catch((error: unknown) => console.error(error));
+          DownloadService.submitGroup({
+            name: "group1",
+            autoResume: true,
+            tasks: [
+              {
+                name: "[___MixinCompat-0.8___].jar",
+                executor: "download",
+                spec: {
+                  url: "https://edge.forgecdn.net/files/3045/381/%5B___MixinCompat-0.8___%5D.jar",
+                },
+                dest: "D:\\mods\\[___MixinCompat-0.8___].jar",
+              },
+            ],
+          }).catch((error: unknown) => console.error(error));
         }}
       >
         Start Downloading Task

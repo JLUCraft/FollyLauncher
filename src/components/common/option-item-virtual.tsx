@@ -34,30 +34,24 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
   const offscreenItemRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
   const [itemHeight, setItemHeight] = useState(0);
-  const [isHeightCalculated, setIsHeightCalculated] = useState(false);
-  const [canLoadMore, setCanLoadMore] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingItems, setLoadingItems] = useState<typeof items | null>(null);
+  const isHeightCalculated = itemHeight > 0;
+  const canLoadMore = useInfiniteScroll && hasMore && isHeightCalculated;
+  const loadingMore = loadingItems === items;
 
   useEffect(() => {
-    if (offscreenItemRef.current) {
-      setItemHeight(offscreenItemRef.current.clientHeight);
-      setIsHeightCalculated(true);
-    }
+    const element = offscreenItemRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() =>
+      setItemHeight(element.clientHeight)
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (hasMore && isHeightCalculated) {
-      setCanLoadMore(true);
-    }
-  }, [hasMore, isHeightCalculated]);
-
-  useEffect(() => {
-    setLoadingMore(false);
-  }, [items]);
 
   const debouncedLoadMore = debounce(() => {
     if (canLoadMore && hasMore && !loadingMore) {
-      setLoadingMore(true);
+      setLoadingItems(items);
       loadMore();
     }
   }, 250);

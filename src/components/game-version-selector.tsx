@@ -60,15 +60,10 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const { getGameVersionList, isGameVersionListLoading: isLoading } =
     useGlobalData();
   const [versions, setVersions] = useState<GameClientResourceInfo[]>([]);
-  const [filteredVersions, setFilteredVersions] = useState<
-    GameClientResourceInfo[]
-  >([]);
-  const [counts, setCounts] = useState<Map<string, number>>();
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(config.states.gameVersionSelector.gameTypes)
   );
   const [searchText, setSearchText] = useState("");
-  const [mounted, setMounted] = useState(false);
 
   const getGameVersionListWrapper = useCallback(
     (refresh = false) => {
@@ -77,36 +72,33 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           if (data === GetStateFlag.Cancelled) return;
           setVersions(data || []);
         })
-        .catch((e) => setVersions([] as GameClientResourceInfo[]));
+        .catch(() => setVersions([] as GameClientResourceInfo[]));
     },
     [getGameVersionList]
   );
 
   useEffect(() => {
-    if (!mounted) {
-      getGameVersionListWrapper();
-      setMounted(true);
-    }
-  }, [mounted, getGameVersionListWrapper]);
+    getGameVersionListWrapper();
+  }, [getGameVersionListWrapper]);
 
-  useEffect(() => {
+  const counts = useMemo(() => {
     const newCounts = new Map<string, number>();
     versions.forEach((version: GameClientResourceInfo) => {
       let oldCount = newCounts.get(version.gameType) || 0;
       newCounts.set(version.gameType, oldCount + 1);
     });
-    setCounts(newCounts);
+    return newCounts;
   }, [versions]);
 
-  useEffect(() => {
-    setFilteredVersions(
+  const filteredVersions = useMemo(
+    () =>
       versions
         .filter((version) => selectedTypes.has(version.gameType))
         .filter((version) =>
           version.id.toLowerCase().includes(searchText.toLowerCase())
-        )
-    );
-  }, [versions, selectedTypes, searchText]);
+        ),
+    [versions, selectedTypes, searchText]
+  );
 
   const handleTypeToggle = useCallback(
     (gameType: string) => {
@@ -157,7 +149,9 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           variant="ghost"
           onClick={(e) => {
             e.stopPropagation();
-            openUrl(getGameVersionWikiLink(version.id));
+            openUrl(getGameVersionWikiLink(version.id)).catch(
+              (error: unknown) => console.error(error)
+            );
           }}
         />
       </Tooltip>

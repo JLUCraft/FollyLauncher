@@ -16,11 +16,6 @@ use tauri_plugin_decorum::WebviewWindowExt;
 /// * `app` - The Tauri AppHandle.
 /// * `label` - The label of the `WindowConfig` in `tauri.conf.json`.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let config = get_webview_window_config(app, "game_log")?;
-/// ```
 ///
 /// # Returns
 ///
@@ -57,11 +52,6 @@ pub fn get_webview_window_config(app: &AppHandle, label: &str) -> SJMCLResult<Wi
 /// * `url` - An optional URL that overrides the template configuration.
 /// * `custom_overlaid` - Whether to apply the custom overlaid titlebar configuration.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let window = create_webview_window(app, "game_log_1", "game_log", None, true).await?;
-/// ```
 ///
 /// # Returns
 ///
@@ -97,11 +87,6 @@ pub async fn create_webview_window(
 /// * `config` - The window configuration.
 /// * `custom_overlaid` - Whether to apply the custom overlaid titlebar configuration.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let window = create_webview_window_with_config(app, config, true).await?;
-/// ```
 ///
 /// # Returns
 ///
@@ -124,11 +109,6 @@ pub async fn create_webview_window_with_config(
       config.decorations = false;
     }
 
-    #[cfg(target_os = "linux")]
-    {
-      config.transparent = true;
-    }
-
     #[cfg(target_os = "macos")]
     {
       config.decorations = true;
@@ -138,7 +118,11 @@ pub async fn create_webview_window_with_config(
     }
   }
 
-  #[allow(unused_variables)]
+  #[cfg(target_os = "linux")]
+  {
+    config.transparent = false;
+  }
+
   let window = WebviewWindowBuilder::from_config(app, &config)
     .map_err(SJMCLError::from)?
     .build()

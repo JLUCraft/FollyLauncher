@@ -33,13 +33,9 @@ struct HmclOfflineAccount {
 struct HmclMicrosoftAccount {
   uuid: String,
   display_name: String,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  token_type: String,
   access_token: String,
   refresh_token: String,
   not_after: i64,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  userid: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -52,8 +48,6 @@ struct HmclProfileProperties {
 struct HmclThirdPartyAccount {
   #[serde(rename = "serverBaseURL")]
   server_base_url: String,
-  #[expect(dead_code, reason = "kept to match HMCL account JSON schema")]
-  client_token: String,
   display_name: String,
   access_token: String,
   profile_properties: HmclProfileProperties,

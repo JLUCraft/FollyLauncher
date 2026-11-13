@@ -54,7 +54,7 @@ try {
     throw new Error(`git diff failed with exit code ${result.status}`);
   }
   console.log("\n✅ bun.lock is in sync");
-} catch (error) {
+} catch {
   console.error("\n❌ bun.lock is not in sync!");
   process.exit(1);
 }

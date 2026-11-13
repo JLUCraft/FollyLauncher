@@ -49,7 +49,6 @@ pub enum ProcessPriority {
   AboveNormal,
   BelowNormal,
   High,
-  #[serde(other)]
   Normal,
 }
 
@@ -58,7 +57,6 @@ pub enum ProcessPriority {
 pub enum FileValidatePolicy {
   Disable,
   Full,
-  #[serde(other)]
   Normal,
 }
 
@@ -88,7 +86,6 @@ pub enum GarbageCollector {
   Shenandoah,
   Parallel,
   Serial,
-  #[serde(other)]
   Auto,
 }
 
@@ -97,7 +94,6 @@ pub enum GarbageCollector {
 pub enum GraphicsApi {
   Opengl,
   Vulkan,
-  #[serde(other)]
   Default,
 }
 
@@ -107,7 +103,6 @@ pub enum GraphicsApi {
 #[serde(rename_all = "camelCase")]
 pub enum ProxyType {
   Socks,
-  #[serde(other)]
   Http,
 }
 
@@ -361,7 +356,8 @@ structstruck::strike! {
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
     #[serde(default)]
-    #[default(_code="vec![(\"https://www.mualliance.cn/news/api-sjmcl/article\".to_string(), true),
+    #[default(_code="vec![(\"https://mc.sjtu.cn/api-sjmcl/article\".to_string(), true),
+    (\"https://mc.sjtu.cn/api-sjmcl/article/mua\".to_string(), true),
     (\"https://api.jsumc.fun/sjmcl?type=tribee&src=535\".to_string(), true)]")]
     pub discover_source_endpoints: Vec<(String, bool)>,
     pub extra_java_paths: Vec<String>,

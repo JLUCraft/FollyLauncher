@@ -23,6 +23,7 @@ import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLauncherConfig } from "@/contexts/config";
+import { omitFields } from "@/utils/object";
 
 type MarkdownContainerProps = BoxProps & {
   children: string;
@@ -94,96 +95,119 @@ const MarkdownContainer: React.FC<MarkdownContainerProps> = ({
   // map HTML tags to Chakra components so styles are inherited.
   const components: Components = {
     // paragraphs
-    p: ({ node, children, ...rest }) => (
-      <Text {...rest}>{processGitHubMarks(children)}</Text>
-    ),
-    // headings
-    h1: ({ node, children, ...rest }) => (
-      <Heading as="h1" size="xl" my={4} {...rest}>
-        {processGitHubMarks(children)}
-      </Heading>
-    ),
-    h2: ({ node, children, ...rest }) => (
-      <Heading as="h2" size="lg" my={3} {...rest}>
-        {processGitHubMarks(children)}
-      </Heading>
-    ),
-    h3: ({ node, children, ...rest }) => (
-      <Heading as="h3" size="md" my={2} {...rest}>
-        {children}
-      </Heading>
-    ),
-    h4: ({ node, children, ...rest }) => (
-      <Heading as="h4" size="sm" my={2} {...rest}>
-        {children}
-      </Heading>
-    ),
-    strong: ({ node, children, ...rest }) => (
-      <Text as="strong" fontWeight="600" color="inherit" {...rest}>
+    p: ({ children, ...rest }) => (
+      <Text {...omitFields(rest, ["node"])}>
         {processGitHubMarks(children)}
       </Text>
     ),
-    em: ({ node, children, ...rest }) => (
-      <Text as="em" fontStyle="italic" color="inherit" {...rest}>
+    // headings
+    h1: ({ children, ...rest }) => (
+      <Heading as="h1" size="xl" my={4} {...omitFields(rest, ["node"])}>
+        {processGitHubMarks(children)}
+      </Heading>
+    ),
+    h2: ({ children, ...rest }) => (
+      <Heading as="h2" size="lg" my={3} {...omitFields(rest, ["node"])}>
+        {processGitHubMarks(children)}
+      </Heading>
+    ),
+    h3: ({ children, ...rest }) => (
+      <Heading as="h3" size="md" my={2} {...omitFields(rest, ["node"])}>
+        {children}
+      </Heading>
+    ),
+    h4: ({ children, ...rest }) => (
+      <Heading as="h4" size="sm" my={2} {...omitFields(rest, ["node"])}>
+        {children}
+      </Heading>
+    ),
+    strong: ({ children, ...rest }) => (
+      <Text
+        as="strong"
+        fontWeight="600"
+        color="inherit"
+        {...omitFields(rest, ["node"])}
+      >
+        {processGitHubMarks(children)}
+      </Text>
+    ),
+    em: ({ children, ...rest }) => (
+      <Text
+        as="em"
+        fontStyle="italic"
+        color="inherit"
+        {...omitFields(rest, ["node"])}
+      >
         {processGitHubMarks(children)}
       </Text>
     ),
     // divider
-    hr: ({ node, ...rest }) => <Divider my={4} {...rest} />,
+    hr: ({ ...rest }) => <Divider my={4} {...omitFields(rest, ["node"])} />,
     // links
-    a: ({ node, href, children, ...rest }) => (
+    a: ({ href, children, ...rest }) => (
       <Link
         _hover={{ textDecoration: "underline" }}
         color={`${primaryColor}.500`}
         onClick={(e) => {
           e.preventDefault();
-          if (href) openUrl(href);
+          if (href)
+            openUrl(href).catch((error: unknown) => console.error(error));
         }}
-        {...rest}
+        {...omitFields(rest, ["node"])}
       >
         {children}
       </Link>
     ),
     // lists
-    ul: ({ node, children, ...rest }) => (
-      <UnorderedList pl={5} my={2} {...rest}>
+    ul: ({ children, ...rest }) => (
+      <UnorderedList pl={5} my={2} {...omitFields(rest, ["node"])}>
         {processGitHubMarks(children)}
       </UnorderedList>
     ),
-    ol: ({ node, children, ...rest }) => (
-      <OrderedList pl={5} my={2} {...rest}>
+    ol: ({ children, ...rest }) => (
+      <OrderedList pl={5} my={2} {...omitFields(rest, ["node"])}>
         {processGitHubMarks(children)}
       </OrderedList>
     ),
-    li: ({ node, children, ...rest }) => (
-      <ListItem my={1} {...rest}>
+    li: ({ children, ...rest }) => (
+      <ListItem my={1} {...omitFields(rest, ["node"])}>
         {processGitHubMarks(children)}
       </ListItem>
     ),
     // images
-    img: ({ node, src, alt, ...rest }) => (
+    img: ({ src, alt, ...rest }) => (
       <Image
-        src={src}
+        src={typeof src === "string" ? src : undefined}
         alt={alt}
         maxW="100%"
         my={2}
         borderRadius="md"
-        {...rest}
+        {...omitFields(rest, ["node"])}
       />
     ),
     // tables
-    table: ({ node, children, ...rest }) => (
+    table: ({ children, ...rest }) => (
       <TableContainer>
-        <Table variant="simple" size="sm" {...rest}>
+        <Table variant="simple" size="sm" {...omitFields(rest, ["node"])}>
           {children}
         </Table>
       </TableContainer>
     ),
-    thead: ({ node, children, ...rest }) => <Thead {...rest}>{children}</Thead>,
-    tbody: ({ node, children, ...rest }) => <Tbody {...rest}>{children}</Tbody>,
-    tr: ({ node, children, ...rest }) => <Tr {...rest}>{children}</Tr>,
-    th: ({ node, children, ...rest }) => <Th {...rest}>{children}</Th>,
-    td: ({ node, children, ...rest }) => <Td {...rest}>{children}</Td>,
+    thead: ({ children, ...rest }) => (
+      <Thead {...omitFields(rest, ["node"])}>{children}</Thead>
+    ),
+    tbody: ({ children, ...rest }) => (
+      <Tbody {...omitFields(rest, ["node"])}>{children}</Tbody>
+    ),
+    tr: ({ children, ...rest }) => (
+      <Tr {...omitFields(rest, ["node"])}>{children}</Tr>
+    ),
+    th: ({ children, ...rest }) => (
+      <Th {...omitFields(rest, ["node"])}>{children}</Th>
+    ),
+    td: ({ children, ...rest }) => (
+      <Td {...omitFields(rest, ["node"])}>{children}</Td>
+    ),
   };
 
   return (

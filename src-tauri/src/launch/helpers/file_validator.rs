@@ -3,8 +3,6 @@ use crate::resource::helpers::misc::convert_url_to_target_source;
 #[cfg(target_os = "windows")]
 use crate::resource::models::ResourceType;
 #[cfg(target_os = "windows")]
-use crate::tasks::download::DownloadParam;
-#[cfg(target_os = "windows")]
 use crate::utils::fs::validate_sha1;
 use sjmcl_types::error::SJMCLResult;
 use std::path::{Path, PathBuf};
@@ -17,11 +15,11 @@ use std::sync::Mutex;
 #[cfg(target_os = "windows")]
 use tauri::Manager;
 
+use crate::download::DownloadTask;
 use crate::instance::helpers::asset_index::load_asset_index;
 use crate::instance::helpers::client_json::McClientInfo;
 use crate::instance::models::misc::ModLoaderType;
 use crate::resource::models::SourceType;
-use crate::tasks::PTaskParam;
 
 #[cfg(target_os = "windows")]
 use crate::instance::helpers::client_json::{LibrariesValue, load_native_libraries_replace_map};
@@ -35,7 +33,7 @@ pub async fn get_invalid_library_files(
   library_path: &Path,
   client_info: &McClientInfo,
   check_hash: bool,
-) -> SJMCLResult<Vec<PTaskParam>> {
+) -> SJMCLResult<Vec<DownloadTask>> {
   Ok(
     minecraftd::minecraft::dependencies::download_plan(
       source,
@@ -44,10 +42,7 @@ pub async fn get_invalid_library_files(
       &crate::instance::helpers::client_json::rule_platform(),
       check_hash,
     )
-    .await?
-    .into_iter()
-    .map(PTaskParam::Download)
-    .collect(),
+    .await?,
   )
 }
 
@@ -89,7 +84,7 @@ pub async fn get_invalid_windows_mesa_loader_file(
   library_path: &Path,
   game_config: &GameConfig,
   check_hash: bool,
-) -> SJMCLResult<Vec<PTaskParam>> {
+) -> SJMCLResult<Vec<DownloadTask>> {
   if mesa_driver_name(
     &game_config.advanced.graphics.api,
     &game_config.advanced.graphics.renderer,
@@ -117,12 +112,13 @@ pub async fn get_invalid_windows_mesa_loader_file(
     &[ResourceType::Libraries],
     &source,
   )?;
-  Ok(vec![PTaskParam::Download(DownloadParam {
-    src,
+  Ok(vec![DownloadTask {
+    sources: vec![src],
     dest: file_path,
     filename: None,
     sha1: Some(artifact.sha1),
-  })])
+    size: Some(artifact.size),
+  }])
 }
 
 pub fn get_nonnative_library_paths(
@@ -164,16 +160,10 @@ pub async fn get_invalid_assets(
   source: SourceType,
   asset_path: &Path,
   check_hash: bool,
-) -> SJMCLResult<Vec<PTaskParam>> {
+) -> SJMCLResult<Vec<DownloadTask>> {
   let asset_index_path = asset_path.join(format!("indexes/{}.json", client_info.asset_index.id));
   let index = load_asset_index(app, &asset_index_path, &client_info.asset_index.url).await?;
-  Ok(
-    minecraftd::minecraft::assets::plan_assets(&index, asset_path, source, check_hash)
-      .await?
-      .into_iter()
-      .map(PTaskParam::Download)
-      .collect(),
-  )
+  Ok(minecraftd::minecraft::assets::plan_assets(&index, asset_path, source, check_hash).await?)
 }
 
 pub async fn prepare_legacy_assets(

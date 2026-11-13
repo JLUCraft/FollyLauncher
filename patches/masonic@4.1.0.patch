@@ -1,0 +1,27 @@
+diff --git a/types/list.d.ts b/types/list.d.ts
+index c5fbc38b77585a2d8d3460d3d0f88f0578a3ffd1..68e82bdaa43efc669a377ef3e3a91c2c2daca46c 100644
+--- a/types/list.d.ts
++++ b/types/list.d.ts
+@@ -1,3 +1,4 @@
++import type { JSX } from "react";
+ /// <reference types="react" />
+ import type { MasonryProps } from "./masonry";
+ /**
+diff --git a/types/masonry-scroller.d.ts b/types/masonry-scroller.d.ts
+index 80866458f93ebb7718e7178e79b5ac7dce25f621..a7293a5e7bac75caf5104fdcbd64da159b77d9bf 100644
+--- a/types/masonry-scroller.d.ts
++++ b/types/masonry-scroller.d.ts
+@@ -1,3 +1,4 @@
++import type { JSX } from "react";
+ /// <reference types="react" />
+ import type { UseMasonryOptions } from "./use-masonry";
+ /**
+diff --git a/types/use-masonry.d.ts b/types/use-masonry.d.ts
+index b88401507b27694582f75e5a0eca57d5c4982280..e10ef3403d3008327f0a68ecb48fb6fe899e908a 100644
+--- a/types/use-masonry.d.ts
++++ b/types/use-masonry.d.ts
+@@ -1,3 +1,4 @@
++import type { JSX } from "react";
+ import * as React from "react";
+ import type { Positioner } from "./use-positioner";
+ /**

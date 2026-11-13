@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import Fuse from "fuse.js";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { LuSearch } from "react-icons/lu";
 import CountTag from "@/components/common/count-tag";
@@ -33,6 +33,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useRoutingHistory } from "@/contexts/routing-history";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { generatePlayerDesc } from "@/utils/account";
@@ -77,12 +78,19 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     config.general.functionality.resourceTranslation;
   const searchAbortControllerRef = useRef<AbortController | null>(null);
 
-  const [queryText, setQueryText] = useState<string>("");
-  const [instantRes, setInstantRes] = useState<SearchResult[]>([]);
-  const [networkSearchResults, setNetworkSearchResults] = useState<
+  const [queryText, setQueryText] = useKeyedState<string>(
+    "",
+    [props.isOpen],
+    !props.isOpen
+  );
+  const [networkSearchResults, setNetworkSearchResults] = useKeyedState<
     SearchResult[]
-  >([]);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  >([], [props.isOpen], !props.isOpen);
+  const [isSearching, setIsSearching] = useKeyedState<boolean>(
+    false,
+    [props.isOpen],
+    !props.isOpen
+  );
 
   const { getPlayerList, getInstanceList } = useGlobalData();
 
@@ -339,7 +347,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
         return [...cfResults, ...mrResults];
       } catch (error) {
         if (!signal?.aborted) {
-          logger.error("Network search error:", error);
+          logger
+            .error("Network search error:", error)
+            .catch((error: unknown) => console.error(error));
         }
         return [];
       }
@@ -347,9 +357,10 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     [convertResourceToSearchResult]
   );
 
-  useEffect(() => {
-    setInstantRes(handleAllSearch(queryText));
-  }, [queryText, handleAllSearch]);
+  const instantRes = useMemo(
+    () => handleAllSearch(queryText),
+    [queryText, handleAllSearch]
+  );
 
   // Handle network search with debounce and abort control
   useEffect(() => {
@@ -382,7 +393,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
         })
         .catch((error) => {
           if (!controller.signal.aborted) {
-            logger.error("Network search error:", error);
+            logger
+              .error("Network search error:", error)
+              .catch((error: unknown) => console.error(error));
             setNetworkSearchResults([]);
             setIsSearching(false);
             searchAbortControllerRef.current = null;
@@ -391,13 +404,15 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     }, 500);
 
     return () => clearTimeout(debounceTimer);
-  }, [queryText, performNetworkSearch]);
+  }, [
+    queryText,
+    performNetworkSearch,
+    setNetworkSearchResults,
+    setIsSearching,
+  ]);
 
   useEffect(() => {
     if (!props.isOpen) {
-      setQueryText("");
-      setNetworkSearchResults([]);
-      setIsSearching(false);
       if (searchAbortControllerRef.current) {
         searchAbortControllerRef.current.abort();
         searchAbortControllerRef.current = null;
@@ -466,7 +481,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
             if (res.action) {
               res.action();
             } else if (res.url) {
-              router.push(res.url);
+              router
+                .push(res.url)
+                .catch((error: unknown) => console.error(error));
             }
             setQueryText("");
             props.onClose?.();
@@ -515,7 +532,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                   if (firstResult.action) {
                     firstResult.action();
                   } else if (firstResult.url) {
-                    router.push(firstResult.url);
+                    router
+                      .push(firstResult.url)
+                      .catch((error: unknown) => console.error(error));
                   }
                   setQueryText("");
                   props.onClose?.();

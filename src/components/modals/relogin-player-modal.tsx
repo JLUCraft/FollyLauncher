@@ -57,9 +57,11 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
     setIsLoading(true);
     if (isOAuth) {
       if (!oauthCodeResponse) return;
-      openUrl(oauthCodeResponse.verificationUri);
-      AccountService.reloginPlayerOAuth(player.id, oauthCodeResponse).then(
-        (response) => {
+      openUrl(oauthCodeResponse.verificationUri).catch((error: unknown) =>
+        console.error(error)
+      );
+      AccountService.reloginPlayerOAuth(player.id, oauthCodeResponse)
+        .then((response) => {
           if (response.status === "success") {
             toast({
               title: response.message,
@@ -76,11 +78,11 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
             onError?.();
           }
           setIsLoading(false);
-        }
-      );
+        })
+        .catch((error: unknown) => console.error(error));
     } else {
-      AccountService.reloginPlayer3rdPartyPassword(player.id, password).then(
-        (response) => {
+      AccountService.reloginPlayer3rdPartyPassword(player.id, password)
+        .then((response) => {
           if (response.status === "success") {
             toast({
               title: response.message,
@@ -97,8 +99,8 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
           }
           setIsLoading(false);
           setPassword("");
-        }
-      );
+        })
+        .catch((error: unknown) => console.error(error));
     }
   };
 
@@ -106,21 +108,20 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
     if (player.playerType === PlayerType.Offline) return;
     setOAuthCodeResponse(undefined);
     setIsLoading(true);
-    AccountService.fetchOAuthCode(
-      player.playerType,
-      player.authServer?.authUrl
-    ).then((response) => {
-      if (response.status === "success") {
-        setOAuthCodeResponse(response.data);
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-      setIsLoading(false);
-    });
+    AccountService.fetchOAuthCode(player.playerType, player.authServer?.authUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          setOAuthCodeResponse(response.data);
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+        setIsLoading(false);
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   return (

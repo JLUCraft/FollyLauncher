@@ -33,7 +33,7 @@ export const DiscoverSourcesPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
   const sources = config.discoverSourceEndpoints;
 
-  const [sourcesInfo, setSourcesInfo] = useState<NewsSourceInfo[]>([]);
+  const [retrievedSources, setSourcesInfo] = useState<NewsSourceInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const {
@@ -46,14 +46,27 @@ export const DiscoverSourcesPage = () => {
     return new Map(sources.map(([url, enabled]) => [url, enabled]));
   }, [sources]);
 
+  const sourcesInfo = useMemo(() => {
+    const byUrl = new Map(
+      retrievedSources.map((source) => [source.endpointUrl, source])
+    );
+    return sources.map(([endpointUrl, enabled]) => ({
+      ...byUrl.get(endpointUrl),
+      endpointUrl,
+      enabled,
+    }));
+  }, [sources, retrievedSources]);
+
   const handleFetchNewsSourcesInfo = useCallback(() => {
-    DiscoverService.fetchNewsSourcesInfo().then((response) => {
-      if (response.status === "success") {
-        setSourcesInfo(response.data);
+    DiscoverService.fetchNewsSourcesInfo()
+      .then((response) => {
+        if (response.status === "success") {
+          setSourcesInfo(response.data);
+        }
         setIsLoading(false);
-      }
-      // no toast here, keep silent if no internet connection or etc.
-    });
+        // no toast here, keep silent if no internet connection or etc.
+      })
+      .catch((error: unknown) => console.error(error));
   }, [setSourcesInfo]);
 
   const handleRemoveSource = (urlToRemove: string) => {
@@ -70,14 +83,6 @@ export const DiscoverSourcesPage = () => {
 
   useEffect(() => {
     if (sources.length === 0) return;
-    // initially load url from config
-    setSourcesInfo((prev) => {
-      const prevMap = new Map(prev.map((x) => [x.endpointUrl, x]));
-      return sources.map(([endpointUrl, enabled]) => {
-        const old = prevMap.get(endpointUrl);
-        return old ? { ...old, enabled } : { endpointUrl, enabled };
-      });
-    });
     // query details use invoke
     handleFetchNewsSourcesInfo();
   }, [sources, handleFetchNewsSourcesInfo]);

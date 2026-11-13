@@ -3,6 +3,25 @@
     "about": {
       "title": "SJMCLについて",
       "settings": {
+        "version": {
+          "title": "バージョン",
+          "foundNew": "アップデートがあります",
+          "checkUpdate": "アップデートを確認",
+          "checkToast": {
+            "loading": "アップデート確認中",
+            "up2date": "最新バージョンです",
+            "error": "アップデートの確認に失敗"
+          }
+        },
+        "contributors": {
+          "title": "開発チーム"
+        },
+        "sourceCode": {
+          "title": "GitHub でソースコードを見る"
+        },
+        "aboutSJMC": {
+          "title": "上海交通大学 Minecraft クラブ (SJMC) について"
+        },
         "community": {
           "title": "プレイヤーコミュニティ"
         },
@@ -17,16 +36,6 @@
         },
         "repository": {
           "title": "ソースリポジトリ"
-        },
-        "version": {
-          "title": "バージョン",
-          "foundNew": "アップデートがあります",
-          "checkUpdate": "アップデートを確認",
-          "checkToast": {
-            "loading": "アップデート確認中",
-            "up2date": "最新バージョンです",
-            "error": "アップデートの確認に失敗"
-          }
         }
       }
     },
@@ -64,23 +73,23 @@
       }
     },
     "legalInfo": {
-      "title": "上流プロジェクトとライセンス",
+      "title": "法的情報",
       "settings": {
-        "basedOn": {
-          "title": "オープンソースランチャー SJMCL ベース",
-          "description": "{{productName}} は SJMCL を基に開発されています。元のリポジトリ: https://github.com/UNIkeEN/SJMCL"
-        },
         "copyright": {
           "title": "コピーライト",
           "description": "© 2026 Folly Launcher チーム。SJMCL © 2024-2026 SJMCL 開発チームに基づく。"
         },
         "userAgreement": {
-          "title": "上流 SJMCL の利用規約",
+          "title": "利用規約",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
         },
         "openSourceLicense": {
           "title": "オープンソースライセンス",
           "description": "このプロジェクトは GNU General Public License v3.0 （追加条項が適用）に準拠"
+        },
+        "basedOn": {
+          "title": "オープンソースランチャー SJMCL ベース",
+          "description": "{{productName}} は SJMCL を基に開発されています。元のリポジトリ: https://github.com/UNIkeEN/SJMCL"
         }
       }
     }
@@ -216,7 +225,7 @@
       "description": {
         "start": {
           "3rdparty": "この認証ソースは Yggdrasil Connect 仕様提案をサポート",
-          "microsoft": " {{productName}} は Microsoft OAuth 2.0 デバイス認証フローをサポート"
+          "microsoft": " SJMCL は Microsoft OAuth 2.0 デバイス認証フローをサポート"
         },
         "next": "次へ進むボタンをクリックし、ログインウィンドウに上記のコードを入力してください。（自動コピー済）"
       },
@@ -495,10 +504,10 @@
     }
   },
   "DevToolbar": {
+    "tooltip": "開発ツールバー",
     "back": "戻る",
     "openDevTestPage": "開発テストページを開く",
-    "reload": "再読み込み",
-    "tooltip": "開発ツールバー"
+    "reload": "再読み込み"
   },
   "DiscoverCommunityNewsPage": {
     "title": "ディスカバー",
@@ -646,11 +655,11 @@
       "pause": "一時停止",
       "begin": "開始",
       "retry": "再試行",
-      "clearHistory": "履歴をクリア",
-      "toggleExpansion": "展開/折りたたみ"
+      "clearHistory": "履歴をクリア"
     },
     "label": {
       "paused": "一時停止中",
+      "finalizing": "インストールの最終処理中",
       "completed": "完了",
       "error": "エラー",
       "cancelled": "キャンセル済み"
@@ -678,8 +687,12 @@
       "launcher-update": "ランチャーを更新",
       "extension-update": "拡張機能 {{param1}} {{param2}} を更新",
       "mojang-java": "Java {{param}} ランタイム"
-    },
-    "empty": "ダウンロードタスクはまだありません。開始したダウンロードがここに表示されます。"
+    }
+  },
+  "Editable": {
+    "edit": "編集",
+    "save": "保存",
+    "cancel": "キャンセル"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -724,11 +737,6 @@
         "invalid": "ディレクトリパスが無効"
       }
     }
-  },
-  "Editable": {
-    "edit": "編集",
-    "save": "保存",
-    "cancel": "キャンセル"
   },
   "Empty": {
     "noData": "データなし"
@@ -1057,6 +1065,7 @@
       "gameLogs": "ゲームログ",
       "help": "サポート"
     },
+    "autoCloseCountdown": "このウィンドウは {{seconds}} 秒後に自動で閉じられます（ウィンドウ内の任意の場所をクリックするとキャンセル）",
     "bottomAlert": "サポートを問い合わせる場合は、「このウィンドウのスクリーンショット」ではなく、クラッシュレポートをエクスポートし、相手に送信してください。",
     "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
@@ -1127,7 +1136,6 @@
       "FORGE_LITELOADER_CONFLICT": "Forge と LiteLoader が競合しているため実行できません。LiteLoader を削除するか、Forge バージョンを変更してみてください。",
       "UNKNOWN": "このエラーを一時的に分析できません。ゲームログを確認するか、エラークラッシュレポートをエクスポートしてください。"
     },
-    "autoCloseCountdown": "このウィンドウは {{seconds}} 秒後に自動で閉じられます（ウィンドウ内の任意の場所をクリックするとキャンセル）",
     "placeholder": {
       "unknown": "不明"
     }
@@ -1147,13 +1155,15 @@
   },
   "General": {
     "add": "追加",
-    "back": "戻る",
-    "beta": "ベータ版",
+    "alert": {
+      "noFullLogin": {
+        "title": "この機能は現在利用できません",
+        "description": "この機能を使用するには、まず Microsoft アカウントでログインしてください。"
+      }
+    },
     "browse": "参照",
     "cancel": "キャンセル",
     "close": "閉じる",
-    "collapse": "折りたたむ",
-    "color": "色",
     "confirm": "OK",
     "copy": {
       "text": "コピー",
@@ -1171,8 +1181,7 @@
     "dialog": {
       "filterName": {
         "image": "図像ファイル",
-        "modpack": "モッドパック",
-        "json": "JSON ファイル"
+        "modpack": "モッドパック"
       }
     },
     "disable": "無効化",
@@ -1181,7 +1190,6 @@
     "edit": "編集",
     "enable": "有効化",
     "exit": "終了",
-    "expand": "展開する",
     "finish": "完了",
     "import": "インポート",
     "launch": "起動",
@@ -1196,7 +1204,6 @@
     "refresh": "再読み込み",
     "revealFile": "{{opener}}で表示",
     "search": "サーチ",
-    "select": "選択",
     "settings": "設定",
     "share": {
       "text": "共有",
@@ -1205,16 +1212,21 @@
       }
     },
     "skip": "スキップ",
-    "unselectColor": "色を解除",
     "version": {
       "dev": "開発版",
       "nightly": "ナイトリービルド版",
       "beta": "ベータ版",
       "test-build": "テストビルド版"
     },
-    "versionNumberingHelp": "バージョン番号の説明",
     "viewOnWiki": "Minecraft Wiki へ",
-    "retry": "再試行"
+    "back": "戻る",
+    "beta": "ベータ版",
+    "collapse": "折りたたむ",
+    "color": "色",
+    "expand": "展開する",
+    "select": "選択",
+    "unselectColor": "色を解除",
+    "versionNumberingHelp": "バージョン番号の説明"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1434,15 +1446,19 @@
     "community": {
       "title": "大学生ゲーマーコミュニティー",
       "settings": {
-        "JLUCraft": {
-          "title": "吉林大学 Minecraft 同好会（JLUCraft）",
-          "description": "このランチャーを支えるコミュニティ。吉林大学および全国のプレイヤーのための場です",
-          "url": "https://www.jlucraft.com/"
-        },
         "MUA": {
           "title": "大学 Minecraft アライアンス（MUA）",
           "description": "中国の大学ゲーマーとともに遊ぼう",
           "url": "https://www.mualliance.cn"
+        },
+        "SJMC": {
+          "title": "上海交通大学 Minecraft クラブ（SJMC）",
+          "url": "https://mc.sjtu.cn"
+        },
+        "JLUCraft": {
+          "title": "吉林大学 Minecraft 同好会（JLUCraft）",
+          "description": "このランチャーを支えるコミュニティ。吉林大学および全国のプレイヤーのための場です",
+          "url": "https://www.jlucraft.com/"
         }
       }
     },
@@ -1475,8 +1491,8 @@
           "url": "https://www.jlucraft.com/docs/"
         },
         "UserGroup": {
-          "title": "プレイヤーコミュニティ",
-          "description": "問題報告、機能要望、サポートの相談はこちらへ",
+          "title": "ユーザーコミュニティ",
+          "description": "QQ グループや GitHub Discussions に参加して、問題報告、機能要望、サポートの相談ができます",
           "url": "https://www.jlucraft.com/about/"
         }
       }
@@ -1620,11 +1636,6 @@
     },
     "schematicList": {
       "title": "スキーマティック"
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "details": "詳細を見る"
     }
   },
   "InstanceSettingsPage": {
@@ -1774,6 +1785,7 @@
       "es": "スペイン語",
       "fr": "フランス語",
       "ja": "",
+      "ru": "ロシア語",
       "lzh": "漢文",
       "zh-Hans": "中国語（簡体字）",
       "zh-Hant": "中国語（繁体字）"
@@ -1827,11 +1839,6 @@
     "notCompatibleWith": "{{item}} に非互換",
     "noVersionSelected": "バージョンを選択していない"
   },
-  "MCVersionNumberHelper": {
-    "content": "2026年より、Minecraftのバージョン番号は新しい命名規則を採用します。従来の1.x形式に代わり、西暦の下2桁をバージョン番号の先頭に配置します（例: 26.1）。",
-    "linkText": "公式ドキュメントを読む",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
-  },
   "MainLayout": {
     "fileDnD": {
       "title": "モッドパックをインポート",
@@ -1862,6 +1869,11 @@
     "placeholder": {
       "javaPath": "Java 実行ファイルのパスを入力または選択してください"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "2026年より、Minecraftのバージョン番号は新しい命名規則を採用します。従来の1.x形式に代わり、西暦の下2桁をバージョン番号の先頭に配置します（例: 26.1）。",
+    "linkText": "公式ドキュメントを読む",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "メモリ状況",
@@ -2282,9 +2294,6 @@
     },
     "versionList": {
       "All": "すべて"
-    },
-    "listError": {
-      "description": "リソース一覧の読み込みに失敗しました: {{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2295,7 +2304,8 @@
       "restart": "再起動",
       "install": "インストール",
       "later": "後で"
-    }
+    },
+    "bodyLinux": "更新アーカイブをダウンロードしました。フォルダーを開き、ランチャーを手動で置き換えてください。"
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "原始設定ファイルの編集には注意してください。誤った形式は既存の設定が失われたり、ランチャーが正常に動作しなくなる可能性があります"
@@ -2390,7 +2400,10 @@
       },
       "downloadMojangJava": {
         "error": {
-          "title": "Mojang Java ランタイムのダウンロードに失敗"
+          "title": "Mojang Java ランタイムのダウンロードに失敗",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
+          }
         }
       },
       "checkGameDirectory": {
@@ -2408,7 +2421,16 @@
           "title": "ダウンロードキャッシュのクリアに失敗",
           "description": {
             "HAS_ACTIVE_DOWNLOAD_TASKS": "現在ダウンロードタスクが進行中です。後でもう一度お試しください",
-            "FILE_DELETION_FAILED": "キャッシュファイルを削除できません。ファイルが使用中の可能性があります"
+            "FILE_DELETION_FAILED": "キャッシュファイルを削除できません。ファイルが使用中の可能性があります",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
+          }
+        }
+      },
+      "downloadLauncherUpdate": {
+        "error": {
+          "title": "ランチャーの更新をダウンロードできませんでした",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       }
@@ -2425,6 +2447,7 @@
           "title": "オフラインキャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
+            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "INVALID": "UUID が無効です",
             "TEXTURE_ERROR": "キャラクタースキンの取得に失敗"
           }
@@ -2447,6 +2470,7 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
+            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーへの接続に失敗",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "NOT_FOUND": "認証サーバーが見つからない",
@@ -2491,6 +2515,7 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
+            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーへの接続に失敗",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "INVALID": "ログイン情報が間違っている",
@@ -2518,6 +2543,7 @@
           "title": "キャラクターの追加に失敗",
           "description": {
             "DUPLICATE": "キャラクターがすでに存在",
+            "FULL_LOGIN_UNAVAILABLE": "この機能を使用するには、まず Microsoft アカウントでログインしてください。",
             "NETWORK_ERROR": "認証サーバーに接続できません",
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "EXPIRED": "トークンの有効期限が切れました。再ログインしてください"
@@ -2669,9 +2695,11 @@
           "title": "ゲームファイルの検証に失敗",
           "description": {
             "MOD_LOADER_NOT_INSTALLED": "モッドローダーのインストールが完了していません",
+            "OPTIFINE_NOT_INSTALLED": "OptiFine のインストールが完了していません",
             "INSTANCE_NOT_FOUND_BY_ID": "インスタンス ID が存在しません",
             "GAME_FILES_INCOMPLETE": "ゲームファイルが不完全しています",
-            "LAUNCHING_STATE_NOT_FOUND": "起動状態が失われました"
+            "LAUNCHING_STATE_NOT_FOUND": "起動状態が失われました",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       },
@@ -2762,7 +2790,8 @@
           "title": "ゲームサーバーのダウンロードに失敗",
           "description": {
             "PARSE_ERROR": "サーバー応答データ形式エラー",
-            "NETWORK_ERROR": "サーバーに接続できません"
+            "NETWORK_ERROR": "サーバーに接続できません",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       },
@@ -2782,7 +2811,8 @@
           "description": {
             "PARSE_ERROR": "サーバー応答データ形式エラー",
             "NETWORK_ERROR": "サーバーに接続できません",
-            "FILE_OPERATION_ERROR": "古いモッドファイルの名前を変更できません"
+            "FILE_OPERATION_ERROR": "古いモッドファイルの名前を変更できません",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       }
@@ -2808,7 +2838,8 @@
             "FILE_CREATION_FAILED": "ターゲットファイルの作成に失敗",
             "NETWORK_ERROR": "ネットワークエラー",
             "CLIENT_JSON_PARSE_ERROR": "インスタンスバージョン情報の解析エラー",
-            "ASSET_INDEX_PARSE_ERROR": "リソースインデックスファイルの解析エラー"
+            "ASSET_INDEX_PARSE_ERROR": "リソースインデックスファイルの解析エラー",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       },
@@ -2989,37 +3020,6 @@
           }
         }
       },
-      "finishModLoaderInstall": {
-        "loading": "{{instanceName}} にモッドローダーをインストール中",
-        "success": "モッドローダーのインストールが完了しました",
-        "error": {
-          "title": "モッドローダーのインストールに失敗",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "インスタンス ID が存在しません",
-            "INSTALLATION_DUPLICATED": "別のプロセスが既にインストール中です",
-            "MAIN_CLASS_NOT_FOUND": "メインクラスが見つかりません",
-            "PROCESSOR_EXECUTION_FAILED": "インストールタスクの実行に失敗",
-            "LOADER_INSTALLER_NOT_FOUND": "ローダーインストーラーのファイルが見つかりません"
-          }
-        }
-      },
-      "finishOptiFineLoaderInstall": {
-        "loading": "{{instanceName}} に OptiFine をインストール中",
-        "success": "OptiFine のインストールが完了",
-        "error": {
-          "title": "OptiFine のインストールに失敗",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "インスタンス ID が存在しません",
-            "INSTALLATION_DUPLICATED": "別のインストール処理がすでに進行中です",
-            "PROCESSOR_EXECUTION_FAILED": "インストール処理の実行に失敗",
-            "LOADER_INSTALLER_NOT_FOUND": "OptiFine インストーラーが見つかりません",
-            "MOD_LOADER_VERSION_PARSE_ERROR": "OptiFine のバージョン情報の解析に失敗",
-            "INVALID_SOURCE_PATH": "ソースパスが無効です",
-            "NO_SUITABLE_JAVA": "適切な Java ランタイムが見つかりません",
-            "SELECTED_JAVA_UNAVAILABLE": "選択した Java ランタイムは利用できません"
-          }
-        }
-      },
       "checkChangeModLoaderAvailablity": {
         "error": {
           "title": "モッドローダーを変更できません",
@@ -3032,13 +3032,17 @@
         "error": {
           "title": "モッドローダーの変更に失敗",
           "description": {
-            "NOT_SUPPORT_CHANGE_MOD_LOADER": "外部からインストールされたバージョンのため、アンインストールまたは変更できません"
+            "NOT_SUPPORT_CHANGE_MOD_LOADER": "外部からインストールされたバージョンのため、アンインストールまたは変更できません",
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
           }
         }
       },
       "changeOptiFine": {
         "error": {
-          "title": "OptiFine の変更に失敗"
+          "title": "OptiFine の変更に失敗",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "ダウンロードエンジンが操作を完了できませんでした"
+          }
         }
       },
       "removeModLoader": {
@@ -3122,10 +3126,32 @@
       }
     },
     "task": {
-      "scheduleProgressiveTaskGroup": {
-        "error": "タスクの作成に失敗"
+      "common": {
+        "title": "ダウンロード操作に失敗しました",
+        "description": {
+          "NETWORK_ERROR": "ネットワークエラー：{{details}}",
+          "HTTP_ERROR": "HTTP エラー：{{status}}",
+          "IO_ERROR": "ファイル操作に失敗しました：{{details}}",
+          "CHECKSUM_MISMATCH": "ファイルのチェックサムが一致しません：期待値 {{expected}}、実際の値 {{actual}}",
+          "CORRUPT_FILES": "破損したファイル：{{paths, list}}",
+          "MISSING_FIELD": "タスクに必要なフィールドがありません：{{field}}",
+          "UNKNOWN_EXECUTOR": "不明なタスク実行器：{{executor}}",
+          "INVALID_CONTENT_RANGE": "サーバーが無効な Content-Range を返しました",
+          "RESUME_OFFSET_MISMATCH": "再開位置が一致しません：期待値 {{expected}}、実際の値 {{actual}}",
+          "OTHER_ERROR": "タスクに失敗しました：{{details}}",
+          "EMPTY_GROUP": "タスクグループには少なくとも 1 つのタスクが必要です",
+          "CHANNEL_CLOSED": "ダウンロードエンジンとの接続が閉じられました",
+          "UNKNOWN_GROUP": "タスクグループ {{groupId}} が見つかりません",
+          "INVALID_STATE": "タスクグループ {{groupId}} の現在の状態ではこの操作を実行できません",
+          "STORAGE_ERROR": "ダウンロード状態の保存に失敗しました：{{details}}",
+          "ENGINE_NOT_INITIALIZED": "ダウンロードエンジンが初期化されていません",
+          "INSTALLATION_INSTANCE_MISMATCH": "インストール対象のインスタンスがタスクと一致しません",
+          "MOD_LOADER_CHANGED": "インストール中に Mod ローダーが変更されました",
+          "OPTIFINE_MISSING": "OptiFine が見つかりません",
+          "OPTIFINE_CHANGED": "インストール中に OptiFine が変更されました"
+        }
       },
-      "onTaskGroupUpdate": {
+      "onDownloadGroupUpdate": {
         "status": {
           "Started": "{{param}} ダウンロードタスクを開始しました",
           "Failed": "{{param}} 一部のダウンロードに失敗しました。再試行してください",
@@ -3135,7 +3161,6 @@
         }
       }
     },
-    "unknownError": "不明なエラーが発生しました",
     "utils": {
       "deleteFile": {
         "success": "ファイルの削除に成功",
@@ -3143,7 +3168,8 @@
           "title": "ファイルの削除に失敗"
         }
       }
-    }
+    },
+    "unknownError": "不明なエラーが発生しました"
   },
   "SettingsLayout": {
     "settingsDomainList": {
@@ -3209,9 +3235,9 @@
   },
   "StarUsModal": {
     "header": {
-      "title": "GitHub で {{productName}} をスター"
+      "title": "GitHub で SJMCL をスター"
     },
-    "body": "{{productName}} にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
+    "body": "SJMCL にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
     "button": {
       "later": "あとで",
       "starUs": "スターを付与"

@@ -54,7 +54,7 @@ const InstanceResourcePacksPage = () => {
           if (data === GetStateFlag.Cancelled) return;
           setResourcePacks(data || []);
         })
-        .catch((e) => setResourcePacks([]));
+        .catch(() => setResourcePacks([]));
     },
     [getResourcePackList]
   );
@@ -70,7 +70,7 @@ const InstanceResourcePacksPage = () => {
           if (data === GetStateFlag.Cancelled) return;
           setServerResPacks(data || []);
         })
-        .catch((e) => setServerResPacks([]));
+        .catch(() => setServerResPacks([]));
     },
     [getServerResourcePackList]
   );

@@ -1,0 +1,9 @@
+diff --git a/dist/server/web/spec-extension/url-pattern.d.ts b/dist/server/web/spec-extension/url-pattern.d.ts
+index 098f7a2e427d80d5cbcb553983816d6a33c65405..d59b5d433fccb9a0bef759a08f10e129c55070f8 100644
+--- a/dist/server/web/spec-extension/url-pattern.d.ts
++++ b/dist/server/web/spec-extension/url-pattern.d.ts
+@@ -1,3 +1,4 @@
++import type { URLPatternInput, URLPatternOptions } from "node:url";
+ declare const GlobalURLPattern: {
+     new (input: URLPatternInput, baseURL: string | URL, options?: URLPatternOptions): URLPattern;
+     new (input?: URLPatternInput, options?: URLPatternOptions): URLPattern;

@@ -25,7 +25,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronDown,
@@ -46,6 +46,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { PlayerType } from "@/enums/account";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { AuthServer, DeviceAuthResponseInfo, Player } from "@/models/account";
 import {
   InvokeResponse,
@@ -71,21 +72,80 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const { openSharedModal } = useSharedModals();
 
-  const { getAuthServerList, getPlayerList } = useGlobalData();
-  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
-  const [playerType, setPlayerType] = useState(PlayerType.Offline);
-  const [playername, setPlayername] = useState<string>("");
-  const [uuid, setUuid] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [authServer, setAuthServer] = useState<AuthServer>(); // selected auth server
-  const [showOAuth, setShowOAuth] = useState<boolean>(false); // show OAuth button instead of username and password input.
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [oauthCodeResponse, setOAuthCodeResponse] =
-    useState<DeviceAuthResponseInfo>();
-  const [showAdvancedOptions, setShowAdvancedOptions] =
-    useState<boolean>(false);
-  const [candidatePlayers, setCandidatePlayers] = useState<Player[]>([]);
-  const [isOAuthSubmitting, setIsOAuthSubmitting] = useState<boolean>(false);
+  const {
+    getAuthServerList,
+    getPlayerList,
+    authServerList: knownAuthServers,
+  } = useGlobalData();
+  const authServerList = useMemo(
+    () => knownAuthServers || [],
+    [knownAuthServers]
+  );
+  const [playerType, setPlayerType] = useKeyedState(initialPlayerType, [
+    initialPlayerType,
+    modalProps.isOpen,
+  ]);
+  const [playername, setPlayername] = useKeyedState<string>("", [
+    modalProps.isOpen,
+  ]);
+  const [uuid, setUuid] = useKeyedState<string>("", [
+    playerType,
+    modalProps.isOpen,
+  ]);
+  const [password, setPassword] = useKeyedState<string>("", [
+    playerType,
+    modalProps.isOpen,
+  ]);
+  const [authServer, setAuthServer] = useKeyedState<AuthServer | undefined>(
+    initialAuthServerUrl
+      ? authServerList.find((server) => server.authUrl === initialAuthServerUrl)
+      : authServerList[0],
+    [initialAuthServerUrl, getAuthServerList, authServerList]
+  ); // selected auth server
+  const [showOAuth, setShowOAuth] = useKeyedState(
+    Boolean(
+      playerType === PlayerType.ThirdParty &&
+      authServer?.features.openidConfigurationUrl &&
+      authServer.clientId
+    ),
+    [authServer, playerType]
+  );
+  const [isOAuthSubmitting, setIsOAuthSubmitting] = useKeyedState<boolean>(
+    false,
+    [modalProps.isOpen]
+  );
+  const [isLoading, setIsLoading] = useKeyedState<boolean>(
+    false,
+    [
+      showOAuth,
+      playerType,
+      modalProps.isOpen,
+      authServer?.authUrl,
+      isOAuthSubmitting,
+    ],
+    !isOAuthSubmitting
+  );
+  const [oauthCodeResponse, setOAuthCodeResponse] = useKeyedState<
+    DeviceAuthResponseInfo | undefined
+  >(
+    undefined,
+    [
+      showOAuth,
+      playerType,
+      modalProps.isOpen,
+      authServer?.authUrl,
+      isOAuthSubmitting,
+    ],
+    !isOAuthSubmitting
+  );
+  const [showAdvancedOptions, setShowAdvancedOptions] = useKeyedState(false, [
+    playerType,
+    modalProps.isOpen,
+  ]);
+  const [candidatePlayers, setCandidatePlayers] = useKeyedState<Player[]>(
+    [],
+    [playerType, modalProps.isOpen]
+  );
 
   const initialRef = useRef<HTMLInputElement>(null);
   const oauthRequestIdRef = useRef(0);
@@ -97,61 +157,25 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   } = useDisclosure();
 
   useEffect(() => {
-    setAuthServerList(getAuthServerList() || []);
+    getAuthServerList();
   }, [getAuthServerList]);
 
   useEffect(() => {
-    setPlayerType(initialPlayerType);
-  }, [initialPlayerType, modalProps.isOpen]);
-
-  useEffect(() => {
-    let _authServer: AuthServer | undefined = undefined;
-    if (initialAuthServerUrl) {
-      _authServer = authServerList.find(
-        (server) => server.authUrl === initialAuthServerUrl
-      );
-    } else {
-      _authServer = authServerList[0];
-    }
-    setAuthServer(_authServer);
-  }, [initialAuthServerUrl, getAuthServerList, authServerList]);
-
-  useEffect(() => {
-    if (
-      playerType === PlayerType.ThirdParty &&
-      authServer?.features.openidConfigurationUrl &&
-      authServer.clientId
-    ) {
-      setShowOAuth(true); // if support, first show OAuth
-    } else {
-      setShowOAuth(false);
-    }
-  }, [authServer, playerType]);
-
-  useEffect(() => {
-    setPassword("");
     initialRef.current?.focus();
-    setShowAdvancedOptions(false);
-    setUuid("");
   }, [playerType]);
 
   useEffect(() => {
-    setPlayername("");
-    setPassword("");
-    setShowAdvancedOptions(false);
-    setUuid("");
-    setIsOAuthSubmitting(false);
-
-    AccountService.cancelOAuth();
+    AccountService.cancelOAuth().catch((error: unknown) =>
+      console.error(error)
+    );
   }, [modalProps.isOpen]);
 
   useEffect(() => {
     if (isOAuthSubmitting) return;
-
     oauthRequestIdRef.current += 1;
-    setOAuthCodeResponse(undefined);
-    setIsLoading(false);
-    AccountService.cancelOAuth();
+    AccountService.cancelOAuth().catch((error: unknown) =>
+      console.error(error)
+    );
   }, [
     showOAuth,
     playerType,
@@ -159,10 +183,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     authServer?.authUrl,
     isOAuthSubmitting,
   ]);
-
-  useEffect(() => {
-    setCandidatePlayers([]);
-  }, [playerType, modalProps.isOpen]);
 
   useEffect(() => {
     if (candidatePlayers.length) onSelectPlayerModalOpen();
@@ -180,8 +200,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     const requestId = ++oauthRequestIdRef.current;
     setOAuthCodeResponse(undefined);
     setIsLoading(true);
-    AccountService.fetchOAuthCode(playerType, authServer?.authUrl).then(
-      (response) => {
+    AccountService.fetchOAuthCode(playerType, authServer?.authUrl)
+      .then((response) => {
         if (requestId !== oauthRequestIdRef.current) return;
 
         if (response.status === "success") {
@@ -194,8 +214,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           });
         }
         setIsLoading(false);
-      }
-    );
+      })
+      .catch((error: unknown) => console.error(error));
   };
   const afterLogin = (response: ResponseSuccess<unknown>) => {
     getPlayerList(true);
@@ -226,16 +246,18 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         authServer.authUrl,
         playername,
         password
-      ).then((response) => {
-        if (response.status === "success") {
-          setCandidatePlayers(response.data);
+      )
+        .then((response) => {
+          if (response.status === "success") {
+            setCandidatePlayers(response.data);
 
-          if (!response.data.length) afterLogin(response);
-        } else {
-          setPassword("");
-          afterFailure(response);
-        }
-      });
+            if (!response.data.length) afterLogin(response);
+          } else {
+            setPassword("");
+            afterFailure(response);
+          }
+        })
+        .catch((error: unknown) => console.error(error));
     } else {
       let loginServiceFunction: () => Promise<InvokeResponse<void>>;
       if (playerType === PlayerType.Offline) {
@@ -247,7 +269,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       } else {
         if (!oauthCodeResponse) return;
         setIsOAuthSubmitting(true);
-        openUrl(oauthCodeResponse.verificationUri);
+        openUrl(oauthCodeResponse.verificationUri).catch((error: unknown) =>
+          console.error(error)
+        );
         loginServiceFunction = () =>
           AccountService.addPlayerOAuth(
             playerType,
@@ -268,19 +292,22 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         })
         .finally(() => {
           if (isOAuth) setIsOAuthSubmitting(false);
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     }
   };
 
   const handlePlayerSelect = (player: Player) => {
     onSelectPlayerModalClose();
-    AccountService.addPlayerFromSelection(player).then((response) => {
-      if (response.status === "success") {
-        afterLogin(response);
-      } else {
-        afterFailure(response);
-      }
-    });
+    AccountService.addPlayerFromSelection(player)
+      .then((response) => {
+        if (response.status === "success") {
+          afterLogin(response);
+        } else {
+          afterFailure(response);
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   const playerTypeList = [
@@ -440,7 +467,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                                 "AddPlayerModal.3rdparty.authServer.selectSource"
                               )}
                           </MenuButton>
-                          <MenuList>
+                          <MenuList maxH="40vh" overflowY="auto">
                             {authServerList.map((server: AuthServer) => (
                               <MenuItem
                                 key={server.authUrl}
@@ -523,7 +550,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 onClick={() => {
                   openUrl(
                     "https://www.xbox.com/games/store/productId/9NXP44L49SHJ"
-                  );
+                  ).catch((error: unknown) => console.error(error));
                 }}
               >
                 {t("AddPlayerModal.button.buyMinecraft")}

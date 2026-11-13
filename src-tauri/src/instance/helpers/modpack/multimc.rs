@@ -4,11 +4,11 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use tauri::AppHandle;
 
+use crate::download::DownloadTask;
 use crate::instance::helpers::modpack::export::{ExportModpackOptions, ModpackExportBundle};
 use crate::instance::helpers::modpack::import::{ModpackManifest, ModpackMetaInfo};
 use crate::instance::models::misc::{Instance, InstanceError, ModLoader, ModLoaderType};
 use crate::resource::models::OtherResourceSource;
-use crate::tasks::PTaskParam;
 
 pub use minecraftd::modpack::multimc::MultiMcManifest;
 
@@ -56,7 +56,7 @@ impl ModpackManifest for MultiMcManifest {
     &self,
     _app: &AppHandle,
     _instance_path: &Path,
-  ) -> SJMCLResult<Vec<PTaskParam>> {
+  ) -> SJMCLResult<Vec<DownloadTask>> {
     // MultiMC Manifests do not include download parameters
     Ok(Vec::new())
   }

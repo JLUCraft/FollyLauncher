@@ -2,17 +2,24 @@ use sjmcl_types::error::SJMCLResult;
 use std::path::PathBuf;
 use tauri::AppHandle;
 
+use crate::download::DownloadTask;
 use crate::instance::helpers::client_json::McClientInfo;
 use crate::instance::helpers::loader::cleanroom::install_cleanroom_loader;
 use crate::instance::helpers::loader::fabric::install_fabric_loader;
-use crate::instance::helpers::loader::forge::{InstallProfile, install_forge_loader};
+use crate::instance::helpers::loader::forge::{
+  InstallProfile, ProcessorsValue, install_forge_loader,
+};
 use crate::instance::helpers::loader::neoforge::install_neoforge_loader;
 use crate::instance::helpers::loader::quilt::install_quilt_loader;
 use crate::instance::helpers::misc::get_instance_game_config;
 use crate::instance::models::misc::{Instance, InstanceError, ModLoader, ModLoaderType};
 use crate::launch::helpers::jre_selector::select_java_runtime;
 use crate::resource::models::SourceType;
-use crate::tasks::PTaskParam;
+
+pub struct InstallPlan {
+  pub tasks: Vec<DownloadTask>,
+  pub processors: Vec<ProcessorsValue>,
+}
 
 pub async fn install_mod_loader(
   app: AppHandle,
@@ -22,7 +29,7 @@ pub async fn install_mod_loader(
   lib_dir: PathBuf,
   mods_dir: PathBuf,
   client_info: &mut McClientInfo,
-  task_params: &mut Vec<PTaskParam>,
+  task_params: &mut Vec<DownloadTask>,
   is_install_fabric_api: Option<bool>,
   is_install_qf_api: Option<bool>,
 ) -> SJMCLResult<()> {
@@ -72,8 +79,15 @@ pub async fn execute_processors(
   app: &AppHandle,
   instance: &Instance,
   client_info: &McClientInfo,
-  install_profile: &InstallProfile,
+  processors: Vec<ProcessorsValue>,
 ) -> SJMCLResult<()> {
+  if processors.is_empty() {
+    return Ok(());
+  }
+  let install_profile = InstallProfile {
+    processors,
+    ..Default::default()
+  };
   let game_config = get_instance_game_config(app, instance);
 
   let selected_java = select_java_runtime(
@@ -91,7 +105,7 @@ pub async fn execute_processors(
     minecraftd::minecraft::loader::processors::execute_processors(
       std::path::Path::new(&selected_java.exec_path),
       &instance.version_path,
-      install_profile,
+      &install_profile,
     )
     .await?,
   )
@@ -125,7 +139,7 @@ pub async fn prepare_libraries(
   instance: &Instance,
   client_info: &mut McClientInfo,
   loader: ModLoaderType,
-) -> SJMCLResult<()> {
+) -> SJMCLResult<InstallPlan> {
   use crate::instance::helpers::misc::get_instance_subdir_paths;
   use crate::instance::models::misc::InstanceSubdirType;
   let paths = get_instance_subdir_paths(
@@ -145,23 +159,15 @@ pub async fn prepare_libraries(
     root_dir: root,
     library_dir: libraries,
   };
-  let downloads = minecraftd::minecraft::loader::processors::prepare_libraries(
+  let (downloads, processors) = minecraftd::minecraft::loader::processors::prepare_libraries(
     priority,
     &target,
     client_info,
     &crate::instance::helpers::client_json::rule_platform(),
   )
   .await?;
-  crate::tasks::commands::schedule_progressive_task_group(
-    app.clone(),
-    format!(
-      "{}-libraries?{}",
-      loader.to_string().to_lowercase(),
-      instance.id
-    ),
-    downloads.into_iter().map(PTaskParam::Download).collect(),
-    true,
-  )
-  .await?;
-  Ok(())
+  Ok(InstallPlan {
+    tasks: downloads,
+    processors,
+  })
 }

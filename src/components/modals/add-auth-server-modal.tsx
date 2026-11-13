@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { AccountService } from "@/services/account";
 
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {
@@ -40,21 +41,30 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const initialRef = useRef(null);
   const hasAutoPresetRef = useRef(false);
 
-  const [serverUrl, setServerUrl] = useState<string>("");
+  const [serverUrl, setServerUrl] = useKeyedState<string>(
+    presetUrl,
+    [isOpen, presetUrl],
+    isOpen
+  );
   const [serverName, setServerName] = useState<string>("");
-  const [isNextStep, setIsNextStep] = useState<boolean>(false);
+  const [isNextStep, setIsNextStep] = useKeyedState<boolean>(
+    false,
+    [isOpen, presetUrl],
+    isOpen
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [isServerUrlTouched, setIsServerUrlTouched] = useState(false);
+  const [isServerUrlTouched, setIsServerUrlTouched] = useKeyedState(
+    false,
+    [isOpen, presetUrl],
+    isOpen
+  );
   const trimmedServerUrl = serverUrl.trim();
   const isServerUrlInvalid = isServerUrlTouched && !trimmedServerUrl;
 
   useEffect(() => {
     if (isOpen) {
       hasAutoPresetRef.current = false;
-      setIsNextStep(false);
-      setServerUrl(presetUrl);
-      setIsServerUrlTouched(false);
     }
   }, [isOpen, presetUrl]);
 
@@ -77,8 +87,9 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       })
       .finally(() => {
         setIsLoading(false);
-      });
-  }, [trimmedServerUrl, toast]);
+      })
+      .catch((error: unknown) => console.error(error));
+  }, [trimmedServerUrl, setServerUrl, setIsNextStep, toast]);
 
   useEffect(() => {
     if (
@@ -114,7 +125,8 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       })
       .finally(() => {
         setIsLoading(false);
-      });
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   return (

@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback } from "react";
+import { useKeyedState } from "@/hooks/keyed-state";
 
 export enum GetStateFlag {
   Cancelled = "%CANCELLED%",
@@ -21,32 +22,31 @@ export function useGetState<T>(
 
 export function usePromisedGetState<T>(
   state: T | undefined,
-  versionRef: React.MutableRefObject<string | undefined>,
+  version: string | undefined,
   retrieveHandler: () => Promise<NoInfer<T> | GetStateFlag | undefined>
 ): [(sync?: boolean) => Promise<T | GetStateFlag | undefined>, boolean] {
-  const [isLoading, setIsLoading] = useState(false);
-  const validVersion = useRef<string | undefined>(undefined);
-  const isBusy = isLoading || versionRef.current !== validVersion.current;
+  const [status, setStatus] = useKeyedState<{
+    completedVersion: string | undefined;
+    pending: number;
+  }>({ completedVersion: undefined, pending: 0 }, [version]);
   const getState = useCallback(
     async (sync = false) => {
-      if (
-        sync ||
-        state === undefined ||
-        validVersion.current !== versionRef.current
-      ) {
-        setIsLoading(true);
-        try {
-          const data = await retrieveHandler();
-          validVersion.current = versionRef.current;
-          return data;
-        } catch (_) {
-          return undefined;
-        } finally {
-          setIsLoading(false);
-        }
-      } else return state;
+      if (!sync && state !== undefined && status.completedVersion === version)
+        return state;
+      setStatus((previous) => ({ ...previous, pending: previous.pending + 1 }));
+      try {
+        return await retrieveHandler();
+      } catch {
+        return undefined;
+      } finally {
+        setStatus((previous) => ({
+          ...previous,
+          pending: previous.pending - 1,
+          completedVersion: version,
+        }));
+      }
     },
-    [state, versionRef, retrieveHandler]
+    [state, version, status.completedVersion, retrieveHandler, setStatus]
   );
-  return [getState, isBusy];
+  return [getState, status.pending > 0 || status.completedVersion !== version];
 }

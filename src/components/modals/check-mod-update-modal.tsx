@@ -16,12 +16,13 @@ import {
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource } from "@/enums/resource";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { InstanceSummary, LocalModInfo } from "@/models/instance/misc";
 import {
   ModUpdateQuery,
@@ -48,12 +49,31 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
     config.general.general.language === "zh-Hans" &&
     config.general.functionality.translatedFilenamePrefix;
 
-  const [selectedMods, setSelectedMods] = useState<ModUpdateRecord[]>([]);
-  const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [updateList, setUpdateList] = useState<ModUpdateRecord[]>([]);
-  const [modsToUpdate, setModsToUpdate] = useState<LocalModInfo[]>([]);
-  const [checkingUpdateIndex, setCheckingUpdateIndex] = useState<number>(1);
+  const [selectedMods, setSelectedMods] = useKeyedState<ModUpdateRecord[]>(
+    [],
+    [modalProps.isOpen, summary, localMods]
+  );
+  const [isCheckingUpdate, setIsCheckingUpdate] = useKeyedState<boolean>(
+    !!summary?.id && localMods.length > 0,
+    [modalProps.isOpen, summary, localMods]
+  );
+  const [isLoading, setIsLoading] = useKeyedState(false, [
+    modalProps.isOpen,
+    summary,
+    localMods,
+  ]);
+  const [updateList, setUpdateList] = useKeyedState<ModUpdateRecord[]>(
+    [],
+    [modalProps.isOpen, summary, localMods]
+  );
+  const [modsToUpdate, setModsToUpdate] = useKeyedState<LocalModInfo[]>(
+    [],
+    [modalProps.isOpen, summary, localMods]
+  );
+  const [checkingUpdateIndex, setCheckingUpdateIndex] = useKeyedState<number>(
+    1,
+    [modalProps.isOpen, summary, localMods]
+  );
 
   const headerBg = useColorModeValue("gray.50", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
@@ -81,14 +101,6 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
       }
     });
   };
-
-  const onCheckUpdateModalClear = useCallback(() => {
-    setIsCheckingUpdate(true);
-    setUpdateList([]);
-    setModsToUpdate([]);
-    setSelectedMods([]);
-    setCheckingUpdateIndex(1);
-  }, []);
 
   const handleFetchLatestMod = useCallback(
     async (
@@ -125,7 +137,9 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           return candidateFiles[0];
         } else return undefined;
       } catch (error) {
-        logger.error("Failed to fetch latest mod:", error);
+        logger
+          .error("Failed to fetch latest mod:", error)
+          .catch((error: unknown) => console.error(error));
         return undefined;
       }
     },
@@ -135,11 +149,9 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
   const handleCheckModUpdate = useCallback(async () => {
     const currentSummary = summary;
     const currentLocalMods = localMods;
-    onCheckUpdateModalClear();
 
     try {
       if (!currentSummary?.id || currentLocalMods.length === 0) {
-        setIsCheckingUpdate(false);
         return;
       }
 
@@ -235,7 +247,9 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           }
           return null;
         } catch (error) {
-          logger.error(`Failed to check update for mod ${mod.name}:`, error);
+          logger
+            .error(`Failed to check update for mod ${mod.name}:`, error)
+            .catch((error: unknown) => console.error(error));
           return null;
         }
       });
@@ -257,11 +271,21 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
       setModsToUpdate(validUpdates.map((item) => item.mod));
       setUpdateList(validUpdates.map((item) => item.updateRecord));
     } catch (error) {
-      logger.error("Failed to check mod updates:", error);
+      logger
+        .error("Failed to check mod updates:", error)
+        .catch((error: unknown) => console.error(error));
     } finally {
       setIsCheckingUpdate(false);
     }
-  }, [summary, localMods, handleFetchLatestMod, onCheckUpdateModalClear]);
+  }, [
+    summary,
+    localMods,
+    setModsToUpdate,
+    setUpdateList,
+    handleFetchLatestMod,
+    setCheckingUpdateIndex,
+    setIsCheckingUpdate,
+  ]);
 
   const summaryId = summary?.id;
   const { onClose } = modalProps;
@@ -301,20 +325,14 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
         setIsLoading(false);
       }
     },
-    [summaryId, modsToUpdate, addPrefix, toast, onClose]
+    [summaryId, setIsLoading, modsToUpdate, addPrefix, toast, onClose]
   );
 
   useEffect(() => {
     if (modalProps.isOpen && summaryId && localMods.length > 0) {
-      handleCheckModUpdate();
+      handleCheckModUpdate().catch((error: unknown) => console.error(error));
     }
   }, [modalProps.isOpen, summaryId, localMods.length, handleCheckModUpdate]);
-
-  useEffect(() => {
-    if (!modalProps.isOpen) {
-      onCheckUpdateModalClear();
-    }
-  }, [modalProps.isOpen, onCheckUpdateModalClear]);
 
   return (
     <Modal
@@ -525,7 +543,7 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
                       fileName: mod.fileName,
                       oldFilePath: mod.oldFilePath,
                     }))
-                  );
+                  ).catch((error: unknown) => console.error(error));
                 }}
                 isDisabled={selectedMods.length === 0}
                 isLoading={isLoading}

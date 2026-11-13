@@ -64,7 +64,7 @@ export class ExtensionService {
     );
 
     return () => {
-      unlisten.then((f) => f());
+      unlisten.then((f) => f()).catch((error: unknown) => console.error(error));
     };
   }
 }

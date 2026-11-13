@@ -43,7 +43,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
       className={cardStyles["card-front"]}
       cursor="pointer"
       overflow="hidden" // show the border
-      p={0}
+      style={{ padding: 0 }}
       boxShadow={
         isHovered ? `0 0 0 1px var(--chakra-colors-${primaryColor}-500)` : "xs"
       }
@@ -54,7 +54,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          openUrl(link);
+          openUrl(link).catch((error: unknown) => console.error(error));
         }
       }}
       onMouseEnter={() => setIsHovered(true)}

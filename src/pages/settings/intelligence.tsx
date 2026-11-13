@@ -8,7 +8,6 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuSparkles } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
@@ -17,53 +16,51 @@ import {
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
+import { useKeyedState } from "@/hooks/keyed-state";
+
+const SparklesIconBox = ({ primaryColor }: { primaryColor: string }) => {
+  const bg = useColorModeValue(
+    // light mode: colorful background following the theme primary color
+    `
+      radial-gradient(circle at top left,     var(--chakra-colors-${primaryColor}-400) 0%, transparent 70%),
+      radial-gradient(circle at top right,    var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%),
+      radial-gradient(circle at bottom left,  var(--chakra-colors-${primaryColor}-300) 0%, transparent 70%),
+      radial-gradient(circle at bottom right, var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%)
+      `,
+    // dark mode: neutral gray background
+    "linear-gradient(135deg, var(--chakra-colors-gray-900), var(--chakra-colors-gray-700))"
+  );
+
+  return (
+    <Box
+      boxSize="32px"
+      borderRadius="4px"
+      bg={bg}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Icon as={LuSparkles} boxSize="16px" color="white" />
+    </Box>
+  );
+};
 
 const IntelligenceSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [port, setPort] = useState<number>(
-    config.intelligence.mcpServer.launcher.port
+  const [port, setPort] = useKeyedState<number>(
+    config.intelligence.mcpServer.launcher.port,
+    [config.intelligence.mcpServer.launcher.port]
   );
-
-  useEffect(() => {
-    setPort(config.intelligence.mcpServer.launcher.port);
-  }, [config.intelligence.mcpServer.launcher.port]);
-
-  const SparklesIconBox = () => {
-    const bg = useColorModeValue(
-      // light mode: colorful background following the theme primary color
-      `
-      radial-gradient(circle at top left,     var(--chakra-colors-${primaryColor}-400) 0%, transparent 70%),
-      radial-gradient(circle at top right,    var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%),
-      radial-gradient(circle at bottom left,  var(--chakra-colors-${primaryColor}-300) 0%, transparent 70%),
-      radial-gradient(circle at bottom right, var(--chakra-colors-${primaryColor}-500) 0%, transparent 70%)
-      `,
-      // dark mode: neutral gray background
-      "linear-gradient(135deg, var(--chakra-colors-gray-900), var(--chakra-colors-gray-700))"
-    );
-
-    return (
-      <Box
-        boxSize="32px"
-        borderRadius="4px"
-        bg={bg}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Icon as={LuSparkles} boxSize="16px" color="white" />
-      </Box>
-    );
-  };
 
   const settingsGroups: (OptionItemGroupProps & { id: string })[] = [
     {
       id: "introduction",
       items: [
         {
-          prefixElement: <SparklesIconBox />,
+          prefixElement: <SparklesIconBox primaryColor={primaryColor} />,
           title: t("IntelligenceSettingsPage.title"),
           description: t("IntelligenceSettingsPage.description"),
         },
@@ -121,7 +118,7 @@ const IntelligenceSettingsPage = () => {
                         t(
                           "IntelligenceSettingsPage.mcpServer.settings.docs.url"
                         )
-                      );
+                      ).catch((error: unknown) => console.error(error));
                     }}
                   />
                 ),

@@ -39,7 +39,7 @@ macro_rules! mcp_tool {
 
         async move {
           let app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result($command(app))
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response($command(app))
         }
         .boxed()
       },
@@ -60,7 +60,7 @@ macro_rules! mcp_tool {
 
         async move {
           let app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result($command(app).await)
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response($command(app).await)
         }
         .boxed()
       },
@@ -90,7 +90,7 @@ macro_rules! mcp_tool {
             context.arguments.take().unwrap_or_default(),
           )?;
           let app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result($command(app, $(params.$arg),*))
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response($command(app, $(params.$arg),*))
         }
         .boxed()
       },
@@ -120,7 +120,7 @@ macro_rules! mcp_tool {
             context.arguments.take().unwrap_or_default(),
           )?;
           let app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result(
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response(
             $command(app, $(params.$arg),*).await,
           )
         }
@@ -147,7 +147,7 @@ macro_rules! mcp_tool {
             context.arguments.take().unwrap_or_default(),
           )?;
           let $app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result($call.await)
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response($call.await)
         }
         .boxed()
       },
@@ -177,7 +177,7 @@ macro_rules! mcp_tool {
             context.arguments.take().unwrap_or_default(),
           )?;
           let $app = context.service.app_handle.clone();
-          $crate::intelligence::mcp_server::launcher::command_result_to_tool_result($call.await)
+          $crate::intelligence::mcp_server::launcher::command_result_to_tool_response($call.await)
         }
         .boxed()
       },
@@ -233,7 +233,7 @@ macro_rules! mcp_tool {
 
           Ok(rmcp::model::CallToolResult::success(vec![
             rmcp::model::ContentBlock::text(format!("Opened deeplink: {deeplink}")),
-          ]))
+          ]).into())
         }
         .boxed()
       },
@@ -264,7 +264,7 @@ macro_rules! mcp_tool {
 
           Ok(rmcp::model::CallToolResult::success(vec![
             rmcp::model::ContentBlock::text(format!("Opened deeplink: {deeplink}")),
-          ]))
+          ]).into())
         }
         .boxed()
       },

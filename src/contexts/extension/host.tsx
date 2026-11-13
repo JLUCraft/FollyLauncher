@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -48,11 +49,11 @@ import {
   ExtensionSlotItemMap,
   ExtensionSlotRegistry,
 } from "@/models/extension";
-import { TaskTypeEnums } from "@/models/task";
+import { DownloadService } from "@/services/download";
 import { ExtensionService } from "@/services/extension";
-import { TaskService } from "@/services/task";
 import { UtilsService } from "@/services/utils";
 import { logger } from "@/utils/logging";
+import { omitFields } from "@/utils/object";
 import { sanitizeFileName } from "@/utils/string";
 import { createWindow } from "@/utils/window";
 import { buildProxiedExtensionScript } from "./proxy";
@@ -366,8 +367,14 @@ const ActiveExtensionHostContextProvider: React.FC<{
 }> = ({ children }) => {
   const router = useRouter();
   const { config, update } = useLauncherConfig();
-  const { selectedPlayer, selectedInstance, getPlayerList, getInstanceList } =
-    useGlobalData();
+  const {
+    selectedPlayer,
+    selectedInstance,
+    getPlayerList,
+    getInstanceList,
+    playerList: knownPlayers,
+    instanceList: knownInstances,
+  } = useGlobalData();
   const { openSharedModal, openGenericConfirmDialog } = useSharedModals();
   const toast = useToast();
 
@@ -376,12 +383,8 @@ const ActiveExtensionHostContextProvider: React.FC<{
   const [extensionRuntimeVersionMap, setExtensionRuntimeVersionMap] = useState<
     Record<string, number>
   >({}); // bump this to trigger reload for a specific extension.
-  const [playerList, setPlayerList] = useState<
-    ExtensionAbilityData["playerList"]
-  >([]);
-  const [instanceList, setInstanceList] = useState<
-    ExtensionAbilityData["instanceList"]
-  >([]);
+  const playerList = useMemo(() => knownPlayers || [], [knownPlayers]);
+  const instanceList = useMemo(() => knownInstances || [], [knownInstances]);
 
   const [homeWidgetMap, setHomeWidgetMap] = useState<
     Record<string, ExtensionHomeWidgetContribution[]>
@@ -447,13 +450,26 @@ const ActiveExtensionHostContextProvider: React.FC<{
           "delete_directory",
           "read_file",
           "write_file",
-          "schedule_progressive_task_group",
+          "plugin:sjmcl-downloader|submit_group",
+          "plugin:sjmcl-downloader|pause_group",
+          "plugin:sjmcl-downloader|resume_group",
+          "plugin:sjmcl-downloader|cancel_group",
+          "plugin:sjmcl-downloader|retry_group",
+          "plugin:sjmcl-downloader|remove_group",
+          "plugin:sjmcl-downloader|acknowledge_completion",
           "add_extension",
           "delete_extension",
         ].includes(command)
       ) {
         throw new Error(`Direct invoke is not allowed for ${command}`);
       }
+
+      // Compatibility aliases for command changes introduced in #1952.
+      const aliases = new Map([
+        ["retrieve_download_groups", "plugin:sjmcl-downloader|snapshot"],
+        ["retrieve_download_tasks", "plugin:sjmcl-downloader|list_tasks"],
+      ]);
+      command = aliases.get(command) ?? command;
 
       return await tauriInvoke<T>(command, payload);
     },
@@ -525,9 +541,11 @@ const ActiveExtensionHostContextProvider: React.FC<{
           btnCancel: t("General.cancel"),
           onOKCallback: async () => {
             try {
-              logger.info(
-                `Extension ${extension.identifier} is opening external link: ${trimmedUrl}`
-              );
+              logger
+                .info(
+                  `Extension ${extension.identifier} is opening external link: ${trimmedUrl}`
+                )
+                .catch((error: unknown) => console.error(error));
               await openUrl(trimmedUrl);
               resolve();
             } catch (error) {
@@ -554,21 +572,18 @@ const ActiveExtensionHostContextProvider: React.FC<{
       const filename = sanitizeFileName(
         `${extension.identifier}_${normalizedVersion}.sjmclx`
       );
-      const response = await TaskService.scheduleProgressiveTaskGroup(
-        `extension-update?${extension.identifier}&${normalizedVersion}`,
-        [
+      await DownloadService.submitGroup({
+        name: `extension-update?${extension.identifier}&${normalizedVersion}`,
+        autoResume: true,
+        tasks: [
           {
-            taskType: TaskTypeEnums.Download,
-            src: normalizedSrc,
+            name: filename,
+            executor: "download",
+            spec: { url: normalizedSrc },
             dest: await join(cacheDir, filename),
-            filename,
           },
-        ]
-      );
-
-      if (response.status !== "success") {
-        throw response.raw_error || response.details || response.message;
-      }
+        ],
+      });
     },
     [config.download.cache.directory]
   );
@@ -583,19 +598,21 @@ const ActiveExtensionHostContextProvider: React.FC<{
   }, [getInstanceList, getPlayerList, openSharedModal, update]);
 
   const handleRetrieveExtensionList = useCallback(() => {
-    ExtensionService.retrieveExtensionList().then((response) => {
-      if (response.status === "success") {
-        setExtensionList(response.data);
-        setExtensionListVersion((prev) => prev + 1);
-      } else {
-        setExtensionList([]);
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    ExtensionService.retrieveExtensionList()
+      .then((response) => {
+        if (response.status === "success") {
+          setExtensionList(response.data);
+          setExtensionListVersion((prev) => prev + 1);
+        } else {
+          setExtensionList([]);
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [toast]);
 
   const getExtensionList = useGetState(
@@ -609,7 +626,9 @@ const ActiveExtensionHostContextProvider: React.FC<{
       if (response.status === "success") {
         getExtensionList(true);
         if (router.asPath !== "/settings/extension") {
-          router.push("/settings/extension");
+          router
+            .push("/settings/extension")
+            .catch((error: unknown) => console.error(error));
         }
         toast({
           title: response.message,
@@ -675,11 +694,11 @@ const ActiveExtensionHostContextProvider: React.FC<{
   }, [handleRetrieveExtensionList]);
 
   useEffect(() => {
-    setPlayerList(getPlayerList() || []);
+    getPlayerList();
   }, [getPlayerList]);
 
   useEffect(() => {
-    setInstanceList(getInstanceList() || []);
+    getInstanceList();
   }, [getInstanceList]);
 
   // Host data management with useSyncExternalStore to trigger updates in extensions.
@@ -737,9 +756,9 @@ const ActiveExtensionHostContextProvider: React.FC<{
     ) => {
       const pending = pendingRegistrationsRef.current[token];
       if (!pending) {
-        logger.error(
-          `Received extension registration with unknown token ${token}`
-        );
+        logger
+          .error(`Received extension registration with unknown token ${token}`)
+          .catch((error: unknown) => console.error(error));
         return;
       }
       pending.resolve(factory);
@@ -805,9 +824,11 @@ const ActiveExtensionHostContextProvider: React.FC<{
         (item) => item.key === normalizedKey
       );
       if (!modal) {
-        logger.warn(
-          `Unknown custom modal for extension ${extension.identifier}: ${key}; registered keys: ${(customModalMap[extension.identifier] || []).map((item) => item.key).join(", ")}`
-        );
+        logger
+          .warn(
+            `Unknown custom modal for extension ${extension.identifier}: ${key}; registered keys: ${(customModalMap[extension.identifier] || []).map((item) => item.key).join(", ")}`
+          )
+          .catch((error: unknown) => console.error(error));
         throw new Error(
           `Unknown custom modal for extension ${extension.identifier}: ${key}`
         );
@@ -825,7 +846,9 @@ const ActiveExtensionHostContextProvider: React.FC<{
   );
 
   const handleOpenCustomModalRef = useRef(handleOpenCustomModal);
-  handleOpenCustomModalRef.current = handleOpenCustomModal;
+  useLayoutEffect(() => {
+    handleOpenCustomModalRef.current = handleOpenCustomModal;
+  }, [handleOpenCustomModal]);
 
   const getExtensionSlotItems = useCallback(
     <K extends ExtensionSlotKey>(
@@ -841,10 +864,12 @@ const ActiveExtensionHostContextProvider: React.FC<{
           return (slotMap[extension.identifier]?.[key]?.getItems(context) ||
             []) as ExtensionSlotItemMap[K][];
         } catch (error) {
-          logger.error(
-            `Failed to resolve extension slot ${key} for ${extension.identifier}`,
-            error
-          );
+          logger
+            .error(
+              `Failed to resolve extension slot ${key} for ${extension.identifier}`,
+              error
+            )
+            .catch((error: unknown) => console.error(error));
           return [];
         }
       });
@@ -1351,9 +1376,11 @@ const ActiveExtensionHostContextProvider: React.FC<{
             page.routePath
           );
           if (!normalizedRoutePath) {
-            logger.error(
-              `Invalid page route path for extension ${extension.identifier}: ${page.routePath}`
-            );
+            logger
+              .error(
+                `Invalid page route path for extension ${extension.identifier}: ${page.routePath}`
+              )
+              .catch((error: unknown) => console.error(error));
             return [];
           }
           return [
@@ -1399,16 +1426,20 @@ const ActiveExtensionHostContextProvider: React.FC<{
         const modals = customModalDefinitions.flatMap((modal, index) => {
           const normalizedKey = modal.key?.trim();
           if (!normalizedKey || normalizedKey.includes(":")) {
-            logger.error(
-              `Invalid custom modal key for extension ${extension.identifier}: ${modal.key}`
-            );
+            logger
+              .error(
+                `Invalid custom modal key for extension ${extension.identifier}: ${modal.key}`
+              )
+              .catch((error: unknown) => console.error(error));
             return [];
           }
 
           if (modalKeySet.has(normalizedKey)) {
-            logger.error(
-              `Duplicate custom modal key for extension ${extension.identifier}: ${normalizedKey}`
-            );
+            logger
+              .error(
+                `Duplicate custom modal key for extension ${extension.identifier}: ${normalizedKey}`
+              )
+              .catch((error: unknown) => console.error(error));
             return [];
           }
 
@@ -1506,7 +1537,9 @@ const ActiveExtensionHostContextProvider: React.FC<{
         try {
           active.dispose();
         } catch (error) {
-          logger.error(`Failed to dispose extension ${identifier}`, error);
+          logger
+            .error(`Failed to dispose extension ${identifier}`, error)
+            .catch((error: unknown) => console.error(error));
         }
       }
 
@@ -1574,10 +1607,12 @@ const ActiveExtensionHostContextProvider: React.FC<{
             continue;
           }
 
-          logger.error(
-            `Failed to activate extension ${extension.identifier}`,
-            error
-          );
+          logger
+            .error(
+              `Failed to activate extension ${extension.identifier}`,
+              error
+            )
+            .catch((error: unknown) => console.error(error));
           toast({
             title: t("ExtensionHostContextProvider.toast.activateError", {
               name: extension.name,
@@ -1603,7 +1638,7 @@ const ActiveExtensionHostContextProvider: React.FC<{
       }
     };
 
-    syncRuntime();
+    syncRuntime().catch((error: unknown) => console.error(error));
 
     return () => {
       cancelled = true;
@@ -1693,27 +1728,29 @@ const ActiveExtensionHostContextProvider: React.FC<{
           // Exclude host-only fields so only modal props are forwarded to ChakraUI.Modal.
           const {
             Component: ModalComponent,
-            extension: _extension,
-            identifier: _identifier,
-            key: _key,
-            params: _params,
-            resetKey: _resetKey,
             title,
             ...modalProps
-          } = modal;
+          } = omitFields(modal, [
+            "extension",
+            "identifier",
+            "key",
+            "params",
+            "resetKey",
+          ]);
 
           const close = () => {
             try {
               modal.onClose?.(); // trigger extension-defined onClose callback if exists.
             } catch (error) {
-              logger.error(
-                `Extension custom modal onClose failed for ${modal.extension.identifier}:${modal.key}`,
-                error
-              );
+              logger
+                .error(
+                  `Extension custom modal onClose failed for ${modal.extension.identifier}:${modal.key}`,
+                  error
+                )
+                .catch((error: unknown) => console.error(error));
             } finally {
               setCustomModalStates((prev) => {
-                const { [modalIdentifier]: _, ...next } = prev;
-                return next;
+                return omitFields(prev, [modalIdentifier]);
               });
             }
           };

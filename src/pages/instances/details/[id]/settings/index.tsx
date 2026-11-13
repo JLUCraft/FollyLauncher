@@ -258,7 +258,9 @@ const InstanceSettingsPage = () => {
                   <Link
                     color={`${primaryColor}.500`}
                     onClick={() => {
-                      router.push("/settings/global-game");
+                      router
+                        .push("/settings/global-game")
+                        .catch((error: unknown) => console.error(error));
                     }}
                   />
                 ),

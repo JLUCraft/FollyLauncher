@@ -77,7 +77,7 @@ const InstanceWorldsPage = () => {
           if (data === GetStateFlag.Cancelled) return;
           setWorlds(data || []);
         })
-        .catch((e) => setWorlds([]));
+        .catch(() => setWorlds([]));
     },
     [getWorldList]
   );
@@ -108,8 +108,8 @@ const InstanceWorldsPage = () => {
   const handleRetrieveGameServerList = useCallback(
     (queryOnline: boolean) => {
       if (instanceId !== undefined) {
-        InstanceService.retrieveGameServerList(instanceId, queryOnline).then(
-          (response) => {
+        InstanceService.retrieveGameServerList(instanceId, queryOnline)
+          .then((response) => {
             if (response.status === "success") {
               setGameServers(response.data);
             } else if (!queryOnline) {
@@ -119,8 +119,8 @@ const InstanceWorldsPage = () => {
                 status: "error",
               });
             }
-          }
-        );
+          })
+          .catch((error: unknown) => console.error(error));
       }
     },
     [toast, instanceId]
@@ -145,8 +145,8 @@ const InstanceWorldsPage = () => {
   const handleDeleteServer = useCallback(
     (server: GameServerInfo) => {
       if (!instanceId) return;
-      InstanceService.deleteGameServer(instanceId, server.ip).then(
-        (response) => {
+      InstanceService.deleteGameServer(instanceId, server.ip)
+        .then((response) => {
           if (response.status === "success") {
             toast({
               title: response.message,
@@ -160,8 +160,8 @@ const InstanceWorldsPage = () => {
               status: "error",
             });
           }
-        }
-      );
+        })
+        .catch((error: unknown) => console.error(error));
     },
     [instanceId, toast, refreshGameServerList]
   );

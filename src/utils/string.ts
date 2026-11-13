@@ -13,7 +13,7 @@ export const capitalizeFirstLetter = (str: string): string => {
 export const cleanHtmlText = (input: string): string => {
   const unicodeDecoded = input.replace(
     /\\u([\dA-F]{4})/gi,
-    (_match: string, code: string) => String.fromCharCode(parseInt(code, 16))
+    (...[, code]: [string, string]) => String.fromCharCode(parseInt(code, 16))
   );
 
   const container = document.createElement("div");
@@ -46,14 +46,14 @@ export function reactText(value: ReactNode): string {
 }
 
 export const formatByteSize = (bytes: number) => {
-  bytes = Math.max(0, bytes);
+  bytes = Number.isFinite(bytes) ? Math.max(0, bytes) : 0;
   const units = ["b", "kib", "mib", "gib"];
 
   if (bytes >= 1024) {
     let i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
     return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${t(`Utils.byteSize.${units[i]}`)}`;
   } else {
-    return `${bytes} ${t(`Utils.byteSize.${units[0]}`)}`;
+    return `${Math.round(bytes)} ${t(`Utils.byteSize.${units[0]}`)}`;
   }
 };
 

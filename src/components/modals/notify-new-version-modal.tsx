@@ -37,20 +37,26 @@ const NotifyNewVersionModal: React.FC<NotifyNewVersionModalProps> = ({
 
   const handleDownloadUpdate = () => {
     if (isLinux) {
-      openUrl("https://github.com/JLUCraft/FollyLauncher/releases");
+      openUrl(`https://mc.sjtu.cn/sjmcl${isZh ? "" : "/en"}`).catch(
+        (error: unknown) => console.error(error)
+      );
     } else {
-      ConfigService.downloadLauncherUpdate(newVersion).then((response) => {
-        if (response.status !== "success") {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
-          return;
-        } else {
-          router.push("/downloads");
-        }
-      });
+      ConfigService.downloadLauncherUpdate(newVersion)
+        .then((response) => {
+          if (response.status !== "success") {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+            return;
+          } else {
+            router
+              .push("/downloads")
+              .catch((error: unknown) => console.error(error));
+          }
+        })
+        .catch((error: unknown) => console.error(error));
     }
     props.onClose();
   };

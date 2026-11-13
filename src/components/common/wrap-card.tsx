@@ -8,12 +8,13 @@ import {
   VStack,
   Wrap,
   WrapItem,
+  useColorModeValue,
   useTheme,
 } from "@chakra-ui/react";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Section, SectionProps } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { insetCardPadding } from "@/styles/card";
+import { omitFields } from "@/utils/object";
 import cardStyles from "@/styles/card.module.css";
 
 type WrapCardContentObject = {
@@ -29,6 +30,7 @@ export interface WrapCardProps extends CardProps {
   variant?: "normal" | "radio";
   radioValue?: string;
   isSelected?: boolean;
+  isFullClickZone?: boolean;
   onSelect?: () => void;
 }
 
@@ -41,21 +43,46 @@ export interface WrapCardGroupProps extends SectionProps {
   cardAspectRatio?: number; // if not 0, calc height from width and aspect ratio
 }
 
-export const WrapCard: React.FC<WrapCardProps> = ({
-  cardContent,
-  colSpan = 1,
-  variant = "normal",
-  radioValue = "",
-  isSelected = false,
-  onSelect = () => {},
-  ...cardProps
-}) => {
+export const WrapCard: React.FC<WrapCardProps> = (props) => {
+  const {
+    cardContent,
+    variant = "normal",
+    radioValue = "",
+    isSelected = false,
+    isFullClickZone = false,
+    onSelect,
+    ...cardProps
+  } = omitFields(props, ["colSpan"]);
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { space } = useTheme<{ space: Record<string, string> }>();
   const borderWidth = "1px";
-  const basePadding = cardProps.padding || "12px";
-  const selectedPadding = insetCardPadding(basePadding, borderWidth, space);
+  const hasBorder = isSelected || isFullClickZone;
+  const theme = useTheme<{
+    space: Record<string, string | number | undefined>;
+  }>();
+  const basePadding = cardProps.padding ?? 3;
+  const subtractBorder = (value: string | number | null | undefined) => {
+    if (value == null) return value;
+    const token = theme.space[value] ?? value;
+    const cssValue = typeof token === "number" ? `${token}px` : token;
+    return `calc(${cssValue} - ${borderWidth})`;
+  };
+  const borderedPadding = Array.isArray(basePadding)
+    ? basePadding.map((value) => subtractBorder(value) ?? null)
+    : typeof basePadding === "object"
+      ? Object.fromEntries(
+          Object.entries(basePadding).map(
+            ([key, value]: [string, string | number | undefined]) => [
+              key,
+              subtractBorder(value) ?? undefined,
+            ]
+          )
+        )
+      : (subtractBorder(basePadding) ?? undefined);
+  const hoverBorderColor = useColorModeValue(
+    `${primaryColor}.300`,
+    `${primaryColor}.700`
+  );
 
   const renderContent = () => {
     if (!cardContent) return null;
@@ -106,18 +133,44 @@ export const WrapCard: React.FC<WrapCardProps> = ({
   return (
     <Card
       className={cardStyles["card-front"]}
-      borderColor={`${primaryColor}.500`}
+      borderColor={isSelected ? `${primaryColor}.500` : "transparent"}
       variant={isSelected ? "outline" : "elevated"}
       position="relative"
-      borderWidth={isSelected ? borderWidth : 0}
-      p={isSelected ? selectedPadding : basePadding}
+      borderWidth={hasBorder ? borderWidth : 0}
+      p={hasBorder ? borderedPadding : basePadding}
+      transition="border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out"
+      {...(isFullClickZone && {
+        cursor: "pointer",
+        role: "button",
+        tabIndex: 0,
+        "aria-pressed": isSelected,
+        _focusVisible: { boxShadow: "outline" },
+        onKeyDown: (event: React.KeyboardEvent) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onSelect?.();
+          }
+        },
+        _hover: {
+          borderColor: isSelected ? `${primaryColor}.500` : hoverBorderColor,
+          boxShadow: "md",
+        },
+        _active: { boxShadow: "sm" },
+        onClick: onSelect,
+      })}
       {...cardProps}
     >
       {variant === "radio" && (
-        <Box position="absolute" top={2} left={2}>
+        <Box
+          position="absolute"
+          top={2}
+          left={2}
+          pointerEvents={isFullClickZone ? "none" : undefined}
+        >
           <Radio
             value={radioValue}
-            onClick={onSelect}
+            tabIndex={isFullClickZone ? -1 : undefined}
+            onClick={isFullClickZone ? undefined : onSelect}
             colorScheme={primaryColor}
           />
         </Box>
@@ -138,12 +191,12 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
 }) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const theme = useTheme<{
-    space: Record<number, string>;
+    space: Record<string, string | number | undefined>;
     fontSizes: Record<string, string>;
   }>();
   const spacingScale = theme.space[1] || "0.25rem";
   const baseFontSize = theme.fontSizes.base || "16px";
-  const numberToPx = parseFloat(spacingScale) * parseInt(baseFontSize);
+  const numberToPx = parseFloat(String(spacingScale)) * parseInt(baseFontSize);
   const [cardWidth, setCardWidth] = useState<number>(cardMinWidth * numberToPx); // width for single-column card (colSpan = 1)
 
   const resizeCard = useCallback(() => {
@@ -174,7 +227,7 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   }, [resizeCard]);
 
   return (
-    <Box {...props} overflow="hidden" ref={boxRef}>
+    <Box {...props} ref={boxRef}>
       <Section
         title={props.title}
         headExtra={props.headExtra}

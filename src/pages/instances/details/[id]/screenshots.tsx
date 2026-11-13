@@ -1,15 +1,7 @@
-import {
-  Center,
-  IconButton,
-  Image,
-  Tooltip,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Center, Image, useDisclosure } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import router from "next/router";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { LuEllipsis } from "react-icons/lu";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
@@ -20,12 +12,14 @@ import { GetStateFlag } from "@/hooks/get-state";
 import { ScreenshotInfo } from "@/models/instance/misc";
 
 const InstanceScreenshotsPage: React.FC = () => {
-  const { t } = useTranslation();
-
-  const { getScreenshotList, isScreenshotListLoading: isLoading } =
-    useInstanceSharedData();
+  const router = useRouter();
+  const {
+    instanceId,
+    getScreenshotList,
+    isScreenshotListLoading: isLoading,
+  } = useInstanceSharedData();
   const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
-  const [currentScreenshot, setCurrentScreenshot] =
+  const [pickedScreenshot, setCurrentScreenshot] =
     useState<ScreenshotInfo | null>(null);
 
   const getScreenshotListWrapper = useCallback(
@@ -35,20 +29,17 @@ const InstanceScreenshotsPage: React.FC = () => {
           if (data === GetStateFlag.Cancelled) return;
           setScreenshots(data || []);
         })
-        .catch((e) => setScreenshots([]));
+        .catch(() => setScreenshots([]));
     },
     [getScreenshotList]
   );
 
+  const refreshedInstance = useRef<string | undefined>(undefined);
   useEffect(() => {
-    getScreenshotListWrapper();
-  }, [getScreenshotListWrapper]);
-
-  useEffect(() => {
-    // This page does not have a refresh button, so we need to fetch the screenshot list when the page is mounted
-    getScreenshotListWrapper(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const refresh = refreshedInstance.current !== instanceId;
+    refreshedInstance.current = instanceId;
+    getScreenshotListWrapper(refresh);
+  }, [instanceId, getScreenshotListWrapper]);
 
   const {
     isOpen: isScreenshotPreviewModalOpen,
@@ -56,70 +47,29 @@ const InstanceScreenshotsPage: React.FC = () => {
     onClose: onScreenshotPreviewModalClose,
   } = useDisclosure();
 
-  useEffect(() => {
-    const { screenshotIndex } = router.query;
-    if (screenshotIndex) {
-      setCurrentScreenshot(screenshots[Number(screenshotIndex)]);
-      onScreenshotPreviewModalOpen();
-    }
-  }, [screenshots, onScreenshotPreviewModalOpen]);
+  const queryIndex = router.query.screenshotIndex;
+  const queryScreenshot =
+    typeof queryIndex === "string"
+      ? screenshots[Number(queryIndex)]
+      : undefined;
+  const currentScreenshot = queryScreenshot || pickedScreenshot;
 
   const handleCloseModal = () => {
     onScreenshotPreviewModalClose();
     const { id } = router.query;
     if (id !== undefined) {
       const instanceId = Array.isArray(id) ? id[0] : id;
-      router.replace(
-        {
-          pathname: "/instances/details/[id]/screenshots",
-          query: { id: instanceId },
-        },
-        undefined,
-        { shallow: true }
-      );
+      router
+        .replace(
+          {
+            pathname: "/instances/details/[id]/screenshots",
+            query: { id: instanceId },
+          },
+          undefined,
+          { shallow: true }
+        )
+        .catch((error: unknown) => console.error(error));
     }
-  };
-
-  const ScreenshotsCard = ({ screenshot }: { screenshot: ScreenshotInfo }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    return (
-      <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <Image
-          src={convertFileSrc(screenshot.filePath)}
-          alt={screenshot.fileName}
-          objectFit="cover"
-          w="100%"
-          h="100%"
-          position="relative"
-          borderRadius="md"
-        />
-        {isHovered && (
-          <Tooltip
-            label={t("InstanceScreenshotsPage.button.details")}
-            placement="auto"
-          >
-            <IconButton
-              icon={<LuEllipsis />}
-              aria-label={t("InstanceScreenshotsPage.button.details")}
-              colorScheme="blackAlpha"
-              variant="solid"
-              size="xs"
-              position="absolute"
-              top={1}
-              right={1}
-              onClick={() => {
-                setCurrentScreenshot(screenshot);
-                onScreenshotPreviewModalOpen();
-              }}
-            />
-          </Tooltip>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -132,7 +82,23 @@ const InstanceScreenshotsPage: React.FC = () => {
         <WrapCardGroup
           cardAspectRatio={16 / 9}
           items={screenshots.map((screenshot) => ({
-            cardContent: <ScreenshotsCard screenshot={screenshot} />,
+            as: "button",
+            "aria-label": screenshot.fileName,
+            cardContent: (
+              <Image
+                src={convertFileSrc(screenshot.filePath)}
+                alt={screenshot.fileName}
+                objectFit="cover"
+                w="100%"
+                h="100%"
+                borderRadius="md"
+              />
+            ),
+            isFullClickZone: true,
+            onSelect: () => {
+              setCurrentScreenshot(screenshot);
+              onScreenshotPreviewModalOpen();
+            },
             sx: {
               padding: "0 !important",
             },
@@ -144,7 +110,7 @@ const InstanceScreenshotsPage: React.FC = () => {
       {currentScreenshot && (
         <PreviewScreenshotModal
           screenshot={currentScreenshot}
-          isOpen={isScreenshotPreviewModalOpen}
+          isOpen={isScreenshotPreviewModalOpen || !!queryScreenshot}
           onClose={handleCloseModal}
         />
       )}

@@ -7,7 +7,7 @@ import {
   Tag,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
@@ -22,6 +22,7 @@ import SelectableCard, {
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
+import { useKeyedState } from "@/hooks/keyed-state";
 import {
   GameClientResourceInfo,
   ModLoaderResourceInfo,
@@ -70,34 +71,28 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
   const { config } = useLauncherConfig();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
-  const [versionList, setVersionList] = useState<OptionItemProps[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState<ModLoaderType | "OptiFine">(
-    ModLoaderType.Unknown
+  const [selectedType, setSelectedType] = useKeyedState<
+    ModLoaderType | "OptiFine"
+  >(
+    mode === "optifine" ? "OptiFine" : selectedModLoader.loaderType,
+    [mode, selectedModLoader.loaderType],
+    mode === "optifine" ||
+      selectedModLoader.loaderType !== ModLoaderType.Unknown
   );
-  const [selectedId, setSelectedId] = useState("");
-
+  const [selectedId, setSelectedId] = useKeyedState(
+    mode === "optifine"
+      ? selectedOptiFine?.filename || ""
+      : selectedModLoader.version || "",
+    [mode, selectedModLoader.version, selectedOptiFine?.filename]
+  );
+  const [versions, setVersions] = useKeyedState<
+    (ModLoaderResourceInfo | OptiFineResourceInfo)[]
+  >([], [selectedType, selectedGameVersion.id]);
+  const [isLoading, setIsLoading] = useKeyedState(
+    selectedType !== ModLoaderType.Unknown,
+    [selectedType, selectedGameVersion.id]
+  );
   const selectableCardListRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (mode === "optifine") {
-      setSelectedType("OptiFine");
-      setSelectedId(selectedOptiFine?.filename || "");
-      return;
-    }
-    const externalType = selectedModLoader.loaderType;
-    if (
-      externalType !== ModLoaderType.Unknown &&
-      selectedType !== externalType
-    ) {
-      setSelectedType(externalType);
-
-      if (selectedModLoader.version) {
-        setSelectedId(selectedModLoader.version);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, selectedModLoader.loaderType]);
 
   function isModLoaderResourceInfo(
     version: ModLoaderResourceInfo | OptiFineResourceInfo
@@ -148,58 +143,63 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
         },
       };
     },
-    [primaryColor, t, onSelectModLoader, onSelectOptiFine]
+    [primaryColor, t, setSelectedId, onSelectModLoader, onSelectOptiFine]
   );
 
-  const handleFetchModLoaderVersionList = useCallback(
-    (type: ModLoaderType) => {
-      setIsLoading(true);
-      ResourceService.fetchModLoaderVersionList(selectedGameVersion.id, type)
-        .then((res) => {
-          if (res.status === "success") {
-            setVersionList(
-              res.data
-                .map((loader) => ({
-                  ...loader,
-                  description:
-                    loader.description &&
-                    t("LoaderSelector.releaseDate", {
-                      date: ISOToDatetime(loader.description),
-                    }),
-                }))
-                .map(buildOptionItems)
-            );
-          } else {
-            setVersionList([]);
-            toast({
-              status: "error",
-              title: res.message,
-              description: res.details,
-            });
+  const versionList = versions.map((info) =>
+    buildOptionItems(
+      isModLoaderResourceInfo(info)
+        ? {
+            ...info,
+            description:
+              info.description &&
+              t("LoaderSelector.releaseDate", {
+                date: ISOToDatetime(info.description),
+              }),
           }
-        })
-        .finally(() => setIsLoading(false));
-    },
-    [selectedGameVersion.id, buildOptionItems, t, toast]
+        : info
+    )
   );
 
-  const handleFetchOptiFineVersionList = useCallback(() => {
-    setIsLoading(true);
-    ResourceService.fetchOptiFineVersionList(selectedGameVersion.id)
-      .then((res) => {
-        if (res.status === "success") {
-          setVersionList(res.data.map(buildOptionItems));
-        } else {
-          setVersionList([]);
-          toast({
-            status: "error",
-            title: res.message,
-            description: res.details,
-          });
-        }
-      })
-      .finally(() => setIsLoading(false));
-  }, [selectedGameVersion.id, buildOptionItems, toast]);
+  useEffect(() => {
+    if (selectedType === ModLoaderType.Unknown) return;
+    let cancelled = false;
+    const handleFetchVersionList = () => {
+      const response =
+        selectedType === "OptiFine"
+          ? ResourceService.fetchOptiFineVersionList(selectedGameVersion.id)
+          : ResourceService.fetchModLoaderVersionList(
+              selectedGameVersion.id,
+              selectedType
+            );
+      response
+        .then((r) => {
+          if (cancelled) return;
+          switch (r.status) {
+            case "success": {
+              setVersions(r.data);
+              break;
+            }
+            case "error": {
+              setVersions([]);
+              toast({
+                status: "error",
+                title: r.message,
+                description: r.details,
+              });
+              break;
+            }
+          }
+          setIsLoading(false);
+        })
+        .catch((error: unknown) => console.error(error));
+    };
+
+    handleFetchVersionList();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedType, selectedGameVersion.id, setVersions, setIsLoading, toast]);
 
   let selectableCardItems = modLoaderTypes
     .filter(
@@ -218,7 +218,6 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
               })
           : t("LoaderSelector.noVersionSelected"),
       displayMode: "selector",
-      isLoading,
       isSelected: type === selectedModLoader.loaderType,
       isChevronShown: selectedType !== type,
       onSelect: () => {
@@ -268,7 +267,6 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
               item: selectedModLoader.loaderType,
             }),
       displayMode: "selector",
-      isLoading,
       isSelected: !!selectedOptiFine,
       isDisabled: !(
         selectedModLoader.loaderType === ModLoaderType.Forge ||
@@ -309,17 +307,6 @@ export const LoaderSelector: React.FC<LoaderSelectorProps> = ({
       },
     });
   }
-
-  useEffect(() => {
-    if (selectedType === "OptiFine") {
-      handleFetchOptiFineVersionList();
-    } else if (selectedType !== ModLoaderType.Unknown) {
-      handleFetchModLoaderVersionList(selectedType);
-    } else {
-      setVersionList([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType]);
 
   // Scroll selected item into view when version list changes or selected item changes
   useEffect(() => {

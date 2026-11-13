@@ -16,7 +16,7 @@ const SettingsPage = () => {
     const parent =
       segments.length > 3 ? segments.slice(0, 3).join("/") : lastRecord;
 
-    router.replace(parent);
+    router.replace(parent).catch((error: unknown) => console.error(error));
   }, [history, router]);
 
   return null;

@@ -42,7 +42,7 @@ const InstanceSchematicsPage = () => {
           if (data === GetStateFlag.Cancelled) return;
           setSchematics(data || []);
         })
-        .catch((e) => setSchematics([]));
+        .catch(() => setSchematics([]));
     },
     [getSchematicList]
   );

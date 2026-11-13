@@ -7,6 +7,7 @@ export interface BrandConfig {
   identifier: string;
   deeplinkScheme: string;
   copyright: string;
+  repository: string;
 }
 
 /**
@@ -15,3 +16,4 @@ export interface BrandConfig {
  * by hand; on this branch it carries the Folly Launcher brand.
  */
 export const brand: BrandConfig = brandGen;
+export const DEEPLINK_PREFIX = `${brand.deeplinkScheme}://`;

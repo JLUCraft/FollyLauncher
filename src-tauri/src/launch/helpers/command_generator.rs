@@ -60,9 +60,6 @@ pub async fn generate_launch_command(
     .to_string_lossy()
     .to_string();
 
-  #[allow(unused_mut)]
-  let mut platform_args = Vec::new();
-
   // -----------------------------------------
   // Part 1: Prepare Arguments
   // -----------------------------------------
@@ -180,35 +177,43 @@ pub async fn generate_launch_command(
     client_jar: (!game_config.advanced.workaround.no_jvm_args).then_some(client_jar_path),
     ..Default::default()
   };
-  #[cfg(target_os = "windows")]
-  if let Some(driver_name) = mesa_driver_name(
-    &game_config.advanced.graphics.api,
-    &game_config.advanced.graphics.renderer,
-  ) {
-    if let Some(mesa_loader_path) = get_windows_mesa_loader_path(app, libraries_dir)? {
-      platform_args.push(format!(
-        "-javaagent:{}={}",
-        mesa_loader_path.to_string_lossy(),
-        driver_name
-      ));
-      platform_args.push(format!(
-        "-Dorg.glavo.mesa.loader.nativeDir={}",
-        natives_dir.join("mesa-loader").to_string_lossy()
+  #[cfg(any(target_os = "windows", target_os = "macos"))]
+  let platform_args = {
+    let mut args = Vec::new();
+    #[cfg(target_os = "windows")]
+    if let Some(driver_name) = mesa_driver_name(
+      &game_config.advanced.graphics.api,
+      &game_config.advanced.graphics.renderer,
+    ) {
+      if let Some(mesa_loader_path) = get_windows_mesa_loader_path(app, libraries_dir)? {
+        args.push(format!(
+          "-javaagent:{}={}",
+          mesa_loader_path.to_string_lossy(),
+          driver_name
+        ));
+        args.push(format!(
+          "-Dorg.glavo.mesa.loader.nativeDir={}",
+          natives_dir.join("mesa-loader").to_string_lossy()
+        ));
+      }
+    }
+
+    #[cfg(target_os = "macos")]
+    if game_config.advanced.graphics.api == GraphicsApi::Vulkan
+      && game_config.advanced.graphics.renderer != "moltenvk"
+      && find_vulkan_icd_file(&game_config.advanced.graphics.renderer).is_some()
+      && let Some(libvulkan_path) = find_macos_libvulkan()
+    {
+      args.push(format!(
+        "-Dorg.lwjgl.vulkan.libname={}",
+        libvulkan_path.to_string_lossy()
       ));
     }
-  }
 
-  #[cfg(target_os = "macos")]
-  if game_config.advanced.graphics.api == GraphicsApi::Vulkan
-    && game_config.advanced.graphics.renderer != "moltenvk"
-    && find_vulkan_icd_file(&game_config.advanced.graphics.renderer).is_some()
-    && let Some(libvulkan_path) = find_macos_libvulkan()
-  {
-    platform_args.push(format!(
-      "-Dorg.lwjgl.vulkan.libname={}",
-      libvulkan_path.to_string_lossy()
-    ));
-  }
+    args
+  };
+  #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+  let platform_args = Vec::new();
 
   // login via authlib-injector
   if matches!(

@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import {
   sharedModals,
   type OpenSharedModal,
@@ -8,11 +14,16 @@ import { useLauncherConfig } from "@/contexts/config";
 
 interface SharedModalContextType {
   openSharedModal: OpenSharedModal;
-  closeSharedModal: (key: string) => void;
+  closeSharedModal: (key: string, modalId?: number) => void;
   openGenericConfirmDialog: (
     params: SharedModalParams<"generic-confirm">
   ) => void;
-  modalStates: Record<string, React.ReactElement>;
+  modalStates: {
+    key: string;
+    modalId: number;
+    element: React.ReactElement;
+    onCloseCallback?: () => void;
+  }[];
 }
 
 export const SharedModalContext = createContext<
@@ -23,35 +34,56 @@ export const SharedModalContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [modalStates, setModalStates] = useState<
-    Record<string, React.ReactElement>
-  >({});
+    SharedModalContextType["modalStates"]
+  >([]);
+  const nextModalId = useRef(0);
   const { config } = useLauncherConfig();
 
-  const closeSharedModal = useCallback((key: string) => {
-    setModalStates((prev) => {
-      const { [key]: _, ...newStates } = prev;
-      return newStates;
-    });
+  const closeSharedModal = useCallback((key: string, modalId?: number) => {
+    setModalStates((prev) =>
+      prev.filter(
+        (modal) =>
+          modal.key !== key ||
+          (modalId !== undefined && modal.modalId !== modalId)
+      )
+    );
   }, []);
 
   const openSharedModal = useCallback<OpenSharedModal>(
     (...args) => {
-      const [key, params] = args;
+      const [key, params, options] = args;
+      const nextId = nextModalId.current++;
+      const { onCloseCallback, ...modalParams } = params ?? {};
       type Props = SharedModalParams<typeof key> & {
         isOpen: boolean;
         onClose: () => void;
       };
       const Modal = sharedModals[key] as React.ComponentType<Props>;
-      const props = {
-        ...params,
-        isOpen: true,
-        onClose: () => closeSharedModal(key),
-      } as Props;
-      setModalStates((prev) => ({
-        ...prev,
-        [key]: React.createElement(Modal, { ...props, key }),
-      }));
-      logger.info("Opened shared modal:", key, params);
+      setModalStates((prev) => {
+        const index = prev.map((modal) => modal.key).lastIndexOf(key);
+        const replace = !options?.stack && index !== -1;
+        const modalId = replace ? prev[index].modalId : nextId;
+        const props = {
+          ...modalParams,
+          isOpen: true,
+          onClose: () => {
+            closeSharedModal(key, modalId);
+            onCloseCallback?.();
+          },
+        } as Props;
+        const modal = {
+          key,
+          modalId,
+          onCloseCallback,
+          element: React.createElement(Modal, { ...props, key: modalId }),
+        };
+        return replace
+          ? prev.map((previous, i) => (i === index ? modal : previous))
+          : [...prev, modal];
+      });
+      logger
+        .info("Opened shared modal:", key, params)
+        .catch((error: unknown) => console.error(error));
     },
     [closeSharedModal]
   );

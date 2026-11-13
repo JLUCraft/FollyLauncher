@@ -127,7 +127,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
     if (item.onClick) {
       item.onClick();
     } else if (item.route) {
-      router.push(item.route);
+      router.push(item.route).catch((error: unknown) => console.error(error));
     }
   };
 

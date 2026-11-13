@@ -83,7 +83,9 @@ const AddAndImportInstancePage = () => {
       icon: LuFolderPlus,
       label: t("AddAndImportInstancePage.modpackOperations.fromdisk"),
       onClick: () => {
-        handleImportModpackFromDisk();
+        handleImportModpackFromDisk().catch((error: unknown) =>
+          console.error(error)
+        );
       },
     },
     {

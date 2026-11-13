@@ -1,0 +1,25 @@
+diff --git a/dist/types/prop-types.d.ts b/dist/types/prop-types.d.ts
+index e44346f429d6ce44f0d219e2cb8b091fc46867be..7053eb5d4c3768763366d846cbb0936efbdeb158 100644
+--- a/dist/types/prop-types.d.ts
++++ b/dist/types/prop-types.d.ts
+@@ -11,17 +11,9 @@ export interface AriaValidationProps {
+ export interface IdProps {
+     id?: string;
+ }
+-export interface InputDOMEvents {
+-    onCopy?: React.ClipboardEventHandler<HTMLInputElement>;
+-    onCut?: React.ClipboardEventHandler<HTMLInputElement>;
+-    onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
+-    onCompositionStart?: React.CompositionEventHandler<HTMLInputElement>;
+-    onCompositionEnd?: React.CompositionEventHandler<HTMLInputElement>;
+-    onCompositionUpdate?: React.CompositionEventHandler<HTMLInputElement>;
+-    onSelect?: React.ReactEventHandler<HTMLInputElement>;
+-    onBeforeInput?: React.FormEventHandler<HTMLInputElement>;
+-    onInput?: React.FormEventHandler<HTMLInputElement>;
+-}
++export interface InputDOMEvents extends Pick<React.DOMAttributes<HTMLInputElement>,
++ "onCopy" | "onCut" | "onPaste" | "onCompositionStart" | "onCompositionEnd" |
++ "onCompositionUpdate" | "onSelect" | "onBeforeInput" | "onInput"> {}
+ export interface InputDOMProps extends IdProps, InputDOMEvents {
+     autoComplete?: string;
+     maxLength?: number;

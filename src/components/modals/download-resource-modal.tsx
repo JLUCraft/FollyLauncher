@@ -28,7 +28,6 @@ import ResourceDownloader from "@/components/resource-downloader";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
-import { InstanceSummary } from "@/models/instance/misc";
 
 interface DownloadResourceModalProps extends Omit<ModalProps, "children"> {
   initialResourceType?: OtherResourceType;
@@ -45,11 +44,15 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
   const { t } = useTranslation();
   const { isZh } = useLauncherConfig();
   const router = useRouter();
-  const { getInstanceList } = useGlobalData();
+  const { getInstanceList, instanceList } = useGlobalData();
 
   const [selectedResourceType, setSelectedResourceType] =
     useState<OtherResourceType>(initialResourceType);
-  const [curInstance, setCurInstance] = useState<InstanceSummary | undefined>();
+  const { id } = router.query;
+  const instanceId = Array.isArray(id) ? id[0] : id;
+  const curInstance = instanceList?.find(
+    (instance) => instance.id === instanceId
+  );
 
   const resourceTypeList: { key: OtherResourceType; icon: IconType }[] = [
     { key: OtherResourceType.Mod, icon: LuSquareLibrary },
@@ -60,14 +63,8 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
   ];
 
   useEffect(() => {
-    const instanceList = getInstanceList() || [];
-    const { id } = router.query;
-    const instanceId = Array.isArray(id) ? id[0] : id;
-    const currentInstance = instanceList.find(
-      (instance) => instance.id === instanceId
-    );
-    setCurInstance(currentInstance);
-  }, [getInstanceList, router.query]);
+    getInstanceList();
+  }, [getInstanceList]);
 
   return (
     <Modal

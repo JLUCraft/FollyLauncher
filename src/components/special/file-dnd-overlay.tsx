@@ -134,6 +134,7 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
   const [dragState, setDragState] = useState<{
     paths: string[];
     positionX: number;
+    matches: ReturnType<typeof getMatches>;
   } | null>(null);
   const entriesRef = useRef<Entry[]>([]);
   const registryIndexRef = useRef<Map<string, IndexedItem[]>>(new Map());
@@ -157,9 +158,7 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
     registryIndexRef.current = rebuildRegistryIndex(entriesRef.current);
   }, []);
 
-  const matches = dragState
-    ? getMatches(dragState.paths, registryIndexRef.current)
-    : [];
+  const matches = dragState?.matches || [];
   const activeIndex = dragState
     ? getMatchIndex(matches.length, dragState.positionX)
     : -1;
@@ -179,11 +178,13 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         if (payload.type === "over") {
+          const registry = registryIndexRef.current;
           setDragState((current) =>
             current
               ? {
                   ...current,
                   positionX: payload.position.x,
+                  matches: getMatches(current.paths, registry),
                 }
               : current
           );
@@ -199,6 +200,7 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
           setDragState({
             paths: payload.paths,
             positionX: payload.position.x,
+            matches: getMatches(payload.paths, registryIndexRef.current),
           });
           return;
         }
@@ -213,7 +215,9 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
           match.registry.multiple ? match.paths : [match.paths[0]]
         );
         Promise.resolve(handleDrop).catch((error) => {
-          logger.error("Failed to handle dropped files:", error);
+          logger
+            .error("Failed to handle dropped files:", error)
+            .catch((error: unknown) => console.error(error));
         });
       });
 
@@ -224,7 +228,9 @@ export const FileDnDProvider: React.FC<{ children: React.ReactNode }> = ({
 
       unlistenRef.current = unlisten;
     })().catch((error) => {
-      logger.error("Failed to listen to drag-drop events:", error);
+      logger
+        .error("Failed to listen to drag-drop events:", error)
+        .catch((error: unknown) => console.error(error));
     });
 
     return () => {

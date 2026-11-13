@@ -55,6 +55,8 @@ import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
+import { useKeyedState } from "@/hooks/keyed-state";
+import { SubmitDownloadTask } from "@/models/download";
 import { InstanceSummary } from "@/models/instance/misc";
 import {
   GameClientResourceInfo,
@@ -62,10 +64,9 @@ import {
   OtherResourceInfo,
   OtherResourceVersionPack,
 } from "@/models/resource";
-import { TaskParam, TaskTypeEnums } from "@/models/task";
+import { DownloadService } from "@/services/download";
 import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
-import { TaskService } from "@/services/task";
 import { ISOToDate } from "@/utils/datetime";
 import { getResourceCompatibleModLoader, translateTag } from "@/utils/resource";
 import { formatDisplayCount, sanitizeFileName } from "@/utils/string";
@@ -109,21 +110,84 @@ const DownloadSpecificResourceModal: React.FC<
     : undefined;
 
   const [versionLabels, setVersionLabels] = useState<string[]>([]);
-  const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>("");
-  const [selectedModLoader, setSelectedModLoader] = useState<
-    ModLoaderType | "All"
-  >(curInstanceResourceModLoader || "All");
-  const [isVersionPacksLoading, setIsLoadingVersionPacks] =
-    useState<boolean>(true);
-  const [versionPacks, setVersionPacks] = useState<OtherResourceVersionPack[]>(
-    []
+  const [selectedVersionLabel, setSelectedVersionLabel] = useKeyedState<string>(
+    versionLabels.includes(curInstanceMajorVersion || "All")
+      ? curInstanceMajorVersion || "All"
+      : "All",
+    [curInstanceMajorVersion, versionLabels]
   );
+  const [selectedModLoader, setSelectedModLoader] = useKeyedState<
+    ModLoaderType | "All"
+  >(curInstanceResourceModLoader || "All", [curInstanceResourceModLoader]);
+  const [isVersionPacksLoading, setIsLoadingVersionPacks] =
+    useKeyedState<boolean>(true, [
+      resource.id,
+      resource.source,
+      resource.type,
+      modalProps.isOpen,
+    ]);
+  const [versionPacks, setVersionPacks] = useKeyedState<
+    OtherResourceVersionPack[]
+  >([], [resource.id, resource.source, resource.type, modalProps.isOpen]);
+  const getRecommendedFiles = useMemo((): OtherResourceFileInfo[] => {
+    if (!curInstanceVersion || !versionPacks.length) return [];
+
+    const matchingPacks = versionPacks.filter(
+      (pack) => pack.name === curInstanceVersion
+    );
+    if (!matchingPacks.length) return [];
+
+    let candidateFiles: OtherResourceFileInfo[] = [];
+    if (
+      resource.type === OtherResourceType.Mod &&
+      !resource.tags.includes("datapack")
+    ) {
+      if (curInstanceResourceModLoader) {
+        for (const pack of matchingPacks) {
+          const matchingFiles = pack.items.filter(
+            (item) =>
+              item.loader &&
+              item.loader.toLowerCase() ===
+                curInstanceResourceModLoader.toLowerCase()
+          );
+          candidateFiles.push(...matchingFiles);
+        }
+      }
+    } else {
+      for (const pack of matchingPacks) {
+        candidateFiles.push(...pack.items);
+      }
+    }
+
+    candidateFiles = candidateFiles.filter(
+      (item) => item.releaseType === "beta" || item.releaseType === "release"
+    );
+    if (!candidateFiles.length) return [];
+
+    candidateFiles.sort(
+      (a, b) => new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime()
+    );
+    return [candidateFiles[0]];
+  }, [
+    curInstanceVersion,
+    versionPacks,
+    resource.type,
+    resource.tags,
+    curInstanceResourceModLoader,
+  ]);
   const [selectedItem, setSelectedItem] =
-    useState<OtherResourceFileInfo | null>(null);
+    useKeyedState<OtherResourceFileInfo | null>(
+      modalProps.isOpen ? (getRecommendedFiles[0] ?? null) : null,
+      [modalProps.isOpen, getRecommendedFiles]
+    );
 
   const { getGameVersionList, isGameVersionListLoading, getInstanceList } =
     useGlobalData();
-  const { openSharedModal, closeSharedModal } = useSharedModals();
+  const { openSharedModal, closeSharedModal, modalStates } = useSharedModals();
+  const hasParentResource =
+    modalStates.filter(({ key }) => key === "download-specific-resource")
+      .length > 1;
+
   const {
     isOpen: isInstanceSelectorPopoverOpen,
     onOpen: onInstanceSelectorPopoverOpen,
@@ -164,20 +228,18 @@ const DownloadSpecificResourceModal: React.FC<
     release: "green.500",
   };
 
-  const handleScheduleProgressiveTaskGroup = useCallback(
-    (taskGroup: string, params: TaskParam[]) => {
-      TaskService.scheduleProgressiveTaskGroup(taskGroup, params).then(
-        (response) => {
-          // success toast will now be called by task context group listener
-          if (response.status !== "success") {
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-          }
-        }
-      );
+  const handleSubmitDownloadGroup = useCallback(
+    (taskGroup: string, tasks: SubmitDownloadTask[]) => {
+      DownloadService.submitGroup({
+        name: taskGroup,
+        tasks,
+        autoResume: true,
+      }).catch((error) => {
+        toast({
+          title: String(error),
+          status: "error",
+        });
+      });
     },
     [toast]
   ); // this is because TaskContext is now inside the SharedModalContext, use a separated function to avoid circular dependency
@@ -234,14 +296,18 @@ const DownloadSpecificResourceModal: React.FC<
     (action: () => void) => {
       if (!selectedItem) return;
       if (selectedItem.dependencies.length > 0 && !isModpack) {
-        openSharedModal("alert-resource-dependency", {
-          dependencies: selectedItem.dependencies,
-          downloadSource: resource.source as OtherResourceSource,
-          curInstanceMajorVersion,
-          curInstanceVersion,
-          curInstanceModLoader,
-          downloadOriginalResource: action,
-        });
+        openSharedModal(
+          "alert-resource-dependency",
+          {
+            dependencies: selectedItem.dependencies,
+            downloadSource: resource.source as OtherResourceSource,
+            curInstanceMajorVersion,
+            curInstanceVersion,
+            curInstanceModLoader,
+            downloadOriginalResource: action,
+          },
+          { stack: true }
+        );
       } else {
         action();
       }
@@ -285,17 +351,22 @@ const DownloadSpecificResourceModal: React.FC<
       if (!savepath) return;
       // use "modpack-wo-install" group to prevent auto-triggering install
       const taskGroup = isModpack ? "modpack-wo-install" : resource.type;
-      handleScheduleProgressiveTaskGroup(taskGroup, [
+      handleSubmitDownloadGroup(taskGroup, [
         {
-          src: selectedItem.downloadUrl,
+          name: fileName,
+          executor: "download",
+          spec: { url: selectedItem.downloadUrl },
           dest: savepath,
           sha1: selectedItem.sha1,
-          taskType: TaskTypeEnums.Download,
         },
       ]);
-      closeSharedModal("download-specific-resource");
-      if (isModpack) closeSharedModal("download-modpack");
-      router.push("/downloads");
+      modalProps.onClose();
+      if (!hasParentResource) {
+        closeSharedModal(isModpack ? "download-modpack" : "download-resource");
+        router
+          .push("/downloads")
+          .catch((error: unknown) => console.error(error));
+      }
     });
   }, [
     selectedItem,
@@ -303,9 +374,11 @@ const DownloadSpecificResourceModal: React.FC<
     getDefaultDownloadPath,
     getSelectedFileName,
     isModpack,
+    hasParentResource,
     resource.type,
-    handleScheduleProgressiveTaskGroup,
+    handleSubmitDownloadGroup,
     closeSharedModal,
+    modalProps,
     router,
   ]);
 
@@ -321,12 +394,13 @@ const DownloadSpecificResourceModal: React.FC<
           response.data,
           getSelectedFileName(selectedItem)
         );
-        handleScheduleProgressiveTaskGroup(resource.type, [
+        handleSubmitDownloadGroup(resource.type, [
           {
-            src: selectedItem.downloadUrl,
+            name: getSelectedFileName(selectedItem),
+            executor: "download",
+            spec: { url: selectedItem.downloadUrl },
             dest: destPath,
             sha1: selectedItem.sha1,
-            taskType: TaskTypeEnums.Download,
           },
         ]);
         modalProps.onClose();
@@ -343,7 +417,7 @@ const DownloadSpecificResourceModal: React.FC<
       dirType,
       getSelectedFileName,
       resource.type,
-      handleScheduleProgressiveTaskGroup,
+      handleSubmitDownloadGroup,
       modalProps,
       toast,
     ]
@@ -352,7 +426,10 @@ const DownloadSpecificResourceModal: React.FC<
   const handleInstallToCurrentInstance = useCallback(() => {
     if (!routeInstanceId) return;
     const instance = getInstanceList()?.find((i) => i.id === routeInstanceId);
-    if (instance) handleInstallToInstance(instance);
+    if (instance)
+      handleInstallToInstance(instance).catch((error: unknown) =>
+        console.error(error)
+      );
   }, [routeInstanceId, getInstanceList, handleInstallToInstance]);
 
   const handleInstallModpack = useCallback(async () => {
@@ -361,70 +438,28 @@ const DownloadSpecificResourceModal: React.FC<
     if (!cacheDir) return;
     const fileName = sanitizeFileName(selectedItem.fileName);
     const destPath = await join(cacheDir, fileName);
-    handleScheduleProgressiveTaskGroup("modpack", [
+    handleSubmitDownloadGroup("modpack", [
       {
-        src: selectedItem.downloadUrl,
+        name: fileName,
+        executor: "download",
+        spec: { url: selectedItem.downloadUrl },
         dest: destPath,
         sha1: selectedItem.sha1,
-        taskType: TaskTypeEnums.Download,
       },
     ]);
-    closeSharedModal("download-specific-resource");
-    closeSharedModal("download-modpack");
-    router.push("/downloads");
+    modalProps.onClose();
+    if (!hasParentResource) {
+      closeSharedModal("download-modpack");
+      router.push("/downloads").catch((error: unknown) => console.error(error));
+    }
   }, [
     selectedItem,
     config.download.cache.directory,
-    handleScheduleProgressiveTaskGroup,
+    hasParentResource,
+    handleSubmitDownloadGroup,
     closeSharedModal,
+    modalProps,
     router,
-  ]);
-
-  const getRecommendedFiles = useMemo((): OtherResourceFileInfo[] => {
-    if (!curInstanceVersion || !versionPacks.length) return [];
-
-    const matchingPacks = versionPacks.filter(
-      (pack) => pack.name === curInstanceVersion
-    );
-    if (!matchingPacks.length) return [];
-
-    let candidateFiles: OtherResourceFileInfo[] = [];
-    if (
-      resource.type === OtherResourceType.Mod &&
-      !resource.tags.includes("datapack")
-    ) {
-      if (curInstanceResourceModLoader) {
-        for (const pack of matchingPacks) {
-          const matchingFiles = pack.items.filter(
-            (item) =>
-              item.loader &&
-              item.loader.toLowerCase() ===
-                curInstanceResourceModLoader.toLowerCase()
-          );
-          candidateFiles.push(...matchingFiles);
-        }
-      }
-    } else {
-      for (const pack of matchingPacks) {
-        candidateFiles.push(...pack.items);
-      }
-    }
-
-    candidateFiles = candidateFiles.filter(
-      (item) => item.releaseType === "beta" || item.releaseType === "release"
-    );
-    if (!candidateFiles.length) return [];
-
-    candidateFiles.sort(
-      (a, b) => new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime()
-    );
-    return [candidateFiles[0]];
-  }, [
-    curInstanceVersion,
-    versionPacks,
-    resource.type,
-    resource.tags,
-    curInstanceResourceModLoader,
   ]);
 
   const shouldShowRecommendedSection = (): boolean => {
@@ -443,23 +478,26 @@ const DownloadSpecificResourceModal: React.FC<
   };
 
   const fetchVersionLabels = useCallback(() => {
-    getGameVersionList().then((list) => {
-      if (list && list !== GetStateFlag.Cancelled) {
-        const versionList = list
-          .filter(
-            (version: GameClientResourceInfo) => version.gameType === "release"
-          )
-          .map((version: GameClientResourceInfo) => version.id);
-        const majorVersions = [
-          ...new Set(
-            versionList.map((v) => v.split(".").slice(0, 2).join("."))
-          ),
-        ];
-        setVersionLabels(["All", ...majorVersions]);
-      } else {
-        setVersionLabels([]);
-      }
-    });
+    getGameVersionList()
+      .then((list) => {
+        if (list && list !== GetStateFlag.Cancelled) {
+          const versionList = list
+            .filter(
+              (version: GameClientResourceInfo) =>
+                version.gameType === "release"
+            )
+            .map((version: GameClientResourceInfo) => version.id);
+          const majorVersions = [
+            ...new Set(
+              versionList.map((v) => v.split(".").slice(0, 2).join("."))
+            ),
+          ];
+          setVersionLabels(["All", ...majorVersions]);
+        } else {
+          setVersionLabels([]);
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [getGameVersionList]);
 
   const handleFetchResourceVersionPacks = useCallback(
@@ -469,7 +507,6 @@ const DownloadSpecificResourceModal: React.FC<
       gameVersions: string[],
       downloadSource: OtherResourceSource
     ) => {
-      setIsLoadingVersionPacks(true);
       ResourceService.fetchResourceVersionPacks(
         resourceId,
         modLoader,
@@ -492,9 +529,10 @@ const DownloadSpecificResourceModal: React.FC<
         })
         .finally(() => {
           setIsLoadingVersionPacks(false);
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     },
-    [resource.type, toast]
+    [resource.type, setIsLoadingVersionPacks, setVersionPacks, toast]
   );
 
   const reFetchVersionPacks = useCallback(() => {
@@ -505,7 +543,7 @@ const DownloadSpecificResourceModal: React.FC<
       "All",
       ["All"],
       resource.source
-    );
+    ).catch((error: unknown) => console.error(error));
   }, [resource.id, resource.source, handleFetchResourceVersionPacks]);
 
   const buildModLoaderItem = (modLoader: string) => {
@@ -528,9 +566,7 @@ const DownloadSpecificResourceModal: React.FC<
   };
 
   const renderSection = (
-    pack: OtherResourceVersionPack,
-    index: number,
-    initialIsOpen: boolean = false
+    ...[pack, , initialIsOpen]: [OtherResourceVersionPack, number, boolean]
   ) => {
     return (
       <Section
@@ -545,9 +581,9 @@ const DownloadSpecificResourceModal: React.FC<
           <OptionItemGroup
             maxFirstVisibleItems={20}
             showMoreStep={20}
-            items={pack.items.map((item) => (
+            items={pack.items.map((item, index) => (
               <OptionItem
-                key={item.name}
+                key={index}
                 title={item.name}
                 description={
                   <Grid
@@ -616,31 +652,12 @@ const DownloadSpecificResourceModal: React.FC<
   };
 
   useEffect(() => {
-    setSelectedModLoader(curInstanceResourceModLoader || "All");
-  }, [curInstanceResourceModLoader]);
-
-  useEffect(() => {
-    const initialVersion = curInstanceMajorVersion || "All";
-    if (versionLabels.length > 0 && versionLabels.includes(initialVersion)) {
-      setSelectedVersionLabel(initialVersion);
-    } else {
-      setSelectedVersionLabel("All");
-    }
-  }, [curInstanceMajorVersion, versionLabels]);
-
-  useEffect(() => {
     fetchVersionLabels();
   }, [fetchVersionLabels]);
 
   useEffect(() => {
     reFetchVersionPacks();
   }, [reFetchVersionPacks]);
-
-  useEffect(() => {
-    setSelectedItem(
-      modalProps.isOpen ? (getRecommendedFiles[0] ?? null) : null
-    );
-  }, [modalProps.isOpen, getRecommendedFiles]);
 
   return (
     <Modal
@@ -727,7 +744,11 @@ const DownloadSpecificResourceModal: React.FC<
                     fontSize="xs"
                     color={`${primaryColor}.500`}
                     onClick={() => {
-                      resource.websiteUrl && openUrl(resource.websiteUrl);
+                      if (resource.websiteUrl) {
+                        openUrl(resource.websiteUrl).catch((error: unknown) =>
+                          console.error(error)
+                        );
+                      }
                     }}
                   >
                     {resource.source}
@@ -741,10 +762,11 @@ const DownloadSpecificResourceModal: React.FC<
                     fontSize="xs"
                     color={`${primaryColor}.500`}
                     onClick={() => {
-                      resource.mcmodId &&
+                      if (resource.mcmodId) {
                         openUrl(
                           `https://www.mcmod.cn/class/${resource.mcmodId}.html`
-                        );
+                        ).catch((error: unknown) => console.error(error));
+                      }
                     }}
                   >
                     MCMod
@@ -767,11 +789,12 @@ const DownloadSpecificResourceModal: React.FC<
               />
               <MCVersionNumberHelper placement="bottom-start" />
               <IconButton
-                aria-label={t("General.refresh")}
+                aria-label="refresh-version-packs"
                 icon={<LuRefreshCw size={14} />}
                 size="xs"
                 variant="ghost"
                 onClick={() => {
+                  setIsLoadingVersionPacks(true);
                   fetchVersionLabels();
                   reFetchVersionPacks();
                 }}
@@ -786,7 +809,7 @@ const DownloadSpecificResourceModal: React.FC<
                     className="no-scrollbar"
                     selectedKeys={[selectedModLoader]}
                     onClick={(value) =>
-                      setSelectedModLoader(value as ModLoaderType | "All")
+                      setSelectedModLoader(value as "All" | ModLoaderType)
                     }
                     direction="row"
                     size="xs"
@@ -874,7 +897,9 @@ const DownloadSpecificResourceModal: React.FC<
                     withMenu={false}
                     onSelectInstance={(instance) => {
                       onInstanceSelectorPopoverClose();
-                      handleInstallToInstance(instance);
+                      handleInstallToInstance(instance).catch(
+                        (error: unknown) => console.error(error)
+                      );
                     }}
                   />
                 </PopoverBody>

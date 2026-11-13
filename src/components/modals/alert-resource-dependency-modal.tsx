@@ -14,7 +14,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
@@ -23,6 +23,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource } from "@/enums/resource";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { OtherResourceDependency } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
@@ -56,13 +57,15 @@ const AlertResourceDependencyModal: React.FC<
   const primaryColor = config.appearance.theme.primaryColor;
   const { openSharedModal } = useSharedModals();
 
-  const [dependencyList, setDependencyList] = useState<
+  const [dependencyList, setDependencyList] = useKeyedState<
     OtherResourceDependency[]
-  >([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  >([], [dependencies, downloadSource]);
+  const [isLoading, setIsLoading] = useKeyedState<boolean>(true, [
+    dependencies,
+    downloadSource,
+  ]);
 
   const fetchDependencyResources = useCallback(async () => {
-    setIsLoading(true);
     try {
       const promises = dependencies.map((dep) =>
         ResourceService.fetchRemoteResourceById(downloadSource, dep.resourceId)
@@ -87,10 +90,10 @@ const AlertResourceDependencyModal: React.FC<
     } finally {
       setIsLoading(false);
     }
-  }, [dependencies, downloadSource]);
+  }, [dependencies, downloadSource, setDependencyList, setIsLoading]);
 
   useEffect(() => {
-    fetchDependencyResources();
+    fetchDependencyResources().catch((error: unknown) => console.error(error));
   }, [fetchDependencyResources]);
 
   const renderDependencyItem = (dependency: OtherResourceDependency) => {
@@ -189,12 +192,16 @@ const AlertResourceDependencyModal: React.FC<
           if (dependencies.length < 2) {
             modalProps.onClose();
           }
-          openSharedModal("download-specific-resource", {
-            resource,
-            curInstanceMajorVersion,
-            curInstanceVersion,
-            curInstanceModLoader,
-          });
+          openSharedModal(
+            "download-specific-resource",
+            {
+              resource,
+              curInstanceMajorVersion,
+              curInstanceVersion,
+              curInstanceModLoader,
+            },
+            { stack: true }
+          );
         }}
         fontWeight={400}
       />

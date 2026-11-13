@@ -21,7 +21,6 @@ import {
   StepTitle,
   Stepper,
   Text,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -35,6 +34,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { LaunchServiceError } from "@/enums/service-error";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { Player } from "@/models/account";
 import { InstanceSummary } from "@/models/instance/misc";
 import { ResponseError } from "@/models/response";
@@ -70,11 +70,16 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
   const { openSharedModal, openGenericConfirmDialog, closeSharedModal } =
     useSharedModals();
 
-  const [pickedInstance, setPickedInstance] = useState<InstanceSummary>();
-  const [pickedPlayer, setPickedPlayer] = useState<Player>();
+  const [pickedInstance, setPickedInstance] = useKeyedState<
+    InstanceSummary | undefined
+  >(undefined, [instanceId]);
+  const [pickedPlayer, setPickedPlayer] = useKeyedState<Player | undefined>(
+    undefined,
+    [playerId]
+  );
   const [errorPaused, setErrorPaused] = useState<boolean>(false);
   const [errorDesc, setErrorDesc] = useState<string>("");
-  const [activeStep, setActiveStep] = useState<number>(-1);
+  const [activeStep, setActiveStep] = useState<number>(0);
 
   const previousStep = useRef<number>(-1);
   const candidatePlayers = getPlayerList();
@@ -105,41 +110,26 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
   const effectiveSelectedPlayer =
     pickedPlayer || requestedPlayer || (!playerId ? selectedPlayer : undefined);
 
-  const {
-    isOpen: isSelectPlayerModalOpen,
-    onOpen: onSelectPlayerModalOpen,
-    onClose: onSelectPlayerModalClose,
-  } = useDisclosure();
-  const {
-    isOpen: isSelectInstanceModalOpen,
-    onOpen: onSelectInstanceModalOpen,
-    onClose: onSelectInstanceModalClose,
-  } = useDisclosure();
-
-  // Reset the local instance override when a new instance request arrives.
-  useEffect(() => {
-    setPickedInstance(undefined);
-  }, [instanceId]);
-
-  // Reset the local player override when a new player request arrives.
-  useEffect(() => {
-    setPickedPlayer(undefined);
-  }, [playerId]);
+  const isSelectInstanceModalOpen =
+    props.isOpen && !!candidateInstances?.length && !effectiveInstance;
+  const isSelectPlayerModalOpen =
+    props.isOpen &&
+    !!effectiveInstance &&
+    !!candidatePlayers?.length &&
+    !effectiveSelectedPlayer;
 
   const handleCloseModalWithCancel = useCallback(() => {
-    LaunchService.cancelLaunchProcess();
-    setErrorPaused(false);
-    onSelectPlayerModalClose();
-    onSelectInstanceModalClose();
+    LaunchService.cancelLaunchProcess().catch((error: unknown) =>
+      console.error(error)
+    );
     props.onClose();
-  }, [onSelectInstanceModalClose, onSelectPlayerModalClose, props]);
+  }, [props]);
 
   const handleSelectPlayer = useCallback(
     (player: Player) => {
       setPickedPlayer(player);
-      onSelectPlayerModalClose();
     },
-    [onSelectPlayerModalClose]
+    [setPickedPlayer]
   );
 
   const handleSelectInstance = useCallback(
@@ -148,9 +138,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
       if (!shouldPickInstance || !selectedInstance) {
         update("states.shared.selectedInstanceId", instance.id);
       }
-      onSelectInstanceModalClose();
     },
-    [onSelectInstanceModalClose, selectedInstance, shouldPickInstance, update]
+    [selectedInstance, setPickedInstance, shouldPickInstance, update]
   );
 
   const launchProcessSteps: Array<{
@@ -175,7 +164,9 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
               title: t("NoSuitableJavaDialog.title"),
               body: t("NoSuitableJavaDialog.body"),
               onOKCallback: () => {
-                router.push("/settings/java");
+                router
+                  .push("/settings/java")
+                  .catch((error: unknown) => console.error(error));
                 closeSharedModal("launch");
               },
             });
@@ -195,7 +186,9 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
           });
           if (error.raw_error === LaunchServiceError.GameFilesIncomplete) {
             handleCloseModalWithCancel();
-            router.push("/downloads");
+            router
+              .push("/downloads")
+              .catch((error: unknown) => console.error(error));
           }
         },
       },
@@ -218,23 +211,29 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
                 setErrorDesc(response.details);
               }
             });
-          AccountService.refreshPlayer(player.id).then((response) => {
-            if (response.status !== "success") {
-              openSharedModal("relogin", {
-                player,
-                onSuccess: () => {
-                  reValidate();
-                },
-                onError: () => {
-                  setErrorPaused(true);
-                  setErrorDesc(response.details);
-                  logger.error(response.details);
-                },
-              });
-            } else {
-              reValidate();
-            }
-          });
+          AccountService.refreshPlayer(player.id)
+            .then((response) => {
+              if (response.status !== "success") {
+                openSharedModal("relogin", {
+                  player,
+                  onSuccess: () => {
+                    reValidate().catch((error: unknown) =>
+                      console.error(error)
+                    );
+                  },
+                  onError: () => {
+                    setErrorPaused(true);
+                    setErrorDesc(response.details);
+                    logger
+                      .error(response.details)
+                      .catch((error: unknown) => console.error(error));
+                  },
+                });
+              } else {
+                reValidate().catch((error: unknown) => console.error(error));
+              }
+            })
+            .catch((error: unknown) => console.error(error));
         },
         onErrCallback: () => {},
       },
@@ -272,11 +271,12 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
         status: "warning",
       });
       handleCloseModalWithCancel();
-      void router.push(LAUNCH_INSTANCE_SETUP_PATH);
+      router
+        .push(LAUNCH_INSTANCE_SETUP_PATH)
+        .catch((error: unknown) => console.error(error));
       return;
     }
     if (!effectiveInstance) {
-      onSelectInstanceModalOpen();
       return;
     }
 
@@ -286,12 +286,13 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
         title: t("LaunchProcessModal.toast.noSelectedPlayer"),
         status: "warning",
       });
-      void router.push(LAUNCH_ACCOUNT_SETUP_PATH);
+      router
+        .push(LAUNCH_ACCOUNT_SETUP_PATH)
+        .catch((error: unknown) => console.error(error));
       handleCloseModalWithCancel();
       return;
     }
     if (!effectiveSelectedPlayer) {
-      onSelectPlayerModalOpen();
       return;
     }
     // Update selectedPlayerId because validateSelectedPlayer will read it from backend config state later.
@@ -300,14 +301,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
       return;
     }
 
-    if (activeStep < 0) {
-      setActiveStep(0);
-      return;
-    }
-
     if (activeStep >= launchProcessSteps.length) {
       // Final launching state, we don't use handleCloseModalWithCancel (it includes cancel logic)
-      setErrorPaused(false);
       props.onClose();
       return;
     }
@@ -315,20 +310,25 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
 
     if (previousStep.current !== activeStep) {
       previousStep.current = activeStep;
-      currentStep.function().then((response) => {
-        if (response.status === "success") {
-          if (currentStep.isOK(response.data)) {
-            setActiveStep(activeStep + 1);
+      currentStep
+        .function()
+        .then((response) => {
+          if (response.status === "success") {
+            if (currentStep.isOK(response.data)) {
+              setActiveStep(activeStep + 1);
+            } else {
+              currentStep.onResCallback(response.data);
+            }
           } else {
-            currentStep.onResCallback(response.data);
+            setErrorPaused(true);
+            setErrorDesc(response.details);
+            currentStep.onErrCallback(response);
+            logger
+              .error(response.details)
+              .catch((error: unknown) => console.error(error));
           }
-        } else {
-          setErrorPaused(true);
-          setErrorDesc(response.details);
-          currentStep.onErrCallback(response);
-          logger.error(response.details);
-        }
-      });
+        })
+        .catch((error: unknown) => console.error(error));
     }
   }, [
     activeStep,
@@ -336,8 +336,6 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
     candidatePlayers,
     effectiveInstance,
     effectiveSelectedPlayer,
-    onSelectInstanceModalOpen,
-    onSelectPlayerModalOpen,
     launchProcessSteps,
     handleCloseModalWithCancel,
     props,

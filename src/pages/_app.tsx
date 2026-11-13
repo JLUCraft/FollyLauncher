@@ -26,15 +26,18 @@ import "@/styles/globals.css";
 import { isProd } from "@/utils/env";
 import { setupLogger } from "@/utils/logging";
 
-i18n.use(initReactI18next).init({
-  resources: localeResources,
-  fallbackLng: "en",
-  lng: "zh-Hans",
-  interpolation: {
-    escapeValue: false,
-    defaultVariables: { productName: brand.productName },
-  },
-});
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: localeResources,
+    fallbackLng: "en",
+    lng: "zh-Hans",
+    interpolation: {
+      escapeValue: false,
+      defaultVariables: { productName: brand.productName },
+    },
+  })
+  .catch((error: unknown) => console.error(error));
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -59,7 +62,9 @@ export default function App({ Component, pageProps }: AppProps) {
         (event.ctrlKey && ["H", "Q"].includes(event.key.toUpperCase())) ||
         ((event.ctrlKey || event.metaKey) &&
           ["F", "G", "J", "P", "R", "U"].includes(event.key.toUpperCase()));
-      disabledShortcuts && event.preventDefault();
+      if (disabledShortcuts) {
+        event.preventDefault();
+      }
     });
   }, []);
 
@@ -101,22 +106,11 @@ export default function App({ Component, pageProps }: AppProps) {
     return "default"; // default layout
   }, [router.pathname, layoutKeyMappings]);
 
-  let SpecLayout: React.FC<{ children: React.ReactNode }> = useMemo(() => {
-    const layout = layoutMappings[layoutKey];
-    if (layout) {
-      return ({ children }) =>
-        layout.reduceRight(
-          (nestedChildren, Layout) => <Layout>{nestedChildren}</Layout>,
-          children
-        );
-    }
-    return function defaultLayout({ children }: { children: React.ReactNode }) {
-      return <>{children}</>;
-    }; // default layout
-  }, [layoutKey, layoutMappings]);
-  // use layoutKey as a dependency to ensure SpecLayout remains stable
-  // when switching tabs in game instance page
-  // see https://github.com/UNIkeEN/SJMCL/pull/491
+  const renderLayout = (children: React.ReactNode) =>
+    (layoutMappings[layoutKey] || []).reduceRight(
+      (nestedChildren, Layout) => <Layout>{nestedChildren}</Layout>,
+      children
+    );
 
   return (
     <ChakraProvider theme={chakraExtendTheme}>
@@ -131,9 +125,7 @@ export default function App({ Component, pageProps }: AppProps) {
                       <GlobalEventHandler>
                         <MainLayout>
                           <Fade key={router.pathname.split("/")[1] || ""} in>
-                            <SpecLayout>
-                              <Component {...pageProps} />
-                            </SpecLayout>
+                            {renderLayout(<Component {...pageProps} />)}
                           </Fade>
                         </MainLayout>
                       </GlobalEventHandler>

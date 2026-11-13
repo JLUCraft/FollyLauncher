@@ -26,6 +26,7 @@ import {
 } from "@/components/modals/create-instance-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { ModpackMetaInfo } from "@/models/instance/misc";
 import {
   ModLoaderResourceInfo,
@@ -56,7 +57,11 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   const [gameDirectory, setGameDirectory] = useState(
     config.localGameDirectories[0]
   );
-  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useKeyedState(true, [
+    path,
+    toast,
+    onClose,
+  ]);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
 
   const modpackInfoGroup: OptionItemGroupProps[] = useMemo(() => {
@@ -137,7 +142,9 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
       );
       if (createResp.status === "success") {
         onClose();
-        router.push("/downloads");
+        router
+          .push("/downloads")
+          .catch((error: unknown) => console.error(error));
       } else {
         toast({
           title: createResp.message,
@@ -146,7 +153,9 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
         });
       }
     } catch (error) {
-      logger.error("Error creating instance:", error);
+      logger
+        .error("Error creating instance:", error)
+        .catch((error: unknown) => console.error(error));
     } finally {
       setIsBtnLoading(false);
     }
@@ -163,7 +172,6 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   ]);
 
   useEffect(() => {
-    setIsPageLoading(true);
     InstanceService.retrieveModpackMetaInfo(path)
       .then((response) => {
         if (response.status === "success") {
@@ -185,12 +193,14 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
         }
       })
       .catch((error) => {
-        logger.error("Error fetching modpack info:", error);
+        logger
+          .error("Error fetching modpack info:", error)
+          .catch((error: unknown) => console.error(error));
       })
       .finally(() => {
         setIsPageLoading(false);
       });
-  }, [path, toast, onClose]);
+  }, [path, toast, onClose, setIsPageLoading]);
 
   return (
     <Modal

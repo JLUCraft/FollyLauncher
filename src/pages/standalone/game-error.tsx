@@ -42,9 +42,6 @@ const GameErrorPage: React.FC = () => {
 
   const { getExtensionSlotItems } = useExtensionHost();
 
-  const [basicInfoParams, setBasicInfoParams] = useState(
-    new Map<string, string>()
-  );
   const [instanceInfo, setInstanceInfo] = useState<InstanceSummary>();
   const [javaInfo, setJavaInfo] = useState<JavaInfo>();
   const [reason, setReason] = useState<string>();
@@ -69,7 +66,7 @@ const GameErrorPage: React.FC = () => {
     setAutoCloseSeconds(null);
   }, []);
 
-  useEffect(() => {
+  const basicInfoParams = useMemo(() => {
     // construct info maps
     let infoList = new Map<string, string>();
     infoList.set(
@@ -93,53 +90,59 @@ const GameErrorPage: React.FC = () => {
       "arch",
       config.basicInfo.arch || t("GameErrorPage.placeholder.unknown")
     );
-    setBasicInfoParams(infoList);
+    return infoList;
   }, [config.basicInfo, platformName, t]);
 
   // retrieve launching state and initialize auto-close
   useEffect(() => {
     if (!launchingId) return;
 
-    LaunchService.retrieveGameLaunchingState(launchingId).then((response) => {
-      if (response.status === "success") {
-        setInstanceInfo(response.data.selectedInstance);
-        setJavaInfo(response.data.selectedJava);
+    LaunchService.retrieveGameLaunchingState(launchingId)
+      .then((response) => {
+        if (response.status === "success") {
+          setInstanceInfo(response.data.selectedInstance);
+          setJavaInfo(response.data.selectedJava);
 
-        const policy =
-          response.data.gameConfig?.advanced.workaround
-            .autoCloseGameCrashWindow;
-        if (
-          !autoCloseCancelledRef.current &&
-          (policy === "tenSeconds" || policy === "thirtySeconds")
-        ) {
-          setAutoCloseSeconds(policy === "tenSeconds" ? 10 : 30);
+          const policy =
+            response.data.gameConfig?.advanced.workaround
+              .autoCloseGameCrashWindow;
+          if (
+            !autoCloseCancelledRef.current &&
+            (policy === "tenSeconds" || policy === "thirtySeconds")
+          ) {
+            setAutoCloseSeconds(policy === "tenSeconds" ? 10 : 30);
+          }
         }
-      }
-    });
+      })
+      .catch((error: unknown) => console.error(error));
   }, [launchingId]);
 
   // retrieve logs for crash analysis
   useEffect(() => {
     if (!launchingId) return;
 
-    LaunchService.retrieveGameLog(launchingId).then((response) => {
-      if (response.status === "success") {
-        let { key, params } = analyzeCrashReport(response.data);
-        setReason(
-          t(`GameErrorPage.crashDetails.${key}`, {
-            param1: params[0],
-            param2: params[1],
-            param3: params[2],
-          })
-        );
-      }
-    });
+    LaunchService.retrieveGameLog(launchingId)
+      .then((response) => {
+        if (response.status === "success") {
+          let { key, params } = analyzeCrashReport(response.data);
+          setReason(
+            t(`GameErrorPage.crashDetails.${key}`, {
+              param1: params[0],
+              param2: params[1],
+              param3: params[2],
+            })
+          );
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [t, launchingId]);
 
   useEffect(() => {
     if (autoCloseSeconds === null || autoCloseCancelledRef.current) return;
     if (autoCloseSeconds <= 0) {
-      getCurrentWebviewWindow().close();
+      getCurrentWebviewWindow()
+        .close()
+        .catch((error: unknown) => console.error(error));
       return;
     }
     const timer = window.setTimeout(() => {

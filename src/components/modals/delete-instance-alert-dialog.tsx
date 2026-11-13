@@ -27,24 +27,28 @@ const DeleteInstanceDialog: React.FC<DeleteInstanceDialogProps> = ({
   const { config } = useLauncherConfig();
 
   const handleDeleteInstance = (instanceId: string) => {
-    InstanceService.deleteInstance(instanceId).then((response) => {
-      if (response.status === "success") {
-        toast({
-          title: response.message,
-          status: "success",
-        });
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    InstanceService.deleteInstance(instanceId)
+      .then((response) => {
+        if (response.status === "success") {
+          toast({
+            title: response.message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
 
     // Navigate to /instances/list
     if (!router.asPath.startsWith("/instances/list")) {
-      router.push("/instances/list");
+      router
+        .push("/instances/list")
+        .catch((error: unknown) => console.error(error));
     }
     getInstanceList(true);
   };

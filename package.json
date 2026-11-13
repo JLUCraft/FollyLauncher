@@ -1,6 +1,6 @@
 {
   "name": "folly-launcher",
-  "version": "1.3.1",
+  "version": "1.4.1",
   "private": true,
   "packageManager": "bun@1.4.2",
   "browserslist": [
@@ -47,29 +47,30 @@
     "@tauri-apps/plugin-os": "^2.4.0",
     "@tauri-apps/plugin-window-state": "^2.5.0",
     "fuse.js": "^7.3.0",
-    "i18next": "^24.0.0",
+    "i18next": "^25",
     "masonic": "^4.0.1",
-    "next": "16.3.8",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "16.4.1",
+    "react": "^19",
+    "react-dom": "^19",
     "react-i18next": "^15.1.1",
     "react-icons": "^5.4.0",
     "react-markdown": "^10.1.0",
-    "react-spinners": "^0.14.1",
+    "react-spinners": "^0.17.1",
     "react-virtualized": "^9.22.6",
     "remark-gfm": "^4.0.1",
     "skinview3d": "^3.1.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "16.3.8",
+    "@next/bundle-analyzer": "16.4.1",
     "@tauri-apps/cli": "^2.12.1",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/node": "^26",
+    "@types/prop-types": "^15",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@types/react-virtualized": "^9.22.0",
     "chalk": "^4.1.2",
     "eslint": "^9.39.4",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
@@ -79,11 +80,18 @@
     "typescript": "^5"
   },
   "overrides": {
-    "mdast-util-gfm-autolink-literal": "2.0.0",
-    "@types/react": "18.3.31"
+    "mdast-util-gfm-autolink-literal": "2.0.0"
   },
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "patchedDependencies": {
+    "@chakra-ui/theme@3.4.10": "patches/@chakra-ui%2Ftheme@3.4.10.patch",
+    "@chakra-ui/react@2.10.10": "patches/@chakra-ui%2Freact@2.10.10.patch",
+    "@chakra-ui/theme-tools@2.2.6": "patches/@chakra-ui%2Ftheme-tools@2.2.6.patch",
+    "@chakra-ui/utils@2.2.6": "patches/@chakra-ui%2Futils@2.2.6.patch",
+    "masonic@4.1.0": "patches/masonic@4.1.0.patch",
+    "next@16.4.1": "patches/next@16.4.1.patch"
+  }
 }

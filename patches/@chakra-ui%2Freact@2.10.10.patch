@@ -1,0 +1,38 @@
+diff --git a/dist/types/popover/popover-transition.d.ts b/dist/types/popover/popover-transition.d.ts
+index 290293d514a5bad833d2b9979a949e8c6e29bf08..9fa5078c1d34c32bee62ba0cae4ae9f358ce6b1a 100644
+--- a/dist/types/popover/popover-transition.d.ts
++++ b/dist/types/popover/popover-transition.d.ts
+@@ -1,11 +1,11 @@
+ import { HTMLChakraProps } from "../system";
+ import { HTMLMotionProps, Variant } from "framer-motion";
+ import React from "react";
+-type HTMLMotionChakraProps<T extends keyof React.ReactHTML> = Omit<HTMLChakraProps<T>, keyof HTMLMotionProps<T>> & Omit<HTMLMotionProps<T>, "style" | "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart" | "variants" | "transition" | "children"> & {
++type HTMLMotionChakraProps = Omit<HTMLChakraProps<"section">, keyof HTMLMotionProps<"section">> & Omit<HTMLMotionProps<"section">, "style" | "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart" | "variants" | "transition" | "children"> & {
+     variants?: MotionVariants;
+ };
+ type MotionVariants = Partial<Record<"enter" | "exit", Variant>>;
+-export interface PopoverTransitionProps extends HTMLMotionChakraProps<"section"> {
++export interface PopoverTransitionProps extends HTMLMotionChakraProps {
+ }
+ export declare const PopoverTransition: import("../system").ComponentWithAs<React.ElementType, PopoverTransitionProps>;
+ export {};
+diff --git a/dist/types/system/system.types.d.ts b/dist/types/system/system.types.d.ts
+index 38b772c0d8bdbe0345e9794061b87bb83340a0b3..2db3b8e034060df1d955c414f4e0ecf6aeb5980d 100644
+--- a/dist/types/system/system.types.d.ts
++++ b/dist/types/system/system.types.d.ts
+@@ -1,3 +1,4 @@
++import type { ValidationMap, WeakValidationMap } from "prop-types";
+ import type { ResponsiveValue, SystemProps, SystemStyleObject } from "@chakra-ui/styled-system";
+ import type { Interpolation } from "@emotion/react";
+ import { ElementType, type JSX } from "react";
+@@ -39,8 +40,8 @@ export type MergeWithAs<ComponentProps extends object, AsProps extends object, A
+ export type ComponentWithAs<Component extends ElementType, Props extends object = {}> = {
+     <AsComponent extends ElementType = Component>(props: MergeWithAs<React.ComponentProps<Component>, React.ComponentProps<AsComponent>, Props, AsComponent>): JSX.Element;
+     displayName?: string;
+-    propTypes?: React.WeakValidationMap<any>;
+-    contextTypes?: React.ValidationMap<any>;
++    propTypes?: WeakValidationMap<React.ComponentProps<Component> & Props>;
++    contextTypes?: ValidationMap<Record<string, unknown>>;
+     defaultProps?: Partial<any>;
+     id?: string;
+ };

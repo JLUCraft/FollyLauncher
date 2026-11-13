@@ -1,0 +1,102 @@
+diff --git a/dist/types/index.d.ts b/dist/types/index.d.ts
+index 99a2d7c8f6c5d87bd9105ffbca41484a9dbc807d..74ed1cb97f81398f24e5851eae440b74f410c4e3 100644
+--- a/dist/types/index.d.ts
++++ b/dist/types/index.d.ts
+@@ -1602,14 +1602,14 @@ export declare const theme: {
+                 };
+                 stepper: {
+                     [x: string]: string | {
+-                        [x: string]: string;
++                        [x: string]: string | undefined;
+                         _dark?: undefined;
+                         opacity?: undefined;
+                         cursor?: undefined;
+                     } | {
+                         [x: string]: string | {
+                             [x: string]: string;
+-                        };
++                        } | undefined;
+                         _dark: {
+                             [x: string]: string;
+                         };
+@@ -1866,7 +1866,7 @@ export declare const theme: {
+                 };
+                 content: {
+                     [x: string]: string | {
+-                        [x: string]: string;
++                        [x: string]: string | undefined;
+                         outline?: undefined;
+                         boxShadow?: undefined;
+                     } | {
+@@ -2611,7 +2611,7 @@ export declare const theme: {
+                 };
+                 track: {
+                     [x: string]: string | string[] | {
+-                        [x: string]: string;
++                        [x: string]: string | undefined;
+                         boxShadow?: undefined;
+                         opacity?: undefined;
+                         cursor?: undefined;
+@@ -2629,7 +2629,7 @@ export declare const theme: {
+                     } | {
+                         [x: string]: string | {
+                             [x: string]: string;
+-                        };
++                        } | undefined;
+                         _dark: {
+                             [x: string]: string;
+                         };
+@@ -2925,7 +2925,7 @@ export declare const theme: {
+                         [x: string]: string | {
+                             [x: string]: string | {
+                                 [x: string]: string;
+-                            };
++                            } | undefined;
+                             _dark: {
+                                 [x: string]: string;
+                             };
+@@ -2934,7 +2934,7 @@ export declare const theme: {
+                         } | {
+                             [x: string]: string | {
+                                 [x: string]: string;
+-                            };
++                            } | undefined;
+                             _dark: {
+                                 [x: string]: string;
+                             };
+@@ -3011,7 +3011,7 @@ export declare const theme: {
+                 "enclosed-colored": (props: import("@chakra-ui/styled-system").StyleFunctionProps) => {
+                     tab: {
+                         [x: string]: string | {
+-                            [x: string]: string;
++                            [x: string]: string | undefined;
+                             marginEnd?: undefined;
+                             _dark?: undefined;
+                             borderColor?: undefined;
+@@ -3026,7 +3026,7 @@ export declare const theme: {
+                         } | {
+                             [x: string]: string | {
+                                 [x: string]: string;
+-                            };
++                            } | undefined;
+                             _dark: {
+                                 [x: string]: string;
+                             };
+@@ -3078,7 +3078,7 @@ export declare const theme: {
+                 "solid-rounded": (props: import("@chakra-ui/styled-system").StyleFunctionProps) => {
+                     tab: {
+                         [x: string]: string | {
+-                            [x: string]: string;
++                            [x: string]: string | undefined;
+                             _dark?: undefined;
+                         } | {
+                             [x: string]: string | {
+@@ -3389,7 +3389,7 @@ export declare const theme: {
+                         flexDirection: string;
+                         alignItems: string;
+                     } | {
+-                        [x: string]: string;
++                        [x: string]: string | undefined;
+                         flexDirection?: undefined;
+                         alignItems?: undefined;
+                     };

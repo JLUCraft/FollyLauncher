@@ -75,14 +75,14 @@ const GlobalGameSettingsPage = () => {
         try {
           const dirExistence = await exists(directory.dir);
           existence[directory.dir] = dirExistence;
-        } catch (error) {
+        } catch {
           existence[directory.dir] = false;
         }
       }
       setDirectoryExistence(existence);
     };
 
-    checkDirectories();
+    checkDirectories().catch((error: unknown) => console.error(error));
   }, [config.localGameDirectories]);
 
   const handleDeleteDir = (selectedDir: GameDirectory) => {
@@ -236,12 +236,14 @@ const GlobalGameSettingsPage = () => {
             <Link
               color={`${primaryColor}.500`}
               onClick={() => {
-                router.push({
-                  pathname: "/instances/details/[id]/settings",
-                  query: {
-                    id: selectedInstance.id,
-                  },
-                });
+                router
+                  .push({
+                    pathname: "/instances/details/[id]/settings",
+                    query: {
+                      id: selectedInstance.id,
+                    },
+                  })
+                  .catch((error: unknown) => console.error(error));
               }}
             >
               {t("GlobalGameSettingsPage.topWarning.editInstanceSettings")}

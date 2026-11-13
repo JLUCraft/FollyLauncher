@@ -2,7 +2,12 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "enables the default permissions",
-  "windows": ["main", "game_log*", "game_error*", "extension_standalone*"],
+  "windows": [
+    "main",
+    "game_log*",
+    "game_error*",
+    "extension_standalone*"
+  ],
   "permissions": [
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-write-image",
@@ -16,11 +21,8 @@
     "core:window:allow-set-title",
     "deep-link:default",
     "dialog:default",
+    "sjmcl-downloader:default",
     "log:default",
-    {
-      "identifier": "opener:allow-open-url",
-      "allow": [{ "url": "https://*" }, { "url": "http://*" }]
-    },
     "os:default"
   ]
 }

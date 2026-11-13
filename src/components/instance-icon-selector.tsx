@@ -16,12 +16,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCirclePlus, LuPenLine } from "react-icons/lu";
 import SelectableButton from "@/components/common/selectable-button";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { InstanceService } from "@/services/instance";
 import { getInstanceIconSrc } from "@/utils/instance";
 
@@ -44,11 +45,7 @@ const IconSelectableButton: React.FC<{
   versionPath: string;
   refreshKey?: number;
 }> = ({ src, selectedValue, onSelect, versionPath, refreshKey }) => {
-  const [ok, setOk] = useState(true);
-
-  useEffect(() => {
-    setOk(true);
-  }, [refreshKey]);
+  const [ok, setOk] = useKeyedState(true, [refreshKey]);
 
   if (!ok) return null;
 
@@ -101,8 +98,8 @@ export const InstanceIconSelector: React.FC<InstanceIconSelectorProps> = ({
         if (!selectedPath) return;
         if (Array.isArray(selectedPath)) return;
 
-        InstanceService.addCustomInstanceIcon(instanceId, selectedPath).then(
-          (response) => {
+        InstanceService.addCustomInstanceIcon(instanceId, selectedPath)
+          .then((response) => {
             if (response.status === "success") {
               // select custom icon immediately
               onIconSelect("custom");
@@ -119,8 +116,8 @@ export const InstanceIconSelector: React.FC<InstanceIconSelectorProps> = ({
                 status: "error",
               });
             }
-          }
-        );
+          })
+          .catch((error: unknown) => console.error(error));
       })
       .catch(() => {});
   };

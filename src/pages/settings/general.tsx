@@ -44,21 +44,23 @@ const GeneralSettingsPage = () => {
   const discoverPageModes = ["on", "search-only", "off"];
 
   const handleResetLauncherConfig = useCallback(async () => {
-    ConfigService.resetLauncherConfig().then((response) => {
-      if (response.status === "success") {
-        setConfig(response.data);
-        toast({
-          title: response.message,
-          status: "success",
-        });
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    ConfigService.resetLauncherConfig()
+      .then((response) => {
+        if (response.status === "success") {
+          setConfig(response.data);
+          toast({
+            title: response.message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
     closeSharedModal("generic-confirm");
   }, [setConfig, toast, closeSharedModal]);
 
@@ -302,15 +304,17 @@ const GeneralSettingsPage = () => {
                   showSuppressBtn: true,
                   suppressKey: "openConfigJson",
                   onOKCallback: () => {
-                    ConfigService.revealLauncherConfig().then((response) => {
-                      if (response.status !== "success") {
-                        toast({
-                          title: response.message,
-                          description: response.details,
-                          status: "error",
-                        });
-                      }
-                    });
+                    ConfigService.revealLauncherConfig()
+                      .then((response) => {
+                        if (response.status !== "success") {
+                          toast({
+                            title: response.message,
+                            description: response.details,
+                            status: "error",
+                          });
+                        }
+                      })
+                      .catch((error: unknown) => console.error(error));
                   },
                 })
               }

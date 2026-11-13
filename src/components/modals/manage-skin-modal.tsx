@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
 import { AutoSizer } from "react-virtualized";
@@ -32,6 +32,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { PresetRole, SkinModel, TextureType } from "@/enums/account";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { Texture } from "@/models/account";
 import { AccountService } from "@/services/account";
 import { base64ImgSrc } from "@/utils/string";
@@ -52,10 +53,25 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
   cape,
   ...modalProps
 }) => {
-  const [selectedSkin, setSelectedSkin] = useState<SkinType>("default");
-  const [uploadSkinFilePath, setUploadSkinFilePath] = useState<string>("");
-  const [uploadCapeFilePath, setUploadCapeFilePath] = useState<string>("");
-  const [skinModel, setSkinModel] = useState<SkinModel>(SkinModel.Default);
+  const [selectedSkin, setSelectedSkin] = useKeyedState<SkinType>(
+    skin?.preset || "default",
+    [skin, isOpen]
+  );
+  const [uploadSkinFilePath, setUploadSkinFilePath] = useKeyedState<string>(
+    "",
+    [selectedSkin],
+    selectedSkin === "upload"
+  );
+  const [uploadCapeFilePath, setUploadCapeFilePath] = useKeyedState<string>(
+    "",
+    [selectedSkin],
+    selectedSkin === "upload"
+  );
+  const [skinModel, setSkinModel] = useKeyedState<SkinModel>(
+    SkinModel.Default,
+    [isOpen, selectedSkin],
+    !isOpen || selectedSkin === "upload"
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isCapeVisible, setIsCapeVisible] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -80,25 +96,6 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
       model: skinModel,
     },
   };
-
-  useEffect(() => {
-    setSelectedSkin(skin?.preset || "default");
-  }, [skin]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedSkin(skin?.preset || "default");
-      setSkinModel(SkinModel.Default);
-    }
-  }, [isOpen, skin?.preset]);
-
-  useEffect(() => {
-    if (selectedSkin === "upload") {
-      setUploadSkinFilePath("");
-      setSkinModel(SkinModel.Default);
-      setUploadCapeFilePath("");
-    }
-  }, [selectedSkin]);
 
   const handleSave = async () => {
     if (selectedSkin === "default") {
@@ -166,7 +163,9 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
           });
         }
       } catch (e: unknown) {
-        logger.error("Failed to upload skin or cape file", e);
+        logger
+          .error("Failed to upload skin or cape file", e)
+          .catch((error: unknown) => console.error(error));
       } finally {
         setIsLoading(false);
         getPlayerList(true);

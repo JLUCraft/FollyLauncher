@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import {
@@ -12,6 +6,7 @@ import {
   useGetState,
   usePromisedGetState,
 } from "@/hooks/get-state";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { AuthServer, Player } from "@/models/account";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo } from "@/models/resource";
@@ -22,6 +17,9 @@ import { ResourceService } from "@/services/resource";
 interface GlobalDataContextType {
   selectedPlayer: Player | undefined;
   selectedInstance: InstanceSummary | undefined;
+  instanceList: InstanceSummary[] | undefined;
+  playerList: Player[] | undefined;
+  authServerList: AuthServer[] | undefined;
   getPlayerList: (sync?: boolean) => Player[] | undefined;
   getInstanceList: (sync?: boolean) => InstanceSummary[] | undefined;
   getAuthServerList: (sync?: boolean) => AuthServer[] | undefined;
@@ -56,69 +54,73 @@ export const GlobalDataContextProvider: React.FC<{
   const toast = useToast();
 
   const [playerList, setPlayerList] = useState<Player[]>();
-  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
+  const [selectedPlayer, setSelectedPlayer] = useKeyedState<Player | undefined>(
+    playerList?.find(
+      (player) => player.id === config.states.shared.selectedPlayerId
+    ),
+    [playerList, config.states.shared.selectedPlayerId]
+  );
   const [instanceList, setInstanceList] = useState<InstanceSummary[]>();
-  const [selectedInstance, setSelectedInstance] = useState<InstanceSummary>();
+  const [selectedInstance, setSelectedInstance] = useKeyedState<
+    InstanceSummary | undefined
+  >(
+    instanceList?.find(
+      (instance) => instance.id === config.states.shared.selectedInstanceId
+    ),
+    [instanceList, config.states.shared.selectedInstanceId]
+  );
   const [authServerList, setAuthServerList] = useState<AuthServer[]>();
   const [gameVersionList, setGameVersionList] =
     useState<GameClientResourceInfo[]>();
 
-  useEffect(() => {
-    const selectedPlayerId = config.states.shared.selectedPlayerId;
-    setSelectedPlayer(
-      playerList?.find((player) => player.id === selectedPlayerId)
-    );
-  }, [playerList, config.states.shared.selectedPlayerId]);
-
-  useEffect(() => {
-    const selectedInstanceId = config.states.shared.selectedInstanceId;
-    setSelectedInstance(
-      instanceList?.find((instance) => instance.id === selectedInstanceId)
-    );
-  }, [instanceList, config.states.shared.selectedInstanceId]);
-
   const handleRetrievePlayerList = useCallback(() => {
-    AccountService.retrievePlayerList().then((response) => {
-      if (response.status === "success") {
-        setPlayerList(response.data);
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    AccountService.retrievePlayerList()
+      .then((response) => {
+        if (response.status === "success") {
+          setPlayerList(response.data);
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [toast]);
 
   const handleRetrieveAuthServerList = useCallback(() => {
-    AccountService.retrieveAuthServerList().then((response) => {
-      if (response.status === "success") setAuthServerList(response.data);
-      else
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-    });
+    AccountService.retrieveAuthServerList()
+      .then((response) => {
+        if (response.status === "success") setAuthServerList(response.data);
+        else
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+      })
+      .catch((error: unknown) => console.error(error));
   }, [setAuthServerList, toast]);
 
   const handleRetrieveInstanceList = useCallback(() => {
-    InstanceService.retrieveInstanceList().then((response) => {
-      if (response.status === "success") {
-        const sorted = [...response.data].sort((a, b) => {
-          // put starred instances at the top
-          return Number(b.starred) - Number(a.starred);
-        });
-        setInstanceList(sorted);
-        return response.data;
-      } else
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-    });
+    InstanceService.retrieveInstanceList()
+      .then((response) => {
+        if (response.status === "success") {
+          const sorted = [...response.data].sort((a, b) => {
+            // put starred instances at the top
+            return Number(b.starred) - Number(a.starred);
+          });
+          setInstanceList(sorted);
+          return response.data;
+        } else
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+      })
+      .catch((error: unknown) => console.error(error));
   }, [setInstanceList, toast]);
 
   const handleFetchGameVersionList = useCallback(async () => {
@@ -150,7 +152,7 @@ export const GlobalDataContextProvider: React.FC<{
 
   const [getGameVersionList, isGameVersionListLoading] = usePromisedGetState(
     gameVersionList,
-    React.useRef("global"), // version is static as the data is not instance-specific
+    "global",
     handleFetchGameVersionList
   );
 
@@ -159,6 +161,9 @@ export const GlobalDataContextProvider: React.FC<{
       value={{
         selectedPlayer,
         selectedInstance,
+        instanceList,
+        playerList,
+        authServerList,
         getPlayerList,
         getInstanceList,
         getAuthServerList,

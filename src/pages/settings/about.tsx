@@ -114,7 +114,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://www.jlucraft.com/");
+                openUrl("https://www.jlucraft.com/").catch((error: unknown) =>
+                  console.error(error)
+                );
               }}
             />
           ),
@@ -130,7 +132,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://github.com/JLUCraft/FollyLauncher");
+                openUrl("https://github.com/JLUCraft/FollyLauncher").catch(
+                  (error: unknown) => console.error(error)
+                );
               }}
             />
           ),
@@ -146,7 +150,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://www.jlucraft.com/docs/");
+                openUrl("https://www.jlucraft.com/docs/").catch(
+                  (error: unknown) => console.error(error)
+                );
               }}
             />
           ),
@@ -162,7 +168,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://github.com/JLUCraft/FollyLauncher/issues");
+                openUrl(
+                  "https://github.com/JLUCraft/FollyLauncher/issues"
+                ).catch((error: unknown) => console.error(error));
               }}
             />
           ),
@@ -178,7 +186,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://www.jlucraft.com/about/");
+                openUrl("https://www.jlucraft.com/about/").catch(
+                  (error: unknown) => console.error(error)
+                );
               }}
             />
           ),
@@ -199,7 +209,7 @@ const AboutSettingsPage = () => {
               tooltipPlacement="bottom-end"
               size="xs"
               onClick={() => {
-                openUrl(url);
+                openUrl(url).catch((error: unknown) => console.error(error));
               }}
             />
           ),
@@ -223,7 +233,9 @@ const AboutSettingsPage = () => {
               size="xs"
               h={18}
               onClick={() => {
-                openUrl("https://github.com/UNIkeEN/SJMCL");
+                openUrl("https://github.com/UNIkeEN/SJMCL").catch(
+                  (error: unknown) => console.error(error)
+                );
               }}
             />
           ),
@@ -250,7 +262,7 @@ const AboutSettingsPage = () => {
               onClick={() => {
                 openUrl(
                   t("AboutSettingsPage.legalInfo.settings.userAgreement.url")
-                );
+                ).catch((error: unknown) => console.error(error));
               }}
             />
           ),
@@ -272,7 +284,7 @@ const AboutSettingsPage = () => {
               onClick={() => {
                 openUrl(
                   "https://github.com/UNIkeEN/SJMCL?tab=readme-ov-file#copyright"
-                );
+                ).catch((error: unknown) => console.error(error));
               }}
             />
           ),

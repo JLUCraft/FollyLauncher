@@ -20,7 +20,7 @@ const SharedModals: React.FC<{ children: React.ReactNode }> = ({
     <>
       {children}
 
-      {Object.values(modalStates)}
+      {modalStates.map((modal) => modal.element)}
     </>
   );
 };

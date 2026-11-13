@@ -78,11 +78,6 @@ impl<'de> Deserialize<'de> for ImageWrapper {
 impl ImageWrapper {
   /// Return a new ImageWrapper resized to the given dimensions using the specified filter.
   ///
-  /// # Examples
-  ///
-  /// ```rust,ignore
-  /// let resized_img = img_wrapper.resized(100, 100, FilterType::Nearest);
-  /// ```
   pub fn resized(&self, new_width: u32, new_height: u32, filter: FilterType) -> ImageWrapper {
     if self.image.width() == 0 || self.image.height() == 0 {
       return self.clone();
@@ -95,11 +90,6 @@ impl ImageWrapper {
 
   /// Return a new ImageWrapper scaled by `scale` while preserving aspect ratio.
   ///
-  /// # Examples
-  ///
-  /// ```rust,ignore
-  /// let scaled_img = img_wrapper.scaled(0.5, FilterType::Nearest);
-  /// ```
   pub fn scaled(&self, scale: f32, filter: FilterType) -> ImageWrapper {
     if self.image.width() == 0 || self.image.height() == 0 || scale <= 0.0 {
       return self.clone();

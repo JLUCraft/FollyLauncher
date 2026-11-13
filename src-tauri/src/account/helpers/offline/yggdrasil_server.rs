@@ -8,10 +8,9 @@ use axum::{
 use base64::{Engine, engine::general_purpose};
 use image::{ImageFormat, RgbaImage};
 use rsa::{
-  RsaPrivateKey, RsaPublicKey,
+  PrivateKey, PublicKey,
   pkcs1v15::SigningKey,
   pkcs8::EncodePublicKey,
-  rand_core,
   signature::{SignatureEncoding, Signer},
 };
 use serde_json::{Map, Value, json};
@@ -32,21 +31,21 @@ use crate::account::models::{PlayerInfo, SkinModel};
 use crate::utils::image::ImageWrapper;
 use crate::utils::sys_info::find_free_port;
 
-static KEY_PAIR: OnceLock<(RsaPrivateKey, RsaPublicKey)> = OnceLock::new();
+static KEY_PAIR: OnceLock<(PrivateKey, PublicKey)> = OnceLock::new();
 
-fn generate_key_pair() -> (RsaPrivateKey, RsaPublicKey) {
-  let mut rng = rand_core::OsRng;
+fn generate_key_pair() -> (PrivateKey, PublicKey) {
+  let mut rng = rand::rngs::SysRng;
   // 4096-bit RSA generation is noticeably slow in unoptimized debug builds.
   let bits = cfg_select! {
     debug_assertions => 2048,
     _ => 4096,
   };
-  let private_key = RsaPrivateKey::new(&mut rng, bits).expect("Failed to generate private key");
-  let public_key = RsaPublicKey::from(&private_key);
+  let private_key = PrivateKey::new(&mut rng, bits).expect("Failed to generate private key");
+  let public_key = PublicKey::from(&private_key);
   (private_key, public_key)
 }
 
-fn key_pair() -> &'static (RsaPrivateKey, RsaPublicKey) {
+fn key_pair() -> &'static (PrivateKey, PublicKey) {
   KEY_PAIR.get_or_init(generate_key_pair)
 }
 
@@ -360,6 +359,45 @@ async fn handle_texture_route(
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::account::models::PlayerType;
+  use rsa::pkcs1v15::{Signature, VerifyingKey};
+  use rsa::pkcs8::DecodePublicKey;
+  use rsa::signature::Verifier;
+
+  #[test]
+  fn signed_profile_exports_a_verifiable_texture_property() -> Result<(), Box<dyn std::error::Error>>
+  {
+    let player = PlayerInfo {
+      id: "offline-player".into(),
+      name: "玩家".into(),
+      uuid: Uuid::nil(),
+      player_type: PlayerType::Offline,
+      auth_account: None,
+      auth_server_url: None,
+      access_token: None,
+      access_token_expires: None,
+      refresh_token: None,
+      textures: vec![],
+    };
+    let response = player.to_full_response("http://localhost");
+    let property = &response["properties"][0];
+    let value = property["value"].as_str().ok_or("missing texture value")?;
+    let signature = general_purpose::STANDARD.decode(
+      property["signature"]
+        .as_str()
+        .ok_or("missing texture signature")?,
+    )?;
+    let public = PublicKey::from_public_key_pem(&get_public_key())?;
+    VerifyingKey::<Sha1>::new(public).verify(
+      value.as_bytes(),
+      &Signature::try_from(signature.as_slice())?,
+    )?;
+    let textures: Value = serde_json::from_slice(&general_purpose::STANDARD.decode(value)?)?;
+    assert_eq!(property["name"], "textures");
+    assert_eq!(textures["profileId"], player.uuid.as_simple().to_string());
+    assert_eq!(textures["profileName"], player.name);
+    Ok(())
+  }
 
   #[test]
   fn metadata_whitelists_loopback_and_configured_skin_domains() {

@@ -10,6 +10,7 @@ import {
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { NewsPostRequest, NewsPostSummary } from "@/models/news-post";
 import { DiscoverService } from "@/services/discover";
 
@@ -19,14 +20,6 @@ export const MC_NEWS_SOURCE_URL =
 export const MinecraftNewsPage = () => {
   const { t } = useTranslation();
 
-  const [visiblePosts, setVisiblePosts] = useState<NewsPostSummary[]>([]);
-  const [sourceCursors, setSourceCursors] = useState<
-    Record<string, number | null>
-  >({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [masonryKey, setMasonryKey] = useState<number>(0);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
   const mcSource: NewsPostRequest = useMemo(
     () => ({
       url: MC_NEWS_SOURCE_URL,
@@ -34,6 +27,17 @@ export const MinecraftNewsPage = () => {
     }),
     []
   );
+
+  const [visiblePosts, setVisiblePosts] = useKeyedState<NewsPostSummary[]>(
+    [],
+    [mcSource]
+  );
+  const [sourceCursors, setSourceCursors] = useKeyedState<
+    Record<string, number | null>
+  >({}, [mcSource]);
+  const [isLoading, setIsLoading] = useKeyedState<boolean>(true, [mcSource]);
+  const [masonryKey, setMasonryKey] = useState<number>(0);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const fetchPage = useCallback(
     async (
@@ -53,8 +57,6 @@ export const MinecraftNewsPage = () => {
   );
 
   const fetchFirstPage = useCallback(async () => {
-    setVisiblePosts([]);
-    setIsLoading(true);
     try {
       const data = await fetchPage([{ ...mcSource, cursor: null }]);
       setVisiblePosts(data.posts);
@@ -63,7 +65,7 @@ export const MinecraftNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchPage, mcSource]);
+  }, [fetchPage, mcSource, setIsLoading, setSourceCursors, setVisiblePosts]);
 
   const loadMore = useCallback(async () => {
     if (isLoading) return;
@@ -79,7 +81,15 @@ export const MinecraftNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchPage, isLoading, mcSource, sourceCursors]);
+  }, [
+    fetchPage,
+    isLoading,
+    mcSource,
+    setIsLoading,
+    setSourceCursors,
+    setVisiblePosts,
+    sourceCursors,
+  ]);
 
   const hasMore =
     sourceCursors[mcSource.url] !== undefined &&
@@ -88,19 +98,23 @@ export const MinecraftNewsPage = () => {
   const secMenu = [
     {
       icon: "refresh",
-      onClick: fetchFirstPage,
+      onClick: () => {
+        setVisiblePosts([]);
+        setIsLoading(true);
+        return fetchFirstPage();
+      },
     },
   ];
 
   useEffect(() => {
-    fetchFirstPage();
+    fetchFirstPage().catch((error: unknown) => console.error(error));
   }, [fetchFirstPage]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isLoading) {
-          loadMore();
+          loadMore().catch((error: unknown) => console.error(error));
         }
       },
       { threshold: 1.0 }

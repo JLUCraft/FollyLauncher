@@ -82,7 +82,7 @@ const GameLogPage: React.FC = () => {
       if (res.status === "success" && Array.isArray(res.data)) {
         setLogs(res.data);
       }
-    })();
+    })().catch((error: unknown) => console.error(error));
   }, []);
 
   // ------- Live log stream and auto scroll -------

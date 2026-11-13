@@ -17,7 +17,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronRight,
@@ -98,7 +98,6 @@ const InstanceModsPage = () => {
   );
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
-  const [filteredMods, setFilteredMods] = useState<LocalModInfo[]>([]);
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [targetLoaderType, setTargetLoaderType] = useState<ModLoaderType>(
@@ -155,13 +154,15 @@ const InstanceModsPage = () => {
 
   const getLocalModListWrapper = useCallback(
     (sync?: boolean) => {
-      getLocalModList(sync).then((data) => {
-        if (data === GetStateFlag.Cancelled) {
-          // this means the user has cancelled the operation.
-          return;
-        }
-        setLocalMods(data || []);
-      });
+      getLocalModList(sync)
+        .then((data) => {
+          if (data === GetStateFlag.Cancelled) {
+            // this means the user has cancelled the operation.
+            return;
+          }
+          setLocalMods(data || []);
+        })
+        .catch((error: unknown) => console.error(error));
     },
     [getLocalModList]
   );
@@ -181,10 +182,10 @@ const InstanceModsPage = () => {
     return unlisten;
   }, [getLocalModListWrapper]);
 
-  useEffect(() => {
+  const filteredMods = useMemo(() => {
     const keywords = query.trim().toLowerCase().split(/\s+/);
     if (keywords.length === 0 || keywords[0] === "") {
-      setFilteredMods(localMods);
+      return localMods;
     } else {
       const filtered = localMods.filter((mod) => {
         const name = mod.name?.toLowerCase() || "";
@@ -200,7 +201,7 @@ const InstanceModsPage = () => {
         );
       });
 
-      setFilteredMods(filtered);
+      return filtered;
     }
   }, [query, localMods]);
 
@@ -235,8 +236,8 @@ const InstanceModsPage = () => {
 
   const handleToggleModByExtension = useCallback(
     (filePath: string, enable: boolean) => {
-      InstanceService.toggleModByExtension(filePath, enable).then(
-        (response) => {
+      InstanceService.toggleModByExtension(filePath, enable)
+        .then((response) => {
           if (response.status === "success") {
             setLocalMods((prevMods) =>
               prevMods.map((prev) => {
@@ -272,8 +273,8 @@ const InstanceModsPage = () => {
               getLocalModListWrapper(true);
             }
           }
-        }
-      );
+        })
+        .catch((error: unknown) => console.error(error));
     },
     [toast, getLocalModListWrapper]
   );
@@ -311,7 +312,8 @@ const InstanceModsPage = () => {
             })
             .finally(() => {
               getLocalModListWrapper(true);
-            });
+            })
+            .catch((error: unknown) => console.error(error));
         },
       });
     },
@@ -392,7 +394,9 @@ const InstanceModsPage = () => {
       icon: "revealFile", // use common-icon-button predefined icon
       danger: false,
       onClick: () => {
-        revealItemInDir(mod.filePath);
+        revealItemInDir(mod.filePath).catch((error: unknown) =>
+          console.error(error)
+        );
       },
     },
     {

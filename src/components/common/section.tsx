@@ -70,7 +70,10 @@ export const Section: React.FC<SectionProps> = ({
                 variant="ghost"
                 colorScheme="gray"
                 onClick={() => {
-                  if (backRoutePath) router.push(backRoutePath);
+                  if (backRoutePath)
+                    router
+                      .push(backRoutePath)
+                      .catch((error: unknown) => console.error(error));
                   else router.back();
                 }}
               />

@@ -1,7 +1,7 @@
+use crate::download::DownloadTask;
 use crate::instance::helpers::client_json::McClientInfo;
 use crate::instance::models::misc::{ModLoader, ModLoaderType};
 use crate::resource::models::SourceType;
-use crate::tasks::PTaskParam;
 use sjmcl_types::error::SJMCLResult;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
@@ -14,7 +14,7 @@ pub async fn install_quilt_loader(
   lib_dir: PathBuf,
   mods_dir: PathBuf,
   client_info: &mut McClientInfo,
-  task_params: &mut Vec<PTaskParam>,
+  task_params: &mut Vec<DownloadTask>,
   is_install_qf_api: Option<bool>,
 ) -> SJMCLResult<()> {
   let client = app.state::<reqwest::Client>();
@@ -28,7 +28,7 @@ pub async fn install_quilt_loader(
   )
   .await?;
   plan.apply(client_info);
-  task_params.extend(plan.downloads.into_iter().map(PTaskParam::Download));
+  task_params.extend(plan.downloads);
   if is_install_qf_api.unwrap_or(true)
     && let Ok(Some(download)) = minecraftd::minecraft::loader::libraries::companion(
       &crate::resource::helpers::http::Transport(&client),
@@ -38,7 +38,7 @@ pub async fn install_quilt_loader(
     )
     .await
   {
-    task_params.push(PTaskParam::Download(download));
+    task_params.push(download);
   }
   Ok(())
 }

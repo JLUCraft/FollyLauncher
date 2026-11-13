@@ -35,6 +35,7 @@ import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useTaskContext } from "@/contexts/task";
+import { useKeyedState } from "@/hooks/keyed-state";
 import styles from "@/styles/head-navbar.module.css";
 
 const HeadNavBar = () => {
@@ -53,7 +54,11 @@ const HeadNavBar = () => {
     (headNavStyle === "adaptive" && isCompactLayout);
   const isDownloadIndicatorShown = tasks.length > 0;
 
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useKeyedState(true, [
+    config.appearance.theme.useLiquidGlassDesign,
+    isDownloadIndicatorShown,
+    isSimplified,
+  ]);
   const [indicator, setIndicator] = useState({
     left: 0,
     width: 0,
@@ -112,13 +117,13 @@ const HeadNavBar = () => {
 
   // animation trigger
   useEffect(() => {
-    setIsAnimating(true);
     const timer = setTimeout(() => setIsAnimating(false), 700);
     return () => clearTimeout(timer);
   }, [
     config.appearance.theme.useLiquidGlassDesign,
     isDownloadIndicatorShown,
     isSimplified,
+    setIsAnimating,
   ]);
 
   const selectedIndex = navList.findIndex(
@@ -126,12 +131,7 @@ const HeadNavBar = () => {
   );
 
   const updateIndicator = useCallback(() => {
-    if (selectedIndex < 0) {
-      setIndicator((prev) =>
-        prev.visible ? { ...prev, visible: false } : prev
-      );
-      return;
-    }
+    if (selectedIndex < 0) return;
 
     const listEl = navListRef.current;
     const selectedEl = tabRefs.current[selectedIndex];
@@ -170,9 +170,11 @@ const HeadNavBar = () => {
   useEffect(() => {
     if (typeof document === "undefined" || !document.fonts) return;
     let cancelled = false;
-    document.fonts.ready.then(() => {
-      if (!cancelled) updateIndicator();
-    });
+    document.fonts.ready
+      .then(() => {
+        if (!cancelled) updateIndicator();
+      })
+      .catch((error: unknown) => console.error(error));
     return () => {
       cancelled = true;
     };
@@ -208,7 +210,9 @@ const HeadNavBar = () => {
       if (target.onClick) {
         target.onClick();
       } else if (target.path) {
-        router.push(target.path);
+        router
+          .push(target.path)
+          .catch((error: unknown) => console.error(error));
       }
     }
   };
@@ -237,7 +241,7 @@ const HeadNavBar = () => {
             }
           >
             <Box
-              className={`${styles.indicator} ${indicator.visible ? styles.indicatorVisible : ""}`}
+              className={`${styles.indicator} ${indicator.visible && selectedIndex >= 0 ? styles.indicatorVisible : ""}`}
               transform={`translateX(${indicator.left}px)`}
               w={`${indicator.width}px`}
             />

@@ -13,7 +13,7 @@ Folly Launcher keeps the essentials of a modern launcher with club branding, its
 * **Club Accounts**: Presets the central skin station at `https://skin.jlucraft.com` for Yggdrasil account login. Club membership, league administration, events, and points are managed by the skin station.
 * **minecraftd Integration**: Uses the shared game library for installation, resources, launch planning, Java, worlds, and process management.
 * **Multiple Directories and Instances**: Manages multiple game directories and instances, keeping every instance's resources (saves, mods, resource packs, shaders, screenshots, etc.) and settings in one place.
-* **Resource Download**: Downloads game clients, mod loaders, various game resources and modpacks from CurseForge and Modrinth.
+* **Resource Download**: Downloads game clients, mod loaders, various game resources and modpacks from CurseForge and Modrinth. Download and installation groups persist across launcher restarts, with source fallback, progress, pause, resume, and retry controls.
 * **Multi-Account Support**: Built-in support for multiple accounts and third-party authentication servers, following the OAuth login flow of the Yggdrasil Connect proposal.
 * **Extensions and MCP**: Extend the launcher through its extension system, and collaborate with external webpages, applications and agent services through deeplinks and MCP services.
 
@@ -28,6 +28,8 @@ Folly Launcher keeps the essentials of a modern launcher with club branding, its
 ## Getting Started
 
 Download the latest release from [GitHub Releases](https://github.com/JLUCraft/FollyLauncher/releases).
+
+On Linux, an in-app update downloads the release archive and offers to open its folder for manual replacement.
 
 Folly Launcher currently supports the following platforms:
 
@@ -70,6 +72,7 @@ Builds, CI, and the commit hook run `bun run check`. See
 [AGENTS.md](AGENTS.md#typescript-quality) for the development check policy.
 `bun run typecheck` checks the application and the Node scripts in separate
 TypeScript projects. JavaScript files are checked through `checkJs` and JSDoc.
+Dependency declaration fixes in `patches/` are applied automatically by `bun install`.
 
 We welcome contributions and bug reports through [GitHub Issues](https://github.com/JLUCraft/FollyLauncher/issues). More developer notes are available in the [technical documentation](https://www.jlucraft.com/tech/clients).
 

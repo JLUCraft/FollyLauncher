@@ -29,11 +29,16 @@ import { ConfigService } from "@/services/config";
 const JavaSettingsPage = () => {
   const { t } = useTranslation();
   const toast = useToast();
-  const { config, update, getJavaInfos } = useLauncherConfig();
+  const {
+    config,
+    update,
+    javaInfos: knownJavaInfos,
+    getJavaInfos,
+  } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { closeSharedModal, openGenericConfirmDialog } = useSharedModals();
 
-  const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
+  const javaInfos = knownJavaInfos || [];
   const [selectedJava, setSelectedJava] = useState<JavaInfo | null>(null);
 
   // for manual add java path modal
@@ -42,7 +47,7 @@ const JavaSettingsPage = () => {
   >(null);
 
   useEffect(() => {
-    setJavaInfos(getJavaInfos() || []);
+    getJavaInfos();
   }, [getJavaInfos]);
 
   const {
@@ -110,24 +115,26 @@ const JavaSettingsPage = () => {
       }
 
       // check java validity and update config
-      ConfigService.validateJava(newJavaPath).then((response) => {
-        if (response.status !== "success") {
-          toast({
-            title: t("JavaSettingsPage.toast.addFailed.title"),
-            description: t("JavaSettingsPage.toast.addFailed.invalid"),
-            status: "error",
-          });
-          return;
-        } else {
-          update("extraJavaPaths", [...config.extraJavaPaths, newJavaPath]);
-          setJavaInfos(getJavaInfos(true) || []);
-          toast({
-            title: t("JavaSettingsPage.toast.addSuccess.title"),
-            description: t("JavaSettingsPage.toast.addSuccess.description"),
-            status: "success",
-          });
-        }
-      });
+      ConfigService.validateJava(newJavaPath)
+        .then((response) => {
+          if (response.status !== "success") {
+            toast({
+              title: t("JavaSettingsPage.toast.addFailed.title"),
+              description: t("JavaSettingsPage.toast.addFailed.invalid"),
+              status: "error",
+            });
+            return;
+          } else {
+            update("extraJavaPaths", [...config.extraJavaPaths, newJavaPath]);
+            getJavaInfos(true);
+            toast({
+              title: t("JavaSettingsPage.toast.addSuccess.title"),
+              description: t("JavaSettingsPage.toast.addSuccess.description"),
+              status: "success",
+            });
+          }
+        })
+        .catch((error: unknown) => console.error(error));
     }
   };
 
@@ -150,7 +157,7 @@ const JavaSettingsPage = () => {
       (path) => path !== selectedJava.execPath
     );
     update("extraJavaPaths", updatedJavaPaths);
-    setJavaInfos(getJavaInfos(true) || []);
+    getJavaInfos(true);
     closeSharedModal("generic-confirm");
     setSelectedJava(null);
   };

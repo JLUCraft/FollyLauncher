@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { ConfigService } from "@/services/config";
 import { copyText } from "@/utils/copy";
 
@@ -35,18 +36,23 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [token, setToken] = useState<string>();
-  const [countdown, setCountdown] = useState<number>(60);
-  const [fadeFlag, setFadeFlag] = useState<boolean>(true);
+  const [token, setToken] = useKeyedState<string | undefined>(undefined, [
+    modalProps.isOpen,
+  ]);
+  const [countdown, setCountdown] = useKeyedState<number>(60, [
+    modalProps.isOpen,
+  ]);
+  const [fadeFlag, setFadeFlag] = useKeyedState<boolean>(false, [
+    modalProps.isOpen,
+  ]);
   const handleCloseModal = useCallback(() => {
     setToken(undefined);
     setCountdown(60);
     setFadeFlag(true);
     modalProps.onClose();
-  }, [modalProps]);
+  }, [modalProps, setCountdown, setFadeFlag, setToken]);
 
   const handleExportLauncherConfig = useCallback(async () => {
-    setFadeFlag(false);
     const response = await ConfigService.exportLauncherConfig();
 
     if (response.status === "success") {
@@ -59,11 +65,13 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
       });
     }
     setFadeFlag(true);
-  }, [toast]);
+  }, [setFadeFlag, setToken, toast]);
 
   useEffect(() => {
     if (modalProps.isOpen && token === undefined) {
-      handleExportLauncherConfig();
+      handleExportLauncherConfig().catch((error: unknown) =>
+        console.error(error)
+      );
     }
   }, [handleExportLauncherConfig, modalProps.isOpen, token]);
 
@@ -71,17 +79,26 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
     if (!modalProps.isOpen || token === undefined) return;
 
     const interval = setInterval(() => {
-      setCountdown((prevCountdown) => {
-        if (prevCountdown <= 1) {
-          handleExportLauncherConfig();
-          return 60;
-        }
-        return prevCountdown - 1;
-      });
+      if (countdown <= 1) {
+        setFadeFlag(false);
+        handleExportLauncherConfig().catch((error: unknown) =>
+          console.error(error)
+        );
+        setCountdown(60);
+      } else {
+        setCountdown(countdown - 1);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [handleExportLauncherConfig, modalProps.isOpen, token]);
+  }, [
+    countdown,
+    handleExportLauncherConfig,
+    modalProps.isOpen,
+    setCountdown,
+    setFadeFlag,
+    token,
+  ]);
 
   return (
     <Modal
@@ -109,7 +126,9 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      copyText(token || "", { toast });
+                      copyText(token || "", { toast }).catch((error: unknown) =>
+                        console.error(error)
+                      );
                     }
                   }}
                 >
@@ -140,7 +159,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
   const toast = useToast();
   const { config, setConfig } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const [token, setToken] = useState("");
+  const [token, setToken] = useKeyedState("", [modalProps.isOpen]);
   const [isLoading, setIsLoading] = useState(false);
   const fields = Array.from({ length: 6 }, () => null);
 
@@ -148,7 +167,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
     setToken("");
     setIsLoading(false);
     modalProps.onClose();
-  }, [modalProps]);
+  }, [modalProps, setToken]);
 
   const handleImportLauncherConfig = useCallback(async () => {
     setIsLoading(true);
@@ -191,7 +210,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
                 placeholder=""
                 focusBorderColor={`${primaryColor}.500`}
               >
-                {fields.map((_, index) => (
+                {fields.map((...[, index]: [unknown, number]) => (
                   <PinInputField key={index} autoFocus={index === 0} />
                 ))}
               </PinInput>

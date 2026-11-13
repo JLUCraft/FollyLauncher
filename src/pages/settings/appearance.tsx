@@ -233,30 +233,32 @@ const AppearanceSettingsPage = () => {
         setFonts(["%built-in", ...res.data]);
       }
     };
-    handleRetrieveFontList();
+    handleRetrieveFontList().catch((error: unknown) => console.error(error));
   }, []);
 
   const handleRetrieveCustomBackgroundList = useCallback(() => {
     appDataDir()
       .then((_appDataDir) => {
-        ConfigService.retrieveCustomBackgroundList().then((response) => {
-          if (response.status === "success") {
-            const list = response.data;
-            const updatedList = list.map((bg) => ({
-              fileName: bg,
-              fullPath: `${_appDataDir}/UserContent/Backgrounds/${bg}`,
-            }));
-            setCustomBgList(updatedList);
-            setBgCacheKey((k) => k + 1);
-          } else {
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-            setCustomBgList([]);
-          }
-        });
+        ConfigService.retrieveCustomBackgroundList()
+          .then((response) => {
+            if (response.status === "success") {
+              const list = response.data;
+              const updatedList = list.map((bg) => ({
+                fileName: bg,
+                fullPath: `${_appDataDir}/UserContent/Backgrounds/${bg}`,
+              }));
+              setCustomBgList(updatedList);
+              setBgCacheKey((k) => k + 1);
+            } else {
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+              setCustomBgList([]);
+            }
+          })
+          .catch((error: unknown) => console.error(error));
       })
       .catch(() => {
         setCustomBgList([]);
@@ -279,68 +281,72 @@ const AppearanceSettingsPage = () => {
     })
       .then((selectedPath) => {
         if (!selectedPath) return;
-        ConfigService.addCustomBackground(selectedPath).then((response) => {
-          if (response.status === "success") {
-            handleRetrieveCustomBackgroundList();
-            // set selected background to the new added one.
-            update("appearance.background.choice", response.data);
-            toast({
-              title: response.message,
-              status: "success",
-            });
-          } else {
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-          }
-        });
+        ConfigService.addCustomBackground(selectedPath)
+          .then((response) => {
+            if (response.status === "success") {
+              handleRetrieveCustomBackgroundList();
+              // set selected background to the new added one.
+              update("appearance.background.choice", response.data);
+              toast({
+                title: response.message,
+                status: "success",
+              });
+            } else {
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+            }
+          })
+          .catch((error: unknown) => console.error(error));
       })
       .catch(() => {});
   };
 
   const handleDeleteCustomBackground = (fileName: string) => {
-    ConfigService.deleteCustomBackground(fileName).then((response) => {
-      if (response.status === "success") {
-        toast({
-          title: response.message,
-          status: "success",
-        });
+    ConfigService.deleteCustomBackground(fileName)
+      .then((response) => {
+        if (response.status === "success") {
+          toast({
+            title: response.message,
+            status: "success",
+          });
 
-        // set the next bgKey (custom+1 > custom-1 > default) if current choice is deleted
-        if (fileName === selectedBgKey) {
-          const deletedIndex = customBgList.findIndex(
-            (bg) => bg.fileName === fileName
-          );
+          // set the next bgKey (custom+1 > custom-1 > default) if current choice is deleted
+          if (fileName === selectedBgKey) {
+            const deletedIndex = customBgList.findIndex(
+              (bg) => bg.fileName === fileName
+            );
 
-          let newSelectedBgKey;
-          if (customBgList.length === 1) {
-            newSelectedBgKey = `${builtInBgPrefix}Florwyn`;
-            if (appearanceConfigs.background.randomCustom)
-              update("appearance.background.randomCustom", false);
-          } else {
-            newSelectedBgKey =
-              deletedIndex < customBgList.length - 1
-                ? customBgList[deletedIndex + 1].fileName
-                : customBgList[deletedIndex - 1].fileName;
+            let newSelectedBgKey;
+            if (customBgList.length === 1) {
+              newSelectedBgKey = `${builtInBgPrefix}Florwyn`;
+              if (appearanceConfigs.background.randomCustom)
+                update("appearance.background.randomCustom", false);
+            } else {
+              newSelectedBgKey =
+                deletedIndex < customBgList.length - 1
+                  ? customBgList[deletedIndex + 1].fileName
+                  : customBgList[deletedIndex - 1].fileName;
+            }
+            update("appearance.background.choice", newSelectedBgKey);
           }
-          update("appearance.background.choice", newSelectedBgKey);
-        }
 
-        // refresh custom bg list state
-        handleRetrieveCustomBackgroundList();
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+          // refresh custom bg list state
+          handleRetrieveCustomBackgroundList();
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
-  const PresetBackgroundList = () => {
+  const renderPresetBackgrounds = () => {
     const presetBgList = ["Florwyn", "SJTU-eastgate"];
 
     return (
@@ -368,7 +374,7 @@ const AppearanceSettingsPage = () => {
     );
   };
 
-  const CustomBackgroundList = () => {
+  const renderCustomBackgrounds = () => {
     return (
       <Wrap spacing={3.5} justify="right">
         {customBgList.map((bg) => (
@@ -553,11 +559,11 @@ const AppearanceSettingsPage = () => {
       items: [
         {
           title: t("AppearanceSettingsPage.background.settings.preset.title"),
-          children: <PresetBackgroundList />,
+          children: renderPresetBackgrounds(),
         },
         {
           title: t("AppearanceSettingsPage.background.settings.custom.title"),
-          children: <CustomBackgroundList />,
+          children: renderCustomBackgrounds(),
         },
         {
           title: t(

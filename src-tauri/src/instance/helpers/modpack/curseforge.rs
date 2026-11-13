@@ -5,11 +5,11 @@ use std::path::Path;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
+use crate::download::DownloadTask;
 use crate::instance::helpers::modpack::import::{ModpackManifest, ModpackMetaInfo};
 use crate::instance::models::misc::{InstanceError, ModLoader, ModLoaderType};
 use crate::resource::helpers::curseforge::misc::CURSEFORGE_API_KEY;
 use crate::resource::models::OtherResourceSource;
-use crate::tasks::PTaskParam;
 
 pub use minecraftd::modpack::curseforge::CurseForgeManifest;
 
@@ -57,20 +57,13 @@ impl ModpackManifest for CurseForgeManifest {
     &self,
     app: &AppHandle,
     instance_path: &Path,
-  ) -> SJMCLResult<Vec<PTaskParam>> {
+  ) -> SJMCLResult<Vec<DownloadTask>> {
     let client = app.state::<reqwest::Client>();
     let backend = minecraftd::resource::curseforge::CurseForgeClient::with_client(
       crate::resource::helpers::http::Transport(&client),
       CURSEFORGE_API_KEY.to_string(),
     );
-    Ok(
-      self
-        .download_requests(&backend, instance_path)
-        .await?
-        .into_iter()
-        .map(PTaskParam::Download)
-        .collect(),
-    )
+    Ok(self.download_requests(&backend, instance_path).await?)
   }
 
   fn get_overrides_path(&self) -> String {

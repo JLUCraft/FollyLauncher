@@ -50,7 +50,7 @@ export const DownloadGameServerModal: React.FC<
     if (response.status === "success") {
       // success toast will now be called by task context group listener
       modalProps.onClose?.();
-      router.push("/downloads");
+      router.push("/downloads").catch((error: unknown) => console.error(error));
     } else {
       toast({
         title: response.message,

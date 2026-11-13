@@ -14,15 +14,6 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
 
 /// Automatically add `#[serde(skip_serializing_if = "Option::is_none")]` to all `Option` fields in a struct.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// #[serialize_skip_none]
-/// #[derive(Serialize)]
-/// struct Foo {
-///   name: Option<String>,
-/// }
-/// ```
 #[proc_macro_attribute]
 pub fn serialize_skip_none(_attr: TokenStream, item: TokenStream) -> TokenStream {
   let input = parse_macro_input!(item as ItemStruct);

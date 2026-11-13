@@ -3,6 +3,25 @@
     "about": {
       "title": "Acerca de",
       "settings": {
+        "version": {
+          "title": "Versión",
+          "foundNew": "Nueva Versión Disponible",
+          "checkUpdate": "Buscar Actualizaciones",
+          "checkToast": {
+            "loading": "Buscando actualizaciones",
+            "up2date": "Ya está actualizado",
+            "error": "Error al buscar actualizaciones"
+          }
+        },
+        "contributors": {
+          "title": "Colaboradores"
+        },
+        "sourceCode": {
+          "title": "Ver Código Fuente en GitHub"
+        },
+        "aboutSJMC": {
+          "title": "Acerca de SJTU Minecraft Club (SJMC)"
+        },
         "community": {
           "title": "Comunidad de Jugadores"
         },
@@ -17,16 +36,6 @@
         },
         "repository": {
           "title": "Repositorio del Código Fuente"
-        },
-        "version": {
-          "title": "Versión",
-          "foundNew": "Nueva Versión Disponible",
-          "checkUpdate": "Buscar Actualizaciones",
-          "checkToast": {
-            "loading": "Buscando actualizaciones",
-            "up2date": "Ya está actualizado",
-            "error": "Error al buscar actualizaciones"
-          }
         }
       }
     },
@@ -64,23 +73,23 @@
       }
     },
     "legalInfo": {
-      "title": "Proyecto Original y Licencia",
+      "title": "Avisos Legales",
       "settings": {
-        "basedOn": {
-          "title": "Basado en el lanzador de código abierto SJMCL",
-          "description": "{{productName}} se desarrolla a partir de SJMCL. Repositorio original: https://github.com/UNIkeEN/SJMCL"
-        },
         "copyright": {
           "title": "Derechos de Autor",
           "description": "Derechos de Autor © 2026 Equipo de Folly Launcher. Basado en SJMCL © 2024-2026 Equipo SJMCL."
         },
         "userAgreement": {
-          "title": "Acuerdo de usuario de SJMCL original",
+          "title": "Acuerdo de Usuario",
           "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
         },
         "openSourceLicense": {
           "title": "Licencia de Código Abierto",
           "description": "Licenciado bajo la GNU General Public License v3.0, con términos adicionales."
+        },
+        "basedOn": {
+          "title": "Basado en el lanzador de código abierto SJMCL",
+          "description": "{{productName}} se desarrolla a partir de SJMCL. Repositorio original: https://github.com/UNIkeEN/SJMCL"
         }
       }
     }
@@ -495,10 +504,10 @@
     }
   },
   "DevToolbar": {
+    "tooltip": "Barra de Herramientas de Desarrollo",
     "back": "Atrás",
     "openDevTestPage": "Abrir página de pruebas",
-    "reload": "Recargar",
-    "tooltip": "Barra de Herramientas de Desarrollo"
+    "reload": "Recargar"
   },
   "DiscoverCommunityNewsPage": {
     "title": "Descubrir",
@@ -646,11 +655,11 @@
       "pause": "Pausar",
       "begin": "Iniciar",
       "retry": "Reintentar",
-      "clearHistory": "Limpiar Registros de Historial",
-      "toggleExpansion": "Expandir/Contraer"
+      "clearHistory": "Limpiar Registros de Historial"
     },
     "label": {
       "paused": "Pausado",
+      "finalizing": "Finalizando la instalación",
       "completed": "Completado",
       "error": "Fallido",
       "cancelled": "Cancelado"
@@ -678,8 +687,12 @@
       "launcher-update": "Actualizar Lanzador",
       "extension-update": "Actualizar Extensión {{param1}} {{param2}}",
       "mojang-java": "Tiempo de Ejecución de Java {{param}}"
-    },
-    "empty": "Todavía no hay tareas de descarga. Las descargas que inicies aparecerán aquí."
+    }
+  },
+  "Editable": {
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -724,11 +737,6 @@
         "invalid": "La ruta del directorio es inválida"
       }
     }
-  },
-  "Editable": {
-    "edit": "Editar",
-    "save": "Guardar",
-    "cancel": "Cancelar"
   },
   "Empty": {
     "noData": "Sin Datos"
@@ -1057,6 +1065,7 @@
       "gameLogs": "Registros del Juego",
       "help": "Ayuda"
     },
+    "autoCloseCountdown": "Esta ventana se cerrará automáticamente en {{seconds}} segundos (haz clic en cualquier lugar de la ventana para cancelar)",
     "bottomAlert": "Exporta y envía el reporte de error en lugar de una captura de pantalla de esta página para obtener ayuda.",
     "helpUrl": "https://www.jlucraft.com/docs/faq",
     "crashDetails": {
@@ -1127,7 +1136,6 @@
       "FORGE_LITELOADER_CONFLICT": "La instancia no puede continuar debido a un conflicto entre Forge y LiteLoader. Intenta eliminar LiteLoader o cambiar la versión de Forge.",
       "UNKNOWN": "No se puede determinar la causa del error. Por favor revisa los registros para más detalles o exporta el reporte de error."
     },
-    "autoCloseCountdown": "Esta ventana se cerrará automáticamente en {{seconds}} segundos (haz clic en cualquier lugar de la ventana para cancelar)",
     "placeholder": {
       "unknown": "Desconocido"
     }
@@ -1147,13 +1155,15 @@
   },
   "General": {
     "add": "Agregar",
-    "back": "Atrás",
-    "beta": "Beta",
+    "alert": {
+      "noFullLogin": {
+        "title": "Esta Función No Está Disponible Actualmente",
+        "description": "Por favor inicia sesión con tu cuenta de Microsoft antes de acceder a esta función."
+      }
+    },
     "browse": "Examinar",
     "cancel": "Cancelar",
     "close": "Cerrar",
-    "collapse": "Contraer",
-    "color": "Color",
     "confirm": "Aceptar",
     "copy": {
       "text": "Copiar",
@@ -1171,8 +1181,7 @@
     "dialog": {
       "filterName": {
         "image": "Imagen",
-        "modpack": "Modpack",
-        "json": "Archivo JSON"
+        "modpack": "Modpack"
       }
     },
     "disable": "Deshabilitar",
@@ -1181,7 +1190,6 @@
     "edit": "Editar",
     "enable": "Habilitar",
     "exit": "Salir",
-    "expand": "Expandir",
     "finish": "Finalizar",
     "import": "Importar",
     "launch": "Iniciar",
@@ -1196,7 +1204,6 @@
     "refresh": "Actualizar",
     "revealFile": "Mostrar en {{opener}}",
     "search": "Buscar",
-    "select": "Seleccionar",
     "settings": "Configuración",
     "share": {
       "text": "Compartir",
@@ -1205,16 +1212,21 @@
       }
     },
     "skip": "Omitir",
-    "unselectColor": "Deseleccionar color",
     "version": {
       "dev": "versión de desarrollo",
       "nightly": "compilación nocturna",
       "beta": "versión beta",
       "test-build": "compilación de prueba"
     },
-    "versionNumberingHelp": "Ayuda sobre la numeración de versiones",
     "viewOnWiki": "Ver en Minecraft Wiki",
-    "retry": "Reintentar"
+    "back": "Atrás",
+    "beta": "Beta",
+    "collapse": "Contraer",
+    "color": "Color",
+    "expand": "Expandir",
+    "select": "Seleccionar",
+    "unselectColor": "Deseleccionar color",
+    "versionNumberingHelp": "Ayuda sobre la numeración de versiones"
   },
   "GeneralSettingsPage": {
     "language": {
@@ -1434,15 +1446,19 @@
     "community": {
       "title": "Comunidad de Jugadores Universitarios",
       "settings": {
-        "JLUCraft": {
-          "title": "Club de Minecraft de la Universidad de Jilin (JLUCraft)",
-          "description": "La comunidad detrás de este lanzador, para jugadores de la Universidad de Jilin y más allá",
-          "url": "https://www.jlucraft.com/"
-        },
         "MUA": {
           "title": "Alianza Universitaria de Minecraft (MUA)",
           "description": "Juega con jugadores universitarios de toda China",
           "url": "https://www.mualliance.cn/en"
+        },
+        "SJMC": {
+          "title": "Club de Minecraft de SJTU (SJMC)",
+          "url": "https://mc.sjtu.cn/en/"
+        },
+        "JLUCraft": {
+          "title": "Club de Minecraft de la Universidad de Jilin (JLUCraft)",
+          "description": "La comunidad detrás de este lanzador, para jugadores de la Universidad de Jilin y más allá",
+          "url": "https://www.jlucraft.com/"
         }
       }
     },
@@ -1475,8 +1491,8 @@
           "url": "https://www.jlucraft.com/docs/"
         },
         "UserGroup": {
-          "title": "Comunidad de Jugadores",
-          "description": "Únete para informar de problemas, solicitar funciones u obtener ayuda",
+          "title": "Comunidad de Usuarios",
+          "description": "Únete al grupo de QQ o a GitHub Discussions para reportar problemas, solicitar funciones u obtener ayuda",
           "url": "https://www.jlucraft.com/about/"
         }
       }
@@ -1620,11 +1636,6 @@
     },
     "schematicList": {
       "title": "Esquemáticos"
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "details": "Detalles"
     }
   },
   "InstanceSettingsPage": {
@@ -1774,6 +1785,7 @@
       "es": "",
       "fr": "Francés",
       "ja": "Japonés",
+      "ru": "Ruso",
       "lzh": "Chino literario",
       "zh-Hans": "Chino simplificado",
       "zh-Hant": "Chino tradicional"
@@ -1827,11 +1839,6 @@
     "notCompatibleWith": "No compatible con {{item}}",
     "noVersionSelected": "Ninguna versión seleccionada"
   },
-  "MCVersionNumberHelper": {
-    "content": "A partir de 2026, Minecraft adopta un nuevo sistema de numeración de versiones. Los números de versión comenzarán con el año de lanzamiento (por ejemplo, 26.1), reemplazando el anterior esquema de versionado 1.x.",
-    "linkText": "Leer el artículo oficial",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
-  },
   "MainLayout": {
     "fileDnD": {
       "title": "Importar Modpack",
@@ -1862,6 +1869,11 @@
     "placeholder": {
       "javaPath": "Por favor, ingresa o selecciona la ruta del archivo ejecutable de Java"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "A partir de 2026, Minecraft adopta un nuevo sistema de numeración de versiones. Los números de versión comenzarán con el año de lanzamiento (por ejemplo, 26.1), reemplazando el anterior esquema de versionado 1.x.",
+    "linkText": "Leer el artículo oficial",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "Estado de la memoria",
@@ -2282,9 +2294,6 @@
     },
     "versionList": {
       "All": "Todos"
-    },
-    "listError": {
-      "description": "No se pudo cargar la lista de recursos: {{reason}}"
     }
   },
   "RestartForUpdateConfirmDialog": {
@@ -2295,7 +2304,8 @@
       "restart": "Reiniciar",
       "install": "Instalar",
       "later": "Más tarde"
-    }
+    },
+    "bodyLinux": "El archivo de actualización se ha descargado. Abre su carpeta para sustituir el lanzador manualmente."
   },
   "RevealConfigJsonConfirmDialog": {
     "body": "Ten cuidado al editar el archivo de configuración sin procesar del lanzador. Un formato incorrecto puede provocar la pérdida de la configuración original o impedir que el lanzador funcione correctamente."
@@ -2390,7 +2400,10 @@
       },
       "downloadMojangJava": {
         "error": {
-          "title": "Error al descargar el entorno de ejecución de Mojang Java"
+          "title": "Error al descargar el entorno de ejecución de Mojang Java",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
+          }
         }
       },
       "checkGameDirectory": {
@@ -2408,7 +2421,16 @@
           "title": "Error al limpiar la caché de descarga",
           "description": {
             "HAS_ACTIVE_DOWNLOAD_TASKS": "Hay tareas de descarga activas en progreso.",
-            "FILE_DELETION_FAILED": "Error al eliminar archivos, es posible que estén en uso."
+            "FILE_DELETION_FAILED": "Error al eliminar archivos, es posible que estén en uso.",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
+          }
+        }
+      },
+      "downloadLauncherUpdate": {
+        "error": {
+          "title": "No se pudo descargar la actualización del lanzador",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       }
@@ -2425,6 +2447,7 @@
           "title": "Error al agregar jugador offline",
           "description": {
             "DUPLICATE": "El jugador ya existe",
+            "FULL_LOGIN_UNAVAILABLE": "Por favor, inicia sesión con tu cuenta de Microsoft antes de acceder a esta función.",
             "INVALID": "El UUID es inválido",
             "TEXTURE_ERROR": "No se puede obtener la textura del jugador"
           }
@@ -2447,6 +2470,7 @@
           "title": "Error al agregar jugador",
           "description": {
             "DUPLICATE": "El jugador ya existe",
+            "FULL_LOGIN_UNAVAILABLE": "Por favor, inicia sesión con tu cuenta de Microsoft antes de acceder a esta función.",
             "NETWORK_ERROR": "No se puede conectar al servidor",
             "PARSE_ERROR": "El servidor devolvió datos en un formato incorrecto",
             "NOT_FOUND": "El servidor de autenticación no existe",
@@ -2491,6 +2515,7 @@
           "title": "Error al agregar jugador",
           "description": {
             "DUPLICATE": "El jugador ya existe",
+            "FULL_LOGIN_UNAVAILABLE": "Por favor, inicia sesión con tu cuenta de Microsoft antes de acceder a esta función.",
             "NETWORK_ERROR": "No se puede conectar al servidor",
             "PARSE_ERROR": "El servidor devolvió datos en un formato incorrecto",
             "INVALID": "Cuenta o contraseña incorrectos",
@@ -2518,6 +2543,7 @@
           "title": "Error al agregar jugador",
           "description": {
             "DUPLICATE": "El jugador ya existe",
+            "FULL_LOGIN_UNAVAILABLE": "Por favor, inicia sesión con tu cuenta de Microsoft antes de acceder a esta función.",
             "NETWORK_ERROR": "Error al conectar al servidor",
             "PARSE_ERROR": "El servidor devolvió datos en un formato incorrecto",
             "EXPIRED": "El token de acceso ha expirado, por favor re-inicia sesión"
@@ -2669,9 +2695,11 @@
           "title": "Error al validar los archivos del juego",
           "description": {
             "MOD_LOADER_NOT_INSTALLED": "La instalación del cargador de mods no se ha completado",
+            "OPTIFINE_NOT_INSTALLED": "La instalación de OptiFine no se ha completado",
             "INSTANCE_NOT_FOUND_BY_ID": "El ID de instancia no existe",
             "GAME_FILES_INCOMPLETE": "Los archivos del juego están incompletos",
-            "LAUNCHING_STATE_NOT_FOUND": "No se encontró el estado de lanzamiento"
+            "LAUNCHING_STATE_NOT_FOUND": "No se encontró el estado de lanzamiento",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       },
@@ -2762,7 +2790,8 @@
           "title": "Error al descargar el servidor del juego",
           "description": {
             "PARSE_ERROR": "El servidor devolvió datos en un formato incorrecto",
-            "NETWORK_ERROR": "Error al conectar con el servidor"
+            "NETWORK_ERROR": "Error al conectar con el servidor",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       },
@@ -2782,7 +2811,8 @@
           "description": {
             "PARSE_ERROR": "El servidor devolvió datos en un formato incorrecto",
             "NETWORK_ERROR": "Error al conectar con el servidor",
-            "FILE_OPERATION_ERROR": "Error al renombrar el archivo del mod anterior"
+            "FILE_OPERATION_ERROR": "Error al renombrar el archivo del mod anterior",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       }
@@ -2808,7 +2838,8 @@
             "FILE_CREATION_FAILED": "Error al crear el archivo de destino",
             "NETWORK_ERROR": "Error al conectar con el servidor",
             "CLIENT_JSON_PARSE_ERROR": "Error al analizar la información de versión de la instancia",
-            "ASSET_INDEX_PARSE_ERROR": "Error al analizar el índice de recursos"
+            "ASSET_INDEX_PARSE_ERROR": "Error al analizar el índice de recursos",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       },
@@ -2989,37 +3020,6 @@
           }
         }
       },
-      "finishModLoaderInstall": {
-        "loading": "Instalando cargador de mods para {{instanceName}}",
-        "success": "Cargador de mods instalado exitosamente",
-        "error": {
-          "title": "Error al instalar el cargador de mods",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "El ID de instancia no existe",
-            "INSTALLATION_DUPLICATED": "Ya hay otro proceso de instalación en curso",
-            "MAIN_CLASS_NOT_FOUND": "Clase principal no encontrada en la versión del cargador de mods",
-            "PROCESSOR_EXECUTION_FAILED": "Error al ejecutar el proceso de instalación",
-            "LOADER_INSTALLER_NOT_FOUND": "Archivo instalador del cargador de mods no encontrado"
-          }
-        }
-      },
-      "finishOptiFineLoaderInstall": {
-        "loading": "Instalando OptiFine para {{instanceName}}",
-        "success": "OptiFine instalado exitosamente",
-        "error": {
-          "title": "Error al instalar OptiFine",
-          "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "El ID de instancia no existe",
-            "INSTALLATION_DUPLICATED": "Ya hay otro proceso de instalación en curso",
-            "PROCESSOR_EXECUTION_FAILED": "Error al ejecutar el proceso de instalación",
-            "LOADER_INSTALLER_NOT_FOUND": "Archivo instalador de OptiFine no encontrado",
-            "MOD_LOADER_VERSION_PARSE_ERROR": "Error al analizar la información de versión de OptiFine",
-            "INVALID_SOURCE_PATH": "Ruta de origen inválida",
-            "NO_SUITABLE_JAVA": "No se encontró un runtime de Java adecuado",
-            "SELECTED_JAVA_UNAVAILABLE": "El runtime de Java seleccionado no está disponible"
-          }
-        }
-      },
       "checkChangeModLoaderAvailablity": {
         "error": {
           "title": "No se puede cambiar el cargador de mods",
@@ -3032,13 +3032,17 @@
         "error": {
           "title": "Error al cambiar el cargador de mods",
           "description": {
-            "NOT_SUPPORT_CHANGE_MOD_LOADER": "Instalado por un proceso externo, no se puede configurar"
+            "NOT_SUPPORT_CHANGE_MOD_LOADER": "Instalado por un proceso externo, no se puede configurar",
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
           }
         }
       },
       "changeOptiFine": {
         "error": {
-          "title": "Error al cambiar OptiFine"
+          "title": "Error al cambiar OptiFine",
+          "description": {
+            "DOWNLOAD_ENGINE_ERROR": "El motor de descargas no pudo completar la operación"
+          }
         }
       },
       "removeModLoader": {
@@ -3122,10 +3126,32 @@
       }
     },
     "task": {
-      "scheduleProgressiveTaskGroup": {
-        "error": "Error al crear la tarea"
+      "common": {
+        "title": "La operación de descarga ha fallado",
+        "description": {
+          "NETWORK_ERROR": "Error de red: {{details}}",
+          "HTTP_ERROR": "Error HTTP: {{status}}",
+          "IO_ERROR": "La operación de archivo ha fallado: {{details}}",
+          "CHECKSUM_MISMATCH": "La suma de verificación no coincide: se esperaba {{expected}}, se obtuvo {{actual}}",
+          "CORRUPT_FILES": "Archivos dañados: {{paths, list}}",
+          "MISSING_FIELD": "Falta un campo de la tarea: {{field}}",
+          "UNKNOWN_EXECUTOR": "Ejecutor de tareas desconocido: {{executor}}",
+          "INVALID_CONTENT_RANGE": "El servidor devolvió un Content-Range no válido",
+          "RESUME_OFFSET_MISMATCH": "La posición de reanudación no coincide: se esperaba {{expected}}, se obtuvo {{actual}}",
+          "OTHER_ERROR": "La tarea ha fallado: {{details}}",
+          "EMPTY_GROUP": "Un grupo debe contener al menos una tarea",
+          "CHANNEL_CLOSED": "Se ha cerrado la conexión con el motor de descargas",
+          "UNKNOWN_GROUP": "No se encontró el grupo de tareas {{groupId}}",
+          "INVALID_STATE": "El estado actual del grupo {{groupId}} no permite esta operación",
+          "STORAGE_ERROR": "No se pudo guardar el estado de descarga: {{details}}",
+          "ENGINE_NOT_INITIALIZED": "El motor de descargas no está inicializado",
+          "INSTALLATION_INSTANCE_MISMATCH": "La instancia de instalación no coincide con la tarea",
+          "MOD_LOADER_CHANGED": "El cargador de mods cambió durante la instalación",
+          "OPTIFINE_MISSING": "No se encontró OptiFine",
+          "OPTIFINE_CHANGED": "OptiFine cambió durante la instalación"
+        }
       },
-      "onTaskGroupUpdate": {
+      "onDownloadGroupUpdate": {
         "status": {
           "Started": "La descarga de {{param}} ha comenzado",
           "Failed": "La descarga de {{param}} falló parcialmente, por favor intente de nuevo",
@@ -3135,7 +3161,6 @@
         }
       }
     },
-    "unknownError": "Se ha producido un error desconocido",
     "utils": {
       "deleteFile": {
         "success": "Archivo eliminado exitosamente",
@@ -3143,7 +3168,8 @@
           "title": "Error al eliminar el archivo"
         }
       }
-    }
+    },
+    "unknownError": "Se ha producido un error desconocido"
   },
   "SettingsLayout": {
     "settingsDomainList": {

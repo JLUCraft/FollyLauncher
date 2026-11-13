@@ -12,10 +12,6 @@ const config = [
     },
     rules: {
       "unused-imports/no-unused-imports": "warn",
-      // Disable selected React Hooks v7 react-compiler rules for a minimal Next 16 migration.
-      "react-hooks/refs": "off",
-      "react-hooks/set-state-in-effect": "off",
-      "react-hooks/static-components": "off",
     },
   },
 ];

@@ -19,7 +19,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCheck,
@@ -43,6 +43,7 @@ import {
   MicrosoftFriendPresenceStatus,
   PlayerType,
 } from "@/enums/account";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { MicrosoftFriend, MicrosoftFriendList, Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 
@@ -62,11 +63,24 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
   const { openGenericConfirmDialog } = useSharedModals();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [friendList, setFriendList] = useState<MicrosoftFriendList>();
-  const [newFriendName, setNewFriendName] = useState("");
-  const [isListLoading, setIsListLoading] = useState(false);
-  const [isAddingFriend, setIsAddingFriend] = useState(false);
-  const [pendingActionKey, setPendingActionKey] = useState<string>();
+  const [friendList, setFriendList] = useKeyedState<
+    MicrosoftFriendList | undefined
+  >(undefined, [curPlayer.id, modalProps.isOpen]);
+  const [newFriendName, setNewFriendName] = useKeyedState("", [
+    curPlayer.id,
+    modalProps.isOpen,
+  ]);
+  const [isListLoading, setIsListLoading] = useKeyedState(true, [
+    curPlayer.id,
+    modalProps.isOpen,
+  ]);
+  const [isAddingFriend, setIsAddingFriend] = useKeyedState(false, [
+    curPlayer.id,
+    modalProps.isOpen,
+  ]);
+  const [pendingActionKey, setPendingActionKey] = useKeyedState<
+    string | undefined
+  >(undefined, [curPlayer.id, modalProps.isOpen]);
 
   const trimmedNewFriendName = newFriendName.trim();
   const isOperating = isAddingFriend || !!pendingActionKey;
@@ -105,10 +119,6 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
 
   const handleRetrieveMicrosoftFriendList = useCallback(
     (isSilent = false) => {
-      if (!isSilent) {
-        setIsListLoading(true);
-      }
-
       AccountService.retrieveMicrosoftFriendList(curPlayer.id)
         .then((response) => {
           if (response.status === "success") {
@@ -125,9 +135,10 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
           if (!isSilent) {
             setIsListLoading(false);
           }
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     },
-    [curPlayer.id, toast]
+    [curPlayer.id, setFriendList, setIsListLoading, toast]
   );
 
   const handleUpdateMicrosoftFriend = useCallback(
@@ -174,9 +185,17 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
           } else {
             setPendingActionKey(undefined);
           }
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     },
-    [curPlayer.id, toast]
+    [
+      curPlayer.id,
+      setFriendList,
+      setIsAddingFriend,
+      setNewFriendName,
+      setPendingActionKey,
+      toast,
+    ]
   );
 
   const handleAddFriend = useCallback(() => {
@@ -190,8 +209,6 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
 
   useEffect(() => {
     if (modalProps.isOpen) {
-      setNewFriendName("");
-      setPendingActionKey(undefined);
       handleRetrieveMicrosoftFriendList();
     }
   }, [modalProps.isOpen, handleRetrieveMicrosoftFriendList]);
@@ -436,7 +453,10 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
               <CommonIconButton
                 icon={LuRefreshCcw}
                 label={t("General.refresh")}
-                onClick={() => handleRetrieveMicrosoftFriendList()}
+                onClick={() => {
+                  setIsListLoading(true);
+                  handleRetrieveMicrosoftFriendList();
+                }}
                 isLoading={isListLoading}
                 isDisabled={isOperating}
               />
@@ -498,7 +518,9 @@ const MicrosoftFriendsModal: React.FC<MicrosoftFriendsModalProps> = ({
             <Link
               color={`${primaryColor}.500`}
               onClick={() => {
-                openUrl("https://aka.ms/MinecraftJavaXboxPrivacyAndSafety");
+                openUrl(
+                  "https://aka.ms/MinecraftJavaXboxPrivacyAndSafety"
+                ).catch((error: unknown) => console.error(error));
               }}
             >
               {t("MicrosoftFriendsModal.button.xboxSettings")}

@@ -17,7 +17,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuArrowRight } from "react-icons/lu";
 import { OptionItem } from "@/components/common/option-item";
@@ -28,6 +28,7 @@ import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
+import { useKeyedState } from "@/hooks/keyed-state";
 import {
   ModLoaderResourceInfo,
   OptiFineResourceInfo,
@@ -58,36 +59,33 @@ export const ChangeLoaderModal: React.FC<ChangeLoaderModalProps> = ({
   const router = useRouter();
 
   const [selectedModLoader, setSelectedModLoader] =
-    useState<ModLoaderResourceInfo>(defaultModLoaderResourceInfo);
-  const [selectedOptifine, setSelectedOptifine] = useState<
+    useKeyedState<ModLoaderResourceInfo>(
+      defaultSelectedType && defaultSelectedType !== ModLoaderType.Unknown
+        ? { ...defaultModLoaderResourceInfo, loaderType: defaultSelectedType }
+        : defaultModLoaderResourceInfo,
+      [modalProps.isOpen, summary?.version, defaultSelectedType, mode],
+      mode === "modloader"
+    );
+  const [selectedOptifine, setSelectedOptifine] = useKeyedState<
     OptiFineResourceInfo | undefined
-  >(undefined);
+  >(
+    undefined,
+    [modalProps.isOpen, summary?.version, defaultSelectedType, mode],
+    mode === "optifine"
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [isInstallFabricApi, setIsInstallFabricApi] = useState(true);
-  const [isInstallQfApi, setIsInstallQfApi] = useState(true);
-
-  useEffect(() => {
-    if (mode === "modloader") {
-      if (
-        defaultSelectedType &&
-        defaultSelectedType !== ModLoaderType.Unknown
-      ) {
-        setSelectedModLoader({
-          ...defaultModLoaderResourceInfo,
-          loaderType: defaultSelectedType,
-        });
-      } else {
-        setSelectedModLoader(defaultModLoaderResourceInfo);
-      }
-    }
-
-    if (mode === "optifine") {
-      setSelectedOptifine(undefined);
-    }
-
-    setIsInstallFabricApi(true);
-    setIsInstallQfApi(true);
-  }, [modalProps.isOpen, summary?.version, defaultSelectedType, mode]);
+  const [isInstallFabricApi, setIsInstallFabricApi] = useKeyedState(true, [
+    modalProps.isOpen,
+    summary?.version,
+    defaultSelectedType,
+    mode,
+  ]);
+  const [isInstallQfApi, setIsInstallQfApi] = useKeyedState(true, [
+    modalProps.isOpen,
+    summary?.version,
+    defaultSelectedType,
+    mode,
+  ]);
 
   const currentModLoader: ModLoaderResourceInfo = useMemo(() => {
     if (!summary?.modLoader)
@@ -128,7 +126,9 @@ export const ChangeLoaderModal: React.FC<ChangeLoaderModalProps> = ({
         });
       } else {
         modalProps.onClose?.();
-        router.push("/downloads");
+        router
+          .push("/downloads")
+          .catch((error: unknown) => console.error(error));
       }
     } finally {
       setIsLoading(false);
@@ -176,7 +176,7 @@ export const ChangeLoaderModal: React.FC<ChangeLoaderModalProps> = ({
           });
           modalProps.onClose?.();
           getInstanceList(true); // refresh instance info
-          getLocalModList(true); // refresh local mod list
+          getLocalModList(true).catch((error: unknown) => console.error(error)); // refresh local mod list
         }
       },
     });

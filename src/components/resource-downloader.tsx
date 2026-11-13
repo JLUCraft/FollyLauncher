@@ -14,7 +14,6 @@ import {
   Tag,
   Text,
   VStack,
-  useDisclosure,
 } from "@chakra-ui/react";
 import React, {
   useCallback,
@@ -35,22 +34,29 @@ import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
 import { OptionItemProps } from "@/components/common/option-item";
 import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual";
-import DownloadSpecificResourceModal from "@/components/modals/download-specific-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
+import { useSharedModals } from "@/contexts/shared-modal";
+import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import {
   OtherResourceSource,
   OtherResourceType,
+  datapackTagList,
+  modTagList,
   modpackTagList,
+  resourcePackTagList,
+  shaderPackTagList,
   sortByLists,
+  worldTagList,
 } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
-import { tagLists, translateTag } from "@/utils/resource";
+import { translateTag } from "@/utils/resource";
 import { formatDisplayCount } from "@/utils/string";
 
 interface ResourceDownloaderProps {
@@ -77,6 +83,18 @@ interface ResourceDownloaderListProps {
   hasMore: boolean;
   loadMore: () => void;
 }
+
+const tagLists: Record<
+  string,
+  Partial<Record<OtherResourceSource, Record<string, string[]> | string[]>>
+> = {
+  mod: modTagList,
+  world: worldTagList,
+  resourcepack: resourcePackTagList,
+  shader: shaderPackTagList,
+  modpack: modpackTagList,
+  datapack: datapackTagList,
+};
 
 const downloadSourceLists: Record<string, OtherResourceSource[]> = {
   mod: [OtherResourceSource.CurseForge, OtherResourceSource.Modrinth],
@@ -142,10 +160,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     config.general.general.language === "zh-Hans" &&
     config.general.functionality.resourceTranslation;
 
-  const [selectedItem, setSelectedItem] = useState<OtherResourceInfo | null>(
-    null
-  );
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { openSharedModal } = useSharedModals();
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
     title: (
@@ -167,8 +182,8 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
 
           return (
             <>
-              {visibleTags.map((t) => (
-                <Tag key={t} colorScheme={primaryColor} className="tag-xs">
+              {visibleTags.map((t, index) => (
+                <Tag key={index} colorScheme={primaryColor} className="tag-xs">
                   {t}
                 </Tag>
               ))}
@@ -237,43 +252,31 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     ),
     children: <></>,
     isFullClickZone: true,
-    onClick: () => {
-      setSelectedItem(item);
-      onOpen();
-    },
+    onClick: () =>
+      openSharedModal("download-specific-resource", {
+        resource: item,
+        ...(item.type !== OtherResourceType.ModPack && {
+          curInstanceMajorVersion: curInstance?.majorVersion,
+          curInstanceVersion: curInstance?.version,
+        }),
+        ...(item.type === OtherResourceType.Mod &&
+          curInstance?.modLoader.loaderType !== ModLoaderType.Unknown && {
+            curInstanceModLoader: curInstance?.modLoader.loaderType,
+          }),
+      }),
     fontWeight: 400,
   });
 
-  return (
-    <>
-      {list.length > 0 ? (
-        <VirtualOptionItemGroup
-          h="100%"
-          items={list.map(buildOptionItems)}
-          useInfiniteScroll
-          hasMore={hasMore}
-          loadMore={loadMore}
-        />
-      ) : (
-        <Empty withIcon={false} size="sm" />
-      )}
-      {selectedItem && (
-        <DownloadSpecificResourceModal
-          key={selectedItem.id}
-          isOpen={isOpen}
-          onClose={onClose}
-          resource={selectedItem}
-          {...(selectedItem.type !== OtherResourceType.ModPack && {
-            curInstanceMajorVersion: curInstance?.majorVersion,
-            curInstanceVersion: curInstance?.version,
-          })}
-          {...(selectedItem.type === OtherResourceType.Mod &&
-            curInstance?.modLoader.loaderType !== ModLoaderType.Unknown && {
-              curInstanceModLoader: curInstance?.modLoader.loaderType,
-            })}
-        />
-      )}
-    </>
+  return list.length > 0 ? (
+    <VirtualOptionItemGroup
+      h="100%"
+      items={list.map(buildOptionItems)}
+      useInfiniteScroll
+      hasMore={hasMore}
+      loadMore={loadMore}
+    />
+  ) : (
+    <Empty withIcon={false} size="sm" />
   );
 };
 
@@ -287,30 +290,56 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const toast = useToast();
   const { getGameVersionList } = useGlobalData();
 
   const [gameVersionList, setGameVersionList] = useState<string[]>([]);
 
-  const [resourceList, setResourceList] = useState<OtherResourceInfo[]>([]);
-  const [isLoadingResourceList, setIsLoadingResourceList] =
-    useState<boolean>(false);
-  // A failed fetch is shown inline in the list container, so the reason and the
-  // retry action stay where the missing data is instead of covering the sidebar.
-  const [listError, setListError] = useState<string>("");
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const pageSize = 20;
-
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
-  const [gameVersion, setGameVersion] = useState<string>("");
-  const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<string>(
-    initialDownloadSource === OtherResourceSource.CurseForge
-      ? "Popularity"
-      : "relevance"
+  const initialVersion = curInstance?.version || "All";
+  const [gameVersion, setGameVersion] = useKeyedState(
+    gameVersionList.includes(initialVersion) ? initialVersion : "All",
+    [curInstance?.version, gameVersionList]
   );
-  const [downloadSource, setDownloadSource] = useState<OtherResourceSource>(
+  const [preferredSource, setDownloadSource] = useState<OtherResourceSource>(
     initialDownloadSource
   );
+  const downloadSource = (downloadSourceLists[resourceType] || []).includes(
+    preferredSource
+  )
+    ? preferredSource
+    : OtherResourceSource.CurseForge;
+  const [selectedTag, setSelectedTag] = useKeyedState<string>("All", [
+    resourceType,
+    downloadSource,
+  ]);
+  const [sortBy, setSortBy] = useKeyedState<string>(
+    downloadSource === OtherResourceSource.CurseForge
+      ? "Popularity"
+      : "relevance",
+    [downloadSource]
+  );
+
+  const [resourceList, setResourceList] = useKeyedState<OtherResourceInfo[]>(
+    [],
+    [resourceType, gameVersion, downloadSource, selectedTag, sortBy]
+  );
+  const [isLoadingResourceList, setIsLoadingResourceList] =
+    useKeyedState<boolean>(true, [
+      resourceType,
+      gameVersion,
+      downloadSource,
+      selectedTag,
+      sortBy,
+    ]);
+  const [hasMore, setHasMore] = useKeyedState<boolean>(true, [
+    resourceType,
+    gameVersion,
+    downloadSource,
+    selectedTag,
+    sortBy,
+  ]);
+  const [pageSize] = useState<number>(20);
 
   const searchQueryRef = useRef(searchQuery);
   const pageRef = useRef(0);
@@ -350,8 +379,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       pageSize: number,
       isLoadMore: boolean = false
     ) => {
-      if (page === 0) setIsLoadingResourceList(true);
-
       ResourceService.fetchResourceListByName(
         resourceType,
         searchQuery,
@@ -364,7 +391,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       )
         .then((response) => {
           if (response.status === "success") {
-            setListError("");
             const resourceData = response.data.list;
             if (!isLoadMore) {
               setResourceList(resourceData);
@@ -373,15 +399,20 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             }
             setHasMore(response.data.total > (page + 1) * pageSize);
           } else {
-            if (!isLoadMore) setResourceList([]);
-            setListError(response.details || response.message);
+            setResourceList([]);
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
           }
         })
         .finally(() => {
           setIsLoadingResourceList(false);
-        });
+        })
+        .catch((error: unknown) => console.error(error));
     },
-    []
+    [setHasMore, setIsLoadingResourceList, setResourceList, toast]
   );
 
   const loadMore = () => {
@@ -397,7 +428,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       currentPage + 1,
       pageSize,
       true
-    );
+    ).catch((error: unknown) => console.error(error));
     pageRef.current += 1;
   };
 
@@ -414,7 +445,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       downloadSource,
       0,
       pageSize
-    );
+    ).catch((error: unknown) => console.error(error));
   }, [
     handleFetchResourceListByName,
     resourceType,
@@ -426,18 +457,21 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   ]);
 
   useEffect(() => {
-    getGameVersionList().then((list) => {
-      if (list && list !== GetStateFlag.Cancelled) {
-        const versionList = list
-          .filter(
-            (version: GameClientResourceInfo) => version.gameType === "release"
-          )
-          .map((version: GameClientResourceInfo) => version.id);
-        setGameVersionList(["All", ...versionList]);
-      } else {
-        setGameVersionList([]);
-      }
-    });
+    getGameVersionList()
+      .then((list) => {
+        if (list && list !== GetStateFlag.Cancelled) {
+          const versionList = list
+            .filter(
+              (version: GameClientResourceInfo) =>
+                version.gameType === "release"
+            )
+            .map((version: GameClientResourceInfo) => version.id);
+          setGameVersionList(["All", ...versionList]);
+        } else {
+          setGameVersionList([]);
+        }
+      })
+      .catch((error: unknown) => console.error(error));
   }, [getGameVersionList]);
 
   useEffect(() => {
@@ -448,30 +482,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     reFetchResourceList();
   }, [reFetchResourceList]);
 
-  useEffect(() => {
-    const initialVersion = curInstance?.version || "All";
-    if (
-      gameVersionList.length > 0 &&
-      gameVersionList.includes(initialVersion)
-    ) {
-      setGameVersion(initialVersion);
-    } else {
-      setGameVersion("All");
-    }
-  }, [curInstance?.version, gameVersionList]);
-
-  useEffect(() => {
-    if (
-      resourceType &&
-      !(downloadSourceLists[resourceType] || []).includes(downloadSource)
-    ) {
-      onDownloadSourceChange(OtherResourceSource.CurseForge);
-    }
-    setSelectedTag("All");
-  }, [resourceType, downloadSource]);
-
   const renderTagMenuOptions = () => {
-    if (typeof tagList === "object" && tagList !== null) {
+    if (tagList && !Array.isArray(tagList)) {
       return Object.entries(tagList).flatMap(([group, tags]) => [
         group === "All" || resourceType === OtherResourceType.Mod ? (
           <MenuItemOption key={`group-${group}`} value={group} fontSize="xs">
@@ -497,7 +509,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         ...(Array.isArray(tags)
           ? tags
               .filter((item) => item !== "All")
-              .map((item: string) => (
+              .map((item) => (
                 <MenuItemOption
                   key={`tag-${group}-${item}`}
                   value={item}
@@ -542,8 +554,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           defaultValue={"All"}
           options={
             gameVersionList ? (
-              gameVersionList.map((item) => (
-                <MenuItemOption key={String(item)} value={item} fontSize="xs">
+              gameVersionList.map((item, index) => (
+                <MenuItemOption key={index} value={item} fontSize="xs">
                   {item === "All"
                     ? t("ResourceDownloader.versionList.All")
                     : item}
@@ -564,8 +576,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onChange={onDownloadSourceChange}
           value={downloadSource}
           defaultValue={OtherResourceSource.CurseForge}
-          options={downloadSourceLists[resourceType].map((item) => (
-            <MenuItemOption key={String(item)} value={item} fontSize="xs">
+          options={downloadSourceLists[resourceType].map((item, index) => (
+            <MenuItemOption key={index} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
           ))}
@@ -584,8 +596,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
               ? "Popularity"
               : "relevance"
           }
-          options={sortByList.map((item) => (
-            <MenuItemOption key={String(item)} value={item} fontSize="xs">
+          options={sortByList.map((item, index) => (
+            <MenuItemOption key={index} value={item} fontSize="xs">
               {t(`ResourceDownloader.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>
           ))}
@@ -603,13 +615,19 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           size="xs"
           w={72}
           onKeyDown={(e) => {
-            if (e.key === "Enter") reFetchResourceList();
+            if (e.key === "Enter") {
+              setIsLoadingResourceList(true);
+              reFetchResourceList();
+            }
           }}
         />
         <Button
           colorScheme={primaryColor}
           size="xs"
-          onClick={reFetchResourceList}
+          onClick={() => {
+            setIsLoadingResourceList(true);
+            reFetchResourceList();
+          }}
           px={5}
         >
           {t("ResourceDownloader.button.search")}
@@ -621,21 +639,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           <VStack mt={8}>
             <BeatLoader size={16} color="gray" />
           </VStack>
-        ) : listError ? (
-          <Empty
-            size="md"
-            description={t("ResourceDownloader.listError.description", {
-              reason: listError,
-            })}
-          >
-            <Button
-              size="sm"
-              colorScheme={primaryColor}
-              onClick={reFetchResourceList}
-            >
-              {t("General.retry")}
-            </Button>
-          </Empty>
         ) : (
           <ResourceDownloaderList
             list={resourceList}

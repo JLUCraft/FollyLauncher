@@ -20,7 +20,7 @@ pub fn get_source_priority_list(launcher_config: &LauncherConfig) -> Vec<SourceT
 
 #[cfg(windows)]
 pub use minecraftd::resource::mirrors::convert_url_to_target_source;
-pub use minecraftd::resource::mirrors::get_download_api;
+pub use minecraftd::resource::mirrors::{get_download_api, get_download_urls};
 
 pub(crate) fn levenshtein_distance(a: &str, b: &str) -> usize {
   let b_chars: Vec<char> = b.chars().collect();

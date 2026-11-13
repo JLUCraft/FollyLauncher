@@ -35,10 +35,6 @@ pub struct MultiMCYgg {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MultiMCOfficialAccount {
-  #[expect(dead_code, reason = "kept to match MultiMC account JSON schema")]
-  pub active: bool,
-  #[expect(dead_code, reason = "kept to match MultiMC account JSON schema")]
-  pub r#type: String,
   pub msa: MultiMCMsa,
   pub profile: MultiMCProfile,
   pub ygg: MultiMCYgg,
@@ -48,8 +44,6 @@ pub struct MultiMCOfficialAccount {
 #[serde(rename_all = "camelCase")]
 pub struct MultiMCAccountEntry {
   pub accounts: Vec<MultiMCOfficialAccount>,
-  #[expect(dead_code, reason = "kept to match MultiMC account JSON schema")]
-  pub format_version: u32,
 }
 
 async fn microsoft_to_player(

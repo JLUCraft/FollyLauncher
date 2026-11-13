@@ -28,7 +28,7 @@ try {
   } else {
     base = arg || "zh-Hans";
   }
-} catch (error) {
+} catch {
   base = "zh-Hans";
 }
 

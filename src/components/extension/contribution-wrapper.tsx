@@ -24,7 +24,9 @@ class ExtensionContributionBoundary extends React.Component<
   }
 
   componentDidCatch(error: unknown) {
-    logger.error("Extension contribution render failed", error);
+    logger
+      .error("Extension contribution render failed", error)
+      .catch((error: unknown) => console.error(error));
   }
 
   componentDidUpdate(prevProps: ExtensionContributionBoundaryProps) {

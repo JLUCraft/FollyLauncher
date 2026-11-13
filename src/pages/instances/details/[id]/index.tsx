@@ -9,7 +9,9 @@ const InstanceDetailIndexPage = () => {
 
   useEffect(() => {
     if (id === undefined) {
-      router.push("/instances/list");
+      router
+        .push("/instances/list")
+        .catch((error: unknown) => console.error(error));
       return;
     }
 
@@ -20,13 +22,15 @@ const InstanceDetailIndexPage = () => {
       query: { id: instanceId },
     };
 
-    router.replace(
-      [...history]
-        .reverse()
-        .find((route) =>
-          route.startsWith(`/instances/details/${encodedId}/`)
-        ) || fallbackRoute
-    );
+    router
+      .replace(
+        [...history]
+          .reverse()
+          .find((route) =>
+            route.startsWith(`/instances/details/${encodedId}/`)
+          ) || fallbackRoute
+      )
+      .catch((error: unknown) => console.error(error));
   }, [history, router, id]);
 
   return null;

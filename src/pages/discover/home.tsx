@@ -118,7 +118,9 @@ const NewsCard: React.FC<{ post: NewsPostSummary | null }> = ({ post }) => {
           ? (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                openUrl(post.link as string);
+                openUrl(post.link as string).catch((error: unknown) =>
+                  console.error(error)
+                );
               }
             }
           : undefined
@@ -126,7 +128,9 @@ const NewsCard: React.FC<{ post: NewsPostSummary | null }> = ({ post }) => {
       onClick={
         post?.link
           ? () => {
-              openUrl(post.link);
+              openUrl(post.link).catch((error: unknown) =>
+                console.error(error)
+              );
             }
           : undefined
       }
@@ -210,8 +214,8 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
   const arrowDisabledColor = useColorModeValue("gray.300", "gray.700");
   const { t } = useTranslation();
 
-  const [page, setPage] = useState<number>(0);
   const itemsPerPage = useBreakpointValue({ base: 2, xl: 3 }) ?? 2;
+  const [page, setPage] = useKeyedState<number>(0, [posts, itemsPerPage]);
   const longChevronSize = useBreakpointValue({ base: 80, xl: 100 }) ?? 80;
   const skeletonBannerHeight =
     useBreakpointValue({ base: "32", lg: "40", xl: "48" }) ?? "32";
@@ -253,10 +257,6 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
     },
   ];
 
-  useEffect(() => {
-    setPage(0);
-  }, [posts, itemsPerPage]);
-
   return (
     <Box h="100%">
       <Flex align="center" mb={2.5}>
@@ -287,25 +287,27 @@ const NewsCarousel: React.FC<NewsCarouselProps> = ({
             templateColumns={`repeat(${itemsPerPage}, minmax(0, 1fr))`}
             gap={2}
           >
-            {Array.from({ length: itemsPerPage }).map((_, index) => (
-              <Box key={index} p={0.5}>
-                <Card className={cardStyles["card-front"]} h="100%">
-                  <HStack spacing={1.5} mb={1.5} align="center">
-                    <SkeletonCircle size="6" />
-                    <Skeleton h={3} w={24} />
-                  </HStack>
-                  <Skeleton
-                    h={skeletonBannerHeight}
-                    w="100%"
-                    borderRadius="md"
-                  />
-                  <VStack align="stretch" spacing={2} pt={3} pb={0.5}>
-                    <Skeleton h={4} />
-                    <Skeleton h={4} />
-                  </VStack>
-                </Card>
-              </Box>
-            ))}
+            {Array.from({ length: itemsPerPage }).map(
+              (...[, index]: [unknown, number]) => (
+                <Box key={index} p={0.5}>
+                  <Card className={cardStyles["card-front"]} h="100%">
+                    <HStack spacing={1.5} mb={1.5} align="center">
+                      <SkeletonCircle size="6" />
+                      <Skeleton h={3} w={24} />
+                    </HStack>
+                    <Skeleton
+                      h={skeletonBannerHeight}
+                      w="100%"
+                      borderRadius="md"
+                    />
+                    <VStack align="stretch" spacing={2} pt={3} pb={0.5}>
+                      <Skeleton h={4} />
+                      <Skeleton h={4} />
+                    </VStack>
+                  </Card>
+                </Box>
+              )
+            )}
           </Grid>
         ) : isEmpty ? (
           <Empty py={4} withIcon={false} size="sm" />
@@ -527,15 +529,15 @@ export const DiscoverHomePage = () => {
   const [mcPosts, setMcPosts] = useState<NewsPostSummary[]>([]);
   const [cfModpacks, setCfModpacks] = useState<OtherResourceInfo[]>([]);
   const [mrModpacks, setMrModpacks] = useState<OtherResourceInfo[]>([]);
-  const [isLoadingCommunity, setIsLoadingCommunity] = useState<boolean>(false);
-  const [isLoadingMC, setIsLoadingMC] = useState<boolean>(false);
-  const [isLoadingCfModpacks, setIsLoadingCfModpacks] =
-    useState<boolean>(false);
-  const [isLoadingMrModpacks, setIsLoadingMrModpacks] =
-    useState<boolean>(false);
+  const [isLoadingCommunity, setIsLoadingCommunity] = useKeyedState<boolean>(
+    true,
+    [config.discoverSourceEndpoints]
+  );
+  const [isLoadingMC, setIsLoadingMC] = useState<boolean>(true);
+  const [isLoadingCfModpacks, setIsLoadingCfModpacks] = useState<boolean>(true);
+  const [isLoadingMrModpacks, setIsLoadingMrModpacks] = useState<boolean>(true);
 
   const fetchCommunityNews = useCallback(async () => {
-    setIsLoadingCommunity(true);
     try {
       const sources = config.discoverSourceEndpoints
         .filter(([, enabled]) => enabled)
@@ -553,10 +555,9 @@ export const DiscoverHomePage = () => {
     } finally {
       setIsLoadingCommunity(false);
     }
-  }, [config.discoverSourceEndpoints]);
+  }, [config.discoverSourceEndpoints, setIsLoadingCommunity]);
 
   const fetchMinecraftNews = useCallback(async () => {
-    setIsLoadingMC(true);
     try {
       const source = [
         {
@@ -575,9 +576,6 @@ export const DiscoverHomePage = () => {
   }, []);
 
   const fetchHotModpacks = useCallback(async (source: OtherResourceSource) => {
-    source === OtherResourceSource.CurseForge
-      ? setIsLoadingCfModpacks(true)
-      : setIsLoadingMrModpacks(true);
     try {
       const response = await ResourceService.fetchResourceListByName(
         OtherResourceType.ModPack,
@@ -590,22 +588,30 @@ export const DiscoverHomePage = () => {
         MAX_MODPACK_NUM
       );
       if (response.status === "success") {
-        source === OtherResourceSource.CurseForge
-          ? setCfModpacks(response.data.list)
-          : setMrModpacks(response.data.list);
+        if (source === OtherResourceSource.CurseForge) {
+          setCfModpacks(response.data.list);
+        } else {
+          setMrModpacks(response.data.list);
+        }
       }
     } finally {
-      source === OtherResourceSource.CurseForge
-        ? setIsLoadingCfModpacks(false)
-        : setIsLoadingMrModpacks(false);
+      if (source === OtherResourceSource.CurseForge) {
+        setIsLoadingCfModpacks(false);
+      } else {
+        setIsLoadingMrModpacks(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchCommunityNews();
-    fetchMinecraftNews();
-    fetchHotModpacks(OtherResourceSource.CurseForge);
-    fetchHotModpacks(OtherResourceSource.Modrinth);
+    fetchCommunityNews().catch((error: unknown) => console.error(error));
+    fetchMinecraftNews().catch((error: unknown) => console.error(error));
+    fetchHotModpacks(OtherResourceSource.CurseForge).catch((error: unknown) =>
+      console.error(error)
+    );
+    fetchHotModpacks(OtherResourceSource.Modrinth).catch((error: unknown) =>
+      console.error(error)
+    );
   }, [fetchCommunityNews, fetchMinecraftNews, fetchHotModpacks]);
 
   return (
@@ -652,3 +658,4 @@ export const DiscoverHomePage = () => {
 };
 
 export default DiscoverHomePage;
+import { useKeyedState } from "@/hooks/keyed-state";

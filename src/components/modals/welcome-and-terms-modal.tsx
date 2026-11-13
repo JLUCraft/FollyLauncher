@@ -78,7 +78,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
                         t(
                           "AboutSettingsPage.legalInfo.settings.userAgreement.url"
                         )
-                      );
+                      ).catch((error: unknown) => console.error(error));
                     }}
                   />
                 ),
@@ -109,7 +109,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
                         onClick={() => {
                           openUrl(
                             "ms-windows-store://pdp/?productid=9NQPSL29BFFF"
-                          );
+                          ).catch((error: unknown) => console.error(error));
                         }}
                       />
                     ),

@@ -13,11 +13,6 @@ use crate::launcher_config::models::MemoryInfo;
 /// brand prefix (e.g. "folly-1.3.1"); unmodified builds report the plain
 /// version.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// send_statistics("1.0.0".to_string(), "windows".to_string(), "sha256".to_string()).await;
-/// ```
 pub async fn send_statistics(version: String, os: String, sha256: String) {
   let version = if crate::brand_meta::STATS_VERSION_PREFIX.is_empty() {
     version
@@ -38,12 +33,6 @@ pub async fn send_statistics(version: String, os: String, sha256: String) {
 /// Returns a locale identifier standardized for frontend usage
 /// by mapping OS-specific locale strings. Defaults to "en" if no match is found.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let locale = get_mapped_locale();
-/// println!("Locale: {}", locale);
-/// ```
 pub fn get_mapped_locale() -> String {
   // only apple can do 🌈🧑🏻‍🍳👐🏻
   // The return value of tauri_plugin_os::locale() on macOS(e.g. zh-Hans-CN) differs from that on Windows and Linux(e.g. zh-CN).
@@ -56,6 +45,7 @@ pub fn get_mapped_locale() -> String {
       ("es", vec!["es"]),
       ("fr", vec!["fr"]),
       ("ja", vec!["ja"]),
+      ("ru", vec!["ru"]),
       ("zh-Hans", vec!["zh-Hans", "wuu-Hans", "yue-Hans"]),
       ("zh-Hant", vec!["zh-Hant", "yue-Hant"]),
     ];
@@ -72,6 +62,7 @@ pub fn get_mapped_locale() -> String {
       ("es", vec!["es"]),
       ("fr", vec!["fr"]),
       ("ja", vec!["ja"]),
+      ("ru", vec!["ru"]),
       ("zh-Hans", vec!["zh-CN", "zh-SG"]),
       ("zh-Hant", vec!["zh-TW", "zh-HK", "zh-MO"]),
     ];
@@ -87,11 +78,6 @@ pub fn get_mapped_locale() -> String {
 
 /// Retrieves system memory information including total, used, and suggested maximum allocation for Minecraft.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let memory_info = get_memory_info();
-/// ```
 pub fn get_memory_info() -> MemoryInfo {
   // TODO: consider using sysinfo crate to reduce dependency.
   let sys = systemstat::System::new();
@@ -145,12 +131,6 @@ pub fn get_all_drive_mount_points() -> Vec<std::path::PathBuf> {
 /// # Parameters
 /// - `start_port`: The port to begin searching from. If `None`, it will start from 0.
 ///
-/// # Examples
-///
-/// ```rust,ignore
-/// let available_port = find_free_port(None).unwrap();
-/// println!("Found free port: {}", available_port);
-/// ```
 pub fn find_free_port(start_port: Option<u16>) -> SJMCLResult<u16> {
   let start = start_port.unwrap_or(0); // Default to 0 if no start_port is provided
 

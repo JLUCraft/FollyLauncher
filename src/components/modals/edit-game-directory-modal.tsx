@@ -28,12 +28,13 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useRoutingHistory } from "@/contexts/routing-history";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { ConfigService } from "@/services/config";
 import { getGameDirName, isSpecialGameDir } from "@/utils/instance";
 import { isPathSanitized } from "@/utils/string";
@@ -116,8 +117,16 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   const { getInstanceList } = useGlobalData();
   const { removeHistory, replaceHistory } = useRoutingHistory();
 
-  const [dirName, setDirName] = useState<string>("");
-  const [dirPath, setDirPath] = useState<string>("");
+  const [dirName, setDirName] = useKeyedState<string>(
+    currentName || "",
+    [currentName, currentPath, modalProps.isOpen],
+    Boolean(currentName)
+  );
+  const [dirPath, setDirPath] = useKeyedState<string>(
+    currentPath || "",
+    [currentName, currentPath, modalProps.isOpen],
+    Boolean(currentPath)
+  );
   const [subDirPath, setSubDirPath] = useState<string>("");
   const [isDirNameEmpty, setIsDirNameEmpty] = useState<boolean>(false);
   const [isDirNameTooLong, setIsDirNameTooLong] = useState<boolean>(false);
@@ -149,7 +158,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
             .includes(selected) && selected !== currentPath
         );
       }
-    } catch (error) {
+    } catch {
       setDirPath("");
       toast({
         title: t("EditGameDirectoryModal.toast.error.title"),
@@ -195,7 +204,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
         onAddSubDirDialogOpen();
         return false;
       }
-    } catch (error) {
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
@@ -203,12 +212,14 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   };
 
   const handleAddSubDir = async () => {
-    handleUpdateDir(subDirPath);
+    handleUpdateDir(subDirPath).catch((error: unknown) => console.error(error));
     onAddSubDirDialogClose();
   };
 
   const handleAddOriginalDir = async () => {
-    handleUpdateDir(dirPath, true);
+    handleUpdateDir(dirPath, true).catch((error: unknown) =>
+      console.error(error)
+    );
     onAddSubDirDialogClose();
   };
 
@@ -271,11 +282,6 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
     setSubDirPath("");
     modalProps.onClose();
   };
-
-  useEffect(() => {
-    if (currentName) setDirName(currentName);
-    if (currentPath) setDirPath(currentPath);
-  }, [currentName, currentPath, modalProps.isOpen]);
 
   const handleCloseModal = () => {
     setIsDirNameEmpty(false);

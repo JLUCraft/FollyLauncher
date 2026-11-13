@@ -11,7 +11,13 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuArrowLeft,
@@ -20,31 +26,28 @@ import {
   LuRotateCw,
   LuX,
 } from "react-icons/lu";
+import { DEEPLINK_PREFIX } from "@/brand";
 import {
   sharedModals,
   type SharedModalArguments,
 } from "@/components/modals/registry";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { emitDeepLink } from "@/hooks/deep-link";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { isProd } from "@/utils/env";
 
 const DevToolbarContent: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { openSharedModal } = useSharedModals();
-  const [inputValue, setInputValue] = useState("");
   const [inputType, setInputType] = useState<string>("route");
   const [loadTime, setLoadTime] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (inputType === "route") setInputValue(router.asPath);
-  }, [router.asPath, inputType]);
-
-  useEffect(() => {
-    // switch to modal / deeplink from route, clear input
-    if (inputType === "modal" || inputType === "deeplink") setInputValue("");
-  }, [inputType]);
+  const [inputValue, setInputValue] = useKeyedState(
+    inputType === "route" ? router.asPath : "",
+    [router.asPath, inputType]
+  );
 
   // calculate load time on route change
   useEffect(() => {
@@ -83,15 +86,19 @@ const DevToolbarContent: React.FC = () => {
       switch (inputType) {
         case "route":
           if (trimmedPath.startsWith("/")) {
-            router.push(trimmedPath);
+            router
+              .push(trimmedPath)
+              .catch((error: unknown) => console.error(error));
           } else {
-            openUrl(trimmedPath);
+            openUrl(trimmedPath).catch((error: unknown) =>
+              console.error(error)
+            );
           }
           break;
         case "deeplink": {
-          const deeplink = trimmedPath.startsWith("sjmcl://")
+          const deeplink = trimmedPath.startsWith(DEEPLINK_PREFIX)
             ? trimmedPath
-            : `sjmcl://${trimmedPath}`;
+            : `${DEEPLINK_PREFIX}${trimmedPath}`;
           emitDeepLink([deeplink]);
           setInputValue("");
           break;
@@ -117,14 +124,20 @@ const DevToolbarContent: React.FC = () => {
                   key,
                   params as Record<string, unknown>
                 );
-                logger.info("Invoke result:", res);
+                logger
+                  .info("Invoke result:", res)
+                  .catch((error: unknown) => console.error(error));
               } catch (err) {
-                logger.error("Invoke error:", err);
+                logger
+                  .error("Invoke error:", err)
+                  .catch((error: unknown) => console.error(error));
               }
             }
             setInputValue("");
           } catch (err) {
-            logger.error("Failed to parse modal params:", err);
+            logger
+              .error("Failed to parse modal params:", err)
+              .catch((error: unknown) => console.error(error));
           }
           break;
         }
@@ -173,7 +186,7 @@ const DevToolbarContent: React.FC = () => {
           inputType === "route"
             ? ""
             : inputType === "deeplink"
-              ? "sjmcl://..."
+              ? `${DEEPLINK_PREFIX}...`
               : "key(:params)"
         }
       />
@@ -345,7 +358,7 @@ const DevToolbar: React.FC = () => {
     };
   }, [handleMouseMove, handleMouseUp, handleWindowResize]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isExpanded && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       const centerX = position.x + rect.width / 2;

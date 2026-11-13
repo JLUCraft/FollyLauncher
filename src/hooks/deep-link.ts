@@ -1,8 +1,7 @@
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
-import { useEffect, useRef } from "react";
-import { brand } from "@/brand";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { DEEPLINK_PREFIX } from "@/brand";
 
-const BRAND_LINK_PREFIX = `${brand.deeplinkScheme}://`;
 const EMIT_DEEPLINK_EVENT = "deeplink:emit";
 
 type TriggerRule = RegExp | ((subpath: string) => boolean);
@@ -24,15 +23,17 @@ export const emitDeepLink = (urls: string[]) => {
 
 export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
   const options = useRef({ trigger, onCall });
-  options.current = { trigger, onCall };
+  useLayoutEffect(() => {
+    options.current = { trigger, onCall };
+  }, [trigger, onCall]);
   useEffect(() => {
     let active = true;
     let unlisten: (() => void) | undefined;
     const handleUrls = (urls: string[]) => {
       if (!active) return;
       urls.forEach((url) => {
-        if (!url.startsWith(BRAND_LINK_PREFIX)) return;
-        const subpath = url.slice(BRAND_LINK_PREFIX.length);
+        if (!url.startsWith(DEEPLINK_PREFIX)) return;
+        const subpath = url.slice(DEEPLINK_PREFIX.length);
         const { trigger, onCall } = options.current;
         if (
           typeof trigger === "function"
@@ -45,7 +46,7 @@ export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
     const handleDevUrls = (event: Event) =>
       handleUrls((event as CustomEvent<string[]>).detail || []);
     window.addEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);
-    void (async () => {
+    (async () => {
       try {
         const cleanup = await onOpenUrl(handleUrls);
         if (!active) {
@@ -54,15 +55,19 @@ export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
         }
         unlisten = cleanup;
       } catch (err) {
-        logger.error("Failed to listen to deep links:", err);
+        logger
+          .error("Failed to listen to deep links:", err)
+          .catch((error: unknown) => console.error(error));
       }
       try {
         const urls = await getCurrent();
         if (urls) handleUrls(urls);
       } catch (err) {
-        logger.error("getCurrent failed:", err);
+        logger
+          .error("getCurrent failed:", err)
+          .catch((error: unknown) => console.error(error));
       }
-    })();
+    })().catch((error: unknown) => console.error(error));
     return () => {
       active = false;
       window.removeEventListener(EMIT_DEEPLINK_EVENT, handleDevUrls);

@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuArrowDown01,
@@ -53,8 +53,11 @@ const InstanceListPage = () => {
   const tag = getQueryString(router.query.tag);
 
   const { openSharedModal } = useSharedModals();
-  const { selectedInstance, getInstanceList } = useGlobalData();
-  const [instanceList, setInstanceList] = useState<InstanceSummary[]>([]);
+  const {
+    selectedInstance,
+    getInstanceList,
+    instanceList: knownInstances,
+  } = useGlobalData();
 
   const filterInstances = useMemo(
     () => (all: InstanceSummary[]) => {
@@ -65,10 +68,10 @@ const InstanceListPage = () => {
     [dir, tag]
   );
 
+  const instanceList = filterInstances(knownInstances || []);
   useEffect(() => {
-    if (!router.isReady) return;
-    setInstanceList(filterInstances(getInstanceList() || []));
-  }, [filterInstances, getInstanceList, router.isReady]);
+    if (router.isReady) getInstanceList();
+  }, [getInstanceList, router.isReady]);
 
   const title = useMemo(() => {
     if (tag) return t(`Enums.chakraColors.${tag}`);
@@ -104,7 +107,7 @@ const InstanceListPage = () => {
     },
   ];
 
-  const FilterAndSortMenu = () => (
+  const renderFilterAndSortMenu = () => (
     <Menu>
       <Tooltip label={t("AllInstancesPage.button.sortAndFilter")}>
         <MenuButton
@@ -152,10 +155,10 @@ const InstanceListPage = () => {
             size="xs"
             fontSize="sm"
             onClick={() => {
-              setInstanceList(filterInstances(getInstanceList(true) || []));
+              getInstanceList(true);
             }}
           />
-          <FilterAndSortMenu />
+          {renderFilterAndSortMenu()}
           <SegmentedControl
             selected={selectedViewType}
             onSelectItem={(s) => {
@@ -177,7 +180,9 @@ const InstanceListPage = () => {
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "subtle" : "outline"}
             onClick={() => {
-              router.push("/instances/add-import");
+              router
+                .push("/instances/add-import")
+                .catch((error: unknown) => console.error(error));
             }}
           >
             {t("AllInstancesPage.button.addAndImport")}
@@ -216,6 +221,15 @@ const InstanceListPage = () => {
             instances={instanceList}
             selectedInstance={selectedInstance}
             viewType={selectedViewType}
+            onDoubleClick={() => {
+              if (!selectedInstance) return;
+              router
+                .push({
+                  pathname: "/instances/details/[id]",
+                  query: { id: selectedInstance.id },
+                })
+                .catch((error: unknown) => console.error(error));
+            }}
           />
         )}
       </Box>

@@ -15,7 +15,7 @@ export default function DiscoverIndexPage() {
         "discover/sources",
         "discover/community-news"
       );
-    router.replace(lastRecord);
+    router.replace(lastRecord).catch((error: unknown) => console.error(error));
   }, [history, router]);
 
   return null;

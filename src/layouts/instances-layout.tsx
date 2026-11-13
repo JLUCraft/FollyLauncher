@@ -27,7 +27,11 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { parseTaskGroup, useTaskContext } from "@/contexts/task";
 import { ChakraColorEnums } from "@/enums/misc";
-import { GTaskEventStatusEnums, TaskGroupDesc } from "@/models/task";
+import {
+  DownloadFinishKind,
+  DownloadGroup,
+  DownloadGroupState,
+} from "@/models/download";
 import { getGameDirName } from "@/utils/instance";
 
 interface InstancesLayoutProps {
@@ -50,8 +54,8 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
 
   const installTasks = useMemo(() => {
     return tasks.filter((t) => {
-      if (t.status === GTaskEventStatusEnums.Cancelled) return false;
-      const parsed = parseTaskGroup(t.taskGroup);
+      if (t.finish === DownloadFinishKind.Cancelled) return false;
+      const parsed = parseTaskGroup(t.name);
       return (
         parsed.name === "game-client" || parsed.name === "game-client-w-java"
       );
@@ -74,13 +78,14 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
         ? installTasks
             .filter(
               (t) =>
-                t.status === GTaskEventStatusEnums.Started ||
-                t.status === GTaskEventStatusEnums.Stopped
+                t.state === DownloadGroupState.Active ||
+                t.state === DownloadGroupState.Queued ||
+                t.state === DownloadGroupState.Paused
             )
             .map((t) => {
-              const parsed = parseTaskGroup(t.taskGroup);
+              const parsed = parseTaskGroup(t.name);
               const name =
-                parsed.params.param || parsed.params.param1 || t.taskGroup;
+                parsed.params.param || parsed.params.param1 || t.name;
               return {
                 value: "/downloads",
                 icon: <Icon as={LuBox} />,
@@ -156,20 +161,24 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
                     !value.startsWith("/instances/")
                   ) {
                     // Across instances, keep the current detail tab (preserves the first child segment only, e.g. "settings", rather than a deeper nested path like "settings/advanced")
-                    router.push({
-                      pathname:
-                        router.pathname === "/instances/details/[id]"
-                          ? "/instances/details/[id]"
-                          : `/instances/details/[id]/${router.pathname.split("/")[4] ?? "overview"}`,
-                      query: { id: value },
-                    });
+                    router
+                      .push({
+                        pathname:
+                          router.pathname === "/instances/details/[id]"
+                            ? "/instances/details/[id]"
+                            : `/instances/details/[id]/${router.pathname.split("/")[4] ?? "overview"}`,
+                        query: { id: value },
+                      })
+                      .catch((error: unknown) => console.error(error));
                   } else {
-                    router.push(
-                      typeof value === "string" &&
-                        value.startsWith("/instances/")
-                        ? value
-                        : detailsRoute
-                    );
+                    router
+                      .push(
+                        typeof value === "string" &&
+                          value.startsWith("/instances/")
+                          ? value
+                          : detailsRoute
+                      )
+                      .catch((error: unknown) => console.error(error));
                   }
                 }}
                 items={instanceItems.map((item) => ({
@@ -214,36 +223,39 @@ const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
   );
 };
 
-const InstanceDownloadIndicator: React.FC<{ task: TaskGroupDesc }> = ({
+const InstanceDownloadIndicator: React.FC<{ task: DownloadGroup }> = ({
   task,
 }) => {
-  const { handleStopProgressiveTaskGroup, handleResumeProgressiveTaskGroup } =
+  const { handlePauseDownloadGroup, handleResumeDownloadGroup } =
     useTaskContext();
   const { t } = useTranslation();
-  const isStarted = task.status === GTaskEventStatusEnums.Started;
+  const canPause =
+    task.state === DownloadGroupState.Active ||
+    task.state === DownloadGroupState.Queued;
 
   return (
     <Box
       onClick={(e) => {
         e.stopPropagation();
-        if (isStarted) handleStopProgressiveTaskGroup(task.taskGroup);
-        else handleResumeProgressiveTaskGroup(task.taskGroup);
+        if (canPause) handlePauseDownloadGroup(task.id);
+        else handleResumeDownloadGroup(task.id);
       }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          e.stopPropagation();
-          if (isStarted) handleStopProgressiveTaskGroup(task.taskGroup);
-          else handleResumeProgressiveTaskGroup(task.taskGroup);
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          event.stopPropagation();
+          if (canPause) handlePauseDownloadGroup(task.id);
+          else handleResumeDownloadGroup(task.id);
         }
       }}
       role="button"
       tabIndex={0}
       aria-label={t(
-        isStarted
+        canPause
           ? "DownloadTasksPage.button.pause"
           : "DownloadTasksPage.button.begin"
       )}
+      _focusVisible={{ boxShadow: "outline" }}
       cursor="pointer"
       borderRadius="full"
       display="flex"
@@ -257,7 +269,7 @@ const InstanceDownloadIndicator: React.FC<{ task: TaskGroupDesc }> = ({
       >
         <CircularProgressLabel>
           <Center w="100%" h="100%">
-            <Icon as={isStarted ? FaPause : FaPlay} boxSize={2.5} />
+            <Icon as={canPause ? FaPause : FaPlay} boxSize={2.5} />
           </Center>
         </CircularProgressLabel>
       </CircularProgress>

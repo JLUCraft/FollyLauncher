@@ -178,7 +178,7 @@ export const InstanceScreenshotsWidget = () => {
           if (data === GetStateFlag.Cancelled) return; // do not update state if cancelled
           setScreenshots(data || []);
         })
-        .catch((e) => setScreenshots([] as ScreenshotInfo[]));
+        .catch(() => setScreenshots([] as ScreenshotInfo[]));
     },
     [getScreenshotList]
   );
@@ -227,14 +227,16 @@ export const InstanceScreenshotsWidget = () => {
           opacity={isFading ? 0 : 1}
           transition="opacity 0.8s ease-in-out"
           onClick={() => {
-            router.push(
-              {
-                pathname: "/instances/details/[id]/screenshots",
-                query: { id: instanceId || "" },
-              },
-              undefined,
-              { shallow: true }
-            );
+            router
+              .push(
+                {
+                  pathname: "/instances/details/[id]/screenshots",
+                  query: { id: instanceId || "" },
+                },
+                undefined,
+                { shallow: true }
+              )
+              .catch((error: unknown) => console.error(error));
           }}
         />
       ) : (
@@ -263,7 +265,7 @@ export const InstanceModsWidget = () => {
           if (data === GetStateFlag.Cancelled) return; // do not update state if cancelled
           setLocalMods(data || []);
         })
-        .catch((e) => setLocalMods([] as LocalModInfo[]));
+        .catch(() => setLocalMods([] as LocalModInfo[]));
     },
     [getLocalModList]
   );
@@ -315,10 +317,12 @@ export const InstanceModsWidget = () => {
           justifyContent="flex-start"
           colorScheme={primaryColor}
           onClick={() => {
-            router.push({
-              pathname: "/instances/details/[id]/mods",
-              query: { id: instanceId || "" },
-            });
+            router
+              .push({
+                pathname: "/instances/details/[id]/mods",
+                query: { id: instanceId || "" },
+              })
+              .catch((error: unknown) => console.error(error));
           }}
         >
           <HStack spacing={1.5}>
@@ -349,7 +353,7 @@ export const InstanceLastPlayedWidget = () => {
           if (data === GetStateFlag.Cancelled) return; // do not update state if cancelled
           setLocalWorlds(data || []);
         })
-        .catch((e) => setLocalWorlds([] as WorldInfo[]));
+        .catch(() => setLocalWorlds([] as WorldInfo[]));
     },
     [getWorldList]
   );

@@ -1,7 +1,8 @@
 import { Box, HStack, IconButton, VStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronRight } from "react-icons/lu";
+import { useKeyedState } from "@/hooks/keyed-state";
 
 export interface TreeNode<T = unknown> {
   id: string;
@@ -74,23 +75,25 @@ const TreeView = <T,>({
   defaultExpandedDepth = 0,
 }: TreeViewProps<T>) => {
   const { t } = useTranslation();
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [expandedIds, setExpandedIds] = useKeyedState<Set<string>>(
+    () => collectExpandedIdsByDepth(nodes, defaultExpandedDepth),
+    [nodes, defaultExpandedDepth]
+  );
 
-  useEffect(() => {
-    setExpandedIds(collectExpandedIdsByDepth(nodes, defaultExpandedDepth));
-  }, [nodes, defaultExpandedDepth]);
-
-  const toggleExpanded = useCallback((id: string) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
+  const toggleExpanded = useCallback(
+    (id: string) => {
+      setExpandedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        return next;
+      });
+    },
+    [setExpandedIds]
+  );
 
   const renderBranch = (node: TreeNode<T>, depth: number): React.ReactNode => {
     const children = node.children ?? [];

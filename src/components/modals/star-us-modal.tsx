@@ -17,7 +17,9 @@ const StarUsModal: React.FC<Omit<ModalProps, "children">> = ({ ...props }) => {
   const { t } = useTranslation();
 
   const handleStar = () => {
-    openUrl("https://github.com/JLUCraft/FollyLauncher");
+    openUrl("https://github.com/JLUCraft/FollyLauncher").catch(
+      (error: unknown) => console.error(error)
+    );
     props.onClose();
   };
 

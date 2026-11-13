@@ -132,39 +132,11 @@ pub struct MCModRecord {
   pub modrinth_slug: Option<String>,
   pub name: String,
   pub subname: Option<String>,
-  pub abbr: Option<String>,
 }
 
 pub struct HandledSearchQuery {
   pub query: String,
   pub is_chinese: bool,
-}
-
-#[expect(dead_code, reason = "reserved for future use")]
-impl MCModRecord {
-  pub fn get_display_name(&self) -> String {
-    let mut builder = String::new();
-
-    if let Some(abbr) = &self.abbr
-      && !abbr.trim().is_empty()
-    {
-      builder.push('[');
-      builder.push_str(abbr.trim());
-      builder.push_str("] ");
-    }
-
-    builder.push_str(&self.name);
-
-    if let Some(subname) = &self.subname
-      && !subname.trim().is_empty()
-    {
-      builder.push_str(" (");
-      builder.push_str(subname);
-      builder.push(')');
-    }
-
-    builder
-  }
 }
 
 #[derive(Debug)]
@@ -323,7 +295,6 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
   let modrinth_slug_index = headers.iter().position(|h| h == "modrinth_slug").unwrap();
   let name_index = headers.iter().position(|h| h == "name").unwrap();
   let subname_index = headers.iter().position(|h| h == "subname").unwrap();
-  let abbr_index = headers.iter().position(|h| h == "abbr").unwrap();
 
   for record in reader.records() {
     let record = record.map_err(|_| ResourceError::ParseError)?;
@@ -339,7 +310,6 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
     let curseforge_slug = record.get(curseforge_slug_index);
     let modrinth_slug = record.get(modrinth_slug_index);
     let subname = record.get(subname_index);
-    let abbr = record.get(abbr_index);
 
     let mod_record = MCModRecord {
       mcmod_id,
@@ -347,7 +317,6 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
       modrinth_slug: modrinth_slug.map(str::to_owned),
       name,
       subname: subname.map(str::to_owned),
-      abbr: abbr.map(str::to_owned),
     };
 
     cache.mods.push(mod_record);

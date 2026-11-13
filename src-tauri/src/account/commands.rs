@@ -570,9 +570,9 @@ pub async fn retrieve_other_launcher_account_info(
   launcher_type: ImportLauncherType,
 ) -> SJMCLResult<(Vec<Player>, Vec<AuthServer>)> {
   let (mut player_infos, urls) = match launcher_type {
-    ImportLauncherType::HMCL => retrieve_hmcl_account_info(&app).await?,
-    ImportLauncherType::LegacyHMCL => retrieve_legacy_hmcl_account_info(&app).await?,
-    ImportLauncherType::MultiMC => retrieve_multimc_account_info(&app).await?,
+    ImportLauncherType::Hmcl => retrieve_hmcl_account_info(&app).await?,
+    ImportLauncherType::LegacyHmcl => retrieve_legacy_hmcl_account_info(&app).await?,
+    ImportLauncherType::MultiMc => retrieve_multimc_account_info(&app).await?,
     _ => return Ok((vec![], vec![])),
   };
 

@@ -42,7 +42,6 @@ SJMCL/
 │   │   │   ├── constants.rs  # 常量
 │   │   │   ├── models        # 数据模型
 │   │   │   ├── helpers       # 内部实现（处理复杂功能逻辑、私有数据模型）
-│   │   │   └── migrations.rs # 格式迁移（可选，兼容层，非迁移脚本）
 │   │   ├── discover/         # Minecraft 新闻与社区内容发现
 │   │   ├── extension/        # 扩展系统
 │   │   ├── instance/         # 游戏实例、实例资源管理
@@ -50,10 +49,11 @@ SJMCL/
 │   │   ├── launch/           # 启动流程
 │   │   ├── launcher_config/  # 启动器配置
 │   │   ├── resource/         # 游戏资源搜索与下载
-│   │   ├── tasks/            # 后台任务系统（现主要用于下载）
+│   │   ├── download.rs       # Persistent download and installation orchestration
 │   │   └── utils/            # 后端工具函数
 │   ├── assets/               # 后端静态资源
 │   ├── crates/               # 计划分拆后端功能到对应crate，此为装载目录
+│   │   ├── sjmcl-downloader/ # Persistent task engine
 │   │   ├── sjmcl-types/      # 后端通用Types以及Traits
 │   │   └── sjmcl-macros/     # 后端所使用的过程宏包
 │   └── infoplist/            # macOS InfoPlist 资源
@@ -185,11 +185,10 @@ checking, strict TypeScript checking, type-aware Oxlint with zero warnings, and
 the existing framework ESLint rules. Include all authored JavaScript and
 TypeScript, including configuration, scripts, and tests. JavaScript uses
 `checkJs` and JSDoc types with the same unsafe-value rules. Application and
-Node scripts use their respective TypeScript projects; keep browser fixtures
-scoped to the scripts project. Do not use `any` or suppress unsafe-value rules
+Node scripts use their respective TypeScript projects. Do not use `any` or suppress unsafe-value rules
 to make checks pass. Keep external values as `unknown` until narrowed.
 Preserve this tooling when rebuilding the launcher from upstream.
 
 Shared native command identifiers belong to `src/services/commands.ts`.
-Service calls and script result types consume the same bindings. Register
+Service calls consume the same bindings. Register
 actual invocations; event listeners do not belong in the command bindings.

@@ -74,24 +74,26 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
       title: t("PlayerMenu.toast.deleting"),
       status: "loading",
     });
-    AccountService.deletePlayer(player.id).then((response) => {
-      if (response.status === "success") {
-        getPlayerList(true);
-        closeToast(loadingToast);
-        toast({
-          title: response.message,
-          status: "success",
-        });
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-      setIsDeleting(false);
-      closeSharedModal("generic-confirm");
-    });
+    AccountService.deletePlayer(player.id)
+      .then((response) => {
+        if (response.status === "success") {
+          getPlayerList(true);
+          closeToast(loadingToast);
+          toast({
+            title: response.message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+        setIsDeleting(false);
+        closeSharedModal("generic-confirm");
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   const handleRefreshPlayer = () => {
@@ -125,7 +127,8 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
       .finally(() => {
         closeToast(loadingToast);
         setIsRefreshing(false);
-      });
+      })
+      .catch((error: unknown) => console.error(error));
   };
 
   const playerMenuOperations = [

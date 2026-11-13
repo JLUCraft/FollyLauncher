@@ -4,11 +4,11 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use tauri::AppHandle;
 
+use crate::download::DownloadTask;
 use crate::instance::helpers::modpack::export::{ExportModpackOptions, ModpackExportBundle};
 use crate::instance::helpers::modpack::import::{ModpackManifest, ModpackMetaInfo};
 use crate::instance::models::misc::{Instance, InstanceError, ModLoader, ModLoaderType};
 use crate::resource::models::OtherResourceSource;
-use crate::tasks::PTaskParam;
 
 pub use minecraftd::modpack::modrinth::ModrinthManifest;
 
@@ -59,14 +59,8 @@ impl ModpackManifest for ModrinthManifest {
     &self,
     _app: &AppHandle,
     instance_path: &Path,
-  ) -> SJMCLResult<Vec<PTaskParam>> {
-    Ok(
-      self
-        .download_requests(instance_path)?
-        .into_iter()
-        .map(PTaskParam::Download)
-        .collect(),
-    )
+  ) -> SJMCLResult<Vec<DownloadTask>> {
+    Ok(self.download_requests(instance_path)?)
   }
 
   fn get_overrides_path(&self) -> String {

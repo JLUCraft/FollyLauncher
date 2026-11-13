@@ -8,6 +8,7 @@ import { brand } from "@/brand";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
+import { useWindowLabel } from "@/hooks/window-label";
 import { windowTitlebarHeight } from "@/utils/window";
 
 const MainWindowExtensionTitle = () => {
@@ -79,7 +80,8 @@ const WindowTitlebar = () => {
 
   const [isMacFullscreen, setIsMacFullscreen] = useState(false);
   const [isLinuxMaximized, setIsLinuxMaximized] = useState(false);
-  const [isMainWindow, setIsMainWindow] = useState(true);
+  const windowLabel = useWindowLabel();
+  const isMainWindow = windowLabel === undefined || windowLabel === "main";
   const [windowTitle, setWindowTitle] = useState("");
 
   const titlebarBg = useColorModeValue("whiteAlpha.600", "blackAlpha.500");
@@ -88,29 +90,19 @@ const WindowTitlebar = () => {
     "whiteAlpha.300"
   );
 
+  const titleKey: string | undefined = {
+    "/standalone/game-error": "Tauri.windowTitle.gameError",
+    "/standalone/game-log": "Tauri.windowTitle.gameLog",
+  }[router.pathname];
+  const displayedWindowTitle = titleKey ? t(titleKey) : windowTitle;
+
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const currentWindow = getCurrentWindow();
-    const isMain = currentWindow.label === "main";
-    setIsMainWindow(isMain);
-
-    if (isMain) return;
-
-    const titleKey: string | undefined = {
-      "/standalone/game-error": "Tauri.windowTitle.gameError",
-      "/standalone/game-log": "Tauri.windowTitle.gameLog",
-    }[router.pathname];
-
-    (async () => {
-      if (titleKey) {
-        const title = t(titleKey);
-        setWindowTitle(title);
-      } else {
-        setWindowTitle(await currentWindow.title());
-      }
-    })();
-  }, [router.pathname, t]);
+    if (windowLabel === undefined || isMainWindow || titleKey) return;
+    getCurrentWindow()
+      .title()
+      .then(setWindowTitle)
+      .catch((error: unknown) => console.error(error));
+  }, [windowLabel, isMainWindow, titleKey]);
 
   const linuxWindowButtons = [
     {
@@ -172,7 +164,7 @@ const WindowTitlebar = () => {
     (async () => {
       await syncMaximized();
       unlistenResized = await currentWindow.onResized(syncMaximized);
-    })();
+    })().catch((error: unknown) => console.error(error));
 
     return () => {
       if (unlistenResized) {
@@ -217,7 +209,7 @@ const WindowTitlebar = () => {
     (async () => {
       await syncFullscreen();
       unlistenResized = await currentWindow.onResized(syncFullscreen);
-    })();
+    })().catch((error: unknown) => console.error(error));
 
     return () => {
       if (unlistenResized) {
@@ -256,7 +248,7 @@ const WindowTitlebar = () => {
             boxSize="16px"
           />
         )}
-        {!isMainWindow && windowTitle && (
+        {!isMainWindow && displayedWindowTitle && (
           <Text
             ml={isMac ? 16 : 2}
             fontSize="xs-sm"

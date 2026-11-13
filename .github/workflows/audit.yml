@@ -9,7 +9,6 @@ on:
     paths:
       - "**/Cargo.toml"
       - "**/Cargo.lock"
-      - ".cargo/audit.toml"
       - ".github/workflows/audit.yml"
 
 permissions:
@@ -35,7 +34,5 @@ jobs:
         with:
           tool: cargo-audit
 
-      # Run from the repository root so the single .cargo/audit.toml applies to
-      # both lock files; cargo-audit only reads the config from the working directory.
       - name: Audit ${{ matrix.lockfile }}
         run: cargo audit --file ${{ matrix.lockfile }}

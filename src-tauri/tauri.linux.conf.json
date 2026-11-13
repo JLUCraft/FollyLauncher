@@ -10,7 +10,7 @@
         "minWidth": 800,
         "minHeight": 550,
         "center": true,
-        "transparent": true,
+        "transparent": false,
         "decorations": false,
         "dragDropEnabled": true
       },
@@ -24,7 +24,7 @@
         "minWidth": 640,
         "minHeight": 440,
         "center": true,
-        "transparent": true,
+        "transparent": false,
         "decorations": false,
         "dragDropEnabled": false
       },
@@ -38,7 +38,7 @@
         "minWidth": 640,
         "minHeight": 440,
         "center": true,
-        "transparent": true,
+        "transparent": false,
         "decorations": false,
         "dragDropEnabled": false
       }

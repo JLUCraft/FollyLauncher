@@ -14,7 +14,9 @@ const NotFoundPage = () => {
       setSeconds((prev) => {
         if (prev === 1) {
           clearInterval(interval);
-          router.push("/launch");
+          router
+            .push("/launch")
+            .catch((error: unknown) => console.error(error));
         }
         return prev - 1;
       });

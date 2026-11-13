@@ -154,7 +154,6 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
         animationList[currentAnimation].animation;
     } else {
       skinViewerRef.current.animation = null;
-      setAutoRotate(false);
     }
   }, [width, height, isPlaying, autoRotate, animationList, currentAnimation]);
 
@@ -191,9 +190,11 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
             ? error.message
             : t("SkinPreview.error.loadSkin");
         onSkinError?.(errorMsg);
-        logger.error(`SkinPreview error: ${errorMsg}`);
+        logger
+          .error(`SkinPreview error: ${errorMsg}`)
+          .catch((error: unknown) => console.error(error));
       }
-    })();
+    })().catch((error: unknown) => console.error(error));
   }, [
     skinViewerRef,
     skinSrc,
@@ -211,34 +212,34 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
       none: {
         colorScheme: "black",
         btnVariant: "outline",
-        operation: () => {
-          if (skinViewerRef.current) skinViewerRef.current.background = null;
+        operation: (viewer: skinview3d.SkinViewer) => {
+          viewer.background = null;
         },
       },
       black: {
         colorScheme: "gray",
         btnVariant: "solid",
-        operation: () => {
-          if (skinViewerRef.current)
-            skinViewerRef.current.background = darkCanvasBg;
+        operation: (viewer: skinview3d.SkinViewer) => {
+          viewer.background = darkCanvasBg;
         },
       },
       panorama: {
         bg: "/images/skins/panorama.jpg",
         colorScheme: "blackAlpha",
         btnVariant: "solid",
-        operation: () => {
-          if (skinViewerRef.current)
-            skinViewerRef.current.loadPanorama("/images/skins/panorama.jpg");
+        operation: (viewer: skinview3d.SkinViewer) => {
+          viewer
+            .loadPanorama("/images/skins/panorama.jpg")
+            .catch((error: unknown) => console.error(error));
         },
       },
     }),
-    [skinViewerRef, darkCanvasBg]
+    [darkCanvasBg]
   );
 
   const backgroundTypes = Object.keys(backgroundList) as backgroundType[];
 
-  const BackGroundSelector = () => {
+  const renderBackgroundSelector = () => {
     return (
       <Popover placement="top-start">
         <PopoverTrigger>
@@ -284,7 +285,8 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
                   }
                   onClick={() => {
                     setBackground(type);
-                    backgroundList[type].operation();
+                    if (skinViewerRef.current)
+                      backgroundList[type].operation(skinViewerRef.current);
                   }}
                 />
               ))}
@@ -296,7 +298,8 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
   };
 
   useEffect(() => {
-    backgroundList[background].operation();
+    if (skinViewerRef.current)
+      backgroundList[background].operation(skinViewerRef.current);
   }, [background, backgroundList]);
 
   return (
@@ -324,7 +327,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
           width="100%"
         >
           <HStack spacing={0}>
-            <BackGroundSelector />
+            {renderBackgroundSelector()}
             <Tooltip label={t(`SkinPreview.animation.${currentAnimation}`)}>
               <IconButton
                 aria-label={t("SkinPreview.button.switchAnimation")}
@@ -365,9 +368,9 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
                 icon={isPlaying ? <LuPause /> : <LuPlay />}
                 variant="ghost"
                 onClick={() => {
+                  if (isPlaying) setAutoRotate(false);
                   setIsPlaying(!isPlaying);
                   if (isPlaying) {
-                    setAutoRotate(false);
                   }
                 }}
               />

@@ -14,12 +14,12 @@ import {
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuExternalLink } from "react-icons/lu";
 import { MenuSelector } from "@/components/common/menu-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { useKeyedState } from "@/hooks/keyed-state";
 import { ConfigService } from "@/services/config";
 
 type VendorKey = "mojang" | "zulu" | "bellsoft" | "oracle";
@@ -59,11 +59,19 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
   const os = config.basicInfo.osType;
   const arch = config.basicInfo.arch;
 
-  const [vendor, setVendor] = useState<VendorKey | "">(DEFAULT_VENDOR);
-  const [version, setVersion] = useState<"" | "8" | "11" | "17" | "21" | "25">(
-    DEFAULT_VERSION
+  const [vendor, setVendor] = useKeyedState<VendorKey | "">(
+    DEFAULT_VENDOR,
+    [props.isOpen],
+    !!props.isOpen
   );
-  const [type, setType] = useState<"" | "jdk" | "jre">(DEFAULT_TYPE);
+  const [version, setVersion] = useKeyedState<
+    "" | "8" | "11" | "17" | "21" | "25"
+  >(DEFAULT_VERSION, [props.isOpen], !!props.isOpen);
+  const [type, setType] = useKeyedState<"" | "jdk" | "jre">(
+    DEFAULT_TYPE,
+    [props.isOpen],
+    !!props.isOpen
+  );
 
   const VENDORS: Record<VendorKey, JavaVendor> = {
     mojang: {
@@ -119,28 +127,25 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
     },
   };
 
-  useEffect(() => {
-    if (!props.isOpen) return;
-    setVendor(DEFAULT_VENDOR);
-    setVersion(DEFAULT_VERSION);
-    setType(DEFAULT_TYPE);
-  }, [props.isOpen]);
-
   const handleConfirm = async () => {
     if (!vendor || !version || !type) return;
 
     if (vendor === "mojang") {
-      ConfigService.downloadMojangJava(version).then((res) => {
-        if (res.status === "success") {
-          router.push("/downloads");
-          props.onClose?.();
-        } else {
-          toast({
-            title: res.message,
-            status: "error",
-          });
-        }
-      });
+      ConfigService.downloadMojangJava(version)
+        .then((res) => {
+          if (res.status === "success") {
+            router
+              .push("/downloads")
+              .catch((error: unknown) => console.error(error));
+            props.onClose?.();
+          } else {
+            toast({
+              title: res.message,
+              status: "error",
+            });
+          }
+        })
+        .catch((error: unknown) => console.error(error));
     } else {
       const selectedVendor = VENDORS[vendor as VendorKey];
       const archParam = selectedVendor.archMap[arch] || "";
@@ -150,7 +155,7 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
         archParam,
         type: type as "jdk" | "jre",
       });
-      openUrl(url);
+      openUrl(url).catch((error: unknown) => console.error(error));
     }
     props.onClose?.();
   };

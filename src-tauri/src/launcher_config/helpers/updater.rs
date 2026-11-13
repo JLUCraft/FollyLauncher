@@ -14,29 +14,9 @@ use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
+use crate::download::DownloadTask;
+use crate::download::submit_download_group;
 use crate::launcher_config::models::{LauncherConfig, LauncherConfigError};
-use crate::tasks::PTaskParam;
-use crate::tasks::commands::schedule_progressive_task_group;
-use crate::tasks::download::DownloadParam;
-
-type SourceTuple = (&'static str, &'static str, fn(&str, &str) -> String);
-const SOURCES: [SourceTuple; 2] = [
-  (
-    "https://mc.sjtu.cn/api-sjmcl/releases/latest",
-    "version",
-    |_, fname| format!("https://mc.sjtu.cn/sjmcl/releases/{}", fname),
-  ),
-  (
-    "https://api.github.com/repos/UNIkeEN/SJMCL/releases/latest",
-    "tag_name",
-    |ver, fname| {
-      format!(
-        "https://github.com/UNIkeEN/SJMCL/releases/download/v{}/{}",
-        ver, fname
-      )
-    },
-  ),
-];
 
 // Generate the new version filename on remote origin according to the current os, arch and is_portable
 fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -> String {
@@ -76,49 +56,49 @@ pub async fn fetch_latest_version(
   app: &AppHandle,
 ) -> SJMCLResult<Option<(String, String, String, String)>> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
-  let (os, arch, is_portable, is_china_mainland_ip) = {
+  let (os, arch, is_portable) = {
     let config_state = config_binding.lock()?;
     (
       config_state.basic_info.os_type.clone(),
       config_state.basic_info.arch.clone(),
       config_state.basic_info.is_portable,
-      config_state.basic_info.is_china_mainland_ip,
     )
   };
   let client = app.state::<reqwest::Client>();
 
-  let mut sources = SOURCES;
-  // If not in China (mainland), firstly try GitHub.
-  if !is_china_mainland_ip {
-    sources.reverse();
+  let response = client
+    .get(crate::brand_meta::RELEASES_API_URL)
+    .send()
+    .await
+    .map_err(|_| LauncherConfigError::FetchError)?;
+  let j = response
+    .error_for_status()
+    .map_err(|_| LauncherConfigError::FetchError)?
+    .json::<Value>()
+    .await
+    .map_err(|_| LauncherConfigError::FetchError)?;
+  let mut ver = j
+    .get("tag_name")
+    .and_then(Value::as_str)
+    .ok_or(LauncherConfigError::FetchError)?
+    .to_string();
+  if ver.starts_with('v') {
+    ver.remove(0);
   }
+  let fname = build_resource_filename(&ver, os.as_str(), arch.as_str(), is_portable);
 
-  for (endpoint, field, _) in sources {
-    if let Ok(resp) = client.get(endpoint).send().await
-      && let Ok(j) = resp.json::<Value>().await
-      && let Some(mut ver) = j.get(field).and_then(|v| v.as_str()).map(|s| s.to_string())
-    {
-      if ver.starts_with('v') {
-        ver.remove(0);
-      }
-      let fname = build_resource_filename(&ver, os.as_str(), arch.as_str(), is_portable);
+  let release_notes = j
+    .get("body")
+    .and_then(|v| v.as_str())
+    .unwrap_or_default()
+    .to_string();
+  let published_at = j
+    .get("published_at")
+    .and_then(|v| v.as_str())
+    .unwrap_or_default()
+    .to_string();
 
-      let release_notes = j
-        .get("body")
-        .and_then(|v| v.as_str())
-        .unwrap_or_default()
-        .to_string();
-      let published_at = j
-        .get("published_at")
-        .and_then(|v| v.as_str())
-        .unwrap_or_default()
-        .to_string();
-
-      return Ok(Some((ver, fname, release_notes, published_at)));
-    }
-  }
-
-  Err(LauncherConfigError::FetchError.into())
+  Ok(Some((ver, fname, release_notes, published_at)))
 }
 
 pub async fn download_target_version(
@@ -127,45 +107,28 @@ pub async fn download_target_version(
   fname: String,
 ) -> SJMCLResult<()> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
-  let (download_cache_dir, is_china_mainland_ip) = {
-    let config_state = config_binding.lock()?;
-    (
-      config_state.download.cache.directory.clone(),
-      config_state.basic_info.is_china_mainland_ip,
-    )
-  };
+  let download_cache_dir = config_binding.lock()?.download.cache.directory.clone();
 
-  let client = app.state::<reqwest::Client>();
-
-  let mut sources = SOURCES;
-  if !is_china_mainland_ip {
-    sources.reverse();
-  }
-
-  for (endpoint, _, mk_url) in sources {
-    if let Ok(resp) = client.get(endpoint).send().await
-      && resp.status().is_success()
-    {
-      let url = mk_url(&version, &fname);
-
-      schedule_progressive_task_group(
-        app.clone(),
-        format!("launcher-update?{}", fname),
-        vec![PTaskParam::Download(DownloadParam {
-          src: url::Url::parse(&url).map_err(|_| LauncherConfigError::FetchError)?,
-          dest: download_cache_dir.join(&fname),
-          filename: Some(fname),
-          sha1: None,
-        })],
-        true,
-      )
-      .await?;
-
-      return Ok(());
-    }
-  }
-
-  Err(LauncherConfigError::FetchError.into())
+  let source = format!(
+    "{}/v{version}/{fname}",
+    crate::brand_meta::RELEASES_DOWNLOAD_URL
+  )
+  .parse()
+  .map_err(|_| LauncherConfigError::FetchError)?;
+  submit_download_group(
+    app.clone(),
+    format!("launcher-update?{}", fname),
+    vec![DownloadTask {
+      sources: vec![source],
+      dest: download_cache_dir.join(&fname),
+      filename: Some(fname),
+      size: None,
+      sha1: None,
+    }],
+    true,
+  )
+  .await?;
+  Ok(())
 }
 
 #[cfg(target_os = "windows")]

@@ -4,7 +4,6 @@
     "allowJs": true,
     "checkJs": true,
     "types": ["node", "next", "next/image-types/global"],
-    "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -23,7 +22,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "target": "ES2017"
+    "target": "ES2017",
+    "skipLibCheck": false
   },
   "include": [
     "next-env.d.ts",
