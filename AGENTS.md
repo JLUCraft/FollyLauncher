@@ -77,8 +77,8 @@ SJMCL/
 ## 品牌系统（多社团分发）
 
 FollyLauncher is a thin SJMCL customization with club branding, the preset central
-skin station, and minecraftd integration. It has no federation runtime or management
-surface. Accounts and club governance belong to the skin station.
+skin station, and minecraftd integration. It has no server-hosting runtime or
+management surface. Accounts and club governance belong to the skin station.
 
 - Brand definitions live at `brands/<id>/brand.json`: product name, short name,
   identifier, deep-link scheme, copyright, statistics prefix, and optional icons.
