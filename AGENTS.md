@@ -87,9 +87,6 @@ management surface. Accounts and club governance belong to the skin station.
 - Frontend components read product names and deep-link schemes from `src/brand.ts`.
 - The native build needs only the sibling minecraftd repository.
 
-Machine-local execution records live in `../TODO.md`; unresolved work belongs to
-`../PROBLEMS.md`. Neither file is part of this repository.
-
 ## 扩展开发规范
 
 SJMCL 的扩展系统允许开发者在不修改核心代码的情况下添加各类有趣功能
@@ -173,7 +170,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Documentation ownership
 
-Keep newly authored project documentation in the root `AGENTS.md` and `README.md`. Existing documentation and agent tooling inherited from SJMCL are explicitly allowed to remain in their original locations. Product content and required license files retain their existing locations. Workspace progress and evidence belong in `../TODO.md`; unresolved issues belong in `../PROBLEMS.md`. These workspace records are machine-local and are not published.
+Keep newly authored project documentation in the root `AGENTS.md` and `README.md`. Existing documentation and agent tooling inherited from SJMCL are explicitly allowed to remain in their original locations. Product content and required license files retain their existing locations.
 
 Use Conventional Commits for commit messages and pull request titles. Describe the concrete problem, resulting behavior, and validation evidence in each pull request. Maintain the inherited release tooling and changelogs in their existing locations; do not add extra project documentation files.
 
